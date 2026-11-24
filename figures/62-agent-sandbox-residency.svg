@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="820" height="250" viewBox="0 0 820 250">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="16.0" y="26.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="17" fill="#1f2937" text-anchor="start" font-weight="bold">始终驻留 60 GiB·秒 vs 每轮重建 18 GiB·秒</text>
+<text x="16.0" y="240.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">每轮在模型返回前 2 s 开始准备（热路径），工具跑完就销毁；三轮仍在第 30 s 完成。平台内存 600 → 180 GiB。</text>
+<text x="110.0" y="92.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="end" font-weight="normal">始终驻留</text>
+<rect x="120.0" y="70.0" width="660.0" height="34.0" rx="3" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.4" opacity="1"/>
+<text x="450.0" y="92.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#7c3aed" text-anchor="middle" font-weight="bold">2 GiB 一直占着</text>
+<text x="110.0" y="148.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="end" font-weight="normal">每轮重建</text>
+<rect x="274.0" y="126.0" width="44.0" height="34.0" rx="3" fill="#ccfbf1" stroke="#0d9488" stroke-width="1.4" opacity="1"/>
+<text x="296.0" y="148.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#0d9488" text-anchor="middle" font-weight="bold">准备</text>
+<rect x="318.0" y="126.0" width="22.0" height="34.0" rx="3" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<rect x="494.0" y="126.0" width="44.0" height="34.0" rx="3" fill="#ccfbf1" stroke="#0d9488" stroke-width="1.4" opacity="1"/>
+<text x="516.0" y="148.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#0d9488" text-anchor="middle" font-weight="bold">准备</text>
+<rect x="538.0" y="126.0" width="22.0" height="34.0" rx="3" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<rect x="714.0" y="126.0" width="44.0" height="34.0" rx="3" fill="#ccfbf1" stroke="#0d9488" stroke-width="1.4" opacity="1"/>
+<text x="736.0" y="148.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#0d9488" text-anchor="middle" font-weight="bold">准备</text>
+<rect x="758.0" y="126.0" width="22.0" height="34.0" rx="3" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<text x="120.0" y="196.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">0 s</text>
+<text x="340.0" y="196.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">10 s</text>
+<text x="560.0" y="196.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">20 s</text>
+<text x="780.0" y="196.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">30 s</text>
+</svg>

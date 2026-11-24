@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>第 50 章 · 计算与状态的分布方式：八张卡怎么接每秒 3.5 个请求 · 从约束推导 AI Infra</title>
+<script>(function(){try{var d=document.documentElement,t=localStorage.getItem("ab-theme"),f=localStorage.getItem("ab-fs");if(t)d.dataset.theme=t;if(f)d.dataset.fs=f}catch(e){}})();</script>
+<style>:root{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa;--fs:16px}
+@media (prefers-color-scheme:dark){:root:not([data-theme]){--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}}
+:root[data-theme="light"]{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa}
+:root[data-theme="dark"]{--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}
+:root[data-theme="sepia"]{--bg:#f6efe1;--fg:#3b3127;--mute:#7a6a58;--line:#e2d6bf;--card:#fbf6ec;--acc:#a0522d;--code:#ece2cd;--quote:#efe5d2}
+:root[data-theme="green"]{--bg:#e3eddf;--fg:#22301f;--mute:#566650;--line:#c9d8c3;--card:#eef5eb;--acc:#2e7d4f;--code:#d6e4d0;--quote:#dae7d5}
+:root[data-theme="navy"]{--bg:#0f1a2b;--fg:#dde6f3;--mute:#93a4bd;--line:#23324a;--card:#15233a;--acc:#6cc4ff;--code:#1a2a44;--quote:#16243b}
+:root[data-fs="s"]{--fs:15px}
+:root[data-fs="m"]{--fs:16px}
+:root[data-fs="l"]{--fs:18px}
+:root[data-fs="xl"]{--fs:20px}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:var(--fs)/1.75 -apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Helvetica Neue",sans-serif}
+a{color:var(--acc)}
+header.top{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+header.top .in{max-width:860px;margin:0 auto;padding:10px 16px;display:flex;gap:6px 16px;align-items:center;flex-wrap:wrap;font-size:14px}
+header.top .brand{font-weight:600;color:var(--fg);text-decoration:none;margin-right:auto}
+header.top a{text-decoration:none}
+.prefs{display:inline-flex;gap:4px;align-items:center}
+.prefs button,.prefs select,#nav-toggle{font:inherit;font-size:13px;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:2px 8px;cursor:pointer}
+main{max-width:860px;margin:0 auto;padding:24px 16px 72px;overflow-wrap:anywhere}
+h1{font-size:1.75em;line-height:1.35;margin:8px 0 16px} h2{font-size:1.375em;margin:40px 0 12px;padding-top:8px;border-top:1px solid var(--line)} h3{font-size:1.125em;margin:28px 0 8px}
+.layout{display:grid;grid-template-columns:260px minmax(0,1fr);max-width:1180px;margin:0 auto}
+.layout main{margin:0;max-width:880px}
+nav.side{position:sticky;top:49px;align-self:start;max-height:calc(100vh - 49px);overflow-y:auto;padding:20px 8px 40px 16px;border-right:1px solid var(--line);font-size:14px;line-height:1.5}
+nav.side .h{font-weight:600;color:var(--mute);margin:4px 8px 8px;font-size:13px}
+nav.side a{display:block;padding:5px 8px;border-radius:6px;color:var(--fg);text-decoration:none}
+nav.side a:hover{background:var(--code)} nav.side a.cur{background:var(--quote);color:var(--acc);font-weight:600}
+nav.side a .n{color:var(--mute);margin-right:6px;font-variant-numeric:tabular-nums}
+#nav-toggle{display:none}
+@media (max-width:960px){.layout{display:block} nav.side{display:none;position:fixed;z-index:6;top:49px;left:0;bottom:0;width:min(300px,85vw);max-height:none;background:var(--bg);box-shadow:2px 0 12px rgba(0,0,0,.2)} nav.side.open{display:block} #nav-toggle{display:inline-block}}
+.run{display:flex;flex-wrap:wrap;align-items:center;gap:4px 0;margin:4px 0 12px}
+.run details{flex-basis:100%;margin:6px 0 0;font-size:.94em}
+img{max-width:100%;height:auto;border-radius:8px;border:1px solid var(--line);background:#fff}
+blockquote{margin:16px 0;padding:10px 16px;background:var(--quote);border-left:3px solid var(--acc);border-radius:4px;color:var(--mute)}
+blockquote p{margin:4px 0}
+code{background:var(--code);padding:1px 5px;border-radius:4px;font-size:.9em}
+pre{background:var(--code);padding:12px 14px;border-radius:8px;overflow-x:auto} pre code{padding:0;background:none}
+table{border-collapse:collapse;display:block;overflow-x:auto;max-width:100%;margin:12px 0;font-size:.94em}
+th,td{border:1px solid var(--line);padding:6px 10px;vertical-align:top} th{background:var(--code)}
+details{border:1px solid var(--line);border-radius:8px;padding:6px 12px;margin:8px 0;background:var(--card)}
+details[open]{padding-bottom:10px} summary{cursor:pointer;color:var(--acc);font-weight:500}
+mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%}
+.btn{display:inline-block;margin:4px 8px 4px 0;padding:6px 14px;border:1px solid var(--acc);border-radius:999px;text-decoration:none;font-size:14px}
+.pager{display:flex;justify-content:space-between;gap:12px;margin-top:48px;padding-top:16px;border-top:1px solid var(--line);font-size:15px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin:16px 0}
+.card{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;color:inherit;text-decoration:none}
+.card:hover{border-color:var(--acc)} .card img{border:0;border-bottom:1px solid var(--line);border-radius:0;aspect-ratio:16/10;object-fit:contain;width:100%}
+.card .no{color:var(--mute);font-size:13px;padding:8px 12px 0} .card .t{padding:0 12px 12px;font-weight:500;line-height:1.5}
+.lead{font-size:1.06em;color:var(--mute)}
+footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-size:13px}
+</style>
+<script>window.MathJax={tex:{inlineMath:[["\\(","\\)"]],displayMath:[["\\[","\\]"],["$$","$$"]],processEscapes:true,processEnvironments:true}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"></script>
+</head><body>
+<header class="top"><div class="in">
+<button type="button" id="nav-toggle" aria-label="打开章节列表">☰ 章节</button><a class="brand" href="../index.html">从约束推导 AI Infra</a>
+<a href="../lessons/index.html">讲义目录</a>
+<a href="../animations/index.html">动画</a>
+<a href="../review.html">复习卡片</a>
+<a href="../lessons/appendix-glossary.html">缩写表</a>
+<a href="https://wikieden.github.io/ai-books/glossary.html">全局词汇</a>
+<a href="https://wikieden.github.io/ai-books/">← 全部讲义书</a>
+<span class="prefs" title="字号与主题"><button type="button" data-fs-step="-1" aria-label="字号变小">A−</button><button type="button" data-fs-step="1" aria-label="字号变大">A+</button><select id="ab-theme" aria-label="主题色"><option value="">跟随系统</option><option value="light">浅色</option><option value="dark">深色</option><option value="sepia">米黄护眼</option><option value="green">豆沙绿护眼</option><option value="navy">夜蓝</option></select></span>
+</div></header>
+<div class="layout"><nav class="side" aria-label="章节"><div class="h">从约束推导 AI Infra</div><a href="index.html">讲义目录</a><a href="01-six-layers.html"><span class="n">1</span>一次请求走过的六层（进行中）</a><a href="02-request-lifecycle.html"><span class="n">2</span>一次生成请求的处理过程：权重加载一次，每个 token 都要再读一遍</a><a href="03-dataflow-hierarchy.html"><span class="n">3</span>从存储程序到数据流执行：存储层次就像大楼里的厕所</a><a href="04-key-numbers.html"><span class="n">4</span>系统设计的关键数字：容量、算力、带宽、延迟</a><a href="05-estimate.html"><span class="n">5</span>用几个数字估算一次模型执行：算和读各要多久，实测为什么达不到</a><a href="06-architecture.html"><span class="n">6</span>需求如何推动架构：TPU、SmartNIC、Unified Bus</a><a href="07-compute-graph.html"><span class="n">7</span>计算图与张量结构：一个 token 经过一层要算多少</a><a href="08-generation-budget.html"><span class="n">8</span>自回归生成的资源账：存一次的、每步读的、用完就扔的</a><a href="09-kv-sharing.html"><span class="n">9</span>KV 怎么变小 ①：头共享与潜变量压缩</a><a href="10-kv-sparse-linear.html"><span class="n">10</span>KV 怎么变小 ②：窗口、稀疏、线性与混合注意力</a><a href="11-moe.html"><span class="n">11</span>MoE：专家路由与批内权重复用</a><a href="12-network-shape.html"><span class="n">12</span>网络形状：深宽、专家粒度、残差与多 token 预测</a><a href="13-model-comparison.html"><span class="n">13</span>整个模型的资源需求与比较：存多少、算多少、能放几条请求</a><a href="14-workload-arrival.html"><span class="n">14</span>从单次请求到持续到达的负载：什么时候来，比来多少更要紧</a><a href="15-agent-tasks.html"><span class="n">15</span>多轮交互与 Agent 任务：前缀、成功成本、关键路径</a><a href="16-multimodal-realtime.html"><span class="n">16</span>多模态与实时交互：数据换形状，时间有死线（略讲）</a><a href="17-training-rl.html"><span class="n">17</span>训练与强化学习的计算和状态：为什么训练要 6ND、要存 18 字节</a><a href="18-scaling-lifecycle.html"><span class="n">18</span>Scaling law 与全生命周期成本：训练多大、训练多久、服务多少次</a><a href="19-accelerator-basics.html"><span class="n">19</span>从矩阵乘法认识加速器：算多少、搬多少、耗多少电</a><a href="20-compute-units.html"><span class="n">20</span>计算单元：矩阵、向量、流水与低精度</a><a href="21-memory-movement.html"><span class="n">21</span>存储层次与数据搬移：放得下、取得到、来得及</a><a href="22-package-interconnect.html"><span class="n">22</span>多芯片封装与互联：计算放在哪，数据走哪条路</a><a href="23-architecture-evolution.html"><span class="n">23</span>架构演进与专用架构：每一代新增的东西，省掉了哪一笔</a><a href="24-choose-accelerator.html"><span class="n">24</span>根据架构选择加速器：先估下界，再找差距，最后算账</a><a href="25-submit-sync.html"><span class="n">25</span>提交、搬移与同步：从调用返回到结果可用</a><a href="26-tiling-layout.html"><span class="n">26</span>单个算子：分块、布局与切分</a><a href="27-fusion-flash.html"><span class="n">27</span>算子融合与 FlashAttention：中间结果不落地</a><a href="28-compiler.html"><span class="n">28</span>编译器：表达、变换与选择</a><a href="29-runtime.html"><span class="n">29</span>运行时：重叠、CUDA Graph、动态形状与 persistent kernel</a><a href="30-request-view.html"><span class="n">30</span>从局部优化到完整请求</a><a href="31-multi-gpu.html"><span class="n">31</span>从单卡到多卡：放得下、算得快、接得多</a><a href="32-dp-tp-sp.html"><span class="n">32</span>数据、张量、序列并行：复制模型、切矩阵、切激活</a><a href="33-cp-pp-ep.html"><span class="n">33</span>上下文、流水线、专家并行：切位置、切层、切专家</a><a href="34-combined-parallel.html"><span class="n">34</span>组合并行与模型规模：坐标、复用与最忙的那一组</a><a href="35-collectives.html"><span class="n">35</span>集合通信的实现与代价：环、树、通信库和资源竞争</a><a href="36-topology-pool.html"><span class="n">36</span>超节点的物理组织与内存池：数据走哪条线、借谁的内存</a><a href="37-scale-choice.html"><span class="n">37</span>从并行方案到超节点规模：按期限、成本和故障挑方案</a><a href="38-cluster.html"><span class="n">38</span>从超节点走向集群：出口、割集与 Clos 网络</a><a href="39-cross-node.html"><span class="n">39</span>跨节点流量与物理路径：同样的字节，走哪几张网卡</a><a href="40-remote-access.html"><span class="n">40</span>远程访问的路径与并发：一次读多久、同时能读几个</a><a href="41-handoff-state.html"><span class="n">41</span>数据交接、顺序与状态管理：什么时候能读、能覆盖、能释放</a><a href="42-congestion.html"><span class="n">42</span>共享网络中的拥塞与可靠性：高峰、反馈、多路径、死锁</a><a href="43-task-completion.html"><span class="n">43</span>从通信改进到任务完成：先看谁晚到，再看能藏多少</a><a href="44-inference-request.html"><span class="n">44</span>推理请求的执行过程与资源需求：一条请求的时间线和账本</a><a href="45-batching.html"><span class="n">45</span>批处理与请求调度：多读一次权重做更多事，但别让别人等太久</a><a href="46-kv-cache.html"><span class="n">46</span>KV 缓存的分配、复用与释放：分页、共享、留不留</a><a href="47-compress-offload.html"><span class="n">47</span>压缩与卸载：少存字节、轮流驻留，各付什么代价</a><a href="48-speculative.html"><span class="n">48</span>推测解码：一次验证，确定好几个 token</a><a href="49-serving-choice.html"><span class="n">49</span>请求负载下的性能与配置选择：数正确且按时的答案</a><a href="50-distribution.html" class="cur"><span class="n">50</span>计算与状态的分布方式：八张卡怎么接每秒 3.5 个请求</a><a href="51-pd-split.html"><span class="n">51</span>Prefill–Decode 分离与资源配比：A100 做输入，H20 做生成</a><a href="52-af-split.html"><span class="n">52</span>Attention–FFN 分离与异构执行：专家放 CPU 还是搬到 GPU</a><a href="53-expert-balance.html"><span class="n">53</span>专家放置、复制与负载均衡：最忙的那张卡定完成时刻</a><a href="54-kv-routing.html"><span class="n">54</span>KV 的分布、共享与请求路由：存哪一级、何时取回、发给谁</a><a href="55-scale-compare.html"><span class="n">55</span>扩缩容、故障恢复与部署方案比较：积压多久消退</a><a href="56-training-budget.html"><span class="n">56</span>训练的容量与时间估算：100B token、30 天要几张卡</a><a href="57-state-sharding.html"><span class="n">57</span>训练状态的分片、重计算与卸载：显存不够时的三条路</a><a href="58-pipeline-overlap.html"><span class="n">58</span>流水调度与通信重叠：气泡、激活驻留与藏不住的那 0.08 秒</a><a href="59-data-checkpoint.html"><span class="n">59</span>数据输入、checkpoint 与故障恢复：几周的作业怎么扛住中断</a><a href="60-rl-system.html"><span class="n">60</span>强化学习训练系统：生成、验证、学习组成的反馈循环</a><a href="61-training-choice.html"><span class="n">61</span>从系统方案到期限与硬件选择：32 卡还是 48 卡</a><a href="62-agent-sandbox.html"><span class="n">62</span>Agent 任务的资源需求与运行环境：先满的是内存，不是 CPU</a><a href="63-resource-pool.html"><span class="n">63</span>共享资源池与 RL 资源配比：资源够不够，还要看在不在一起</a><a href="64-service-cost.html"><span class="n">64</span>模型服务的选择、成本与扩容：按成功任务算账</a><a href="65-interaction-time.html"><span class="n">65</span>从模型运行时间到完整交互时间：模型 0.3 秒，用户等 12.8 秒</a><a href="66-cross-device.html"><span class="n">66</span>跨设备分工与会话迁移：传图片、传特征，还是传状态</a><a href="67-wan-deploy.html"><span class="n">67</span>广域网、无线与部署选择：剩下二十轮放哪儿</a><a href="appendix-glossary.html">附录 · 缩写与术语表</a><a href="appendix-tp-pp-cp.html">附录 · 补充资料：TP、PP、CP，一个模型沿三个方向切给多张卡</a></nav><main>
+<h1 id="50-35">第 50 章 · 计算与状态的分布方式：八张卡怎么接每秒 3.5 个请求</h1><div class="run"><a class="btn" href="../animations/50-distribution.html">▶ 打开本章可交互动画</a><a class="btn" href="https://colab.research.google.com/github/wikieden/ai-infra-from-constraints/blob/main/code/notebooks/ch50_distribution.ipynb" target="_blank" rel="noopener">在 Colab 运行本章代码</a><a class="btn" href="../code/notebooks/ch50_distribution.ipynb" download>下载 notebook</a><details><summary>本地运行</summary><pre><code>git clone https://github.com/wikieden/ai-infra-from-constraints
+cd ai-infra-from-constraints/code/notebooks
+pip install jupyterlab torch numpy
+jupyter lab ch50_distribution.ipynb</code></pre><p>也可以下载后直接用 VS Code 打开 .ipynb 运行。需要 GPU 的章节在 Colab 里选「代码执行程序 → 更改运行时类型 → GPU」。</p></details></div>
+<blockquote>
+<p>本章回答：一台四张 A100、一台四张 H20，每秒来 3.5 个 8K 输入、1025 输出的请求，八张卡各跑一份完整模型够不够？"资源数 × 占用秒数"怎么算出缺口？完整副本、PD 分离、AF 分离、共享 KV 各改变系统的哪一部分？工具调用等 10 秒时，GPU 闲着，KV 为什么还占着？<br />
+讲解日期：2026-11-24 · 上一章：<a href="../lessons/49-serving-choice.html">第 49 章 请求负载下的性能与配置选择</a> · 下一章：<a href="../lessons/51-pd-split.html">第 51 章 Prefill–Decode 分离与资源配比</a><br />
+对应原文：<code>materials/ai-infra-book/manuscripts/09-分布式推理.md</code> 章首 L1–L11、§9.1 L13–L85（图 9-1 至 9-5）<br />
+本章缩写：P = Prefill（预填充）· D = Decode（逐步解码）· PD = Prefill–Decode（预填充—解码）分离 · AF = Attention–FFN（注意力—前馈网络）分离 · worker（执行单元）· rank（通信组里的编号）。全部缩写见 <a href="../lessons/appendix-glossary.html">缩写与术语表</a></p>
+</blockquote>
+<p>第 8 部分在一组固定的卡上把请求组织好。本部分换个问题：<strong>计算和状态放在哪里</strong>。哪些卡做哪个阶段、哪个算子，权重和 KV 放哪，卡之间传什么、出故障怎么办。上下文长了，状态可能比权重还大：batch 32 时 KV 共 43.5 GB，是 Qwen3-8B 权重的 2.7 倍。</p>
+<p><strong>本部分的贯穿实例</strong>（原文 L9）：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>设定</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>卡</td>
+<td>服务器 1：4 × A100 80GB SXM；服务器 2：4 × H20 SXM5 96GB；两台之间只有 200 Gbit/s RDMA 网卡（每方向 25 GB/s）</td>
+</tr>
+<tr>
+<td>模型</td>
+<td>Qwen3-8B，权重和 KV 都是 BF16，一张卡放得下整个模型，所以<strong>一张卡就是一个 worker</strong></td>
+</tr>
+<tr>
+<td>负载</td>
+<td>每秒 3.5 个请求，每个输入 8192 token、输出 1025 token（带思考过程）</td>
+</tr>
+<tr>
+<td>目标</td>
+<td>持续接住，并且启动后的积压按期清空（第 55 章）</td>
+</tr>
+</tbody>
+</table>
+<p>另一个贯穿算例是 Qwen3-235B-A22B，看专家权重放在哪（第 52、53 章）。</p>
+<h2 id="_1">讲解</h2>
+<h3 id="2026-11-24">第一步：资源数 × 占用秒数（2026-11-24）</h3>
+<p><strong>类比：洗车行。</strong> 每辆车占一个工位 0.5 小时，每小时来 4 辆，就得有 2 个一直在洗的工位。如果恰好只有 2 个，偶尔多来一辆就永远排着，因为工位一直被后面的车占满。</p>
+<p>原文 L41–L57：每个请求在资源 <span class="arithmatex">\(r\)</span> 上占用平均 <span class="arithmatex">\(d_r\)</span> 秒，同类资源有 <span class="arithmatex">\(n_r\)</span> 个能独立工作的单元，到达率 <span class="arithmatex">\(\lambda\)</span> 要满足</p>
+<div class="arithmatex">\[\lambda d_r &lt; n_r\]</div>
+<p>同一资源上的多个操作先把占用时间相加；用不同资源的操作，各列一条约束。这个乘积叫 <strong>GPU 秒</strong>。</p>
+<p>一个完整副本串行做两个阶段，<span class="arithmatex">\(N\)</span> 个相同副本的请求率上限：</p>
+<div class="arithmatex">\[\mu_{\mathrm{co}} = \frac{N}{d_P + d_D}\]</div>
+<table>
+<thead>
+<tr>
+<th>卡</th>
+<th style="text-align: right;">prefill（8192 token）</th>
+<th style="text-align: right;">1024 次 decode 合计</th>
+<th style="text-align: right;">每请求 GPU 秒</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A100</td>
+<td style="text-align: right;">0.86 s</td>
+<td style="text-align: right;">1.76 s</td>
+<td style="text-align: right;">2.62</td>
+</tr>
+<tr>
+<td>H20</td>
+<td style="text-align: right;">1.81 s</td>
+<td style="text-align: right;">0.88 s</td>
+<td style="text-align: right;">2.68</td>
+</tr>
+</tbody>
+</table>
+<p>八张卡合计 <span class="arithmatex">\(4/2.62 + 4/2.68 \approx 3.02\)</span> 请求/s，比到达的 3.5 少，<strong>每秒积压约 0.5 个</strong>。这两列数字怎么从数据表推出来，留到第 51 章；先注意两种卡强弱正好相反：A100 prefill 快一倍，H20 decode 快一倍。</p>
+<p><strong>本章的问题</strong>：同样八张卡，重新分工能不能补上这 0.5 请求/s？</p>
+<p><strong>一句话</strong>：先把每个请求换算成各类资源上的占用秒数，乘到达率，和资源个数比。</p>
+<h3 id="2026-11-24_1">第二步：四种组织方式（2026-11-24）</h3>
+<p><strong>类比：一家装修公司接单。</strong> 多开几个全能施工队（副本）；或者设计组只出图、施工队只施工（PD）；或者每个房间里木工和电工轮流进出（AF）；或者把出过的图纸存进资料室，下一单类似的直接拿（共享 KV）。</p>
+<p><img alt="四种组织方式：八卡协作、完整副本、PD 按阶段分工、AF 按层内算子分工" src="../figures/50-distribution-four-ways.png" /></p>
+<p><em>图 50-1 · 前两种都跑完整模型；PD 交接一次上下文 KV，AF 每层、每步都要交接激活。</em></p>
+<p>原文 L15–L72：</p>
+<table>
+<thead>
+<tr>
+<th>部署方式</th>
+<th>希望获得</th>
+<th>新增的主要约束</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>增加完整副本</td>
+<td>处理更多独立请求，分散排队</td>
+<td>模型复制、缓存分散、启动与保持运行</td>
+</tr>
+<tr>
+<td>PD 分离</td>
+<td>两个阶段各配各的能力</td>
+<td>KV 交接、两端同时占内存、两个队列</td>
+</tr>
+<tr>
+<td>AF 分离</td>
+<td>算子用合适的计算与存储</td>
+<td>逐层激活往返、同步、流水各段平衡</td>
+</tr>
+<tr>
+<td>共享 KV</td>
+<td>跨实例复用上下文，少做重复 prefill</td>
+<td>缓存标识、读取、就绪通知、失效与释放</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>推理实例</strong>可以由多张卡上的多个进程组成，每个进程在通信组里有一个 rank。</li>
+<li><strong>完整服务副本</strong>有完成整次推理需要的全部权重和执行能力，能独立接请求。</li>
+<li>副本可以由多卡组成：Qwen3-235B-A22B 用 TP2×EP4 的八卡跑一个实例时，注意力和 KV 在四个 EP 组各复制一份，8K 上下文在实例里占 <span class="arithmatex">\(4 \times 1.469 = 5.875\)</span> GiB，是一份逻辑 KV 的 4 倍（每 token 188 KiB）。想多一个能独立接请求的副本，要再配一整套权重和状态。</li>
+</ul>
+<p>怎么选：两个阶段的资源需求差不多时，完整副本已经均衡，分离只会添交接开销；很多请求共享长前缀时，跨实例缓存可能比继续拆分计算更值钱。</p>
+<p><strong>场景代码</strong>：vLLM 里一个实例几张卡、开几个数据并行副本，是两个独立的参数（真实 API）：</p>
+<pre><code class="language-python">from vllm import LLM
+
+# 一个实例用 2 张卡做张量并行；要多个能独立接请求的副本，另开实例或用 data_parallel_size
+llm = LLM(model=&quot;Qwen/Qwen3-8B&quot;, dtype=&quot;bfloat16&quot;, tensor_parallel_size=2)
+# 命令行：vllm serve Qwen/Qwen3-8B --tensor-parallel-size 1 --data-parallel-size 8
+</code></pre>
+<p><strong>一句话</strong>：副本改的是请求分给谁，PD 改阶段在哪做，AF 改层内算子在哪做，共享 KV 改状态能被谁用；可以单独用，也可以叠着用。</p>
+<h3 id="2026-11-24_2">第三步：计算停了，状态还在（2026-11-24）</h3>
+<p><strong>类比：餐厅订座。</strong> 客人出去接电话 10 分钟，厨房可以先做别桌的菜，但他的桌子和没吃完的菜还得留着。</p>
+<p>原文 L74–L84：沿一条多轮请求的时间线看，带视觉输入时先有 E（视觉编码）、EC（存下的编码结果），然后 P、D；工具返回后新一轮 P 处理新增信息。<strong>权重</strong>跨请求保留，<strong>激活</strong>只在相邻算子之间传，<strong>KV</strong> 随已处理的位置增长。</p>
+<p><img alt="一条多轮请求的阶段与状态驻留：工具等待时计算停了，KV 还占着" src="../figures/50-distribution-residency.png" /></p>
+<p><em>图 50-2 · 横轴按阶段排列，不按真实时长。</em></p>
+<ul>
+<li>8192 token 的 BF16 上下文 KV 占 1.125 GiB。工具执行 10 秒，GPU 可以去做别的请求，但这 1.125 GiB 还在，<strong>容量 × 时长 = 11.25 GiB·s</strong>；十个会话一起等，就是 11.25 GiB。这正是共享缓存和换出要解决的问题（第 54 章）。</li>
+<li>返回 1025 个 token 时，P 产生第 1 个，1024 次 decode 产生其余；KV 覆盖 <span class="arithmatex">\(8192 + 1024 = 9216\)</span> 个 token，<strong>最后一个返回的 token 还没送回模型</strong>。下一轮从这里接着算。</li>
+</ul>
+<p><strong>一句话</strong>：状态按"占多少 × 占多久"算账，计算暂停不等于状态释放。</p>
+<h2 id="_2">动画演示：副本够不够接住到达</h2>
+<p><img alt="到达率与共置副本能力" src="../animations/50-distribution.gif" /></p>
+<p>可交互版：<a href="../animations/50-distribution.html">animations/50-distribution.html</a>（滑块：到达率 1–6 请求/s；A100 数 0–8；H20 数 0–8）。</p>
+<p><strong>怎么看</strong>：</p>
+<ol>
+<li>左边每张卡一根柱，高度是每请求 GPU 秒（P 蓝、D 绿）（第一步）；</li>
+<li>右边是副本能力 <span class="arithmatex">\(\sum N/(d_P + d_D)\)</span> 和到达率，下面是 30 秒内积压的请求数；</li>
+<li>播放：4 + 4 卡、3.5 请求/s（积压）→ 到达降到 3.0（刚好接住）→ 八张 A100 → 加到 10 张卡。</li>
+</ol>
+<h2 id="_3">练习与作答记录</h2>
+<p><strong>题 1</strong>（第一步）：每秒到达 6 个请求，每个在 A 类卡上 0.4 GPU 秒、在 B 类网卡上 0.05 秒。A 类卡至少几张？B 类网卡至少几块？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p><strong>题 2</strong>（第一步）：只用八张 H20 做完整副本，请求率上限多少？比 4 + 4 的组合高还是低？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p><strong>题 3</strong>（第三步）：一个会话 16K 上下文（Qwen3-8B BF16），每轮之间工具平均执行 30 秒。同时有 40 个会话在等工具，占多少 GiB？换成每 token 68.6 KiB 的状态呢？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<h2 id="_4">口诀</h2>
+<blockquote>
+<p>洗车每辆占半小时，来得快就要多工位；<br />
+全能队、分组队、轮流进屋、共用资料室，各改一处；<br />
+客人接电话，桌子照样留。</p>
+</blockquote>
+<h2 id="_5">本章复习卡片</h2>
+<p><a href="../review.html">I172</a>（λd &lt; n、μ_co = N/(d_P + d_D)；八副本 3.02 &lt; 3.5 请求/s）、<a href="../review.html">I173</a>（四种组织方式各改什么、新增什么约束；8K KV 等 10 s 占 11.25 GiB·s）。练习做完后，按答错、卡住的地方再补。</p>
+<h2 id="_6">附录 · 延伸阅读</h2>
+<blockquote>
+<p>留给以后深入学习用，不影响本章主线。★ 是建议先读的。</p>
+</blockquote>
+<h3 id="_7">推荐阅读</h3>
+<table>
+<thead>
+<tr>
+<th>读什么</th>
+<th>读哪里</th>
+<th>读它为了什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>★ AII 第 9 章</td>
+<td>章首、§9.1 L1–L85</td>
+<td>本章原文</td>
+</tr>
+<tr>
+<td><a href="../lessons/14-workload-arrival.html">第 14 章 持续到达的负载</a></td>
+<td>GiB·s、积压</td>
+<td>前置</td>
+</tr>
+<tr>
+<td><a href="../lessons/34-combined-parallel.html">第 34 章 组合并行</a></td>
+<td>TP2×EP4</td>
+<td>多卡副本的来源</td>
+</tr>
+<tr>
+<td><a href="../lessons/49-serving-choice.html">第 49 章 请求负载下的性能</a></td>
+<td>Little 定律</td>
+<td>同一套账</td>
+</tr>
+<tr>
+<td>vLLM 文档</td>
+<td>Parallelism and Scaling</td>
+<td>TP / DP 参数</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_8">数学原理</h3>
+<ul>
+<li><strong>资源约束</strong>：同一资源的占用时间相加，不同资源各自成立；平均满足只是必要条件。</li>
+<li><strong>串行阶段的吞吐</strong>：一张卡串行做 P、D，能力是 <span class="arithmatex">\(1/(d_P + d_D)\)</span>；多张卡能力相加。</li>
+</ul>
+<h3 id="_9">公式清单</h3>
+<table>
+<thead>
+<tr>
+<th>公式</th>
+<th>意思</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\(\lambda d_r &lt; n_r\)</span></td>
+<td>资源占用约束</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\mu_{\mathrm{co}} = N/(d_P + d_D)\)</span></td>
+<td>共置副本上限</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(V\tau\)</span></td>
+<td>状态占用（GiB·s）</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(L + G - 1\)</span></td>
+<td>返回 G 个 token 后 KV 覆盖的长度</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_10">代码对照：把本章的数字用代码算一遍</h3>
+<blockquote>
+<p>代码 <code>ai-infra/solutions/chapter-code/ch50_distribution.py</code>，测试 <code>tests/test_ch50.py</code>：</p>
+<p><code>bash  
+cd ai-infra/solutions/chapter-code  
+uv run python ch50_distribution.py  
+uv run pytest tests/test_ch50.py</code></p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>讲义</th>
+<th>写法</th>
+<th>跑出来</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第一步</td>
+<td><code>colocated_rate({"A100": 4, "H20": 4})</code></td>
+<td>3.02 请求/s，积压 0.48/s</td>
+</tr>
+<tr>
+<td>第二步</td>
+<td><code>kv_gib(8192, 4, K_235B)</code></td>
+<td>5.875 GiB</td>
+</tr>
+<tr>
+<td>第三步</td>
+<td><code>residency(kv_gib(8192), 10)</code></td>
+<td>11.25 GiB·s</td>
+</tr>
+</tbody>
+</table>
+<p><strong>代码里才看得到的 3 件事</strong>：</p>
+<ol>
+<li><code>D_P</code>、<code>D_D</code> 用的是第 51 章推出的未取整值（0.8564、1.7634 …），所以积压是 0.48 而不是正好 0.5。</li>
+<li>Qwen3-235B 每 token KV 是 <span class="arithmatex">\(2 \times 94 \times 4 \times 128 \times 2 = 192{,}512\)</span> B，和 Qwen3-8B 的 144 KiB 不同，别混用。</li>
+<li><code>gpus_needed</code> 只给平均需要几张；有突发时，刚好等于就会一直积压。</li>
+</ol>
+<p><strong>自己改一改</strong>（不影响练习答案）：</p>
+<ul>
+<li>给 <code>colocated_rate</code> 传 <code>{"H20": 8}</code>，和 4 + 4 比。</li>
+<li>把 <code>D_D</code> 里 H20 的值调大 20%，看八副本的缺口变成多少。</li>
+<li>写一个函数：给定到达率，返回最少要几张 A100 + 几张 H20 才能共置接住。</li>
+</ul><nav class="pager"><a href="49-serving-choice.html">← 第 49 章 · 请求负载下的性能与配置选择：数正确且按时的答案</a><a href="51-pd-split.html">第 51 章 · Prefill–Decode 分离与资源配比：A100 做输入，H20 做生成 →</a></nav>
+</main></div>
+<footer>来自个人学习仓库的对话讲义，含练习作答记录。源码：<a href="https://github.com/wikieden/ai-infra-from-constraints">github.com/wikieden/ai-infra-from-constraints</a>。更多讲义书：<a href="https://wikieden.github.io/ai-books/">Physical AI 0-1-♾️（合集）</a></footer>
+<script>(function(){var d=document.documentElement,K=["s","m","l","xl"];
+function save(k,v){try{v?localStorage.setItem(k,v):localStorage.removeItem(k)}catch(e){}}
+var s=document.getElementById("ab-theme");if(s){s.value=d.dataset.theme||"";s.onchange=function(){if(s.value)d.dataset.theme=s.value;else delete d.dataset.theme;save("ab-theme",s.value)}}
+document.querySelectorAll("[data-fs-step]").forEach(function(b){b.onclick=function(){var i=K.indexOf(d.dataset.fs||"m")+(+b.dataset.fsStep);i=Math.max(0,Math.min(K.length-1,i));d.dataset.fs=K[i];save("ab-fs",K[i])}});
+var nb=document.getElementById("nav-toggle"),side=document.querySelector("nav.side");if(nb&&side){nb.onclick=function(){side.classList.toggle("open")}}
+var cur=side&&side.querySelector(".cur");if(cur)cur.scrollIntoView({block:"center"});
+})();</script>
+</body></html>

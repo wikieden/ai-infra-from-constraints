@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="780" height="300" viewBox="0 0 780 300">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="16.0" y="26.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="17" fill="#1f2937" text-anchor="start" font-weight="bold">例 11-4：六份 16.38 GB 权重共用 200 Gbit/s 发送出口</text>
+<text x="16.0" y="290.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">单份到一个 50 Gbit/s 接收方至少 2.62 s；发送方累计 98.3 GB 至少 3.93 s。TP = 2 的实例也要收整份。</text>
+<rect x="40.0" y="110.0" width="170.0" height="70.0" rx="8" fill="#dcfce7" stroke="#16a34a" stroke-width="1.4" opacity="1"/>
+<text x="125.0" y="141.3" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="13.5" fill="#1f2937" text-anchor="middle" font-weight="bold">训练组 8×H100</text>
+<text x="125.0" y="158.8" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#4b5563" text-anchor="middle" font-weight="normal">出口 200 Gbit/s</text>
+<rect x="560.0" y="40.0" width="180.0" height="32.0" rx="8" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<text x="650.0" y="52.5" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#1f2937" text-anchor="middle" font-weight="bold">rollout 实例 1</text>
+<text x="650.0" y="66.8" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10" fill="#4b5563" text-anchor="middle" font-weight="normal">50 Gbit/s</text>
+<line x1="212.0" y1="145.0" x2="558.0" y2="56.0" stroke="#6b7280" stroke-width="1.2"/>
+<polygon points="558.0,56.0 551.4,62.1 549.3,53.9" fill="#6b7280" stroke="#6b7280" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<rect x="560.0" y="80.0" width="180.0" height="32.0" rx="8" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<text x="650.0" y="92.5" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#1f2937" text-anchor="middle" font-weight="bold">rollout 实例 2</text>
+<text x="650.0" y="106.8" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10" fill="#4b5563" text-anchor="middle" font-weight="normal">50 Gbit/s</text>
+<line x1="212.0" y1="145.0" x2="558.0" y2="96.0" stroke="#6b7280" stroke-width="1.2"/>
+<polygon points="558.0,96.0 550.7,101.3 549.5,92.9" fill="#6b7280" stroke="#6b7280" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<rect x="560.0" y="120.0" width="180.0" height="32.0" rx="8" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<text x="650.0" y="132.5" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#1f2937" text-anchor="middle" font-weight="bold">rollout 实例 3</text>
+<text x="650.0" y="146.8" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10" fill="#4b5563" text-anchor="middle" font-weight="normal">50 Gbit/s</text>
+<line x1="212.0" y1="145.0" x2="558.0" y2="136.0" stroke="#6b7280" stroke-width="1.2"/>
+<polygon points="558.0,136.0 550.2,140.4 549.9,132.0" fill="#6b7280" stroke="#6b7280" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<rect x="560.0" y="160.0" width="180.0" height="32.0" rx="8" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<text x="650.0" y="172.5" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#1f2937" text-anchor="middle" font-weight="bold">rollout 实例 4</text>
+<text x="650.0" y="186.8" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10" fill="#4b5563" text-anchor="middle" font-weight="normal">50 Gbit/s</text>
+<line x1="212.0" y1="145.0" x2="558.0" y2="176.0" stroke="#6b7280" stroke-width="1.2"/>
+<polygon points="558.0,176.0 549.7,179.5 550.5,171.1" fill="#6b7280" stroke="#6b7280" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<rect x="560.0" y="200.0" width="180.0" height="32.0" rx="8" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<text x="650.0" y="212.5" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#1f2937" text-anchor="middle" font-weight="bold">rollout 实例 5</text>
+<text x="650.0" y="226.8" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10" fill="#4b5563" text-anchor="middle" font-weight="normal">50 Gbit/s</text>
+<line x1="212.0" y1="145.0" x2="558.0" y2="216.0" stroke="#6b7280" stroke-width="1.2"/>
+<polygon points="558.0,216.0 549.4,218.5 551.1,210.3" fill="#6b7280" stroke="#6b7280" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<rect x="560.0" y="240.0" width="180.0" height="32.0" rx="8" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<text x="650.0" y="252.5" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#1f2937" text-anchor="middle" font-weight="bold">rollout 实例 6</text>
+<text x="650.0" y="266.8" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10" fill="#4b5563" text-anchor="middle" font-weight="normal">50 Gbit/s</text>
+<line x1="212.0" y1="145.0" x2="558.0" y2="256.0" stroke="#6b7280" stroke-width="1.2"/>
+<polygon points="558.0,256.0 549.1,257.6 551.7,249.5" fill="#6b7280" stroke="#6b7280" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<text x="385.0" y="270.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#ea580c" text-anchor="middle" font-weight="normal">6 × 16.38 GB = 98.3 GB 都要过这一个出口</text>
+</svg>

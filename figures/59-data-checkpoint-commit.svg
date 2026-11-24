@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="290" viewBox="0 0 900 290">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="16.0" y="26.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="17" fill="#1f2937" text-anchor="start" font-weight="bold">112 GB 快照：写入 7 GB/s vs 20 GB/s，第 50 s 故障时哪份可用</text>
+<text x="16.0" y="280.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">橙色是 0.5 s 复制到缓冲（训练暂停），蓝色是后台上传；上传完成即提交。红线是故障时刻。</text>
+<text x="150.0" y="74.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="end" font-weight="normal">7 GB/s · 第 20 s</text>
+<rect x="380.0" y="55.0" width="5.5" height="28.0" rx="3" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<rect x="385.5" y="55.0" width="176.0" height="28.0" rx="3" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<text x="473.5" y="74.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#2563eb" text-anchor="middle" font-weight="bold">上传 16 s</text>
+<text x="150.0" y="118.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="end" font-weight="normal">7 GB/s · 第 40 s</text>
+<rect x="600.0" y="99.0" width="5.5" height="28.0" rx="3" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<rect x="605.5" y="99.0" width="176.0" height="28.0" rx="3" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<text x="693.5" y="118.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#2563eb" text-anchor="middle" font-weight="bold">上传</text>
+<text x="150.0" y="162.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="end" font-weight="normal">20 GB/s · 第 20 s</text>
+<rect x="380.0" y="143.0" width="5.5" height="28.0" rx="3" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<rect x="385.5" y="143.0" width="61.6" height="28.0" rx="3" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<text x="416.3" y="162.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#2563eb" text-anchor="middle" font-weight="bold">5.6</text>
+<text x="150.0" y="206.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="end" font-weight="normal">20 GB/s · 第 40 s</text>
+<rect x="600.0" y="187.0" width="5.5" height="28.0" rx="3" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<rect x="605.5" y="187.0" width="61.6" height="28.0" rx="3" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<text x="636.3" y="206.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#2563eb" text-anchor="middle" font-weight="bold">5.6</text>
+<line x1="710.0" y1="45.0" x2="710.0" y2="240.0" stroke="#dc2626" stroke-width="1.6" stroke-dasharray="5 4"/>
+<rect x="670.4" y="242.0" width="79.3" height="16.0" rx="3" fill="#ffffff" stroke="none" stroke-width="1.4" opacity="0.9"/>
+<text x="710.0" y="253.5" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#dc2626" text-anchor="middle" font-weight="normal">第 50 s 故障</text>
+<text x="798.0" y="74.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#16a34a" text-anchor="start" font-weight="normal">✓ 已提交</text>
+<text x="798.0" y="118.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#dc2626" text-anchor="start" font-weight="normal">✗ 未提交</text>
+<text x="798.0" y="162.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#16a34a" text-anchor="start" font-weight="normal">✓ 已提交</text>
+<text x="798.0" y="206.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#16a34a" text-anchor="start" font-weight="normal">✓ 已提交</text>
+</svg>

@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>卡数、MFU 与完成天数</title><link rel="stylesheet" href="anim.css">
+<style>svg text.cap{font-size:15px;font-weight:500}svg text.num{font-size:16px;font-weight:600}</style></head>
+<body><main>
+<h1>第 56 章 · 100B token 要几张卡、几天</h1>
+<p class="sub">配套讲义：<a href="../lessons/56-training-budget.html">第 56 章 · 训练的容量与时间估算：100B token、30 天要几张卡</a>。Qwen3-8B 每 token 前向 + 反向约 52.6 GFLOPs；每步 384 × 8192 token；常驻训练状态 131.1 GB。</p>
+<div class="panel"><svg id="sv" viewBox="0 0 680 360"></svg></div>
+<div class="row"><button id="play">▶ 播放</button><button id="step">→ 单步</button><button id="reset">↺ 从头开始</button></div>
+<div class="row"><label for="g">型号</label><select id="g"><option value="165.2">RTX 4090 24 GB</option><option value="312">A100 80 GB</option><option value="989">H100 80 GB</option></select><label for="e">MFU %</label><input type="range" id="e" min="20" max="60" step="1" value="40"><span id="ev">40</span><label for="n">卡数</label><input type="range" id="n" min="1" max="64" step="1" value="32"><span id="nv">32</span><label for="d">期限（天）</label><input type="range" id="d" min="10" max="60" step="1" value="30"><span id="dv">30</span></div>
+<p class="note">看点：① 横条是只算计算的完成天数，竖线是期限；② 右边是每步计算秒数与 67.9 s 预算、装下状态的最少卡数；③ 播放：4090 32 卡 → 48 卡 → MFU 30% → H100 6 张。</p>
+</main>
+<script src="anim.js"></script>
+<script>
+const sv=$('sv');
+function R(x,y,w,h,col,op){return el('rect',{x,y,width:Math.max(w,1),height:h,rx:4,fill:col,opacity:op??.7},sv)}
+function T(s,x,y,a,c){return txt(s,{x,y,'text-anchor':a||'start',class:c||'m'},sv)}
+function cap(s){T(s,340,26,'middle','cap')}
+const GET=ids=>ids.map(i=>{const e=$(i);return e.type==='checkbox'?+e.checked:+e.value});
+function SET(ids,v){ids.forEach((i,k)=>{const e=$(i);if(e.type==='checkbox')e.checked=!!v[k];else e.value=v[k];const o=$(i+'v');if(o)o.textContent=(+v[k]).toString()})}
+const IDS=['g','e','n','d'],F=[[165.2,40,32,30],[165.2,40,48,30],[165.2,30,48,30],[989,40,6,30]];
+function render(g,e,n,d){const mem=g==165.2?24:80,ft=4.31e14/8192,days=1e11*ft/(n*g*1e12*e/100)/86400,step=3145728*ft/(n*g*1e12*e/100),need=Math.ceil(131.1/(mem*0.93));
+ cap(`${n} 张、MFU ${e}%：${days.toFixed(1)} 天，每步 ${step.toFixed(1)} s`);
+ const sc=v=>Math.min(v,80)/80*480;R(60,100,sc(days),40,days<=d?'var(--good)':'var(--bad)');el('line',{x1:60+sc(d),y1:85,x2:60+sc(d),y2:155,stroke:'var(--text)','stroke-dasharray':'5 4'},sv);T(`期限 ${d} 天`,60+sc(d),78,'middle');T(`${days.toFixed(1)} 天`,68+sc(days),126);
+ T(`每步计算 ${step.toFixed(1)} s ${step<=67.9?'≤':'>'} 67.9 s 预算`,60,210,'start','num');T(`装下 131.1 GB 状态至少 ${need} 张（每卡 ${mem} GB）`,60,245);T(`计算要求至少 ${Math.ceil(1e11*ft/(g*1e12*e/100*d*86400))} 张`,60,280)}
+let k=0,custom=null;
+function draw(){clear(sv);const v=custom||F[k];SET(IDS,v);render(...v)}
+function reset(){k=0;custom=null;draw()}
+function next(){if(custom!==null){custom=null;draw();return true}if(k>=F.length-1)return false;k++;draw();return true}
+IDS.forEach(i=>{const e=$(i);const f=()=>{ANIM.stop();custom=GET(IDS);draw()};e.oninput=f;e.onchange=f});
+setupPlayer({captureSeed:1,reset,next},1500);
+</script><a href="https://wikieden.github.io/ai-books/" style="position:fixed;right:12px;bottom:12px;z-index:99;padding:4px 10px;border-radius:14px;background:rgba(127,127,127,.18);color:inherit;font:13px/1.6 system-ui,sans-serif;text-decoration:none">← 全部讲义书</a>
+</body></html>

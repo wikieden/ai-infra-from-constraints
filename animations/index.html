@@ -376,6 +376,114 @@ footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-
 <td><a href="49-serving-choice.html">html</a></td>
 </tr>
 <tr>
+<td>50</td>
+<td>到达率与 A100 / H20 张数下的共置能力与 30 秒积压（滑块）</td>
+<td><a href="50-distribution.gif">50-distribution.gif</a></td>
+<td><a href="50-distribution.html">html</a></td>
+</tr>
+<tr>
+<td>51</td>
+<td>拖动 P 用几张 A100 / H20、链路带宽与状态格式，看 P 池、D 池、链路谁是瓶颈</td>
+<td><a href="51-pd-split.gif">51-pd-split.gif</a></td>
+<td><a href="51-pd-split.html">html</a></td>
+</tr>
+<tr>
+<td>52</td>
+<td>每专家 token 数、CPU 指令集与内存插槽决定专家在 CPU 还是 GPU 上算（滑块）</td>
+<td><a href="52-af-split.gif">52-af-split.gif</a></td>
+<td><a href="52-af-split.html">html</a></td>
+</tr>
+<tr>
+<td>53</td>
+<td>EP 规模、热点倍数与专家副本下各卡负载（切换 EP、滑块）</td>
+<td><a href="53-expert-balance.gif">53-expert-balance.gif</a></td>
+<td><a href="53-expert-balance.html">html</a></td>
+</tr>
+<tr>
+<td>54</td>
+<td>A、B 排队与远端带宽下，本地命中、重算、远端取回三条路径的首 token（滑块）</td>
+<td><a href="54-kv-routing.gif">54-kv-routing.gif</a></td>
+<td><a href="54-kv-routing.html">html</a></td>
+</tr>
+<tr>
+<td>55</td>
+<td>服务率、到达率与启动时间下的积压消退曲线（滑块）</td>
+<td><a href="55-scale-compare.gif">55-scale-compare.gif</a></td>
+<td><a href="55-scale-compare.html">html</a></td>
+</tr>
+<tr>
+<td>56</td>
+<td>型号、MFU、卡数与期限下的完成天数和每步预算（滑块）</td>
+<td><a href="56-training-budget.gif">56-training-budget.gif</a></td>
+<td><a href="56-training-budget.html">html</a></td>
+</tr>
+<tr>
+<td>57</td>
+<td>ZeRO 阶段、分片卡数与激活缓冲下每卡显存的堆叠（切换、滑块）</td>
+<td><a href="57-state-sharding.gif">57-state-sharding.gif</a></td>
+<td><a href="57-state-sharding.html">html</a></td>
+</tr>
+<tr>
+<td>58</td>
+<td>填满排空与 1F1B 的事件模型时间线和在途激活（切换、滑块）</td>
+<td><a href="58-pipeline-overlap.gif">58-pipeline-overlap.gif</a></td>
+<td><a href="58-pipeline-overlap.html">html</a></td>
+</tr>
+<tr>
+<td>59</td>
+<td>卡数、保存与恢复耗时下的保存间隔曲线与最优 τ*（滑块）</td>
+<td><a href="59-data-checkpoint.gif">59-data-checkpoint.gif</a></td>
+<td><a href="59-data-checkpoint.html">html</a></td>
+</tr>
+<tr>
+<td>60</td>
+<td>生成、学习、同步时长与保留比例下同步与异步的有效吞吐（滑块）</td>
+<td><a href="60-rl-system.gif">60-rl-system.gif</a></td>
+<td><a href="60-rl-system.html">html</a></td>
+</tr>
+<tr>
+<td>61</td>
+<td>卡数、效率、通信与输入等待下的每步预算与完成天数（滑块）</td>
+<td><a href="61-training-choice.gif">61-training-choice.gif</a></td>
+<td><a href="61-training-choice.html">html</a></td>
+</tr>
+<tr>
+<td>62</td>
+<td>到达率、模型时长与环境策略下 CPU、调用、内存占容量的比例（滑块）</td>
+<td><a href="62-agent-sandbox.gif">62-agent-sandbox.gif</a></td>
+<td><a href="62-agent-sandbox.html">html</a></td>
+</tr>
+<tr>
+<td>63</td>
+<td>生成加速倍数、验证与更新时长下的 RL 一轮时间（滑块）</td>
+<td><a href="63-resource-pool.gif">63-resource-pool.gif</a></td>
+<td><a href="63-resource-pool.html">html</a></td>
+</tr>
+<tr>
+<td>64</td>
+<td>每月任务量与预留 / 按量单价下的月成本与交点（滑块）</td>
+<td><a href="64-service-cost.gif">64-service-cost.gif</a></td>
+<td><a href="64-service-cost.html">html</a></td>
+</tr>
+<tr>
+<td>65</td>
+<td>上行速率、模型加速与压缩对图片精修完成时间的影响（滑块）</td>
+<td><a href="65-interaction-time.gif">65-interaction-time.gif</a></td>
+<td><a href="65-interaction-time.html">html</a></td>
+</tr>
+<tr>
+<td>66</td>
+<td>状态大小、链路、恢复与剩余轮数下的迁移收益（滑块）</td>
+<td><a href="66-cross-device.gif">66-cross-device.gif</a></td>
+<td><a href="66-cross-device.html">html</a></td>
+</tr>
+<tr>
+<td>67</td>
+<td>云端上行、RTT、期限与截图大小下三处的二十轮完成时间（滑块）</td>
+<td><a href="67-wan-deploy.gif">67-wan-deploy.gif</a></td>
+<td><a href="67-wan-deploy.html">html</a></td>
+</tr>
+<tr>
 <td>补充</td>
 <td>TP、PP、CP 三种切法：PP 按层分段与 bubble（滑块改 micro-batch 数）；TP 切矩阵、部分和 AllReduce；CP 切序列、因果三角形的跨卡依赖和前后搭配；组合 TP=8 × PP=3 × DP=2</td>
 <td><a href="appendix-tp-pp-cp.gif">appendix-tp-pp-cp.gif</a></td>

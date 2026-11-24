@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>代码修复平台的资源需求</title><link rel="stylesheet" href="anim.css">
+<style>svg text.cap{font-size:15px;font-weight:500}svg text.num{font-size:16px;font-weight:600}</style></head>
+<body><main>
+<h1>第 62 章 · 每秒 10 项任务，先满的是内存</h1>
+<p class="sub">配套讲义：<a href="../lessons/62-agent-sandbox.html">第 62 章 · Agent 任务的资源需求与运行环境：先满的是内存，不是 CPU</a>。每项 3 轮：模型 m 秒 + 工具 1 s；环境 2 GiB。平台：48 核、358 GiB、320 个并发调用槽。每轮重建：只在准备 2 s + 执行 1 s 时占环境，每次准备 0.1 CPU·秒。</p>
+<div class="panel"><svg id="sv" viewBox="0 0 680 360"></svg></div>
+<div class="row"><button id="play">▶ 播放</button><button id="step">→ 单步</button><button id="reset">↺ 从头开始</button></div>
+<div class="row"><label for="l">到达率（项/s）</label><input type="range" id="l" min="2" max="20" step="1" value="10"><span id="lv">10</span><label for="m">模型每轮 s</label><input type="range" id="m" min="3" max="15" step="1" value="9"><span id="mv">9</span><label for="s">环境策略</label><select id="s"><option value="0">始终驻留</option><option value="1">每轮重建</option></select></div>
+<p class="note">看点：① 三根柱：CPU、并发调用、内存占容量的比例，虚线 100%；② 下面是一项任务的时间线，橙色是环境占内存的时段；③ 播放：驻留 9 s（168%）→ 12 s → 每轮重建 → 快速模型 6 s。</p>
+</main>
+<script src="anim.js"></script>
+<script>
+const sv=$('sv');
+function R(x,y,w,h,col,op){return el('rect',{x,y,width:Math.max(w,1),height:h,rx:4,fill:col,opacity:op??.7},sv)}
+function T(s,x,y,a,c){return txt(s,{x,y,'text-anchor':a||'start',class:c||'m'},sv)}
+function cap(s){T(s,340,26,'middle','cap')}
+const GET=ids=>ids.map(i=>{const e=$(i);return e.type==='checkbox'?+e.checked:+e.value});
+function SET(ids,v){ids.forEach((i,k)=>{const e=$(i);if(e.type==='checkbox')e.checked=!!v[k];else e.value=v[k];const o=$(i+'v');if(o)o.textContent=(+v[k]).toString()})}
+const IDS=['l','m','s'],F=[[10,9,0],[10,12,0],[10,12,1],[10,6,1]];
+function render(l,m,s){const T=3*(+m+1),cpu=l*3+(s==1?l*3*0.1:0),calls=l*3*m,mem=s==1?l*3*3*2:l*2*T,v=[[`CPU ${cpu.toFixed(0)}/48`,cpu/48],[`调用 ${calls}/320`,calls/320],[`内存 ${mem.toFixed(0)}/358 GiB`,mem/358]];
+ cap(`${l} 项/s、模型 ${m} s、${s==1?'每轮重建':'始终驻留'}：任务 ${T} s`);const sc=v=>Math.min(v,2.5)/2.5*360;
+ v.forEach(([n,r],i)=>{const y=60+i*44;T_(n,150,y+20,'end');R(160,y,sc(r),28,r>1?'var(--bad)':'var(--good)');T_(`${(r*100).toFixed(0)}%`,168+sc(r),y+20)});
+ el('line',{x1:160+sc(1),y1:50,x2:160+sc(1),y2:190,stroke:'var(--text)','stroke-dasharray':'5 4'},sv);
+ const ts=v=>60+v/45*540;for(let r=0;r<3;r++){const t0=r*(+m+1);R(ts(t0),220,ts(t0+ +m)-ts(t0),24,'var(--accent)');R(ts(t0+ +m),220,ts(t0+ +m+1)-ts(t0+ +m),24,'var(--warm)');if(s==1)R(ts(t0+ +m-2),260,ts(t0+ +m+1)-ts(t0+ +m-2),20,'var(--purple)')}
+ if(s==0)R(ts(0),260,ts(T)-ts(0),20,'var(--purple)');T_('计算',52,237,'end');T_('环境',52,275,'end')}
+function T_(a,b,c,d,e){return T(a,b,c,d||'start',e)}
+let k=0,custom=null;
+function draw(){clear(sv);const v=custom||F[k];SET(IDS,v);render(...v)}
+function reset(){k=0;custom=null;draw()}
+function next(){if(custom!==null){custom=null;draw();return true}if(k>=F.length-1)return false;k++;draw();return true}
+IDS.forEach(i=>{const e=$(i);const f=()=>{ANIM.stop();custom=GET(IDS);draw()};e.oninput=f;e.onchange=f});
+setupPlayer({captureSeed:1,reset,next},1500);
+</script><a href="https://wikieden.github.io/ai-books/" style="position:fixed;right:12px;bottom:12px;z-index:99;padding:4px 10px;border-radius:14px;background:rgba(127,127,127,.18);color:inherit;font:13px/1.6 system-ui,sans-serif;text-decoration:none">← 全部讲义书</a>
+</body></html>

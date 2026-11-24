@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>48 卡每步预算</title><link rel="stylesheet" href="anim.css">
+<style>svg text.cap{font-size:15px;font-weight:500}svg text.num{font-size:16px;font-weight:600}</style></head>
+<body><main>
+<h1>第 61 章 · 每步 67.2 s 的预算怎么分</h1>
+<p class="sub">配套讲义：<a href="../lessons/61-training-choice.html">第 61 章 · 从系统方案到期限与硬件选择：32 卡还是 48 卡</a>。31,790 步，25 天，附加 1.08%。单卡计算 = 52.2 × (48/卡数) × (40%/效率) s。</p>
+<div class="panel"><svg id="sv" viewBox="0 0 680 360"></svg></div>
+<div class="row"><button id="play">▶ 播放</button><button id="step">→ 单步</button><button id="reset">↺ 从头开始</button></div>
+<div class="row"><label for="n">卡数</label><input type="range" id="n" min="24" max="96" step="8" value="48"><span id="nv">48</span><label for="e">单卡效率 %</label><input type="range" id="e" min="20" max="60" step="1" value="40"><span id="ev">40</span><label for="c">露出的通信 s</label><input type="range" id="c" min="0" max="20" step="0.1" value="0.08"><span id="cv">0.08</span><label for="i">输入等待 s</label><input type="range" id="i" min="0" max="5" step="0.1" value="0.5"><span id="iv">0.5</span></div>
+<p class="note">看点：① 横条：计算（蓝）、输入（灰）、通信（橙），虚线是 67.2 s；② 右边是完成天数（含 5 天预留），超过 30 天标红；③ 播放：48 卡 → 32 卡 → 32 卡效率 47% → 48 卡通信 12 s 全露 → 48 卡效率 30%。</p>
+</main>
+<script src="anim.js"></script>
+<script>
+const sv=$('sv');
+function R(x,y,w,h,col,op){return el('rect',{x,y,width:Math.max(w,1),height:h,rx:4,fill:col,opacity:op??.7},sv)}
+function T(s,x,y,a,c){return txt(s,{x,y,'text-anchor':a||'start',class:c||'m'},sv)}
+function cap(s){T(s,340,26,'middle','cap')}
+const GET=ids=>ids.map(i=>{const e=$(i);return e.type==='checkbox'?+e.checked:+e.value});
+function SET(ids,v){ids.forEach((i,k)=>{const e=$(i);if(e.type==='checkbox')e.checked=!!v[k];else e.value=v[k];const o=$(i+'v');if(o)o.textContent=(+v[k]).toString()})}
+const IDS=['n','e','c','i'],F=[[48,40,0.08,0.5],[32,40,0.08,0.5],[32,47,0.08,0.5],[48,40,12,0.5],[48,30,0.08,0.5]];
+function render(n,e,c,i){const cp=52.2*48/n*40/e,ts=cp+ +c+ +i,days=5+31790*ts*1.0108/86400;
+ cap(`${n} 卡、效率 ${e}%：每步 ${ts.toFixed(1)} s，${days.toFixed(1)} 天`);const sc=v=>Math.min(v,110)/110*500;
+ R(80,110,sc(cp),40,'var(--accent)');R(80+sc(cp),110,sc(i),40,'var(--muted)');R(80+sc(+cp+ +i),110,sc(c),40,'var(--warm)');
+ el('line',{x1:80+sc(67.2),y1:90,x2:80+sc(67.2),y2:170,stroke:'var(--bad)','stroke-dasharray':'5 4'},sv);T('67.2 s',80+sc(67.2),84,'middle');
+ T(`计算 ${cp.toFixed(1)} + 输入 ${(+i).toFixed(1)} + 通信 ${(+c).toFixed(2)}`,80,195);T(`${days.toFixed(1)} 天 ${days<=30?'≤':'>'} 30 天`,80,250,'start','num')}
+let k=0,custom=null;
+function draw(){clear(sv);const v=custom||F[k];SET(IDS,v);render(...v)}
+function reset(){k=0;custom=null;draw()}
+function next(){if(custom!==null){custom=null;draw();return true}if(k>=F.length-1)return false;k++;draw();return true}
+IDS.forEach(i=>{const e=$(i);const f=()=>{ANIM.stop();custom=GET(IDS);draw()};e.oninput=f;e.onchange=f});
+setupPlayer({captureSeed:1,reset,next},1500);
+</script><a href="https://wikieden.github.io/ai-books/" style="position:fixed;right:12px;bottom:12px;z-index:99;padding:4px 10px;border-radius:14px;background:rgba(127,127,127,.18);color:inherit;font:13px/1.6 system-ui,sans-serif;text-decoration:none">← 全部讲义书</a>
+</body></html>

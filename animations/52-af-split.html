@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CPU 与 GPU 路径换手</title><link rel="stylesheet" href="anim.css">
+<style>svg text.cap{font-size:15px;font-weight:500}svg text.num{font-size:16px;font-weight:600}</style></head>
+<body><main>
+<h1>第 52 章 · 每专家几个 token，专家该在哪算</h1>
+<p class="sub">配套讲义：<a href="../lessons/52-af-split.html">第 52 章 · Attention–FFN 分离与异构执行：专家放 CPU 还是搬到 GPU</a>。八个 Qwen3-235B 专家（各 36 MiB）。CPU：Xeon 8452Y；GPU：A100 40GB PCIe 按 50%；PCIe 25 GB/s、每次 5 μs。</p>
+<div class="panel"><svg id="sv" viewBox="0 0 680 360"></svg></div>
+<div class="row"><button id="play">▶ 播放</button><button id="step">→ 单步</button><button id="reset">↺ 从头开始</button></div>
+<div class="row"><label for="e">log2 每专家 token 数</label><input type="range" id="e" min="0" max="11" step="1" value="0"><span id="ev">0</span><label for="k">CPU kernel</label><select id="k"><option value="1.8">AVX-512 1.8 TF</option><option value="21.3">AMX 21.3 TF</option></select><label for="d">内存</label><select id="d"><option value="220">同插槽 220 GB/s</option><option value="125">跨插槽 125 GB/s</option></select></div>
+<p class="note">看点：① 两根横条是八个专家的总时间，短的标绿；② 每根拆成交接、读取、计算三段（读和算取较大者）；③ 播放 1 → 64 → 128（AVX-512 输）→ AMX（赢回）→ 跨插槽。</p>
+</main>
+<script src="anim.js"></script>
+<script>
+const sv=$('sv');
+function R(x,y,w,h,col,op){return el('rect',{x,y,width:Math.max(w,1),height:h,rx:4,fill:col,opacity:op??.7},sv)}
+function T(s,x,y,a,c){return txt(s,{x,y,'text-anchor':a||'start',class:c||'m'},sv)}
+function cap(s){T(s,340,26,'middle','cap')}
+const GET=ids=>ids.map(i=>{const e=$(i);return e.type==='checkbox'?+e.checked:+e.value});
+function SET(ids,v){ids.forEach((i,k)=>{const e=$(i);if(e.type==='checkbox')e.checked=!!v[k];else e.value=v[k];const o=$(i+'v');if(o)o.textContent=(+v[k]).toString()})}
+const IDS=['e','k','d'],F=[[0,1.8,220],[6,1.8,220],[7,1.8,220],[7,21.3,220],[7,21.3,125]];
+function render(e,k,d){const m=2**e,PE=18874368,WE=PE*2;
+ const cx=8*(10e-6+2*m*8192/25e9)*1e3,cr=8*WE/(d*1e9)*1e3,cc=8*2*m*PE/(k*1e12)*1e3,ct=cx+Math.max(cr,cc);
+ const gx=8*(5e-6+WE/25e9)*1e3,gr=8*WE/778e9*1e3,gc=8*2*m*PE/156e12*1e3,gt=gx+Math.max(gr,gc);
+ cap(`每专家 ${m} 个 token：CPU ${ct.toFixed(2)} ms vs GPU ${gt.toFixed(2)} ms`);
+ const sc=v=>v/40*480;[['CPU 就地',cx,cr,cc,ct],['搬到 GPU',gx,gr,gc,gt]].forEach(([n,x,r,c,t],i)=>{const y=90+i*100;T(n,110,y+22,'end');
+  R(120,y,sc(x),34,'var(--muted)');const big=Math.max(r,c);R(120+sc(x),y,sc(big),34,r>=c?'var(--purple)':'var(--warm)');
+  T(`${t.toFixed(2)} ms`,128+sc(t),y+22,'start','num');T(`交接 ${x.toFixed(2)} · ${r>=c?'读取':'计算'} ${big.toFixed(2)}`,120,y+56);
+  if(t===Math.min(ct,gt))R(116,y-4,6,42,'var(--good)',1)})
+ T('灰：交接　紫：读权重　橙：矩阵计算',340,320,'middle')}
+let k=0,custom=null;
+function draw(){clear(sv);const v=custom||F[k];SET(IDS,v);render(...v)}
+function reset(){k=0;custom=null;draw()}
+function next(){if(custom!==null){custom=null;draw();return true}if(k>=F.length-1)return false;k++;draw();return true}
+IDS.forEach(i=>{const e=$(i);const f=()=>{ANIM.stop();custom=GET(IDS);draw()};e.oninput=f;e.onchange=f});
+setupPlayer({captureSeed:1,reset,next},1500);
+</script><a href="https://wikieden.github.io/ai-books/" style="position:fixed;right:12px;bottom:12px;z-index:99;padding:4px 10px;border-radius:14px;background:rgba(127,127,127,.18);color:inherit;font:13px/1.6 system-ui,sans-serif;text-decoration:none">← 全部讲义书</a>
+</body></html>

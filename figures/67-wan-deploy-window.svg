@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="220" viewBox="0 0 800 220">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="16.0" y="26.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="17" fill="#1f2937" text-anchor="start" font-weight="bold">窗口 64 KB、RTT 100 ms：发 25.6 ms，等 100 ms</text>
+<text x="16.0" y="210.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">20 Mbit/s 链路填满需约 250 KB 在途；窗口只有 64 KB 时有效吞吐上限 64 KB / 0.1 s ≈ 5.12 Mbit/s。</text>
+<text x="90.0" y="103.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="end" font-weight="normal">发送方</text>
+<rect x="100.0" y="80.0" width="41.0" height="36.0" rx="3" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<text x="120.5" y="103.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#2563eb" text-anchor="middle" font-weight="bold">发</text>
+<rect x="141.0" y="80.0" width="160.0" height="36.0" rx="3" fill="#f3f4f6" stroke="#6b7280" stroke-width="1.4" opacity="1"/>
+<text x="221.0" y="103.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="bold">等确认 100 ms</text>
+<rect x="301.0" y="80.0" width="41.0" height="36.0" rx="3" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<text x="321.4" y="103.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#2563eb" text-anchor="middle" font-weight="bold">发</text>
+<rect x="341.9" y="80.0" width="160.0" height="36.0" rx="3" fill="#f3f4f6" stroke="#6b7280" stroke-width="1.4" opacity="1"/>
+<text x="421.9" y="103.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="bold">等确认 100 ms</text>
+<rect x="501.9" y="80.0" width="41.0" height="36.0" rx="3" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<text x="522.4" y="103.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#2563eb" text-anchor="middle" font-weight="bold">发</text>
+<rect x="542.9" y="80.0" width="160.0" height="36.0" rx="3" fill="#f3f4f6" stroke="#6b7280" stroke-width="1.4" opacity="1"/>
+<text x="622.9" y="103.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="bold">等确认 100 ms</text>
+<text x="100.0" y="140.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">0 ms</text>
+<text x="301.0" y="140.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">125.6 ms</text>
+<text x="501.9" y="140.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">251.2 ms</text>
+<text x="702.9" y="140.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">376.8 ms</text>
+</svg>

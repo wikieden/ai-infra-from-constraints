@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>启动积压与服务率</title><link rel="stylesheet" href="anim.css">
+<style>svg text.cap{font-size:15px;font-weight:500}svg text.num{font-size:16px;font-weight:600}</style></head>
+<body><main>
+<h1>第 55 章 · 启动积压多久消退</h1>
+<p class="sub">配套讲义：<a href="../lessons/55-scale-compare.html">第 55 章 · 扩缩容、故障恢复与部署方案比较：积压多久消退</a>。启动期间服务率为 0；就绪后积压按 μ − λ 下降（流体模型）。竖线是第 60 秒期限。</p>
+<div class="panel"><svg id="sv" viewBox="0 0 680 360"></svg></div>
+<div class="row"><button id="play">▶ 播放</button><button id="step">→ 单步</button><button id="reset">↺ 从头开始</button></div>
+<div class="row"><label for="m">服务率 μ</label><input type="range" id="m" min="3" max="6" step="0.01" value="4.55"><span id="mv">4.55</span><label for="l">到达率 λ</label><input type="range" id="l" min="2" max="5" step="0.1" value="3.5"><span id="lv">3.5</span><label for="t">启动时间 s</label><input type="range" id="t" min="0" max="30" step="1" value="10"><span id="tv">10</span></div>
+<p class="note">看点：① 曲线是积压请求数；② 竖虚线是 60 秒，清空点在期限内标绿；③ 播放：直接 PD 4.55 → 分块共置 4.17 → 九成效率 4.10 → 共置 3.02 → 启动缩到 5 s。</p>
+</main>
+<script src="anim.js"></script>
+<script>
+const sv=$('sv');
+function R(x,y,w,h,col,op){return el('rect',{x,y,width:Math.max(w,1),height:h,rx:4,fill:col,opacity:op??.7},sv)}
+function T(s,x,y,a,c){return txt(s,{x,y,'text-anchor':a||'start',class:c||'m'},sv)}
+function cap(s){T(s,340,26,'middle','cap')}
+const GET=ids=>ids.map(i=>{const e=$(i);return e.type==='checkbox'?+e.checked:+e.value});
+function SET(ids,v){ids.forEach((i,k)=>{const e=$(i);if(e.type==='checkbox')e.checked=!!v[k];else e.value=v[k];const o=$(i+'v');if(o)o.textContent=(+v[k]).toString()})}
+const IDS=['m','l','t'],F=[[4.55,3.5,10],[4.17,3.5,10],[4.1,3.5,10],[3.02,3.5,10],[4.1,3.5,5]];
+function render(m,l,t){const bk=l*t,end=m>l?t+bk/(m-l):Infinity,X=v=>70+Math.min(v,100)/100*540,Y=v=>300-Math.min(v,120)/120*240;
+ cap(end<Infinity?`积压 ${bk.toFixed(0)} 个，第 ${end.toFixed(1)} 秒清空`:`积压 ${bk.toFixed(0)} 个，μ ≤ λ 一直涨`);
+ el('line',{x1:70,y1:300,x2:610,y2:300,stroke:'var(--line)'},sv);el('line',{x1:70,y1:60,x2:70,y2:300,stroke:'var(--line)'},sv);
+ const e2=Math.min(end,100);el('polyline',{points:`${X(0)},${Y(0)} ${X(t)},${Y(bk)} ${X(e2)},${Y(Math.max(bk-(m-l)*(e2-t),0))}`,fill:'none',stroke:end<=60?'var(--good)':'var(--bad)','stroke-width':3},sv);
+ el('line',{x1:X(60),y1:60,x2:X(60),y2:300,stroke:'var(--bad)','stroke-dasharray':'5 4'},sv);T('60 s',X(60),52,'middle');
+ [0,20,40,60,80,100].forEach(v=>T(String(v),X(v),318,'middle'));T(`需要 μ ≥ ${(l+bk/(60-t)).toFixed(2)}`,600,90,'end','num')}
+let k=0,custom=null;
+function draw(){clear(sv);const v=custom||F[k];SET(IDS,v);render(...v)}
+function reset(){k=0;custom=null;draw()}
+function next(){if(custom!==null){custom=null;draw();return true}if(k>=F.length-1)return false;k++;draw();return true}
+IDS.forEach(i=>{const e=$(i);const f=()=>{ANIM.stop();custom=GET(IDS);draw()};e.oninput=f;e.onchange=f});
+setupPlayer({captureSeed:1,reset,next},1500);
+</script><a href="https://wikieden.github.io/ai-books/" style="position:fixed;right:12px;bottom:12px;z-index:99;padding:4px 10px;border-radius:14px;background:rgba(127,127,127,.18);color:inherit;font:13px/1.6 system-ui,sans-serif;text-decoration:none">← 全部讲义书</a>
+</body></html>

@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>第 54 章 · KV 的分布、共享与请求路由：存哪一级、何时取回、发给谁 · 从约束推导 AI Infra</title>
+<script>(function(){try{var d=document.documentElement,t=localStorage.getItem("ab-theme"),f=localStorage.getItem("ab-fs");if(t)d.dataset.theme=t;if(f)d.dataset.fs=f}catch(e){}})();</script>
+<style>:root{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa;--fs:16px}
+@media (prefers-color-scheme:dark){:root:not([data-theme]){--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}}
+:root[data-theme="light"]{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa}
+:root[data-theme="dark"]{--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}
+:root[data-theme="sepia"]{--bg:#f6efe1;--fg:#3b3127;--mute:#7a6a58;--line:#e2d6bf;--card:#fbf6ec;--acc:#a0522d;--code:#ece2cd;--quote:#efe5d2}
+:root[data-theme="green"]{--bg:#e3eddf;--fg:#22301f;--mute:#566650;--line:#c9d8c3;--card:#eef5eb;--acc:#2e7d4f;--code:#d6e4d0;--quote:#dae7d5}
+:root[data-theme="navy"]{--bg:#0f1a2b;--fg:#dde6f3;--mute:#93a4bd;--line:#23324a;--card:#15233a;--acc:#6cc4ff;--code:#1a2a44;--quote:#16243b}
+:root[data-fs="s"]{--fs:15px}
+:root[data-fs="m"]{--fs:16px}
+:root[data-fs="l"]{--fs:18px}
+:root[data-fs="xl"]{--fs:20px}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:var(--fs)/1.75 -apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Helvetica Neue",sans-serif}
+a{color:var(--acc)}
+header.top{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+header.top .in{max-width:860px;margin:0 auto;padding:10px 16px;display:flex;gap:6px 16px;align-items:center;flex-wrap:wrap;font-size:14px}
+header.top .brand{font-weight:600;color:var(--fg);text-decoration:none;margin-right:auto}
+header.top a{text-decoration:none}
+.prefs{display:inline-flex;gap:4px;align-items:center}
+.prefs button,.prefs select,#nav-toggle{font:inherit;font-size:13px;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:2px 8px;cursor:pointer}
+main{max-width:860px;margin:0 auto;padding:24px 16px 72px;overflow-wrap:anywhere}
+h1{font-size:1.75em;line-height:1.35;margin:8px 0 16px} h2{font-size:1.375em;margin:40px 0 12px;padding-top:8px;border-top:1px solid var(--line)} h3{font-size:1.125em;margin:28px 0 8px}
+.layout{display:grid;grid-template-columns:260px minmax(0,1fr);max-width:1180px;margin:0 auto}
+.layout main{margin:0;max-width:880px}
+nav.side{position:sticky;top:49px;align-self:start;max-height:calc(100vh - 49px);overflow-y:auto;padding:20px 8px 40px 16px;border-right:1px solid var(--line);font-size:14px;line-height:1.5}
+nav.side .h{font-weight:600;color:var(--mute);margin:4px 8px 8px;font-size:13px}
+nav.side a{display:block;padding:5px 8px;border-radius:6px;color:var(--fg);text-decoration:none}
+nav.side a:hover{background:var(--code)} nav.side a.cur{background:var(--quote);color:var(--acc);font-weight:600}
+nav.side a .n{color:var(--mute);margin-right:6px;font-variant-numeric:tabular-nums}
+#nav-toggle{display:none}
+@media (max-width:960px){.layout{display:block} nav.side{display:none;position:fixed;z-index:6;top:49px;left:0;bottom:0;width:min(300px,85vw);max-height:none;background:var(--bg);box-shadow:2px 0 12px rgba(0,0,0,.2)} nav.side.open{display:block} #nav-toggle{display:inline-block}}
+.run{display:flex;flex-wrap:wrap;align-items:center;gap:4px 0;margin:4px 0 12px}
+.run details{flex-basis:100%;margin:6px 0 0;font-size:.94em}
+img{max-width:100%;height:auto;border-radius:8px;border:1px solid var(--line);background:#fff}
+blockquote{margin:16px 0;padding:10px 16px;background:var(--quote);border-left:3px solid var(--acc);border-radius:4px;color:var(--mute)}
+blockquote p{margin:4px 0}
+code{background:var(--code);padding:1px 5px;border-radius:4px;font-size:.9em}
+pre{background:var(--code);padding:12px 14px;border-radius:8px;overflow-x:auto} pre code{padding:0;background:none}
+table{border-collapse:collapse;display:block;overflow-x:auto;max-width:100%;margin:12px 0;font-size:.94em}
+th,td{border:1px solid var(--line);padding:6px 10px;vertical-align:top} th{background:var(--code)}
+details{border:1px solid var(--line);border-radius:8px;padding:6px 12px;margin:8px 0;background:var(--card)}
+details[open]{padding-bottom:10px} summary{cursor:pointer;color:var(--acc);font-weight:500}
+mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%}
+.btn{display:inline-block;margin:4px 8px 4px 0;padding:6px 14px;border:1px solid var(--acc);border-radius:999px;text-decoration:none;font-size:14px}
+.pager{display:flex;justify-content:space-between;gap:12px;margin-top:48px;padding-top:16px;border-top:1px solid var(--line);font-size:15px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin:16px 0}
+.card{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;color:inherit;text-decoration:none}
+.card:hover{border-color:var(--acc)} .card img{border:0;border-bottom:1px solid var(--line);border-radius:0;aspect-ratio:16/10;object-fit:contain;width:100%}
+.card .no{color:var(--mute);font-size:13px;padding:8px 12px 0} .card .t{padding:0 12px 12px;font-weight:500;line-height:1.5}
+.lead{font-size:1.06em;color:var(--mute)}
+footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-size:13px}
+</style>
+<script>window.MathJax={tex:{inlineMath:[["\\(","\\)"]],displayMath:[["\\[","\\]"],["$$","$$"]],processEscapes:true,processEnvironments:true}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"></script>
+</head><body>
+<header class="top"><div class="in">
+<button type="button" id="nav-toggle" aria-label="打开章节列表">☰ 章节</button><a class="brand" href="../index.html">从约束推导 AI Infra</a>
+<a href="../lessons/index.html">讲义目录</a>
+<a href="../animations/index.html">动画</a>
+<a href="../review.html">复习卡片</a>
+<a href="../lessons/appendix-glossary.html">缩写表</a>
+<a href="https://wikieden.github.io/ai-books/glossary.html">全局词汇</a>
+<a href="https://wikieden.github.io/ai-books/">← 全部讲义书</a>
+<span class="prefs" title="字号与主题"><button type="button" data-fs-step="-1" aria-label="字号变小">A−</button><button type="button" data-fs-step="1" aria-label="字号变大">A+</button><select id="ab-theme" aria-label="主题色"><option value="">跟随系统</option><option value="light">浅色</option><option value="dark">深色</option><option value="sepia">米黄护眼</option><option value="green">豆沙绿护眼</option><option value="navy">夜蓝</option></select></span>
+</div></header>
+<div class="layout"><nav class="side" aria-label="章节"><div class="h">从约束推导 AI Infra</div><a href="index.html">讲义目录</a><a href="01-six-layers.html"><span class="n">1</span>一次请求走过的六层（进行中）</a><a href="02-request-lifecycle.html"><span class="n">2</span>一次生成请求的处理过程：权重加载一次，每个 token 都要再读一遍</a><a href="03-dataflow-hierarchy.html"><span class="n">3</span>从存储程序到数据流执行：存储层次就像大楼里的厕所</a><a href="04-key-numbers.html"><span class="n">4</span>系统设计的关键数字：容量、算力、带宽、延迟</a><a href="05-estimate.html"><span class="n">5</span>用几个数字估算一次模型执行：算和读各要多久，实测为什么达不到</a><a href="06-architecture.html"><span class="n">6</span>需求如何推动架构：TPU、SmartNIC、Unified Bus</a><a href="07-compute-graph.html"><span class="n">7</span>计算图与张量结构：一个 token 经过一层要算多少</a><a href="08-generation-budget.html"><span class="n">8</span>自回归生成的资源账：存一次的、每步读的、用完就扔的</a><a href="09-kv-sharing.html"><span class="n">9</span>KV 怎么变小 ①：头共享与潜变量压缩</a><a href="10-kv-sparse-linear.html"><span class="n">10</span>KV 怎么变小 ②：窗口、稀疏、线性与混合注意力</a><a href="11-moe.html"><span class="n">11</span>MoE：专家路由与批内权重复用</a><a href="12-network-shape.html"><span class="n">12</span>网络形状：深宽、专家粒度、残差与多 token 预测</a><a href="13-model-comparison.html"><span class="n">13</span>整个模型的资源需求与比较：存多少、算多少、能放几条请求</a><a href="14-workload-arrival.html"><span class="n">14</span>从单次请求到持续到达的负载：什么时候来，比来多少更要紧</a><a href="15-agent-tasks.html"><span class="n">15</span>多轮交互与 Agent 任务：前缀、成功成本、关键路径</a><a href="16-multimodal-realtime.html"><span class="n">16</span>多模态与实时交互：数据换形状，时间有死线（略讲）</a><a href="17-training-rl.html"><span class="n">17</span>训练与强化学习的计算和状态：为什么训练要 6ND、要存 18 字节</a><a href="18-scaling-lifecycle.html"><span class="n">18</span>Scaling law 与全生命周期成本：训练多大、训练多久、服务多少次</a><a href="19-accelerator-basics.html"><span class="n">19</span>从矩阵乘法认识加速器：算多少、搬多少、耗多少电</a><a href="20-compute-units.html"><span class="n">20</span>计算单元：矩阵、向量、流水与低精度</a><a href="21-memory-movement.html"><span class="n">21</span>存储层次与数据搬移：放得下、取得到、来得及</a><a href="22-package-interconnect.html"><span class="n">22</span>多芯片封装与互联：计算放在哪，数据走哪条路</a><a href="23-architecture-evolution.html"><span class="n">23</span>架构演进与专用架构：每一代新增的东西，省掉了哪一笔</a><a href="24-choose-accelerator.html"><span class="n">24</span>根据架构选择加速器：先估下界，再找差距，最后算账</a><a href="25-submit-sync.html"><span class="n">25</span>提交、搬移与同步：从调用返回到结果可用</a><a href="26-tiling-layout.html"><span class="n">26</span>单个算子：分块、布局与切分</a><a href="27-fusion-flash.html"><span class="n">27</span>算子融合与 FlashAttention：中间结果不落地</a><a href="28-compiler.html"><span class="n">28</span>编译器：表达、变换与选择</a><a href="29-runtime.html"><span class="n">29</span>运行时：重叠、CUDA Graph、动态形状与 persistent kernel</a><a href="30-request-view.html"><span class="n">30</span>从局部优化到完整请求</a><a href="31-multi-gpu.html"><span class="n">31</span>从单卡到多卡：放得下、算得快、接得多</a><a href="32-dp-tp-sp.html"><span class="n">32</span>数据、张量、序列并行：复制模型、切矩阵、切激活</a><a href="33-cp-pp-ep.html"><span class="n">33</span>上下文、流水线、专家并行：切位置、切层、切专家</a><a href="34-combined-parallel.html"><span class="n">34</span>组合并行与模型规模：坐标、复用与最忙的那一组</a><a href="35-collectives.html"><span class="n">35</span>集合通信的实现与代价：环、树、通信库和资源竞争</a><a href="36-topology-pool.html"><span class="n">36</span>超节点的物理组织与内存池：数据走哪条线、借谁的内存</a><a href="37-scale-choice.html"><span class="n">37</span>从并行方案到超节点规模：按期限、成本和故障挑方案</a><a href="38-cluster.html"><span class="n">38</span>从超节点走向集群：出口、割集与 Clos 网络</a><a href="39-cross-node.html"><span class="n">39</span>跨节点流量与物理路径：同样的字节，走哪几张网卡</a><a href="40-remote-access.html"><span class="n">40</span>远程访问的路径与并发：一次读多久、同时能读几个</a><a href="41-handoff-state.html"><span class="n">41</span>数据交接、顺序与状态管理：什么时候能读、能覆盖、能释放</a><a href="42-congestion.html"><span class="n">42</span>共享网络中的拥塞与可靠性：高峰、反馈、多路径、死锁</a><a href="43-task-completion.html"><span class="n">43</span>从通信改进到任务完成：先看谁晚到，再看能藏多少</a><a href="44-inference-request.html"><span class="n">44</span>推理请求的执行过程与资源需求：一条请求的时间线和账本</a><a href="45-batching.html"><span class="n">45</span>批处理与请求调度：多读一次权重做更多事，但别让别人等太久</a><a href="46-kv-cache.html"><span class="n">46</span>KV 缓存的分配、复用与释放：分页、共享、留不留</a><a href="47-compress-offload.html"><span class="n">47</span>压缩与卸载：少存字节、轮流驻留，各付什么代价</a><a href="48-speculative.html"><span class="n">48</span>推测解码：一次验证，确定好几个 token</a><a href="49-serving-choice.html"><span class="n">49</span>请求负载下的性能与配置选择：数正确且按时的答案</a><a href="50-distribution.html"><span class="n">50</span>计算与状态的分布方式：八张卡怎么接每秒 3.5 个请求</a><a href="51-pd-split.html"><span class="n">51</span>Prefill–Decode 分离与资源配比：A100 做输入，H20 做生成</a><a href="52-af-split.html"><span class="n">52</span>Attention–FFN 分离与异构执行：专家放 CPU 还是搬到 GPU</a><a href="53-expert-balance.html"><span class="n">53</span>专家放置、复制与负载均衡：最忙的那张卡定完成时刻</a><a href="54-kv-routing.html" class="cur"><span class="n">54</span>KV 的分布、共享与请求路由：存哪一级、何时取回、发给谁</a><a href="55-scale-compare.html"><span class="n">55</span>扩缩容、故障恢复与部署方案比较：积压多久消退</a><a href="56-training-budget.html"><span class="n">56</span>训练的容量与时间估算：100B token、30 天要几张卡</a><a href="57-state-sharding.html"><span class="n">57</span>训练状态的分片、重计算与卸载：显存不够时的三条路</a><a href="58-pipeline-overlap.html"><span class="n">58</span>流水调度与通信重叠：气泡、激活驻留与藏不住的那 0.08 秒</a><a href="59-data-checkpoint.html"><span class="n">59</span>数据输入、checkpoint 与故障恢复：几周的作业怎么扛住中断</a><a href="60-rl-system.html"><span class="n">60</span>强化学习训练系统：生成、验证、学习组成的反馈循环</a><a href="61-training-choice.html"><span class="n">61</span>从系统方案到期限与硬件选择：32 卡还是 48 卡</a><a href="62-agent-sandbox.html"><span class="n">62</span>Agent 任务的资源需求与运行环境：先满的是内存，不是 CPU</a><a href="63-resource-pool.html"><span class="n">63</span>共享资源池与 RL 资源配比：资源够不够，还要看在不在一起</a><a href="64-service-cost.html"><span class="n">64</span>模型服务的选择、成本与扩容：按成功任务算账</a><a href="65-interaction-time.html"><span class="n">65</span>从模型运行时间到完整交互时间：模型 0.3 秒，用户等 12.8 秒</a><a href="66-cross-device.html"><span class="n">66</span>跨设备分工与会话迁移：传图片、传特征，还是传状态</a><a href="67-wan-deploy.html"><span class="n">67</span>广域网、无线与部署选择：剩下二十轮放哪儿</a><a href="appendix-glossary.html">附录 · 缩写与术语表</a><a href="appendix-tp-pp-cp.html">附录 · 补充资料：TP、PP、CP，一个模型沿三个方向切给多张卡</a></nav><main>
+<h1 id="54-kv">第 54 章 · KV 的分布、共享与请求路由：存哪一级、何时取回、发给谁</h1><div class="run"><a class="btn" href="../animations/54-kv-routing.html">▶ 打开本章可交互动画</a><a class="btn" href="https://colab.research.google.com/github/wikieden/ai-infra-from-constraints/blob/main/code/notebooks/ch54_kv_routing.ipynb" target="_blank" rel="noopener">在 Colab 运行本章代码</a><a class="btn" href="../code/notebooks/ch54_kv_routing.ipynb" download>下载 notebook</a><details><summary>本地运行</summary><pre><code>git clone https://github.com/wikieden/ai-infra-from-constraints
+cd ai-infra-from-constraints/code/notebooks
+pip install jupyterlab torch numpy
+jupyter lab ch54_kv_routing.ipynb</code></pre><p>也可以下载后直接用 VS Code 打开 .ipynb 运行。需要 GPU 的章节在 Colab 里选「代码执行程序 → 更改运行时类型 → GPU」。</p></details></div>
+<blockquote>
+<p>本章回答：两份 KV 什么时候能互相替代？目录和对象为什么要分开？一份 8K 前缀放在 HBM、主机内存、SSD、远端池，取回各要多久，各能留多久？保存后取回什么时候比重算快？逐层预加载为什么还要预先读 14 层？SSD 的写入寿命为什么只允许写 3% 的新 KV？缓存在忙的机器上、空闲的机器没缓存，请求该发给谁？<br />
+讲解日期：2026-11-24 · 上一章：<a href="../lessons/53-expert-balance.html">第 53 章 专家放置、复制与负载均衡</a> · 下一章：<a href="../lessons/55-scale-compare.html">第 55 章 扩缩容、故障恢复与部署方案比较</a><br />
+对应原文：<code>materials/ai-infra-book/manuscripts/09-分布式推理.md</code> §9.5 L493–L667（例 9.7，图 9-28 至 9-41）<br />
+本章缩写：HBM = High Bandwidth Memory（高 / 带宽 / 内存）· SSD = Solid-State Drive（固态 / 硬盘）· NVMe = Non-Volatile Memory Express（非易失 / 内存 / 快速通道）· LRU = Least Recently Used（最近 / 最少 / 使用）· FIFO = First In First Out（先进 / 先出）· DWPD = Drive Writes Per Day（每天 / 写满整盘 / 次数）· SWA = Sliding Window Attention（滑动 / 窗口 / 注意力）。全部缩写见 <a href="../lessons/appendix-glossary.html">缩写与术语表</a></p>
+</blockquote>
+<h2 id="_1">讲解</h2>
+<h3 id="2026-11-24">第一步：缓存标识，目录与对象（2026-11-24）</h3>
+<p><strong>类比：图书馆借书。</strong> 书名一样不够，还要同一版次、同一译者（模型版本、adapter、位置）；目录卡告诉你书在哪个架子（目录），书本身才能拿来读（对象）。目录说有、书被借走了，白跑一趟。</p>
+<p>原文 L495–L505：</p>
+<ul>
+<li>缓存键要沿前缀链标识出生成这份状态的<strong>整个计算</strong>：模型与 adapter 版本、token 序列、位置索引、状态格式；滑动窗口或递推状态还要带位置和更新时刻。</li>
+<li><strong>容量相加不等于共享缓存</strong>：两个实例各有 4 GiB 私有主机缓存，同一份 1.125 GiB 前缀两边各存一份共 2.25 GiB，谁也用不到对方的。接到同一个共享存储后端，一份就能服务两边，但用前可能还要取回本地。</li>
+<li>路由用的缓存事件只带位置和标识，不带 KV。事件遗漏、延迟或空间被释放，都会让记录的位置失效：<strong>路由前要确认对象版本与可用性</strong>。</li>
+</ul>
+<p><img alt="目录元数据与实际缓存对象" src="../figures/54-kv-routing-directory.png" /></p>
+<p><em>图 54-1 · 目录用于定位，对象用于恢复计算；GPU 上的副本被淘汰时，CPU 上的可能还在。</em></p>
+<p><strong>一句话</strong>：相同文本不等于相同状态；目录说在，还要对象真在。</p>
+<h3 id="2026-11-24_1">第二步：四级存储，取回多久、留多久（2026-11-24）</h3>
+<p><strong>类比：家里的东西放哪。</strong> 手边抽屉（HBM）、柜子（主机内存）、储物间（SSD）、外面的仓库（远端池）。越远越大，拿一次越慢；但只要拿得比重新做一份快，放哪都划算，问题变成"放得下多久"。</p>
+<p>原文 L507–L537：DGX A100 每张卡分到的一份，存 Qwen3-8B 的 8K 前缀（1.125 GiB）：</p>
+<table>
+<thead>
+<tr>
+<th>层级</th>
+<th style="text-align: right;">每卡容量</th>
+<th>路径</th>
+<th style="text-align: right;">取回 8K 前缀</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HBM</td>
+<td style="text-align: right;">≤ 63.6 GB</td>
+<td>已在 GPU</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td>主机内存</td>
+<td style="text-align: right;">256 GiB</td>
+<td>PCIe 4.0 x16，25 GB/s</td>
+<td style="text-align: right;">48.3 ms</td>
+</tr>
+<tr>
+<td>本地 SSD</td>
+<td style="text-align: right;">3.84 TB</td>
+<td>顺序读 7.1 GB/s</td>
+<td style="text-align: right;">170 ms</td>
+</tr>
+<tr>
+<td>远端池</td>
+<td style="text-align: right;">随节点数</td>
+<td>网卡 25 GB/s 再经 PCIe</td>
+<td style="text-align: right;">96.6 ms</td>
+</tr>
+<tr>
+<td>对照：A100 重算</td>
+<td style="text-align: right;">—</td>
+<td>峰值 50%</td>
+<td style="text-align: right;">856 ms</td>
+</tr>
+</tbody>
+</table>
+<p><strong>容量定留多久</strong>。A100 连续做无命中的 8K prefill，每 0.856 s 产生 1.125 GiB，<span class="arithmatex">\(r \approx 1.41\)</span> GB/s。按写入先后淘汰，容量 <span class="arithmatex">\(C\)</span> 能存最近 <span class="arithmatex">\(C/r\)</span> 秒：HBM 45 s，主机内存 195 s，SSD 2722 s（45 分钟）。要让间隔 <span class="arithmatex">\(T\)</span> 内的复用都命中：</p>
+<div class="arithmatex">\[C \ge rT\]</div>
+<p><img alt="所需容量随复用间隔线性增长，三条虚线是每卡三级存储的容量" src="../figures/54-kv-routing-capacity.png" /></p>
+<p><em>图 54-2 · 阿里云 trace：个人对话 80% 复用在 10 分钟内（要 846 GB，超过主机内存，要加 SSD），企业 API 80% 在 10 秒内（14.1 GB，HBM 就够）。两轴对数。</em></p>
+<ul>
+<li><span class="arithmatex">\(r\)</span> 越小越省：前缀命中越多、每 token KV 越小（MLA），需要的容量越少。</li>
+<li><strong>容量越大，命中率涨得越慢</strong>：Mooncake 一小时采样 trace（每块 512 token、LRU），1000 块 → 50,000 块命中率 30% → 50%，不限容量也只有 51%；50,000 块按 Qwen3-8B 约 3.77 TB。一半以上的块从没被再用过。</li>
+</ul>
+<p><strong>一句话</strong>：比重算快不是问题，留得够久才是；<span class="arithmatex">\(C \ge rT\)</span>。</p>
+<h3 id="2026-11-24_2">第三步：取回一次，还是每步都读；值不值得存（2026-11-24）</h3>
+<p><strong>类比：参考书。</strong> 每查一个字都跑一趟图书馆（每步远程读）不行；借回来放桌上（取回一次驻留）可以，代价是占桌面。</p>
+<p>原文 L545–L559：</p>
+<ul>
+<li>每步远程读：100 次 decode 每次都读 1.125 GiB，累计占链路 4.83 s；要一秒做完需 121 GB/s，是 25 GB/s 的 4.8 倍。MLA 也要 57.6 GB/s。<strong>状态减半只把倍数减半</strong>。</li>
+<li>取回一次驻留：占用 <span class="arithmatex">\(V\tau\)</span>。不活跃会话放远端，恢复时取回，连续 decode 期间留在本地。</li>
+<li>复用 <span class="arithmatex">\(k\)</span> 次时，保存再取回比重算快的条件：</li>
+</ul>
+<div class="arithmatex">\[T_{\mathrm{write}} + kT_{\mathrm{read}} &lt; kT_{\mathrm{recompute}}\]</div>
+<table>
+<thead>
+<tr>
+<th>链路</th>
+<th>结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>25 GB/s</td>
+<td>复用一次就值（96.6 ms vs 856 ms）</td>
+</tr>
+<tr>
+<td>1.41–2.82 GB/s</td>
+<td>至少复用两次</td>
+</tr>
+<tr>
+<td>&lt; 1.41 GB/s（如 10 GbE 1.25 GB/s，取回 966 ms）</td>
+<td>取回一次就比重算慢，该重算</td>
+</tr>
+</tbody>
+</table>
+<p>临界带宽 1.41 GB/s <strong>正是 KV 的产生速率 <span class="arithmatex">\(r\)</span></strong>：取回要 <span class="arithmatex">\(V/B\)</span>，重算要 <span class="arithmatex">\(V/r\)</span>，链路比 GPU 产生这份 KV 快就该取回。SSD 写 288 ms、读 170 ms，复用一次 458 ms，仍比重算快。</p>
+<p><strong>一句话</strong>：带宽高过 KV 产生速率，取回就比重算快；每步都远程读永远不行。</p>
+<h3 id="2026-11-24_3">第四步：读和算重叠，用排队时间预取（2026-11-24）</h3>
+<p><strong>类比：做菜备料。</strong> 边洗下一样边炒这一样；洗菜比炒菜慢，就得提前洗好几样放着。</p>
+<p>原文 L561–L591：命中后只算 256 个新 token，30.9 ms。</p>
+<p><img alt="先读后算 79.2 ms、逐层预加载 49.2 ms、提前读入 14 层 30.9 ms" src="../figures/54-kv-routing-preload.png" /></p>
+<p><em>图 54-3 · 橙色读取（每层 1.34 ms），绿色计算（每层 0.857 ms）。三条横轴相同。</em></p>
+<ul>
+<li>逐层预加载（CachedAttention）：第 <span class="arithmatex">\(i\)</span> 层只用第 <span class="arithmatex">\(i\)</span> 层的 KV，算这层时读后面的层。读比算慢，总时间仍由读取决定。</li>
+<li>多读的部分要预先放进 HBM 缓冲：</li>
+</ul>
+<div class="arithmatex">\[S_{\mathrm{buf}} = B(T_{\mathrm{read}} - T_{\mathrm{new}}) \approx 437\ \text{MB} \approx 13\ \text{层} \to \text{取整 14 层（448 MiB）}\]</div>
+<p>新输入达到约 400 token，主机内存的读取就能被计算盖住（远端约 800、SSD 约 1400）。CachedAttention 在 LLaMA-13B 上：逐层预加载缩短 35%，加 15 层缓冲缩短 61%。
+- <strong>SSD 用排队时间预取</strong>：SSD 读一层 4.73 ms，是算一层的 5.5 倍。请求还在队列里时就知道要哪份前缀，先读到主机内存；排队 ≥ 170 ms，读取就不在关键路径上。主机内存放得下约 227 份 8K 前缀，所以只为队首 227 个请求预取；换出时，队列里马上要用的不换，下次用得最晚的先换。CachedAttention 回放 ShareGPT：按队列预取 / 换出命中率 86%（99.6% 来自主机内存），LRU 58%、FIFO 48%。
+- <strong>SSD 写入寿命</strong>：D7-P5520 1 DWPD，3.84 TB 盘平均每秒只能写 44.4 MB。全部新 KV 都写进去是额度的 31.7 倍，五年寿命不到两个月用完；只有约 3.2% 能写。<strong>写入前先做准入</strong>：只写被复用过的前缀或未结束的多轮会话。</p>
+<p><strong>一句话</strong>：读比算长就提前读，缓冲大小等于多出来的字节；SSD 的限制是写多少，不是写多快。</p>
+<h3 id="2026-11-24_4">第五步：持久化、部分重算与坏页（2026-11-24）</h3>
+<p>原文 L593–L605：</p>
+<ul>
+<li>checkpoint 要存继续计算需要的全部状态；DeepSeek V4 还涉及压缩结果、窗口和未完成的压缩块。</li>
+<li>一个逻辑页（16 token）2.25 MiB：按层分开是 72 个 32 KiB 的连续段，按页汇集是一个 2.25 MiB 对象；前者容易受每秒操作数限制。</li>
+<li>重启后读入 64 页（1024 token），可连续复用的只有 1008 token，<strong>读 64 页、用 63 页</strong>。读得再快也改变不了末页要算。</li>
+<li>取回一个不可用的对象已经等了 1 秒，就超过了整段重算的 0.856 秒；实验里无条件等待的请求 60 秒内都没完成，允许放弃等待后靠重算得到了结果。</li>
+</ul>
+<p><strong>一句话</strong>：只有匹配成功、能连续接上的页才能替代计算；等不到就重算，再修坏页。</p>
+<h3 id="2026-11-24_5">第六步：路由比完成时间，不比命中标志（2026-11-24）</h3>
+<p><strong>类比：两家医院。</strong> 有你病历的那家要排 4 小时，没病历的那家 20 分钟就能看，但要先调病历或重新检查。看的是哪家先给出结果。</p>
+<p>原文 L607–L666：GPU 最早可执行 <span class="arithmatex">\(Q\)</span>，状态就绪 <span class="arithmatex">\(R\)</span>，剩余工作 <span class="arithmatex">\(C\)</span>：</p>
+<div class="arithmatex">\[T_{\mathrm{first}} = \max(Q, R) + C\]</div>
+<p>取回能和排队并行时取最大；取回要等 GPU 排完队才开始，就要相加。</p>
+<p><strong>例 9.7</strong>：A 的 HBM 有前缀但排队 250 ms；B 只等 20 ms 但没缓存。完整重算 8448 token 887 ms，命中后只算 256 token 30.9 ms，远端查找 10 ms。</p>
+<table>
+<thead>
+<tr>
+<th>路径</th>
+<th style="text-align: right;">首 token</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A 本地命中</td>
+<td style="text-align: right;">250 + 30.9 ≈ 281 ms</td>
+</tr>
+<tr>
+<td>B 直接重算</td>
+<td style="text-align: right;">20 + 887 ≈ 907 ms</td>
+</tr>
+<tr>
+<td>B 经 50 GbE（6.25 GB/s）取回</td>
+<td style="text-align: right;">约 282 ms</td>
+</tr>
+<tr>
+<td>B 经 200 GbE（25 GB/s）取回</td>
+<td style="text-align: right;">约 137 ms</td>
+</tr>
+</tbody>
+</table>
+<p><img alt="四条路径的排队、取回与计算" src="../figures/54-kv-routing-route.png" /></p>
+<p><em>图 54-4 · 提高远端带宽只缩短橙色那段，查找、主存到 GPU 和计算都还在。</em></p>
+<ul>
+<li>B 和 A 打平的远端带宽 6.30 GB/s，50 GbE 略低、200 GbE 远高；和重算打平只要 1.48 GB/s。</li>
+<li>每秒 16 次取回要 19.3 GB/s，已占 25 GB/s 的 77%：<strong>单请求算完，还要算持续到达的总流量</strong>。</li>
+<li><strong>缓存只以概率 <span class="arithmatex">\(p\)</span> 真可用</strong>（A 排队改成 80 ms）：<span class="arithmatex">\(\mathbb{E}[T_A] = 110.9p + 967.2(1-p)\)</span>，<span class="arithmatex">\(p &gt; 7.0\%\)</span> 均值就赢 907 ms；<span class="arithmatex">\(p = 0.9\)</span> 均值 196.5 ms，但 10% 的请求还是 967 ms，<strong>p99 要 220 ms 需要 <span class="arithmatex">\(p \ge 99\%\)</span></strong>。</li>
+<li>缓存优先 vs 空闲优先：目标请求 1.38 s → 0.33 s，两个任务全部完成却从 1.38 s 推迟到 1.54 s。先定优化对象。</li>
+<li>DeepSeek V4.1：B 要 4.666 ms 传全局状态 + 假设 8 ms 恢复编码器 SWA，共 12.666 ms，这就是 A 排队时间的翻转阈值。</li>
+</ul>
+<p><strong>场景代码</strong>：vLLM 接 LMCache，把 KV 存到主机内存、按块复用（真实 API；环境变量名以 LMCache 文档为准）：</p>
+<pre><code class="language-python">import os
+from vllm import LLM
+from vllm.config import KVTransferConfig
+
+os.environ[&quot;LMCACHE_CHUNK_SIZE&quot;] = &quot;256&quot;            # 每块 256 token
+os.environ[&quot;LMCACHE_LOCAL_CPU&quot;] = &quot;True&quot;            # 用主机内存这一级
+os.environ[&quot;LMCACHE_MAX_LOCAL_CPU_SIZE&quot;] = &quot;200&quot;    # GiB
+llm = LLM(model=&quot;Qwen/Qwen3-8B&quot;,
+          kv_transfer_config=KVTransferConfig(kv_connector=&quot;LMCacheConnectorV1&quot;, kv_role=&quot;kv_both&quot;))
+</code></pre>
+<p><strong>一句话</strong>：路由比的是 <span class="arithmatex">\(\max(Q, R) + C\)</span>，再乘上缓存真可用的概率看尾部。</p>
+<h2 id="_2">动画演示：发给有缓存的，还是发给空闲的</h2>
+<p><img alt="缓存亲和路由" src="../animations/54-kv-routing.gif" /></p>
+<p>可交互版：<a href="../animations/54-kv-routing.html">animations/54-kv-routing.html</a>（滑块：A 的排队 0–600 ms；B 的排队 0–200 ms；远端带宽 1–50 GB/s）。</p>
+<p><strong>怎么看</strong>：</p>
+<ol>
+<li>四条时间线：A 命中、B 重算、B 取回（查找 + 远端 + PCIe），灰排队、橙读取、绿计算（第六步）；</li>
+<li>右边列出各自的首 token 时间，最快的标绿；</li>
+<li>播放：A 排 250 / 远端 6.25 GB/s（A 和 B 取回几乎打平）→ 25 GB/s（B 取回赢）→ A 只排 50 ms（A 赢）→ 远端 1 GB/s（B 取回比重算还慢）。</li>
+</ol>
+<h2 id="_3">练习与作答记录</h2>
+<p><strong>题 1</strong>（第二步）：一张卡每 0.5 s 产生一份 0.6 GiB 的 KV。企业 API 80% 复用在 30 s 内，要多大容量？主机内存 256 GiB 能保存最近多久？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p><strong>题 2</strong>（第三步）：链路 2 GB/s，重算 0.856 s，状态 1.125 GiB。复用 1 次、2 次、3 次时，保存划不划算？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p><strong>题 3</strong>（第六步）：A 命中但排队 150 ms，B 排队 30 ms、经 12.5 GB/s 远端取回（查找 10 ms、PCIe 48.3 ms）。命中后计算 30.9 ms。谁先出首 token？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<h2 id="_4">口诀</h2>
+<blockquote>
+<p>书名一样还要同版次，目录说在还得书在；<br />
+抽屉柜子储物间，拿得比重做快就放，问题是放得下多久；<br />
+带宽快过产生速率就取回，每步跑图书馆永远不行；<br />
+洗菜比炒菜慢就提前洗几样，储物间限的是写多少；<br />
+有病历的排四小时，先比谁先出结果，再看几成概率真有病历。</p>
+</blockquote>
+<h2 id="_5">本章复习卡片</h2>
+<p><a href="../review.html">I183</a>（缓存标识与共享范围；目录 vs 对象；C ≥ rT：r 1.41 GB/s、45 / 195 / 2722 s）、<a href="../review.html">I184</a>（T_write + kT_read &lt; kT_re，临界带宽 = r；逐层预加载 49.2 ms、S_buf 预读 14 层到 30.9 ms；SSD 1 DWPD 只能写 3.2%）、<a href="../review.html">I185</a>（T_first = max(Q, R) + C；例 9.7 281 / 907 / 282 / 137 ms；p &gt; 7% 赢均值、p99 要 99%）。练习做完后，按答错、卡住的地方再补。</p>
+<h2 id="_6">附录 · 延伸阅读</h2>
+<blockquote>
+<p>留给以后深入学习用，不影响本章主线。★ 是建议先读的。</p>
+</blockquote>
+<h3 id="_7">推荐阅读</h3>
+<table>
+<thead>
+<tr>
+<th>读什么</th>
+<th>读哪里</th>
+<th>读它为了什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>★ AII 第 9 章</td>
+<td>§9.5 L493–L667</td>
+<td>本章原文</td>
+</tr>
+<tr>
+<td>Mooncake（Qin et al., FAST 2025）</td>
+<td>KVCache 为中心的架构、trace</td>
+<td>命中率与容量</td>
+</tr>
+<tr>
+<td>CachedAttention（Gao et al., USENIX ATC 2024）</td>
+<td>逐层预加载、按队列预取</td>
+<td>第四步的实验</td>
+</tr>
+<tr>
+<td>LMCache / SGLang HiCache 文档</td>
+<td>多级缓存配置</td>
+<td>实际系统</td>
+</tr>
+<tr>
+<td><a href="../lessons/46-kv-cache.html">第 46 章 KV 缓存的分配、复用与释放</a></td>
+<td>前缀匹配、保留价值</td>
+<td>单卡版本</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_8">数学原理</h3>
+<ul>
+<li><strong>滑动窗口容量</strong>：按写入先后淘汰，容量 <span class="arithmatex">\(C\)</span> 覆盖最近 <span class="arithmatex">\(C/r\)</span> 秒。</li>
+<li><strong>保存不等式</strong>：一次写 + <span class="arithmatex">\(k\)</span> 次读 vs <span class="arithmatex">\(k\)</span> 次重算；<span class="arithmatex">\(k \to \infty\)</span> 时临界带宽就是 <span class="arithmatex">\(r\)</span>。</li>
+<li><strong>两点分布的尾部</strong>：均值随 <span class="arithmatex">\(p\)</span> 线性改善，p99 只看慢路径占不占 1% 以上。</li>
+</ul>
+<h3 id="_9">公式清单</h3>
+<table>
+<thead>
+<tr>
+<th>公式</th>
+<th>意思</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\(C \ge rT\)</span></td>
+<td>容量覆盖复用间隔</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(T_{\mathrm{write}} + kT_{\mathrm{read}} &lt; kT_{\mathrm{recompute}}\)</span></td>
+<td>值得保存</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(S_{\mathrm{buf}} = B(T_{\mathrm{read}} - T_{\mathrm{new}})\)</span></td>
+<td>预读缓冲</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(T_{\mathrm{first}} = \max(Q, R) + C\)</span></td>
+<td>路由的首 token</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\mathbb{E}[T_A] = 967.2 - 856.3p\)</span></td>
+<td>缓存不一定可用</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_10">代码对照：把本章的数字用代码算一遍</h3>
+<blockquote>
+<p>代码 <code>ai-infra/solutions/chapter-code/ch54_kv_routing.py</code>，测试 <code>tests/test_ch54.py</code>：</p>
+<p><code>bash  
+cd ai-infra/solutions/chapter-code  
+uv run python ch54_kv_routing.py  
+uv run pytest tests/test_ch54.py</code></p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>讲义</th>
+<th>写法</th>
+<th>跑出来</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第二步</td>
+<td><code>fetch_ms(bw)</code>、<code>retention_s(c)</code></td>
+<td>48.3 / 170 / 96.6 ms；45 / 195 / 2722 s</td>
+</tr>
+<tr>
+<td>第三步</td>
+<td><code>worth_saving(bw, bw, k)</code></td>
+<td>25 GB/s 一次就值；2.5 GB/s 要两次；1.25 GB/s 不值</td>
+</tr>
+<tr>
+<td>第四步</td>
+<td><code>layerwise_ms(rd, 30.9)</code>、<code>min_preload(rd, 30.9)</code></td>
+<td>49.2 ms；14 层 → 30.9 ms</td>
+</tr>
+<tr>
+<td>第六步</td>
+<td><code>ttft(Q, R, C)</code>、<code>expected_a(0.9)</code></td>
+<td>280.9 / 282.5 / 137.5 ms；196.5 ms</td>
+</tr>
+</tbody>
+</table>
+<p><strong>代码里才看得到的 3 件事</strong>：</p>
+<ol>
+<li>缓冲公式按 30.9 ms 算出 435 MB ≈ 12.97 层，取整成 13 层时逐层模拟还剩 0.8 ms 读不完；<code>min_preload</code> 直接模拟出要 14 层，和原文一致。</li>
+<li>B 经 200 GbE 取回是 137.5 ms，原文写"约 137"。</li>
+<li><code>worth_saving</code> 里写和读用同一条链路；SSD 写 4.2、读 7.1 GB/s 不对称，要分别传。</li>
+</ol>
+<p><strong>自己改一改</strong>（不影响练习答案）：</p>
+<ul>
+<li>把 <code>V</code> 换成 MLA 的 549 MiB，重算临界带宽和 B 的取回时间。</li>
+<li>给 <code>ttft</code> 加一个"取回要等 GPU 空闲才开始"的版本，比较 90 ms 和 150 ms 的例子。</li>
+<li>用 <code>retention_s</code> 算一张 H20（96 GB）做 P 时 HBM 能留多久。</li>
+</ul><nav class="pager"><a href="53-expert-balance.html">← 第 53 章 · 专家放置、复制与负载均衡：最忙的那张卡定完成时刻</a><a href="55-scale-compare.html">第 55 章 · 扩缩容、故障恢复与部署方案比较：积压多久消退 →</a></nav>
+</main></div>
+<footer>来自个人学习仓库的对话讲义，含练习作答记录。源码：<a href="https://github.com/wikieden/ai-infra-from-constraints">github.com/wikieden/ai-infra-from-constraints</a>。更多讲义书：<a href="https://wikieden.github.io/ai-books/">Physical AI 0-1-♾️（合集）</a></footer>
+<script>(function(){var d=document.documentElement,K=["s","m","l","xl"];
+function save(k,v){try{v?localStorage.setItem(k,v):localStorage.removeItem(k)}catch(e){}}
+var s=document.getElementById("ab-theme");if(s){s.value=d.dataset.theme||"";s.onchange=function(){if(s.value)d.dataset.theme=s.value;else delete d.dataset.theme;save("ab-theme",s.value)}}
+document.querySelectorAll("[data-fs-step]").forEach(function(b){b.onclick=function(){var i=K.indexOf(d.dataset.fs||"m")+(+b.dataset.fsStep);i=Math.max(0,Math.min(K.length-1,i));d.dataset.fs=K[i];save("ab-fs",K[i])}});
+var nb=document.getElementById("nav-toggle"),side=document.querySelector("nav.side");if(nb&&side){nb.onclick=function(){side.classList.toggle("open")}}
+var cur=side&&side.querySelector(".cur");if(cur)cur.scrollIntoView({block:"center"});
+})();</script>
+</body></html>

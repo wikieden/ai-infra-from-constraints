@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="250" viewBox="0 0 800 250">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="16.0" y="26.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="17" fill="#1f2937" text-anchor="start" font-weight="bold">专家分派、计算与合并：串行 0.827 ms vs 两个 micro-batch 流水 0.581 ms</text>
+<text x="16.0" y="240.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">数值取自例 9.5 均衡跨服务器。三条轨道各用独立资源；流水的节奏由最长的通信段决定。</text>
+<text x="140.0" y="69.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="end" font-weight="normal">串行</text>
+<rect x="150.0" y="50.0" width="202.3" height="28.0" rx="3" fill="#ccfbf1" stroke="#0d9488" stroke-width="1.4" opacity="1"/>
+<text x="251.1" y="69.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#0d9488" text-anchor="middle" font-weight="bold">dispatch</text>
+<rect x="352.3" y="50.0" width="93.9" height="28.0" rx="3" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<text x="399.2" y="69.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#ea580c" text-anchor="middle" font-weight="bold">算</text>
+<rect x="446.2" y="50.0" width="201.7" height="28.0" rx="3" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.4" opacity="1"/>
+<text x="547.0" y="69.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#7c3aed" text-anchor="middle" font-weight="bold">combine</text>
+<text x="140.0" y="111.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="end" font-weight="normal">流水 · 网卡发</text>
+<rect x="150.0" y="92.0" width="101.1" height="28.0" rx="3" fill="#ccfbf1" stroke="#0d9488" stroke-width="1.4" opacity="1"/>
+<text x="200.6" y="111.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#0d9488" text-anchor="middle" font-weight="bold">D1</text>
+<rect x="251.1" y="92.0" width="101.1" height="28.0" rx="3" fill="#ccfbf1" stroke="#0d9488" stroke-width="1.4" opacity="1"/>
+<text x="301.7" y="111.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#0d9488" text-anchor="middle" font-weight="bold">D2</text>
+<text x="140.0" y="153.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="end" font-weight="normal">流水 · GPU</text>
+<rect x="251.1" y="134.0" width="47.0" height="28.0" rx="3" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<rect x="352.3" y="134.0" width="47.0" height="28.0" rx="3" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<text x="140.0" y="195.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="end" font-weight="normal">流水 · 网卡回</text>
+<rect x="298.1" y="176.0" width="101.1" height="28.0" rx="3" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.4" opacity="1"/>
+<text x="348.7" y="195.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#7c3aed" text-anchor="middle" font-weight="bold">C1</text>
+<rect x="399.2" y="176.0" width="100.5" height="28.0" rx="3" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.4" opacity="1"/>
+<text x="449.5" y="195.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#7c3aed" text-anchor="middle" font-weight="bold">C2</text>
+</svg>

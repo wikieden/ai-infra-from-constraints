@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ZeRO 阶段与每卡显存</title><link rel="stylesheet" href="anim.css">
+<style>svg text.cap{font-size:15px;font-weight:500}svg text.num{font-size:16px;font-weight:600}</style></head>
+<body><main>
+<h1>第 57 章 · 分几片、分什么，每卡还剩多少</h1>
+<p class="sub">配套讲义：<a href="../lessons/57-state-sharding.html">第 57 章 · 训练状态的分片、重计算与卸载：显存不够时的三条路</a>。Qwen3-8B，N = 8.19B。普通 DP 每卡 16N；ZeRO-1/2/3 依次分片优化器、梯度、权重。虚线是 RTX 4090 的 22 GiB。</p>
+<div class="panel"><svg id="sv" viewBox="0 0 680 360"></svg></div>
+<div class="row"><button id="play">▶ 播放</button><button id="step">→ 单步</button><button id="reset">↺ 从头开始</button></div>
+<div class="row"><label for="z">阶段</label><select id="z"><option value="0">普通 DP</option><option value="1">ZeRO-1</option><option value="2">ZeRO-2</option><option value="3">ZeRO-3</option></select><label for="d">分片卡数</label><input type="range" id="d" min="1" max="64" step="1" value="8"><span id="dv">8</span><label for="a">激活与缓冲 GiB</label><input type="range" id="a" min="0" max="20" step="1" value="10"><span id="av">10</span></div>
+<p class="note">看点：① 竖条按五类状态分色，最上面灰色是激活与缓冲；② 虚线 22 GiB，越线变红；③ 播放：DP 8 卡 → ZeRO-1 → ZeRO-2 → ZeRO-3 8 卡 → 16 卡 → 48 卡。</p>
+</main>
+<script src="anim.js"></script>
+<script>
+const sv=$('sv');
+function R(x,y,w,h,col,op){return el('rect',{x,y,width:Math.max(w,1),height:h,rx:4,fill:col,opacity:op??.7},sv)}
+function T(s,x,y,a,c){return txt(s,{x,y,'text-anchor':a||'start',class:c||'m'},sv)}
+function cap(s){T(s,340,26,'middle','cap')}
+const GET=ids=>ids.map(i=>{const e=$(i);return e.type==='checkbox'?+e.checked:+e.value});
+function SET(ids,v){ids.forEach((i,k)=>{const e=$(i);if(e.type==='checkbox')e.checked=!!v[k];else e.value=v[k];const o=$(i+'v');if(o)o.textContent=(+v[k]).toString()})}
+const IDS=['z','d','a'],F=[[0,8,10],[1,8,10],[2,8,10],[3,8,10],[3,16,10],[3,48,10]];
+function render(z,d,a){const N=8.190735360e9/2**30,parts=[['权重',2,z>=3],['梯度',2,z>=2],['主权重',4,z>=1],['一阶矩',4,z>=1],['二阶矩',4,z>=1]],cols=['var(--accent)','var(--teal)','var(--purple)','var(--warm)','var(--good)'];
+ let tot=0;const segs=parts.map(([n,b,sh])=>{const v=b*N/(sh?d:1);tot+=v;return[n,v]});tot+=+a;
+ cap(`${['普通 DP','ZeRO-1','ZeRO-2','ZeRO-3'][z]}、${d} 卡：每卡 ${tot.toFixed(1)} GiB`);
+ const top=Math.max(tot*1.15,30),Y=v=>300-Math.min(v,top)/top*240;let acc=0;segs.forEach(([n,v],i)=>{R(200,Y(acc+v),120,Y(acc)-Y(acc+v),cols[i]);if(Y(acc)-Y(acc+v)>14)T(`${n} ${v.toFixed(1)}`,330,(Y(acc)+Y(acc+v))/2+5);acc+=v});
+ R(200,Y(acc+ +a),120,Y(acc)-Y(acc+ +a),'var(--muted)');T(`激活与缓冲 ${a}`,330,(Y(acc)+Y(acc+ +a))/2+5);
+ el('line',{x1:160,y1:Y(22),x2:600,y2:Y(22),stroke:tot>22?'var(--bad)':'var(--good)','stroke-dasharray':'5 4'},sv);T('22 GiB',600,Y(22)-6,'end');T(tot>22?'放不下':'放得下',260,Y(tot)-8,'middle','num')}
+let k=0,custom=null;
+function draw(){clear(sv);const v=custom||F[k];SET(IDS,v);render(...v)}
+function reset(){k=0;custom=null;draw()}
+function next(){if(custom!==null){custom=null;draw();return true}if(k>=F.length-1)return false;k++;draw();return true}
+IDS.forEach(i=>{const e=$(i);const f=()=>{ANIM.stop();custom=GET(IDS);draw()};e.oninput=f;e.onchange=f});
+setupPlayer({captureSeed:1,reset,next},1500);
+</script><a href="https://wikieden.github.io/ai-books/" style="position:fixed;right:12px;bottom:12px;z-index:99;padding:4px 10px;border-radius:14px;background:rgba(127,127,127,.18);color:inherit;font:13px/1.6 system-ui,sans-serif;text-decoration:none">← 全部讲义书</a>
+</body></html>

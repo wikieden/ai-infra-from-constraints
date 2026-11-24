@@ -1,0 +1,158 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="330" viewBox="0 0 900 330">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="16.0" y="26.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="17" fill="#1f2937" text-anchor="start" font-weight="bold">四张卡上，普通 DP 与 ZeRO-1 / 2 / 3 的状态归属</text>
+<text x="16.0" y="320.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">每列一张卡。实心是完整一份，窄条是自己负责的四分之一；d = 8 时每卡 122.1 / 42.0 / 28.6 / 15.3 GiB。</text>
+<text x="160.0" y="58.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="13" fill="#1f2937" text-anchor="middle" font-weight="bold">普通 DP</text>
+<rect x="70.0" y="76.0" width="40.0" height="32.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<rect x="70.0" y="116.0" width="40.0" height="32.0" rx="2" fill="#ccfbf1" stroke="#0d9488" stroke-width="1.4" opacity="1"/>
+<rect x="70.0" y="156.0" width="40.0" height="32.0" rx="2" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.4" opacity="1"/>
+<rect x="70.0" y="196.0" width="40.0" height="32.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<rect x="70.0" y="236.0" width="40.0" height="32.0" rx="2" fill="#fef9c3" stroke="#ca8a04" stroke-width="1.4" opacity="1"/>
+<text x="90.0" y="290.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10" fill="#6b7280" text-anchor="middle" font-weight="normal">卡 0</text>
+<rect x="116.0" y="76.0" width="40.0" height="32.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<rect x="116.0" y="116.0" width="40.0" height="32.0" rx="2" fill="#ccfbf1" stroke="#0d9488" stroke-width="1.4" opacity="1"/>
+<rect x="116.0" y="156.0" width="40.0" height="32.0" rx="2" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.4" opacity="1"/>
+<rect x="116.0" y="196.0" width="40.0" height="32.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<rect x="116.0" y="236.0" width="40.0" height="32.0" rx="2" fill="#fef9c3" stroke="#ca8a04" stroke-width="1.4" opacity="1"/>
+<text x="136.0" y="290.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10" fill="#6b7280" text-anchor="middle" font-weight="normal">卡 1</text>
+<rect x="162.0" y="76.0" width="40.0" height="32.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<rect x="162.0" y="116.0" width="40.0" height="32.0" rx="2" fill="#ccfbf1" stroke="#0d9488" stroke-width="1.4" opacity="1"/>
+<rect x="162.0" y="156.0" width="40.0" height="32.0" rx="2" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.4" opacity="1"/>
+<rect x="162.0" y="196.0" width="40.0" height="32.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<rect x="162.0" y="236.0" width="40.0" height="32.0" rx="2" fill="#fef9c3" stroke="#ca8a04" stroke-width="1.4" opacity="1"/>
+<text x="182.0" y="290.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10" fill="#6b7280" text-anchor="middle" font-weight="normal">卡 2</text>
+<rect x="208.0" y="76.0" width="40.0" height="32.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<rect x="208.0" y="116.0" width="40.0" height="32.0" rx="2" fill="#ccfbf1" stroke="#0d9488" stroke-width="1.4" opacity="1"/>
+<rect x="208.0" y="156.0" width="40.0" height="32.0" rx="2" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.4" opacity="1"/>
+<rect x="208.0" y="196.0" width="40.0" height="32.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<rect x="208.0" y="236.0" width="40.0" height="32.0" rx="2" fill="#fef9c3" stroke="#ca8a04" stroke-width="1.4" opacity="1"/>
+<text x="228.0" y="290.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10" fill="#6b7280" text-anchor="middle" font-weight="normal">卡 3</text>
+<text x="365.0" y="58.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="13" fill="#1f2937" text-anchor="middle" font-weight="bold">ZeRO-1</text>
+<rect x="275.0" y="76.0" width="40.0" height="32.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<rect x="275.0" y="116.0" width="40.0" height="32.0" rx="2" fill="#ccfbf1" stroke="#0d9488" stroke-width="1.4" opacity="1"/>
+<rect x="275.0" y="156.0" width="40.0" height="32.0" rx="2" fill="#fff" stroke="#e5e7eb" stroke-width="1.4" opacity="1"/>
+<rect x="275.0" y="156.0" width="10.0" height="32.0" rx="1" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.4" opacity="1"/>
+<rect x="275.0" y="196.0" width="40.0" height="32.0" rx="2" fill="#fff" stroke="#e5e7eb" stroke-width="1.4" opacity="1"/>
+<rect x="275.0" y="196.0" width="10.0" height="32.0" rx="1" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<rect x="275.0" y="236.0" width="40.0" height="32.0" rx="2" fill="#fff" stroke="#e5e7eb" stroke-width="1.4" opacity="1"/>
+<rect x="275.0" y="236.0" width="10.0" height="32.0" rx="1" fill="#fef9c3" stroke="#ca8a04" stroke-width="1.4" opacity="1"/>
+<text x="295.0" y="290.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10" fill="#6b7280" text-anchor="middle" font-weight="normal">卡 0</text>
+<rect x="321.0" y="76.0" width="40.0" height="32.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<rect x="321.0" y="116.0" width="40.0" height="32.0" rx="2" fill="#ccfbf1" stroke="#0d9488" stroke-width="1.4" opacity="1"/>
+<rect x="321.0" y="156.0" width="40.0" height="32.0" rx="2" fill="#fff" stroke="#e5e7eb" stroke-width="1.4" opacity="1"/>
+<rect x="331.0" y="156.0" width="10.0" height="32.0" rx="1" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.4" opacity="1"/>
+<rect x="321.0" y="196.0" width="40.0" height="32.0" rx="2" fill="#fff" stroke="#e5e7eb" stroke-width="1.4" opacity="1"/>
+<rect x="331.0" y="196.0" width="10.0" height="32.0" rx="1" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<rect x="321.0" y="236.0" width="40.0" height="32.0" rx="2" fill="#fff" stroke="#e5e7eb" stroke-width="1.4" opacity="1"/>
+<rect x="331.0" y="236.0" width="10.0" height="32.0" rx="1" fill="#fef9c3" stroke="#ca8a04" stroke-width="1.4" opacity="1"/>
+<text x="341.0" y="290.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10" fill="#6b7280" text-anchor="middle" font-weight="normal">卡 1</text>
+<rect x="367.0" y="76.0" width="40.0" height="32.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<rect x="367.0" y="116.0" width="40.0" height="32.0" rx="2" fill="#ccfbf1" stroke="#0d9488" stroke-width="1.4" opacity="1"/>
+<rect x="367.0" y="156.0" width="40.0" height="32.0" rx="2" fill="#fff" stroke="#e5e7eb" stroke-width="1.4" opacity="1"/>
+<rect x="387.0" y="156.0" width="10.0" height="32.0" rx="1" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.4" opacity="1"/>
+<rect x="367.0" y="196.0" width="40.0" height="32.0" rx="2" fill="#fff" stroke="#e5e7eb" stroke-width="1.4" opacity="1"/>
+<rect x="387.0" y="196.0" width="10.0" height="32.0" rx="1" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<rect x="367.0" y="236.0" width="40.0" height="32.0" rx="2" fill="#fff" stroke="#e5e7eb" stroke-width="1.4" opacity="1"/>
+<rect x="387.0" y="236.0" width="10.0" height="32.0" rx="1" fill="#fef9c3" stroke="#ca8a04" stroke-width="1.4" opacity="1"/>
+<text x="387.0" y="290.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10" fill="#6b7280" text-anchor="middle" font-weight="normal">卡 2</text>
+<rect x="413.0" y="76.0" width="40.0" height="32.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<rect x="413.0" y="116.0" width="40.0" height="32.0" rx="2" fill="#ccfbf1" stroke="#0d9488" stroke-width="1.4" opacity="1"/>
+<rect x="413.0" y="156.0" width="40.0" height="32.0" rx="2" fill="#fff" stroke="#e5e7eb" stroke-width="1.4" opacity="1"/>
+<rect x="443.0" y="156.0" width="10.0" height="32.0" rx="1" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.4" opacity="1"/>
+<rect x="413.0" y="196.0" width="40.0" height="32.0" rx="2" fill="#fff" stroke="#e5e7eb" stroke-width="1.4" opacity="1"/>
+<rect x="443.0" y="196.0" width="10.0" height="32.0" rx="1" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<rect x="413.0" y="236.0" width="40.0" height="32.0" rx="2" fill="#fff" stroke="#e5e7eb" stroke-width="1.4" opacity="1"/>
+<rect x="443.0" y="236.0" width="10.0" height="32.0" rx="1" fill="#fef9c3" stroke="#ca8a04" stroke-width="1.4" opacity="1"/>
+<text x="433.0" y="290.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10" fill="#6b7280" text-anchor="middle" font-weight="normal">卡 3</text>
+<text x="570.0" y="58.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="13" fill="#1f2937" text-anchor="middle" font-weight="bold">ZeRO-2</text>
+<rect x="480.0" y="76.0" width="40.0" height="32.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<rect x="480.0" y="116.0" width="40.0" height="32.0" rx="2" fill="#fff" stroke="#e5e7eb" stroke-width="1.4" opacity="1"/>
+<rect x="480.0" y="116.0" width="10.0" height="32.0" rx="1" fill="#ccfbf1" stroke="#0d9488" stroke-width="1.4" opacity="1"/>
+<rect x="480.0" y="156.0" width="40.0" height="32.0" rx="2" fill="#fff" stroke="#e5e7eb" stroke-width="1.4" opacity="1"/>
+<rect x="480.0" y="156.0" width="10.0" height="32.0" rx="1" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.4" opacity="1"/>
+<rect x="480.0" y="196.0" width="40.0" height="32.0" rx="2" fill="#fff" stroke="#e5e7eb" stroke-width="1.4" opacity="1"/>
+<rect x="480.0" y="196.0" width="10.0" height="32.0" rx="1" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<rect x="480.0" y="236.0" width="40.0" height="32.0" rx="2" fill="#fff" stroke="#e5e7eb" stroke-width="1.4" opacity="1"/>
+<rect x="480.0" y="236.0" width="10.0" height="32.0" rx="1" fill="#fef9c3" stroke="#ca8a04" stroke-width="1.4" opacity="1"/>
+<text x="500.0" y="290.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10" fill="#6b7280" text-anchor="middle" font-weight="normal">卡 0</text>
+<rect x="526.0" y="76.0" width="40.0" height="32.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<rect x="526.0" y="116.0" width="40.0" height="32.0" rx="2" fill="#fff" stroke="#e5e7eb" stroke-width="1.4" opacity="1"/>
+<rect x="536.0" y="116.0" width="10.0" height="32.0" rx="1" fill="#ccfbf1" stroke="#0d9488" stroke-width="1.4" opacity="1"/>
+<rect x="526.0" y="156.0" width="40.0" height="32.0" rx="2" fill="#fff" stroke="#e5e7eb" stroke-width="1.4" opacity="1"/>
+<rect x="536.0" y="156.0" width="10.0" height="32.0" rx="1" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.4" opacity="1"/>
+<rect x="526.0" y="196.0" width="40.0" height="32.0" rx="2" fill="#fff" stroke="#e5e7eb" stroke-width="1.4" opacity="1"/>
+<rect x="536.0" y="196.0" width="10.0" height="32.0" rx="1" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<rect x="526.0" y="236.0" width="40.0" height="32.0" rx="2" fill="#fff" stroke="#e5e7eb" stroke-width="1.4" opacity="1"/>
+<rect x="536.0" y="236.0" width="10.0" height="32.0" rx="1" fill="#fef9c3" stroke="#ca8a04" stroke-width="1.4" opacity="1"/>
+<text x="546.0" y="290.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10" fill="#6b7280" text-anchor="middle" font-weight="normal">卡 1</text>
+<rect x="572.0" y="76.0" width="40.0" height="32.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<rect x="572.0" y="116.0" width="40.0" height="32.0" rx="2" fill="#fff" stroke="#e5e7eb" stroke-width="1.4" opacity="1"/>
+<rect x="592.0" y="116.0" width="10.0" height="32.0" rx="1" fill="#ccfbf1" stroke="#0d9488" stroke-width="1.4" opacity="1"/>
+<rect x="572.0" y="156.0" width="40.0" height="32.0" rx="2" fill="#fff" stroke="#e5e7eb" stroke-width="1.4" opacity="1"/>
+<rect x="592.0" y="156.0" width="10.0" height="32.0" rx="1" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.4" opacity="1"/>
+<rect x="572.0" y="196.0" width="40.0" height="32.0" rx="2" fill="#fff" stroke="#e5e7eb" stroke-width="1.4" opacity="1"/>
+<rect x="592.0" y="196.0" width="10.0" height="32.0" rx="1" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<rect x="572.0" y="236.0" width="40.0" height="32.0" rx="2" fill="#fff" stroke="#e5e7eb" stroke-width="1.4" opacity="1"/>
+<rect x="592.0" y="236.0" width="10.0" height="32.0" rx="1" fill="#fef9c3" stroke="#ca8a04" stroke-width="1.4" opacity="1"/>
+<text x="592.0" y="290.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10" fill="#6b7280" text-anchor="middle" font-weight="normal">卡 2</text>
+<rect x="618.0" y="76.0" width="40.0" height="32.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<rect x="618.0" y="116.0" width="40.0" height="32.0" rx="2" fill="#fff" stroke="#e5e7eb" stroke-width="1.4" opacity="1"/>
+<rect x="648.0" y="116.0" width="10.0" height="32.0" rx="1" fill="#ccfbf1" stroke="#0d9488" stroke-width="1.4" opacity="1"/>
+<rect x="618.0" y="156.0" width="40.0" height="32.0" rx="2" fill="#fff" stroke="#e5e7eb" stroke-width="1.4" opacity="1"/>
+<rect x="648.0" y="156.0" width="10.0" height="32.0" rx="1" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.4" opacity="1"/>
+<rect x="618.0" y="196.0" width="40.0" height="32.0" rx="2" fill="#fff" stroke="#e5e7eb" stroke-width="1.4" opacity="1"/>
+<rect x="648.0" y="196.0" width="10.0" height="32.0" rx="1" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<rect x="618.0" y="236.0" width="40.0" height="32.0" rx="2" fill="#fff" stroke="#e5e7eb" stroke-width="1.4" opacity="1"/>
+<rect x="648.0" y="236.0" width="10.0" height="32.0" rx="1" fill="#fef9c3" stroke="#ca8a04" stroke-width="1.4" opacity="1"/>
+<text x="638.0" y="290.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10" fill="#6b7280" text-anchor="middle" font-weight="normal">卡 3</text>
+<text x="775.0" y="58.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="13" fill="#1f2937" text-anchor="middle" font-weight="bold">ZeRO-3</text>
+<rect x="685.0" y="76.0" width="40.0" height="32.0" rx="2" fill="#fff" stroke="#e5e7eb" stroke-width="1.4" opacity="1"/>
+<rect x="685.0" y="76.0" width="10.0" height="32.0" rx="1" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<rect x="685.0" y="116.0" width="40.0" height="32.0" rx="2" fill="#fff" stroke="#e5e7eb" stroke-width="1.4" opacity="1"/>
+<rect x="685.0" y="116.0" width="10.0" height="32.0" rx="1" fill="#ccfbf1" stroke="#0d9488" stroke-width="1.4" opacity="1"/>
+<rect x="685.0" y="156.0" width="40.0" height="32.0" rx="2" fill="#fff" stroke="#e5e7eb" stroke-width="1.4" opacity="1"/>
+<rect x="685.0" y="156.0" width="10.0" height="32.0" rx="1" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.4" opacity="1"/>
+<rect x="685.0" y="196.0" width="40.0" height="32.0" rx="2" fill="#fff" stroke="#e5e7eb" stroke-width="1.4" opacity="1"/>
+<rect x="685.0" y="196.0" width="10.0" height="32.0" rx="1" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<rect x="685.0" y="236.0" width="40.0" height="32.0" rx="2" fill="#fff" stroke="#e5e7eb" stroke-width="1.4" opacity="1"/>
+<rect x="685.0" y="236.0" width="10.0" height="32.0" rx="1" fill="#fef9c3" stroke="#ca8a04" stroke-width="1.4" opacity="1"/>
+<text x="705.0" y="290.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10" fill="#6b7280" text-anchor="middle" font-weight="normal">卡 0</text>
+<rect x="731.0" y="76.0" width="40.0" height="32.0" rx="2" fill="#fff" stroke="#e5e7eb" stroke-width="1.4" opacity="1"/>
+<rect x="741.0" y="76.0" width="10.0" height="32.0" rx="1" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<rect x="731.0" y="116.0" width="40.0" height="32.0" rx="2" fill="#fff" stroke="#e5e7eb" stroke-width="1.4" opacity="1"/>
+<rect x="741.0" y="116.0" width="10.0" height="32.0" rx="1" fill="#ccfbf1" stroke="#0d9488" stroke-width="1.4" opacity="1"/>
+<rect x="731.0" y="156.0" width="40.0" height="32.0" rx="2" fill="#fff" stroke="#e5e7eb" stroke-width="1.4" opacity="1"/>
+<rect x="741.0" y="156.0" width="10.0" height="32.0" rx="1" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.4" opacity="1"/>
+<rect x="731.0" y="196.0" width="40.0" height="32.0" rx="2" fill="#fff" stroke="#e5e7eb" stroke-width="1.4" opacity="1"/>
+<rect x="741.0" y="196.0" width="10.0" height="32.0" rx="1" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<rect x="731.0" y="236.0" width="40.0" height="32.0" rx="2" fill="#fff" stroke="#e5e7eb" stroke-width="1.4" opacity="1"/>
+<rect x="741.0" y="236.0" width="10.0" height="32.0" rx="1" fill="#fef9c3" stroke="#ca8a04" stroke-width="1.4" opacity="1"/>
+<text x="751.0" y="290.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10" fill="#6b7280" text-anchor="middle" font-weight="normal">卡 1</text>
+<rect x="777.0" y="76.0" width="40.0" height="32.0" rx="2" fill="#fff" stroke="#e5e7eb" stroke-width="1.4" opacity="1"/>
+<rect x="797.0" y="76.0" width="10.0" height="32.0" rx="1" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<rect x="777.0" y="116.0" width="40.0" height="32.0" rx="2" fill="#fff" stroke="#e5e7eb" stroke-width="1.4" opacity="1"/>
+<rect x="797.0" y="116.0" width="10.0" height="32.0" rx="1" fill="#ccfbf1" stroke="#0d9488" stroke-width="1.4" opacity="1"/>
+<rect x="777.0" y="156.0" width="40.0" height="32.0" rx="2" fill="#fff" stroke="#e5e7eb" stroke-width="1.4" opacity="1"/>
+<rect x="797.0" y="156.0" width="10.0" height="32.0" rx="1" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.4" opacity="1"/>
+<rect x="777.0" y="196.0" width="40.0" height="32.0" rx="2" fill="#fff" stroke="#e5e7eb" stroke-width="1.4" opacity="1"/>
+<rect x="797.0" y="196.0" width="10.0" height="32.0" rx="1" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<rect x="777.0" y="236.0" width="40.0" height="32.0" rx="2" fill="#fff" stroke="#e5e7eb" stroke-width="1.4" opacity="1"/>
+<rect x="797.0" y="236.0" width="10.0" height="32.0" rx="1" fill="#fef9c3" stroke="#ca8a04" stroke-width="1.4" opacity="1"/>
+<text x="797.0" y="290.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10" fill="#6b7280" text-anchor="middle" font-weight="normal">卡 2</text>
+<rect x="823.0" y="76.0" width="40.0" height="32.0" rx="2" fill="#fff" stroke="#e5e7eb" stroke-width="1.4" opacity="1"/>
+<rect x="853.0" y="76.0" width="10.0" height="32.0" rx="1" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<rect x="823.0" y="116.0" width="40.0" height="32.0" rx="2" fill="#fff" stroke="#e5e7eb" stroke-width="1.4" opacity="1"/>
+<rect x="853.0" y="116.0" width="10.0" height="32.0" rx="1" fill="#ccfbf1" stroke="#0d9488" stroke-width="1.4" opacity="1"/>
+<rect x="823.0" y="156.0" width="40.0" height="32.0" rx="2" fill="#fff" stroke="#e5e7eb" stroke-width="1.4" opacity="1"/>
+<rect x="853.0" y="156.0" width="10.0" height="32.0" rx="1" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.4" opacity="1"/>
+<rect x="823.0" y="196.0" width="40.0" height="32.0" rx="2" fill="#fff" stroke="#e5e7eb" stroke-width="1.4" opacity="1"/>
+<rect x="853.0" y="196.0" width="10.0" height="32.0" rx="1" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<rect x="823.0" y="236.0" width="40.0" height="32.0" rx="2" fill="#fff" stroke="#e5e7eb" stroke-width="1.4" opacity="1"/>
+<rect x="853.0" y="236.0" width="10.0" height="32.0" rx="1" fill="#fef9c3" stroke="#ca8a04" stroke-width="1.4" opacity="1"/>
+<text x="843.0" y="290.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10" fill="#6b7280" text-anchor="middle" font-weight="normal">卡 3</text>
+<text x="62.0" y="96.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#2563eb" text-anchor="end" font-weight="normal">权重</text>
+<text x="62.0" y="136.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#0d9488" text-anchor="end" font-weight="normal">梯度</text>
+<text x="62.0" y="176.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#7c3aed" text-anchor="end" font-weight="normal">主权重</text>
+<text x="62.0" y="216.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#ea580c" text-anchor="end" font-weight="normal">一阶矩</text>
+<text x="62.0" y="256.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#ca8a04" text-anchor="end" font-weight="normal">二阶矩</text>
+</svg>

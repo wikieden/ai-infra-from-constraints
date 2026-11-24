@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="360" viewBox="0 0 900 360">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="16.0" y="26.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="17" fill="#1f2937" text-anchor="start" font-weight="bold">同一个 4 倍热点专家，在 EP8 / 32 / 256 下的卡负载</text>
+<text x="16.0" y="350.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">256 个专家、1024 token 各选 8 个；专家 0 收到 128 行。柱高 = 该卡行数 ÷ 每卡平均；橙色是热点专家。只画卡 0、1、2 和最后一张。</text>
+<text x="190.0" y="60.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="middle" font-weight="bold">EP8：热点卡 1.08 倍</text>
+<line x1="80.0" y1="250.0" x2="310.0" y2="250.0" stroke="#6b7280" stroke-width="1" stroke-dasharray="4 3"/>
+<rect x="90.0" y="293.8" width="40.0" height="6.2" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<rect x="90.0" y="245.9" width="40.0" height="47.9" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<text x="110.0" y="316.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">卡 0</text>
+<rect x="145.0" y="250.6" width="40.0" height="49.4" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<text x="165.0" y="316.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">卡 1</text>
+<rect x="200.0" y="250.6" width="40.0" height="49.4" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<text x="220.0" y="316.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">卡 2</text>
+<rect x="255.0" y="250.6" width="40.0" height="49.4" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<text x="275.0" y="316.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">卡 7</text>
+<text x="76.0" y="254.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10" fill="#6b7280" text-anchor="end" font-weight="normal">平均</text>
+<text x="470.0" y="60.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="middle" font-weight="bold">EP32：热点卡 1.36 倍</text>
+<line x1="360.0" y1="250.0" x2="590.0" y2="250.0" stroke="#6b7280" stroke-width="1" stroke-dasharray="4 3"/>
+<rect x="370.0" y="275.0" width="40.0" height="25.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<rect x="370.0" y="231.8" width="40.0" height="43.2" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<text x="390.0" y="316.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">卡 0</text>
+<rect x="425.0" y="250.6" width="40.0" height="49.4" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<text x="445.0" y="316.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">卡 1</text>
+<rect x="480.0" y="250.6" width="40.0" height="49.4" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<text x="500.0" y="316.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">卡 2</text>
+<rect x="535.0" y="250.6" width="40.0" height="49.4" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<text x="555.0" y="316.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">卡 31</text>
+<text x="750.0" y="60.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="middle" font-weight="bold">EP256：热点卡 4.00 倍</text>
+<line x1="640.0" y1="250.0" x2="870.0" y2="250.0" stroke="#6b7280" stroke-width="1" stroke-dasharray="4 3"/>
+<rect x="650.0" y="100.0" width="40.0" height="200.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<text x="670.0" y="316.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">卡 0</text>
+<rect x="705.0" y="250.6" width="40.0" height="49.4" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<text x="725.0" y="316.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">卡 1</text>
+<rect x="760.0" y="250.6" width="40.0" height="49.4" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<text x="780.0" y="316.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">卡 2</text>
+<rect x="815.0" y="250.6" width="40.0" height="49.4" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<text x="835.0" y="316.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">卡 255</text>
+</svg>

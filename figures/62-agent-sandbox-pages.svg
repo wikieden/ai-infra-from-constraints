@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="260" viewBox="0 0 880 260">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="16.0" y="26.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="17" fill="#1f2937" text-anchor="start" font-weight="bold">四种模板加载方式，每个环境本地保存的数据</text>
+<text x="16.0" y="250.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">模板 2 GiB，工具读 512 MiB、改 128 MiB、管理开销 4 MiB；另有一份共享模板不计入。括号里是 100 个环境的合计。</text>
+<text x="178.0" y="79.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="end" font-weight="normal">完整复制</text>
+<rect x="190.0" y="60.0" width="478.8" height="28.0" rx="4" fill="#f3f4f6" stroke="#6b7280" stroke-width="1.4" opacity="1"/>
+<text x="676.8" y="79.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#6b7280" text-anchor="start" font-weight="bold">2,052 MiB · ≈ 200 GiB</text>
+<text x="178.0" y="123.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="end" font-weight="normal">按需加载</text>
+<rect x="190.0" y="104.0" width="120.4" height="28.0" rx="4" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<text x="318.4" y="123.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#2563eb" text-anchor="start" font-weight="bold">516 MiB · ≈ 50 GiB</text>
+<text x="178.0" y="167.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="end" font-weight="normal">只读共享</text>
+<rect x="190.0" y="148.0" width="30.8" height="28.0" rx="4" fill="#dcfce7" stroke="#16a34a" stroke-width="1.4" opacity="1"/>
+<text x="228.8" y="167.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#16a34a" text-anchor="start" font-weight="bold">132 MiB · ≈ 13 GiB</text>
+<text x="178.0" y="211.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="end" font-weight="normal">共享 + 256 MiB 热点</text>
+<rect x="190.0" y="192.0" width="90.5" height="28.0" rx="4" fill="#ccfbf1" stroke="#0d9488" stroke-width="1.4" opacity="1"/>
+<text x="288.5" y="211.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#0d9488" text-anchor="start" font-weight="bold">388 MiB · ≈ 38 GiB</text>
+</svg>

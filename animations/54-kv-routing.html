@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>缓存亲和路由</title><link rel="stylesheet" href="anim.css">
+<style>svg text.cap{font-size:15px;font-weight:500}svg text.num{font-size:16px;font-weight:600}</style></head>
+<body><main>
+<h1>第 54 章 · 发给有缓存的，还是发给空闲的</h1>
+<p class="sub">配套讲义：<a href="../lessons/54-kv-routing.html">第 54 章 · KV 的分布、共享与请求路由：存哪一级、何时取回、发给谁</a>。A 的 HBM 有 8K 前缀；B 没缓存，可重算 887 ms，或远端查找 10 ms + 远端读取 + PCIe 48.3 ms。命中后计算 30.9 ms。</p>
+<div class="panel"><svg id="sv" viewBox="0 0 680 360"></svg></div>
+<div class="row"><button id="play">▶ 播放</button><button id="step">→ 单步</button><button id="reset">↺ 从头开始</button></div>
+<div class="row"><label for="q">A 排队 ms</label><input type="range" id="q" min="0" max="600" step="10" value="250"><span id="qv">250</span><label for="w">B 排队 ms</label><input type="range" id="w" min="0" max="200" step="10" value="20"><span id="wv">20</span><label for="b">远端 GB/s</label><input type="range" id="b" min="1" max="50" step="0.25" value="6.25"><span id="bv">6.25</span></div>
+<p class="note">看点：① 三条时间线：灰排队、橙远端、蓝 PCIe、绿计算；② 右边是首 token 时间，最快的标绿；③ 播放：A 排 250、6.25 GB/s → 25 GB/s → A 只排 50 → 远端 1 GB/s。</p>
+</main>
+<script src="anim.js"></script>
+<script>
+const sv=$('sv');
+function R(x,y,w,h,col,op){return el('rect',{x,y,width:Math.max(w,1),height:h,rx:4,fill:col,opacity:op??.7},sv)}
+function T(s,x,y,a,c){return txt(s,{x,y,'text-anchor':a||'start',class:c||'m'},sv)}
+function cap(s){T(s,340,26,'middle','cap')}
+const GET=ids=>ids.map(i=>{const e=$(i);return e.type==='checkbox'?+e.checked:+e.value});
+function SET(ids,v){ids.forEach((i,k)=>{const e=$(i);if(e.type==='checkbox')e.checked=!!v[k];else e.value=v[k];const o=$(i+'v');if(o)o.textContent=(+v[k]).toString()})}
+const IDS=['q','w','b'],F=[[250,20,6.25],[250,20,25],[50,20,25],[250,20,1]];
+function render(q,w,b){const rem=1208/b,ready=10+rem+48.3;const A=+q+30.9,B1=+w+887.2,B2=Math.max(w,ready)+30.9,best=Math.min(A,B1,B2);
+ cap(`A ${A.toFixed(0)} ms · B 重算 ${B1.toFixed(0)} ms · B 取回 ${B2.toFixed(0)} ms`);const sc=v=>Math.min(v,1400)/1400*440;
+ const rows=[['A 命中',[[0,q,'var(--muted)'],[q,A,'var(--good)']],A],['B 重算',[[0,w,'var(--muted)'],[w,B1,'var(--good)']],B1],['B 取回',[[0,10,'var(--muted)'],[10,10+rem,'var(--warm)'],[10+rem,ready,'var(--accent)'],[Math.max(w,ready),B2,'var(--good)']],B2]];
+ rows.forEach(([n,segs,t],i)=>{const y=80+i*70;T(n,100,y+22,'end');segs.forEach(([a,z,c])=>R(110+sc(a),y,sc(z)-sc(a),34,c));T(`${t.toFixed(0)} ms`,118+sc(t),y+22,'start',t===best?'num':'m')});
+ T('横轴超过 1400 ms 截断',340,320,'middle')}
+let k=0,custom=null;
+function draw(){clear(sv);const v=custom||F[k];SET(IDS,v);render(...v)}
+function reset(){k=0;custom=null;draw()}
+function next(){if(custom!==null){custom=null;draw();return true}if(k>=F.length-1)return false;k++;draw();return true}
+IDS.forEach(i=>{const e=$(i);const f=()=>{ANIM.stop();custom=GET(IDS);draw()};e.oninput=f;e.onchange=f});
+setupPlayer({captureSeed:1,reset,next},1500);
+</script><a href="https://wikieden.github.io/ai-books/" style="position:fixed;right:12px;bottom:12px;z-index:99;padding:4px 10px;border-radius:14px;background:rgba(127,127,127,.18);color:inherit;font:13px/1.6 system-ui,sans-serif;text-decoration:none">← 全部讲义书</a>
+</body></html>

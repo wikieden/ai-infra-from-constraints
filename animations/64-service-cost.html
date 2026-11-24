@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>自建与按量</title><link rel="stylesheet" href="anim.css">
+<style>svg text.cap{font-size:15px;font-weight:500}svg text.num{font-size:16px;font-weight:600}</style></head>
+<body><main>
+<h1>第 64 章 · 预留还是按量</h1>
+<p class="sub">配套讲义：<a href="../lessons/64-service-cost.html">第 64 章 · 模型服务的选择、成本与扩容：按成功任务算账</a>。4 张 B200 一个月 720 小时。预留：卡时价 × 4 × 720（处理上限 = 32 会话 × 2,592,000 s ÷ 每项占用会话秒）；按量：每项 GPU 秒 × 卡时价 ÷ 3600。</p>
+<div class="panel"><svg id="sv" viewBox="0 0 680 360"></svg></div>
+<div class="row"><button id="play">▶ 播放</button><button id="step">→ 单步</button><button id="reset">↺ 从头开始</button></div>
+<div class="row"><label for="n">每月任务量（万）</label><input type="range" id="n" min="0" max="700" step="5" value="100"><span id="nv">100</span><label for="p">预留 $/卡时</label><input type="range" id="p" min="3" max="10" step="0.01" value="6.79"><span id="pv">6.79</span><label for="q">按量 $/卡时</label><input type="range" id="q" min="4" max="12" step="0.01" value="8.64"><span id="qv">8.64</span><label for="g">每项 GPU 秒</label><input type="range" id="g" min="1" max="6" step="0.025" value="3.375"><span id="gv">3.375</span></div>
+<p class="note">看点：① 水平线是预留（止于处理上限），斜线是按量，红点是交点；② 竖线是当前任务量，右上角比较月成本；③ 播放：100 万 → 300 万 → 效率翻倍 → 预留涨到 8 $/卡时。</p>
+</main>
+<script src="anim.js"></script>
+<script>
+const sv=$('sv');
+function R(x,y,w,h,col,op){return el('rect',{x,y,width:Math.max(w,1),height:h,rx:4,fill:col,opacity:op??.7},sv)}
+function T(s,x,y,a,c){return txt(s,{x,y,'text-anchor':a||'start',class:c||'m'},sv)}
+function cap(s){T(s,340,26,'middle','cap')}
+const GET=ids=>ids.map(i=>{const e=$(i);return e.type==='checkbox'?+e.checked:+e.value});
+function SET(ids,v){ids.forEach((i,k)=>{const e=$(i);if(e.type==='checkbox')e.checked=!!v[k];else e.value=v[k];const o=$(i+'v');if(o)o.textContent=(+v[k]).toString()})}
+const IDS=['n','p','q','g'],F=[[100,6.79,8.64,3.375],[300,6.79,8.64,3.375],[300,6.79,8.64,1.6875],[300,8,8.64,3.375]];
+function render(n,p,q,g){const F0=4*720*p,c=g*q/3600,cap0=32*2592000/(g*8)*1e-4,N=n*1e4,ondem=N*c,res=n<=cap0?F0:Infinity,x=F0/c/1e4;
+ cap(`${n} 万项：预留 ${res===Infinity?'超出上限':res.toFixed(0)+' $'}，按量 ${ondem.toFixed(0)} $ → ${ondem<res?'按量省':'预留省'}`);
+ const X=v=>70+Math.min(v,700)/700*540,Y=v=>300-Math.min(v,40000)/40000*240;
+ el('line',{x1:70,y1:300,x2:610,y2:300,stroke:'var(--line)'},sv);el('line',{x1:70,y1:60,x2:70,y2:300,stroke:'var(--line)'},sv);
+ el('line',{x1:X(0),y1:Y(F0),x2:X(cap0),y2:Y(F0),stroke:'var(--accent)','stroke-width':3},sv);el('line',{x1:X(0),y1:Y(0),x2:X(700),y2:Y(700e4*c),stroke:'var(--warm)','stroke-width':3},sv);
+ if(x<=cap0)el('circle',{cx:X(x),cy:Y(F0),r:6,fill:'var(--bad)'},sv);el('line',{x1:X(n),y1:60,x2:X(n),y2:300,stroke:'var(--text)','stroke-dasharray':'5 4'},sv);
+ T(`交点 ${x.toFixed(0)} 万项 · 利用率 ${(x/cap0*100).toFixed(1)}%`,600,90,'end','num');[0,100,200,300,400,500,600,700].forEach(v=>T(String(v),X(v),318,'middle'))}
+let k=0,custom=null;
+function draw(){clear(sv);const v=custom||F[k];SET(IDS,v);render(...v)}
+function reset(){k=0;custom=null;draw()}
+function next(){if(custom!==null){custom=null;draw();return true}if(k>=F.length-1)return false;k++;draw();return true}
+IDS.forEach(i=>{const e=$(i);const f=()=>{ANIM.stop();custom=GET(IDS);draw()};e.oninput=f;e.onchange=f});
+setupPlayer({captureSeed:1,reset,next},1500);
+</script><a href="https://wikieden.github.io/ai-books/" style="position:fixed;right:12px;bottom:12px;z-index:99;padding:4px 10px;border-radius:14px;background:rgba(127,127,127,.18);color:inherit;font:13px/1.6 system-ui,sans-serif;text-decoration:none">← 全部讲义书</a>
+</body></html>

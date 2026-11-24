@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="300" viewBox="0 0 900 300">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="16.0" y="26.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="17" fill="#1f2937" text-anchor="start" font-weight="bold">例 9.7：发给有缓存但排队的 A，还是空闲的 B</text>
+<text x="16.0" y="290.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">灰排队、橙远端读取、蓝主存到 GPU、绿计算。四条都从请求到达起计时，横轴相同。</text>
+<text x="130.0" y="75.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="end" font-weight="normal">A 本地命中</text>
+<rect x="140.0" y="55.0" width="170.0" height="30.0" rx="3" fill="#f3f4f6" stroke="#6b7280" stroke-width="1.4" opacity="1"/>
+<text x="225.0" y="75.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="bold">排队 250</text>
+<rect x="310.0" y="55.0" width="21.0" height="30.0" rx="3" fill="#dcfce7" stroke="#16a34a" stroke-width="1.4" opacity="1"/>
+<text x="130.0" y="125.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="end" font-weight="normal">B 直接重算</text>
+<rect x="140.0" y="105.0" width="13.6" height="30.0" rx="3" fill="#f3f4f6" stroke="#6b7280" stroke-width="1.4" opacity="1"/>
+<rect x="153.6" y="105.0" width="603.3" height="30.0" rx="3" fill="#dcfce7" stroke="#16a34a" stroke-width="1.4" opacity="1"/>
+<text x="455.2" y="125.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#16a34a" text-anchor="middle" font-weight="bold">重算 887</text>
+<text x="130.0" y="175.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="end" font-weight="normal">B 经 50 GbE</text>
+<rect x="140.0" y="155.0" width="6.8" height="30.0" rx="3" fill="#f3f4f6" stroke="#6b7280" stroke-width="1.4" opacity="1"/>
+<rect x="146.8" y="155.0" width="131.4" height="30.0" rx="3" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<text x="212.5" y="175.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#ea580c" text-anchor="middle" font-weight="bold">远端 193</text>
+<rect x="278.2" y="155.0" width="32.8" height="30.0" rx="3" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<text x="294.7" y="175.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#2563eb" text-anchor="middle" font-weight="bold">48</text>
+<rect x="311.1" y="155.0" width="21.0" height="30.0" rx="3" fill="#dcfce7" stroke="#16a34a" stroke-width="1.4" opacity="1"/>
+<text x="130.0" y="225.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="end" font-weight="normal">B 经 200 GbE</text>
+<rect x="140.0" y="205.0" width="6.8" height="30.0" rx="3" fill="#f3f4f6" stroke="#6b7280" stroke-width="1.4" opacity="1"/>
+<rect x="146.8" y="205.0" width="32.8" height="30.0" rx="3" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<text x="163.2" y="225.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#ea580c" text-anchor="middle" font-weight="bold">48</text>
+<rect x="179.6" y="205.0" width="32.8" height="30.0" rx="3" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<text x="196.1" y="225.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#2563eb" text-anchor="middle" font-weight="bold">48</text>
+<rect x="212.5" y="205.0" width="21.0" height="30.0" rx="3" fill="#dcfce7" stroke="#16a34a" stroke-width="1.4" opacity="1"/>
+<text x="337.0" y="75.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#1f2937" text-anchor="start" font-weight="bold">281 ms</text>
+<text x="762.9" y="125.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#1f2937" text-anchor="start" font-weight="bold">907 ms</text>
+<text x="338.1" y="175.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#1f2937" text-anchor="start" font-weight="bold">282 ms</text>
+<text x="239.5" y="225.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#1f2937" text-anchor="start" font-weight="bold">138 ms</text>
+</svg>

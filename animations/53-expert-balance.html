@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EP 规模、热点与最忙卡</title><link rel="stylesheet" href="anim.css">
+<style>svg text.cap{font-size:15px;font-weight:500}svg text.num{font-size:16px;font-weight:600}</style></head>
+<body><main>
+<h1>第 53 章 · 同一个热点专家，EP 越大越显眼</h1>
+<p class="sub">配套讲义：<a href="../lessons/53-expert-balance.html">第 53 章 · 专家放置、复制与负载均衡：最忙的那张卡定完成时刻</a>。256 个专家、1024 token 各选 8 个；热点专家 0 收到平均值的 h 倍，其余均分。只画卡 0–3 和最后一张。</p>
+<div class="panel"><svg id="sv" viewBox="0 0 680 360"></svg></div>
+<div class="row"><button id="play">▶ 播放</button><button id="step">→ 单步</button><button id="reset">↺ 从头开始</button></div>
+<div class="row"><label for="p">EP 卡数</label><select id="p"><option value="8">8</option><option value="16">16</option><option value="32">32</option><option value="64">64</option><option value="128">128</option><option value="256">256</option></select><label for="h">热点倍数</label><input type="range" id="h" min="1" max="8" step="0.5" value="4"><span id="hv">4</span><label><input type="checkbox" id="r"> 给热点加一个副本（行数均分到另一张卡）</label></div>
+<p class="note">看点：① 柱高是该卡行数 ÷ 每卡平均，橙色是热点专家；② 虚线是平均；③ 右上角是最忙卡倍数；④ 播放 EP8 → EP32 → EP256 → 加副本。</p>
+</main>
+<script src="anim.js"></script>
+<script>
+const sv=$('sv');
+function R(x,y,w,h,col,op){return el('rect',{x,y,width:Math.max(w,1),height:h,rx:4,fill:col,opacity:op??.7},sv)}
+function T(s,x,y,a,c){return txt(s,{x,y,'text-anchor':a||'start',class:c||'m'},sv)}
+function cap(s){T(s,340,26,'middle','cap')}
+const GET=ids=>ids.map(i=>{const e=$(i);return e.type==='checkbox'?+e.checked:+e.value});
+function SET(ids,v){ids.forEach((i,k)=>{const e=$(i);if(e.type==='checkbox')e.checked=!!v[k];else e.value=v[k];const o=$(i+'v');if(o)o.textContent=(+v[k]).toString()})}
+const IDS=['p','h','r'],F=[[8,4,0],[32,4,0],[256,4,0],[256,4,1]];
+function render(p,h,r){const tot=8192,avg=tot/p,hot=32*h,rest=(tot-hot)/255,per=256/p,share=r?hot/2:hot;
+ const cards=[0,1,2,3,p-1].map(c=>{let hv=c===0?share:(r&&c===1?share:0);let ov=c===0?(per-1)*rest:per*rest;return[c,hv,ov]});
+ const mx=Math.max(...cards.map(([c,a,b])=>a+b))/avg;cap(`EP${p}、热点 ${h} 倍${r?'、加副本':''}：最忙卡 ${mx.toFixed(2)} 倍平均`);
+ const k=Math.min(50,220/mx),Y=v=>300-v*k;cards.forEach(([c,hv,ov],i)=>{const x=80+i*110;if(hv>0)R(x,Y((hv+ov)/avg),60,Y(ov/avg)-Y((hv+ov)/avg),'var(--warm)');R(x,Y(ov/avg),60,300-Y(ov/avg),'var(--accent)');T(`卡 ${c}`,x+30,318,'middle');T(((hv+ov)/avg).toFixed(2),x+30,Y((hv+ov)/avg)-6,'middle')});
+ el('line',{x1:60,y1:Y(1),x2:640,y2:Y(1),stroke:'var(--text)','stroke-dasharray':'5 4'},sv);T('平均',645,Y(1)+4)}
+let k=0,custom=null;
+function draw(){clear(sv);const v=custom||F[k];SET(IDS,v);render(...v)}
+function reset(){k=0;custom=null;draw()}
+function next(){if(custom!==null){custom=null;draw();return true}if(k>=F.length-1)return false;k++;draw();return true}
+IDS.forEach(i=>{const e=$(i);const f=()=>{ANIM.stop();custom=GET(IDS);draw()};e.oninput=f;e.onchange=f});
+setupPlayer({captureSeed:1,reset,next},1500);
+</script><a href="https://wikieden.github.io/ai-books/" style="position:fixed;right:12px;bottom:12px;z-index:99;padding:4px 10px;border-radius:14px;background:rgba(127,127,127,.18);color:inherit;font:13px/1.6 system-ui,sans-serif;text-decoration:none">← 全部讲义书</a>
+</body></html>

@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="780" height="330" viewBox="0 0 780 330">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="16.0" y="26.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="17" fill="#1f2937" text-anchor="start" font-weight="bold">四种调度：完成时间与最大单阶段激活峰值</text>
+<text x="16.0" y="320.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">八个 micro-batch，前向 10、反向 20、边界 1、更新 1 ms。完成最快是零气泡，峰值最低是 1F1B，没有两轴都赢的。</text>
+<text x="250.0" y="58.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="middle" font-weight="bold">完成时间（ms）</text>
+<text x="600.0" y="58.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="middle" font-weight="bold">最大单阶段峰值（MiB）</text>
+<text x="130.0" y="98.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="end" font-weight="normal">1F1B</text>
+<rect x="140.0" y="76.0" width="208.2" height="32.0" rx="3" fill="#f3f4f6" stroke="#6b7280" stroke-width="1.4" opacity="1"/>
+<text x="354.2" y="97.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="bold">347</text>
+<rect x="470.0" y="76.0" width="128.9" height="32.0" rx="3" fill="#f3f4f6" stroke="#6b7280" stroke-width="1.4" opacity="1"/>
+<text x="604.9" y="97.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="bold">921</text>
+<text x="130.0" y="154.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="end" font-weight="normal">交错式 v=2</text>
+<rect x="140.0" y="132.0" width="178.8" height="32.0" rx="3" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<text x="324.8" y="153.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#2563eb" text-anchor="start" font-weight="bold">298</text>
+<rect x="470.0" y="132.0" width="186.1" height="32.0" rx="3" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<text x="662.1" y="153.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#2563eb" text-anchor="start" font-weight="bold">1,329</text>
+<text x="130.0" y="210.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="end" font-weight="normal">零气泡 ZB-H1</text>
+<rect x="140.0" y="188.0" width="169.8" height="32.0" rx="3" fill="#dcfce7" stroke="#16a34a" stroke-width="1.4" opacity="1"/>
+<text x="315.8" y="209.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#16a34a" text-anchor="start" font-weight="bold">283</text>
+<rect x="470.0" y="188.0" width="171.6" height="32.0" rx="3" fill="#dcfce7" stroke="#16a34a" stroke-width="1.4" opacity="1"/>
+<text x="647.6" y="209.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#16a34a" text-anchor="start" font-weight="bold">1,226</text>
+<text x="130.0" y="266.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="end" font-weight="normal">DualPipe</text>
+<rect x="140.0" y="244.0" width="183.6" height="32.0" rx="3" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.4" opacity="1"/>
+<text x="329.6" y="265.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#7c3aed" text-anchor="start" font-weight="bold">306</text>
+<rect x="470.0" y="244.0" width="225.7" height="32.0" rx="3" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.4" opacity="1"/>
+<text x="701.7" y="265.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#7c3aed" text-anchor="start" font-weight="bold">1,612</text>
+</svg>

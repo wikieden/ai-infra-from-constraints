@@ -68,7 +68,7 @@ footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-
 <a href="https://wikieden.github.io/ai-books/">← 全部讲义书</a>
 <span class="prefs" title="字号与主题"><button type="button" data-fs-step="-1" aria-label="字号变小">A−</button><button type="button" data-fs-step="1" aria-label="字号变大">A+</button><select id="ab-theme" aria-label="主题色"><option value="">跟随系统</option><option value="light">浅色</option><option value="dark">深色</option><option value="sepia">米黄护眼</option><option value="green">豆沙绿护眼</option><option value="navy">夜蓝</option></select></span>
 </div></header>
-<div class="layout"><nav class="side" aria-label="章节"><div class="h">从约束推导 AI Infra</div><a href="index.html">讲义目录</a><a href="01-six-layers.html"><span class="n">1</span>一次请求走过的六层（进行中）</a><a href="02-request-lifecycle.html"><span class="n">2</span>一次生成请求的处理过程：权重加载一次，每个 token 都要再读一遍</a><a href="03-dataflow-hierarchy.html"><span class="n">3</span>从存储程序到数据流执行：存储层次就像大楼里的厕所</a><a href="04-key-numbers.html"><span class="n">4</span>系统设计的关键数字：容量、算力、带宽、延迟</a><a href="05-estimate.html"><span class="n">5</span>用几个数字估算一次模型执行：算和读各要多久，实测为什么达不到</a><a href="06-architecture.html"><span class="n">6</span>需求如何推动架构：TPU、SmartNIC、Unified Bus</a><a href="07-compute-graph.html"><span class="n">7</span>计算图与张量结构：一个 token 经过一层要算多少</a><a href="08-generation-budget.html"><span class="n">8</span>自回归生成的资源账：存一次的、每步读的、用完就扔的</a><a href="09-kv-sharing.html"><span class="n">9</span>KV 怎么变小 ①：头共享与潜变量压缩</a><a href="10-kv-sparse-linear.html"><span class="n">10</span>KV 怎么变小 ②：窗口、稀疏、线性与混合注意力</a><a href="11-moe.html"><span class="n">11</span>MoE：专家路由与批内权重复用</a><a href="12-network-shape.html"><span class="n">12</span>网络形状：深宽、专家粒度、残差与多 token 预测</a><a href="13-model-comparison.html"><span class="n">13</span>整个模型的资源需求与比较：存多少、算多少、能放几条请求</a><a href="14-workload-arrival.html"><span class="n">14</span>从单次请求到持续到达的负载：什么时候来，比来多少更要紧</a><a href="15-agent-tasks.html"><span class="n">15</span>多轮交互与 Agent 任务：前缀、成功成本、关键路径</a><a href="16-multimodal-realtime.html"><span class="n">16</span>多模态与实时交互：数据换形状，时间有死线（略讲）</a><a href="17-training-rl.html"><span class="n">17</span>训练与强化学习的计算和状态：为什么训练要 6ND、要存 18 字节</a><a href="18-scaling-lifecycle.html"><span class="n">18</span>Scaling law 与全生命周期成本：训练多大、训练多久、服务多少次</a><a href="19-accelerator-basics.html"><span class="n">19</span>从矩阵乘法认识加速器：算多少、搬多少、耗多少电</a><a href="20-compute-units.html"><span class="n">20</span>计算单元：矩阵、向量、流水与低精度</a><a href="21-memory-movement.html"><span class="n">21</span>存储层次与数据搬移：放得下、取得到、来得及</a><a href="22-package-interconnect.html"><span class="n">22</span>多芯片封装与互联：计算放在哪，数据走哪条路</a><a href="23-architecture-evolution.html"><span class="n">23</span>架构演进与专用架构：每一代新增的东西，省掉了哪一笔</a><a href="24-choose-accelerator.html"><span class="n">24</span>根据架构选择加速器：先估下界，再找差距，最后算账</a><a href="25-submit-sync.html"><span class="n">25</span>提交、搬移与同步：从调用返回到结果可用</a><a href="26-tiling-layout.html"><span class="n">26</span>单个算子：分块、布局与切分</a><a href="27-fusion-flash.html"><span class="n">27</span>算子融合与 FlashAttention：中间结果不落地</a><a href="28-compiler.html"><span class="n">28</span>编译器：表达、变换与选择</a><a href="29-runtime.html"><span class="n">29</span>运行时：重叠、CUDA Graph、动态形状与 persistent kernel</a><a href="30-request-view.html"><span class="n">30</span>从局部优化到完整请求</a><a href="31-multi-gpu.html"><span class="n">31</span>从单卡到多卡：放得下、算得快、接得多</a><a href="32-dp-tp-sp.html"><span class="n">32</span>数据、张量、序列并行：复制模型、切矩阵、切激活</a><a href="33-cp-pp-ep.html"><span class="n">33</span>上下文、流水线、专家并行：切位置、切层、切专家</a><a href="34-combined-parallel.html"><span class="n">34</span>组合并行与模型规模：坐标、复用与最忙的那一组</a><a href="35-collectives.html"><span class="n">35</span>集合通信的实现与代价：环、树、通信库和资源竞争</a><a href="36-topology-pool.html"><span class="n">36</span>超节点的物理组织与内存池：数据走哪条线、借谁的内存</a><a href="37-scale-choice.html"><span class="n">37</span>从并行方案到超节点规模：按期限、成本和故障挑方案</a><a href="38-cluster.html"><span class="n">38</span>从超节点走向集群：出口、割集与 Clos 网络</a><a href="39-cross-node.html"><span class="n">39</span>跨节点流量与物理路径：同样的字节，走哪几张网卡</a><a href="40-remote-access.html"><span class="n">40</span>远程访问的路径与并发：一次读多久、同时能读几个</a><a href="41-handoff-state.html"><span class="n">41</span>数据交接、顺序与状态管理：什么时候能读、能覆盖、能释放</a><a href="42-congestion.html"><span class="n">42</span>共享网络中的拥塞与可靠性：高峰、反馈、多路径、死锁</a><a href="43-task-completion.html"><span class="n">43</span>从通信改进到任务完成：先看谁晚到，再看能藏多少</a><a href="44-inference-request.html"><span class="n">44</span>推理请求的执行过程与资源需求：一条请求的时间线和账本</a><a href="45-batching.html"><span class="n">45</span>批处理与请求调度：多读一次权重做更多事，但别让别人等太久</a><a href="46-kv-cache.html"><span class="n">46</span>KV 缓存的分配、复用与释放：分页、共享、留不留</a><a href="47-compress-offload.html"><span class="n">47</span>压缩与卸载：少存字节、轮流驻留，各付什么代价</a><a href="48-speculative.html"><span class="n">48</span>推测解码：一次验证，确定好几个 token</a><a href="49-serving-choice.html"><span class="n">49</span>请求负载下的性能与配置选择：数正确且按时的答案</a><a href="appendix-glossary.html" class="cur">附录 · 缩写与术语表</a><a href="appendix-tp-pp-cp.html">附录 · 补充资料：TP、PP、CP，一个模型沿三个方向切给多张卡</a></nav><main>
+<div class="layout"><nav class="side" aria-label="章节"><div class="h">从约束推导 AI Infra</div><a href="index.html">讲义目录</a><a href="01-six-layers.html"><span class="n">1</span>一次请求走过的六层（进行中）</a><a href="02-request-lifecycle.html"><span class="n">2</span>一次生成请求的处理过程：权重加载一次，每个 token 都要再读一遍</a><a href="03-dataflow-hierarchy.html"><span class="n">3</span>从存储程序到数据流执行：存储层次就像大楼里的厕所</a><a href="04-key-numbers.html"><span class="n">4</span>系统设计的关键数字：容量、算力、带宽、延迟</a><a href="05-estimate.html"><span class="n">5</span>用几个数字估算一次模型执行：算和读各要多久，实测为什么达不到</a><a href="06-architecture.html"><span class="n">6</span>需求如何推动架构：TPU、SmartNIC、Unified Bus</a><a href="07-compute-graph.html"><span class="n">7</span>计算图与张量结构：一个 token 经过一层要算多少</a><a href="08-generation-budget.html"><span class="n">8</span>自回归生成的资源账：存一次的、每步读的、用完就扔的</a><a href="09-kv-sharing.html"><span class="n">9</span>KV 怎么变小 ①：头共享与潜变量压缩</a><a href="10-kv-sparse-linear.html"><span class="n">10</span>KV 怎么变小 ②：窗口、稀疏、线性与混合注意力</a><a href="11-moe.html"><span class="n">11</span>MoE：专家路由与批内权重复用</a><a href="12-network-shape.html"><span class="n">12</span>网络形状：深宽、专家粒度、残差与多 token 预测</a><a href="13-model-comparison.html"><span class="n">13</span>整个模型的资源需求与比较：存多少、算多少、能放几条请求</a><a href="14-workload-arrival.html"><span class="n">14</span>从单次请求到持续到达的负载：什么时候来，比来多少更要紧</a><a href="15-agent-tasks.html"><span class="n">15</span>多轮交互与 Agent 任务：前缀、成功成本、关键路径</a><a href="16-multimodal-realtime.html"><span class="n">16</span>多模态与实时交互：数据换形状，时间有死线（略讲）</a><a href="17-training-rl.html"><span class="n">17</span>训练与强化学习的计算和状态：为什么训练要 6ND、要存 18 字节</a><a href="18-scaling-lifecycle.html"><span class="n">18</span>Scaling law 与全生命周期成本：训练多大、训练多久、服务多少次</a><a href="19-accelerator-basics.html"><span class="n">19</span>从矩阵乘法认识加速器：算多少、搬多少、耗多少电</a><a href="20-compute-units.html"><span class="n">20</span>计算单元：矩阵、向量、流水与低精度</a><a href="21-memory-movement.html"><span class="n">21</span>存储层次与数据搬移：放得下、取得到、来得及</a><a href="22-package-interconnect.html"><span class="n">22</span>多芯片封装与互联：计算放在哪，数据走哪条路</a><a href="23-architecture-evolution.html"><span class="n">23</span>架构演进与专用架构：每一代新增的东西，省掉了哪一笔</a><a href="24-choose-accelerator.html"><span class="n">24</span>根据架构选择加速器：先估下界，再找差距，最后算账</a><a href="25-submit-sync.html"><span class="n">25</span>提交、搬移与同步：从调用返回到结果可用</a><a href="26-tiling-layout.html"><span class="n">26</span>单个算子：分块、布局与切分</a><a href="27-fusion-flash.html"><span class="n">27</span>算子融合与 FlashAttention：中间结果不落地</a><a href="28-compiler.html"><span class="n">28</span>编译器：表达、变换与选择</a><a href="29-runtime.html"><span class="n">29</span>运行时：重叠、CUDA Graph、动态形状与 persistent kernel</a><a href="30-request-view.html"><span class="n">30</span>从局部优化到完整请求</a><a href="31-multi-gpu.html"><span class="n">31</span>从单卡到多卡：放得下、算得快、接得多</a><a href="32-dp-tp-sp.html"><span class="n">32</span>数据、张量、序列并行：复制模型、切矩阵、切激活</a><a href="33-cp-pp-ep.html"><span class="n">33</span>上下文、流水线、专家并行：切位置、切层、切专家</a><a href="34-combined-parallel.html"><span class="n">34</span>组合并行与模型规模：坐标、复用与最忙的那一组</a><a href="35-collectives.html"><span class="n">35</span>集合通信的实现与代价：环、树、通信库和资源竞争</a><a href="36-topology-pool.html"><span class="n">36</span>超节点的物理组织与内存池：数据走哪条线、借谁的内存</a><a href="37-scale-choice.html"><span class="n">37</span>从并行方案到超节点规模：按期限、成本和故障挑方案</a><a href="38-cluster.html"><span class="n">38</span>从超节点走向集群：出口、割集与 Clos 网络</a><a href="39-cross-node.html"><span class="n">39</span>跨节点流量与物理路径：同样的字节，走哪几张网卡</a><a href="40-remote-access.html"><span class="n">40</span>远程访问的路径与并发：一次读多久、同时能读几个</a><a href="41-handoff-state.html"><span class="n">41</span>数据交接、顺序与状态管理：什么时候能读、能覆盖、能释放</a><a href="42-congestion.html"><span class="n">42</span>共享网络中的拥塞与可靠性：高峰、反馈、多路径、死锁</a><a href="43-task-completion.html"><span class="n">43</span>从通信改进到任务完成：先看谁晚到，再看能藏多少</a><a href="44-inference-request.html"><span class="n">44</span>推理请求的执行过程与资源需求：一条请求的时间线和账本</a><a href="45-batching.html"><span class="n">45</span>批处理与请求调度：多读一次权重做更多事，但别让别人等太久</a><a href="46-kv-cache.html"><span class="n">46</span>KV 缓存的分配、复用与释放：分页、共享、留不留</a><a href="47-compress-offload.html"><span class="n">47</span>压缩与卸载：少存字节、轮流驻留，各付什么代价</a><a href="48-speculative.html"><span class="n">48</span>推测解码：一次验证，确定好几个 token</a><a href="49-serving-choice.html"><span class="n">49</span>请求负载下的性能与配置选择：数正确且按时的答案</a><a href="50-distribution.html"><span class="n">50</span>计算与状态的分布方式：八张卡怎么接每秒 3.5 个请求</a><a href="51-pd-split.html"><span class="n">51</span>Prefill–Decode 分离与资源配比：A100 做输入，H20 做生成</a><a href="52-af-split.html"><span class="n">52</span>Attention–FFN 分离与异构执行：专家放 CPU 还是搬到 GPU</a><a href="53-expert-balance.html"><span class="n">53</span>专家放置、复制与负载均衡：最忙的那张卡定完成时刻</a><a href="54-kv-routing.html"><span class="n">54</span>KV 的分布、共享与请求路由：存哪一级、何时取回、发给谁</a><a href="55-scale-compare.html"><span class="n">55</span>扩缩容、故障恢复与部署方案比较：积压多久消退</a><a href="56-training-budget.html"><span class="n">56</span>训练的容量与时间估算：100B token、30 天要几张卡</a><a href="57-state-sharding.html"><span class="n">57</span>训练状态的分片、重计算与卸载：显存不够时的三条路</a><a href="58-pipeline-overlap.html"><span class="n">58</span>流水调度与通信重叠：气泡、激活驻留与藏不住的那 0.08 秒</a><a href="59-data-checkpoint.html"><span class="n">59</span>数据输入、checkpoint 与故障恢复：几周的作业怎么扛住中断</a><a href="60-rl-system.html"><span class="n">60</span>强化学习训练系统：生成、验证、学习组成的反馈循环</a><a href="61-training-choice.html"><span class="n">61</span>从系统方案到期限与硬件选择：32 卡还是 48 卡</a><a href="62-agent-sandbox.html"><span class="n">62</span>Agent 任务的资源需求与运行环境：先满的是内存，不是 CPU</a><a href="63-resource-pool.html"><span class="n">63</span>共享资源池与 RL 资源配比：资源够不够，还要看在不在一起</a><a href="64-service-cost.html"><span class="n">64</span>模型服务的选择、成本与扩容：按成功任务算账</a><a href="65-interaction-time.html"><span class="n">65</span>从模型运行时间到完整交互时间：模型 0.3 秒，用户等 12.8 秒</a><a href="66-cross-device.html"><span class="n">66</span>跨设备分工与会话迁移：传图片、传特征，还是传状态</a><a href="67-wan-deploy.html"><span class="n">67</span>广域网、无线与部署选择：剩下二十轮放哪儿</a><a href="appendix-glossary.html" class="cur">附录 · 缩写与术语表</a><a href="appendix-tp-pp-cp.html">附录 · 补充资料：TP、PP、CP，一个模型沿三个方向切给多张卡</a></nav><main>
 <h1 id="_1">附录 · 缩写与术语表</h1>
 <p>讲到一个缩写或术语就加一条，按字母排序。"首次出现"指讲义里第一次讲到它的章。</p>
 <h2 id="_2">缩写</h2>
@@ -83,6 +83,27 @@ footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>1F1B</td>
+<td>One Forward One Backward</td>
+<td>一次前向 / 一次反向</td>
+<td>流水线预热后前向、反向交替，早释放激活</td>
+<td><a href="../lessons/58-pipeline-overlap.html">58</a></td>
+</tr>
+<tr>
+<td>ACID</td>
+<td>Atomicity, Consistency, Isolation, Durability</td>
+<td>原子性 / 一致性 / 隔离性 / 持久性</td>
+<td>数据库事务的四个性质</td>
+<td><a href="../lessons/64-service-cost.html">64</a></td>
+</tr>
+<tr>
+<td>ACK</td>
+<td>Acknowledgement</td>
+<td>确认</td>
+<td>接收方告诉发送方已收到的消息</td>
+<td><a href="../lessons/67-wan-deploy.html">67</a></td>
+</tr>
 <tr>
 <td>AF</td>
 <td>Attention–FFN disaggregation</td>
@@ -133,11 +154,53 @@ footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-
 <td><a href="../lessons/35-collectives.html">35</a></td>
 </tr>
 <tr>
+<td>AMX</td>
+<td>Advanced Matrix Extensions</td>
+<td>高级 / 矩阵 / 扩展</td>
+<td>Intel CPU 的矩阵乘指令，CPU 跑专家时比 AVX-512 快一个数量级</td>
+<td><a href="../lessons/52-af-split.html">52</a></td>
+</tr>
+<tr>
+<td>API</td>
+<td>Application Programming Interface</td>
+<td>应用 / 编程 / 接口</td>
+<td>程序调用服务的接口；按量 API 按调用计费</td>
+<td><a href="../lessons/59-data-checkpoint.html">59</a></td>
+</tr>
+<tr>
+<td>ASI</td>
+<td>Alibaba Serverless Infrastructure</td>
+<td>阿里 / 无服务器 / 基础设施</td>
+<td>阿里巴巴的生产 GPU 集群平台</td>
+<td><a href="../lessons/63-resource-pool.html">63</a></td>
+</tr>
+<tr>
+<td>ASR</td>
+<td>Automatic Speech Recognition</td>
+<td>自动 / 语音 / 识别</td>
+<td>把音频转成文本</td>
+<td><a href="../lessons/65-interaction-time.html">65</a></td>
+</tr>
+<tr>
 <td>AttnRes</td>
 <td>Attention Residuals</td>
 <td>注意力 / 残差连接</td>
 <td>Kimi K3 沿网络深度用注意力挑选之前各层的表示</td>
 <td><a href="../lessons/12-network-shape.html">12</a></td>
+</tr>
+<tr>
+<td>AVX-512</td>
+<td>Advanced Vector Extensions 512</td>
+<td>高级 / 向量 / 扩展（512 位）</td>
+<td>x86 CPU 的 512 位 SIMD 指令集</td>
+<td><a href="../lessons/52-af-split.html">52</a></td>
+</tr>
+<tr>
+<td>BBR</td>
+<td>Bottleneck Bandwidth and Round-trip propagation time</td>
+<td>瓶颈带宽 / 往返传播时间</td>
+<td>按测得的带宽和 RTT 控制发送速率的拥塞控制算法</td>
+<td><a href="../lessons/67-wan-deploy.html">67</a></td>
 </tr>
 <tr>
 <td>BF16</td>
@@ -152,6 +215,13 @@ footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-
 <td>协同 / 主动 / 队列管理</td>
 <td>UB 的拥塞控制：端点与交换网络协同，在溢出前让发送方减速</td>
 <td><a href="../lessons/42-congestion.html">42</a></td>
+</tr>
+<tr>
+<td>C2C</td>
+<td>Chip-to-Chip</td>
+<td>芯片 / 到 / 芯片</td>
+<td>GH200 里 CPU 与 GPU 之间的 NVLink 互连</td>
+<td><a href="../lessons/57-state-sharding.html">57</a></td>
 </tr>
 <tr>
 <td>CCU</td>
@@ -217,6 +287,13 @@ footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-
 <td><a href="../lessons/22-package-interconnect.html">22</a>、<a href="../lessons/25-submit-sync.html">25</a></td>
 </tr>
 <tr>
+<td>DAX</td>
+<td>Direct Access</td>
+<td>直接 / 访问</td>
+<td>把文件页直接映射到宿主缓存，不再复制</td>
+<td><a href="../lessons/62-agent-sandbox.html">62</a></td>
+</tr>
+<tr>
 <td>DCQCN</td>
 <td>Data Center Quantized Congestion Notification</td>
 <td>数据中心 / 量化 / 拥塞通知</td>
@@ -259,11 +336,32 @@ footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-
 <td><a href="../lessons/19-accelerator-basics.html">19</a></td>
 </tr>
 <tr>
+<td>DRF</td>
+<td>Dominant Resource Fairness</td>
+<td>主导 / 资源 / 公平</td>
+<td>按各任务占比最高的那类资源份额公平分配</td>
+<td><a href="../lessons/63-resource-pool.html">63</a></td>
+</tr>
+<tr>
+<td>DWPD</td>
+<td>Drive Writes Per Day</td>
+<td>每天 / 写满整盘 / 次数</td>
+<td>SSD 写入寿命指标，1 DWPD 即五年内每天可写满一次</td>
+<td><a href="../lessons/54-kv-routing.html">54</a></td>
+</tr>
+<tr>
 <td>E4M3FN</td>
 <td>Exponent 4, Mantissa 3, Finite</td>
 <td>4 位指数 / 3 位尾数 / 只有有限值</td>
 <td>8 位浮点格式，最大 448，没有无穷大</td>
 <td><a href="../lessons/28-compiler.html">28</a></td>
+</tr>
+<tr>
+<td>eBPF</td>
+<td>extended Berkeley Packet Filter</td>
+<td>扩展 / 伯克利 / 包过滤器</td>
+<td>在内核中运行经校验的小程序，可逐包过滤流量</td>
+<td><a href="../lessons/62-agent-sandbox.html">62</a></td>
 </tr>
 <tr>
 <td>EC</td>
@@ -294,11 +392,32 @@ footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-
 <td><a href="../lessons/42-congestion.html">42</a></td>
 </tr>
 <tr>
+<td>EOS</td>
+<td>End Of Sequence</td>
+<td>序列 / 结束</td>
+<td>表示生成结束的特殊 token</td>
+<td><a href="../lessons/58-pipeline-overlap.html">58</a></td>
+</tr>
+<tr>
 <td>EP</td>
 <td>Expert Parallelism</td>
 <td>专家 / 并行</td>
 <td>把 MoE 的专家放到不同卡上，token 按路由送过去再送回</td>
 <td><a href="../lessons/31-multi-gpu.html">31</a></td>
+</tr>
+<tr>
+<td>EPLB</td>
+<td>Expert Parallelism Load Balancer</td>
+<td>专家 / 并行 / 负载 / 均衡器</td>
+<td>按路由统计调整专家副本位置与任务分配</td>
+<td><a href="../lessons/53-expert-balance.html">53</a></td>
+</tr>
+<tr>
+<td>FEC</td>
+<td>Forward Error Correction</td>
+<td>前向 / 纠错</td>
+<td>多发修复符号，接收方自己补缺包</td>
+<td><a href="../lessons/67-wan-deploy.html">67</a></td>
 </tr>
 <tr>
 <td>FFN</td>
@@ -348,6 +467,20 @@ footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-
 <td>现场 / 可编程 / 门阵列</td>
 <td>部署以后还能重新配置硬件逻辑的芯片；Azure 的 SmartNIC 用它</td>
 <td><a href="../lessons/06-architecture.html">06</a></td>
+</tr>
+<tr>
+<td>FSDP</td>
+<td>Fully Sharded Data Parallel</td>
+<td>全 / 分片 / 数据并行</td>
+<td>参数、梯度、优化器状态都分片，执行时临时收集</td>
+<td><a href="../lessons/57-state-sharding.html">57</a></td>
+</tr>
+<tr>
+<td>GbE</td>
+<td>Gigabit Ethernet</td>
+<td>千兆位 / 以太网</td>
+<td>以太网速率单位，如 100 GbE 每方向 12.5 GB/s</td>
+<td><a href="../lessons/51-pd-split.html">51</a></td>
 </tr>
 <tr>
 <td>GDDR</td>
@@ -441,6 +574,13 @@ footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-
 <td><a href="../lessons/35-collectives.html">35</a></td>
 </tr>
 <tr>
+<td>HGX</td>
+<td>NVIDIA HGX baseboard</td>
+<td>—</td>
+<td>NVIDIA 的八卡 GPU 服务器基板，卡间走 NVLink</td>
+<td><a href="../lessons/53-expert-balance.html">53</a></td>
+</tr>
+<tr>
 <td>ICI</td>
 <td>Inter-Chip Interconnect</td>
 <td>芯片间 / 互联</td>
@@ -476,11 +616,25 @@ footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-
 <td><a href="../lessons/44-inference-request.html">44</a></td>
 </tr>
 <tr>
+<td>JSONL</td>
+<td>JSON Lines</td>
+<td>JSON / 行</td>
+<td>每行一个 JSON 对象的日志格式</td>
+<td><a href="../lessons/64-service-cost.html">64</a></td>
+</tr>
+<tr>
 <td>KDA</td>
 <td>Kimi Delta Attention</td>
 <td>Kimi 的 / 增量修正 / 注意力</td>
 <td>门控递推注意力，固定大小的关联矩阵，按预测误差写入修正</td>
 <td><a href="../lessons/10-kv-sparse-linear.html">10</a></td>
+</tr>
+<tr>
+<td>KL</td>
+<td>Kullback–Leibler divergence</td>
+<td>KL 散度</td>
+<td>衡量两个概率分布差异，RL 里用作正则</td>
+<td><a href="../lessons/60-rl-system.html">60</a></td>
 </tr>
 <tr>
 <td>KV</td>
@@ -532,6 +686,27 @@ footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-
 <td><a href="../lessons/19-accelerator-basics.html">19</a></td>
 </tr>
 <tr>
+<td>LPDDR5X</td>
+<td>Low-Power Double Data Rate 5X</td>
+<td>低功耗 / 双倍数据率 / 第 5X 代</td>
+<td>手机等移动设备用的低功耗 DRAM</td>
+<td><a href="../lessons/65-interaction-time.html">65</a></td>
+</tr>
+<tr>
+<td>LRU</td>
+<td>Least Recently Used</td>
+<td>最近 / 最少 / 使用</td>
+<td>先淘汰最久没被访问的缓存块</td>
+<td><a href="../lessons/54-kv-routing.html">54</a></td>
+</tr>
+<tr>
+<td>LS / BE</td>
+<td>Latency-Sensitive / Best-Effort</td>
+<td>延迟敏感 / 尽力而为</td>
+<td>两类任务：前者有时限，后者可以等</td>
+<td><a href="../lessons/63-resource-pool.html">63</a></td>
+</tr>
+<tr>
 <td>MBU</td>
 <td>Memory Bandwidth Utilization</td>
 <td>内存 / 带宽 / 利用率</td>
@@ -574,6 +749,13 @@ footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-
 <td><a href="../lessons/09-kv-sharing.html">09</a></td>
 </tr>
 <tr>
+<td>MLP</td>
+<td>Multi-Layer Perceptron</td>
+<td>多层 / 感知机</td>
+<td>Transformer 里的前馈子网络</td>
+<td><a href="../lessons/57-state-sharding.html">57</a></td>
+</tr>
+<tr>
 <td>MMA</td>
 <td>Matrix Multiply-Accumulate</td>
 <td>矩阵 / 乘 / 累加</td>
@@ -614,6 +796,20 @@ footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-
 <td>微软 / 可扩展 / 集合通信库</td>
 <td>本书取其在 H100 上测得的 NVLink 0.822 μs、IB 3.76 μs 单向延迟</td>
 <td><a href="../lessons/35-collectives.html">35</a></td>
+</tr>
+<tr>
+<td>MSS</td>
+<td>Maximum Segment Size</td>
+<td>最大 / 报文段 / 大小</td>
+<td>一个 TCP 报文段能带的最大载荷</td>
+<td><a href="../lessons/67-wan-deploy.html">67</a></td>
+</tr>
+<tr>
+<td>MTBF</td>
+<td>Mean Time Between Failures</td>
+<td>平均 / 故障 / 间隔时间</td>
+<td>两次故障之间的平均时间</td>
+<td><a href="../lessons/59-data-checkpoint.html">59</a></td>
 </tr>
 <tr>
 <td>MTE</td>
@@ -700,6 +896,13 @@ footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-
 <td><a href="../lessons/01-six-layers.html">01</a></td>
 </tr>
 <tr>
+<td>NVMe</td>
+<td>Non-Volatile Memory Express</td>
+<td>非易失 / 内存 / 快速通道</td>
+<td>经 PCIe 直连的 SSD 接口协议</td>
+<td><a href="../lessons/54-kv-routing.html">54</a></td>
+</tr>
+<tr>
 <td>NVSwitch</td>
 <td>—</td>
 <td>NVLink 交换芯片</td>
@@ -714,11 +917,32 @@ footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-
 <td><a href="../lessons/36-topology-pool.html">36</a></td>
 </tr>
 <tr>
+<td>OFDM</td>
+<td>Orthogonal Frequency-Division Multiplexing</td>
+<td>正交 / 频分 / 复用</td>
+<td>把数据分到多个正交子载波上发送</td>
+<td><a href="../lessons/67-wan-deploy.html">67</a></td>
+</tr>
+<tr>
 <td>OPD</td>
 <td>On-Policy Distillation</td>
 <td>同策略 / 蒸馏</td>
 <td>学生自己生成轨迹，教师在这些位置给出概率分布供学生学习</td>
 <td><a href="../lessons/17-training-rl.html">17</a></td>
+</tr>
+<tr>
+<td>P / D</td>
+<td>Prefill / Decode</td>
+<td>预填充 / 逐步解码</td>
+<td>推理的两个阶段：一次处理输入，再逐 token 生成</td>
+<td><a href="../lessons/50-distribution.html">50</a></td>
+</tr>
+<tr>
+<td>P2P</td>
+<td>Peer-to-Peer</td>
+<td>点 / 对 / 点</td>
+<td>一张卡经 PCIe 直接读写另一张卡的显存</td>
+<td><a href="../lessons/58-pipeline-overlap.html">58</a></td>
 </tr>
 <tr>
 <td>p95</td>
@@ -733,6 +957,20 @@ footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-
 <td>外设 / 部件 / 互联 / 高速版</td>
 <td>CPU 和 GPU 等外设之间的通用连接</td>
 <td><a href="../lessons/01-six-layers.html">01</a></td>
+</tr>
+<tr>
+<td>PCM</td>
+<td>Pulse-Code Modulation</td>
+<td>脉冲 / 编码 / 调制</td>
+<td>逐次记录音频幅值采样的格式</td>
+<td><a href="../lessons/65-interaction-time.html">65</a></td>
+</tr>
+<tr>
+<td>PD</td>
+<td>Prefill–Decode disaggregation</td>
+<td>预填充—解码 / 分离</td>
+<td>两个阶段交给不同服务池，交接上下文 KV</td>
+<td><a href="../lessons/50-distribution.html">50</a></td>
 </tr>
 <tr>
 <td>PDL</td>
@@ -756,6 +994,13 @@ footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-
 <td><a href="../lessons/appendix-tp-pp-cp.html">补充 · TP/PP/CP</a></td>
 </tr>
 <tr>
+<td>PPO</td>
+<td>Proximal Policy Optimization</td>
+<td>近端 / 策略 / 优化</td>
+<td>用概率比和裁剪限制每次更新幅度的策略梯度算法</td>
+<td><a href="../lessons/60-rl-system.html">60</a></td>
+</tr>
+<tr>
 <td>q / k / v</td>
 <td>query / key / value</td>
 <td>查询 / 键 / 值</td>
@@ -768,6 +1013,13 @@ footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-
 <td>GGML 分组量化格式</td>
 <td>Q2_K 每 256 值 84 B（2.625 bit）；q8_0、q4_0 每 32 值加 2 B scale</td>
 <td><a href="../lessons/47-compress-offload.html">47</a></td>
+</tr>
+<tr>
+<td>QEMU</td>
+<td>Quick EMUlator</td>
+<td>快速 / 模拟器</td>
+<td>开源的虚拟机程序</td>
+<td><a href="../lessons/62-agent-sandbox.html">62</a></td>
 </tr>
 <tr>
 <td>QK Norm</td>
@@ -784,11 +1036,25 @@ footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-
 <td><a href="../lessons/36-topology-pool.html">36</a></td>
 </tr>
 <tr>
+<td>R3</td>
+<td>Rollout Routing Replay</td>
+<td>生成 / 路由 / 重放</td>
+<td>训练时按生成端记录的专家 ID 选专家</td>
+<td><a href="../lessons/60-rl-system.html">60</a></td>
+</tr>
+<tr>
 <td>RDMA</td>
 <td>Remote Direct Memory Access</td>
 <td>远程 / 直接 / 内存访问</td>
 <td>网卡直接读写已授权的远端内存，不经对端 CPU</td>
 <td><a href="../lessons/36-topology-pool.html">36</a></td>
+</tr>
+<tr>
+<td>ReAct</td>
+<td>Reasoning + Acting</td>
+<td>推理 / 行动</td>
+<td>模型推理与调用工具交替的 Agent 循环</td>
+<td><a href="../lessons/64-service-cost.html">64</a></td>
 </tr>
 <tr>
 <td>RL</td>
@@ -840,6 +1106,20 @@ footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-
 <td><a href="../lessons/40-remote-access.html">40</a></td>
 </tr>
 <tr>
+<td>RSS</td>
+<td>Resident Set Size</td>
+<td>驻留 / 集 / 大小</td>
+<td>进程当前驻留在物理内存中的页所占容量</td>
+<td><a href="../lessons/62-agent-sandbox.html">62</a></td>
+</tr>
+<tr>
+<td>RTT</td>
+<td>Round-Trip Time</td>
+<td>往返 / 时间</td>
+<td>数据到对方再返回的时间</td>
+<td><a href="../lessons/65-interaction-time.html">65</a></td>
+</tr>
+<tr>
 <td>SDPA</td>
 <td>Scaled Dot-Product Attention</td>
 <td>缩放 / 点积 / 注意力</td>
@@ -866,6 +1146,13 @@ footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-
 <td>可扩展 / 分层 / 聚合 / 归约协议</td>
 <td>NVIDIA 交换机内归约：交换芯片在转发时做加法</td>
 <td><a href="../lessons/39-cross-node.html">39</a></td>
+</tr>
+<tr>
+<td>SIFS</td>
+<td>Short InterFrame Space</td>
+<td>短 / 帧间 / 间隔</td>
+<td>Wi-Fi 连续交换之间的短间隔</td>
+<td><a href="../lessons/67-wan-deploy.html">67</a></td>
 </tr>
 <tr>
 <td>SiLU</td>
@@ -910,6 +1197,20 @@ footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-
 <td><a href="../lessons/06-architecture.html">06</a></td>
 </tr>
 <tr>
+<td>SMT</td>
+<td>Simultaneous MultiThreading</td>
+<td>同时 / 多线程</td>
+<td>一个物理核两个硬件线程（超线程）</td>
+<td><a href="../lessons/63-resource-pool.html">63</a></td>
+</tr>
+<tr>
+<td>SoC</td>
+<td>System on Chip</td>
+<td>片上 / 系统</td>
+<td>把 CPU、GPU、NPU 等集成在一块芯片上</td>
+<td><a href="../lessons/65-interaction-time.html">65</a></td>
+</tr>
+<tr>
 <td>SP</td>
 <td>Sequence Parallelism</td>
 <td>序列 / 并行</td>
@@ -924,11 +1225,25 @@ footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-
 <td><a href="../lessons/19-accelerator-basics.html">19</a></td>
 </tr>
 <tr>
+<td>SSD</td>
+<td>Solid-State Drive</td>
+<td>固态 / 硬盘</td>
+<td>闪存存储，比 HBM、主存大得多但慢</td>
+<td><a href="../lessons/54-kv-routing.html">54</a></td>
+</tr>
+<tr>
 <td>STEM</td>
 <td>Science, Technology, Engineering, Mathematics</td>
 <td>科学 / 技术 / 工程 / 数学</td>
 <td>理工类数据</td>
 <td><a href="../lessons/17-training-rl.html">17</a></td>
+</tr>
+<tr>
+<td>SU</td>
+<td>Scalable Unit</td>
+<td>可扩展 / 单元</td>
+<td>DGX SuperPOD 的扩展单元，32 台 DGX</td>
+<td><a href="../lessons/59-data-checkpoint.html">59</a></td>
 </tr>
 <tr>
 <td>SWA</td>
@@ -950,6 +1265,13 @@ footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-
 <td>NVIDIA 的 GPU 模块形态</td>
 <td>插在主板上的 GPU 模块，区别于 PCIe 插卡；H100 SXM 带宽 3.35 TB/s</td>
 <td><a href="../lessons/04-key-numbers.html">04</a></td>
+</tr>
+<tr>
+<td>TCP</td>
+<td>Transmission Control Protocol</td>
+<td>传输 / 控制 / 协议</td>
+<td>可靠、有序、带拥塞控制的传输协议</td>
+<td><a href="../lessons/67-wan-deploy.html">67</a></td>
 </tr>
 <tr>
 <td>TDP</td>
@@ -1036,6 +1358,13 @@ footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-
 <td><a href="../lessons/14-workload-arrival.html">14</a></td>
 </tr>
 <tr>
+<td>TTS</td>
+<td>Text-To-Speech</td>
+<td>文本 / 转 / 语音</td>
+<td>把文本合成可播放音频</td>
+<td><a href="../lessons/65-interaction-time.html">65</a></td>
+</tr>
+<tr>
 <td>TVM</td>
 <td>Tensor Virtual Machine</td>
 <td>张量 / 虚拟 / 机器</td>
@@ -1085,11 +1414,39 @@ footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-
 <td><a href="../lessons/16-multimodal-realtime.html">16</a></td>
 </tr>
 <tr>
+<td>vCPU</td>
+<td>virtual CPU</td>
+<td>虚拟 / CPU</td>
+<td>分给虚拟机的逻辑 CPU</td>
+<td><a href="../lessons/62-agent-sandbox.html">62</a></td>
+</tr>
+<tr>
+<td>VFIO</td>
+<td>Virtual Function I/O</td>
+<td>虚拟 / 功能 / 输入输出</td>
+<td>Linux 让虚拟机直通物理设备的接口</td>
+<td><a href="../lessons/62-agent-sandbox.html">62</a></td>
+</tr>
+<tr>
+<td>WAL</td>
+<td>Write-Ahead Log</td>
+<td>预先 / 写入 / 日志</td>
+<td>对外确认前先可靠保存要恢复的操作或输出</td>
+<td><a href="../lessons/55-scale-compare.html">55</a></td>
+</tr>
+<tr>
 <td>YaRN</td>
 <td>Yet another RoPE extensioN</td>
 <td>又一种 / RoPE / 外推方法</td>
 <td>把位置编码外推到更长上下文（Qwen3 32K → 128K）</td>
 <td><a href="../lessons/32-dp-tp-sp.html">32</a></td>
+</tr>
+<tr>
+<td>ZB</td>
+<td>Zero Bubble</td>
+<td>零 / 气泡</td>
+<td>把权重梯度 dW 延后填进流水线空隙的调度</td>
+<td><a href="../lessons/58-pipeline-overlap.html">58</a></td>
 </tr>
 <tr>
 <td>ZeRO</td>
@@ -1619,6 +1976,61 @@ footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-
 <td>驻留</td>
 <td>权重加载进显存后一直放着，供多次请求反复使用</td>
 <td><a href="../lessons/02-request-lifecycle.html">02</a></td>
+</tr>
+<tr>
+<td>worker（执行单元）</td>
+<td>一个能独立执行模型或阶段的计算单元，本部分一张卡就是一个</td>
+<td><a href="../lessons/50-distribution.html">50</a></td>
+</tr>
+<tr>
+<td>rank（编号）</td>
+<td>通信组里每个进程的编号</td>
+<td><a href="../lessons/50-distribution.html">50</a></td>
+</tr>
+<tr>
+<td>skew（倾斜）</td>
+<td>各卡、各链路的负载不均；整层按最忙的卡计时</td>
+<td><a href="../lessons/53-expert-balance.html">53</a></td>
+</tr>
+<tr>
+<td>Elastic EP（弹性专家并行）</td>
+<td>运行中增减专家并行组的卡数</td>
+<td><a href="../lessons/55-scale-compare.html">55</a></td>
+</tr>
+<tr>
+<td>FP8 E4M3</td>
+<td>4 位指数、3 位尾数的 8 位浮点，最大 448，要分块缩放</td>
+<td><a href="../lessons/56-training-budget.html">56</a></td>
+</tr>
+<tr>
+<td>Hessian</td>
+<td>损失对参数的二阶导数矩阵，用来定义梯度噪声尺度</td>
+<td><a href="../lessons/56-training-budget.html">56</a></td>
+</tr>
+<tr>
+<td>临界 batch（critical batch size）</td>
+<td>超过它以后加大 batch 只能略减步数，约等于梯度噪声尺度</td>
+<td><a href="../lessons/56-training-budget.html">56</a></td>
+</tr>
+<tr>
+<td>掉队者（straggler）</td>
+<td>同步训练里拖慢整步的那张慢卡</td>
+<td><a href="../lessons/59-data-checkpoint.html">59</a></td>
+</tr>
+<tr>
+<td>microVM（微型虚拟机）</td>
+<td>保留虚拟机隔离、精简虚拟设备以加快启动的虚拟机，如 Firecracker</td>
+<td><a href="../lessons/62-agent-sandbox.html">62</a></td>
+</tr>
+<tr>
+<td>超卖（overcommit）</td>
+<td>各沙箱申请的 CPU 总和超过物理核数</td>
+<td><a href="../lessons/62-agent-sandbox.html">62</a></td>
+</tr>
+<tr>
+<td>DeepStack</td>
+<td>把多组视觉特征注入语言模型不同层的结构</td>
+<td><a href="../lessons/66-cross-device.html">66</a></td>
 </tr>
 </tbody>
 </table>

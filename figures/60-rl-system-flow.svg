@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="240" viewBox="0 0 800 240">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="16.0" y="26.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="17" fill="#1f2937" text-anchor="start" font-weight="bold">生成、验证与学习：有效吞吐取最小值</text>
+<text x="16.0" y="230.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">生成 12、验证 6、学习 8 条/s，验证后保留 75% → 进入学习 4.5 条/s。返回箭头是新权重影响下一轮生成。</text>
+<rect x="40.0" y="80.0" width="160.0" height="64.0" rx="8" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<text x="120.0" y="108.3" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="13.5" fill="#1f2937" text-anchor="middle" font-weight="bold">生成</text>
+<text x="120.0" y="125.8" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#4b5563" text-anchor="middle" font-weight="normal">12 条/s</text>
+<rect x="300.0" y="80.0" width="160.0" height="64.0" rx="8" fill="#fee2e2" stroke="#dc2626" stroke-width="1.4" opacity="1"/>
+<text x="380.0" y="108.3" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="13.5" fill="#1f2937" text-anchor="middle" font-weight="bold">验证</text>
+<text x="380.0" y="125.8" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#4b5563" text-anchor="middle" font-weight="normal">6 条/s · 瓶颈</text>
+<rect x="560.0" y="80.0" width="160.0" height="64.0" rx="8" fill="#dcfce7" stroke="#16a34a" stroke-width="1.4" opacity="1"/>
+<text x="640.0" y="108.3" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="13.5" fill="#1f2937" text-anchor="middle" font-weight="bold">学习</text>
+<text x="640.0" y="125.8" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#4b5563" text-anchor="middle" font-weight="normal">8 条/s</text>
+<line x1="200.0" y1="112.0" x2="300.0" y2="112.0" stroke="#4b5563" stroke-width="1.6"/>
+<polygon points="300.0,112.0 292.1,116.2 292.1,107.8" fill="#4b5563" stroke="#4b5563" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<line x1="460.0" y1="112.0" x2="560.0" y2="112.0" stroke="#4b5563" stroke-width="1.6"/>
+<polygon points="560.0,112.0 552.1,116.2 552.1,107.8" fill="#4b5563" stroke="#4b5563" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<rect x="469.3" y="95.5" width="81.4" height="16.5" rx="3" fill="#ffffff" stroke="none" stroke-width="1.4" opacity="0.9"/>
+<text x="510.0" y="107.5" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#4b5563" text-anchor="middle" font-weight="normal">×0.75 = 4.5</text>
+<polyline points="640.0,144.0 640.0,200.0 120.0,200.0 120.0,144.0" fill="none" stroke="#7c3aed" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<polygon points="120.0,144.0 124.2,151.9 115.8,151.9" fill="#7c3aed" stroke="#7c3aed" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<rect x="358.8" y="183.5" width="42.5" height="16.5" rx="3" fill="#ffffff" stroke="none" stroke-width="1.4" opacity="0.9"/>
+<text x="380.0" y="195.5" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#7c3aed" text-anchor="middle" font-weight="normal">新权重</text>
+</svg>

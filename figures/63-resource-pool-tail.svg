@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="290" viewBox="0 0 760 290">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="16.0" y="26.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="17" fill="#1f2937" text-anchor="start" font-weight="bold">九条验证各 1 s、一条 100 s：已跑 10 s 还没完的，还剩 90 s</text>
+<text x="16.0" y="280.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">均值 10.9 s；用 10.9 − 10 = 0.9 s 预测剩余是错的。条件期望 E[S − e | S &gt; e] 只看还活着的样本。</text>
+<text x="100.0" y="61.5" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="end" font-weight="normal">样本 1</text>
+<rect x="110.0" y="50.0" width="5.4" height="13.0" rx="3" fill="#dcfce7" stroke="#16a34a" stroke-width="1.4" opacity="1"/>
+<text x="100.0" y="78.5" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="end" font-weight="normal">样本 2</text>
+<rect x="110.0" y="67.0" width="5.4" height="13.0" rx="3" fill="#dcfce7" stroke="#16a34a" stroke-width="1.4" opacity="1"/>
+<text x="100.0" y="95.5" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="end" font-weight="normal">样本 3</text>
+<rect x="110.0" y="84.0" width="5.4" height="13.0" rx="3" fill="#dcfce7" stroke="#16a34a" stroke-width="1.4" opacity="1"/>
+<text x="100.0" y="112.5" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="end" font-weight="normal">样本 4</text>
+<rect x="110.0" y="101.0" width="5.4" height="13.0" rx="3" fill="#dcfce7" stroke="#16a34a" stroke-width="1.4" opacity="1"/>
+<text x="100.0" y="129.5" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="end" font-weight="normal">样本 5</text>
+<rect x="110.0" y="118.0" width="5.4" height="13.0" rx="3" fill="#dcfce7" stroke="#16a34a" stroke-width="1.4" opacity="1"/>
+<text x="100.0" y="146.5" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="end" font-weight="normal">样本 6</text>
+<rect x="110.0" y="135.0" width="5.4" height="13.0" rx="3" fill="#dcfce7" stroke="#16a34a" stroke-width="1.4" opacity="1"/>
+<text x="100.0" y="163.5" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="end" font-weight="normal">样本 7</text>
+<rect x="110.0" y="152.0" width="5.4" height="13.0" rx="3" fill="#dcfce7" stroke="#16a34a" stroke-width="1.4" opacity="1"/>
+<text x="100.0" y="180.5" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="end" font-weight="normal">样本 8</text>
+<rect x="110.0" y="169.0" width="5.4" height="13.0" rx="3" fill="#dcfce7" stroke="#16a34a" stroke-width="1.4" opacity="1"/>
+<text x="100.0" y="197.5" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="end" font-weight="normal">样本 9</text>
+<rect x="110.0" y="186.0" width="5.4" height="13.0" rx="3" fill="#dcfce7" stroke="#16a34a" stroke-width="1.4" opacity="1"/>
+<text x="100.0" y="214.5" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="end" font-weight="normal">样本 10</text>
+<rect x="110.0" y="203.0" width="540.0" height="13.0" rx="3" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<text x="380.0" y="214.5" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#ea580c" text-anchor="middle" font-weight="bold">100 s</text>
+<line x1="164.0" y1="44.0" x2="164.0" y2="226.0" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="4 3"/>
+<rect x="177.6" y="230.0" width="72.9" height="16.0" rx="3" fill="#ffffff" stroke="none" stroke-width="1.4" opacity="0.9"/>
+<text x="214.0" y="241.5" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#dc2626" text-anchor="middle" font-weight="normal">已执行 10 s</text>
+</svg>

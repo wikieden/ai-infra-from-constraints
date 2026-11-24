@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>第 52 章 · Attention–FFN 分离与异构执行：专家放 CPU 还是搬到 GPU · 从约束推导 AI Infra</title>
+<script>(function(){try{var d=document.documentElement,t=localStorage.getItem("ab-theme"),f=localStorage.getItem("ab-fs");if(t)d.dataset.theme=t;if(f)d.dataset.fs=f}catch(e){}})();</script>
+<style>:root{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa;--fs:16px}
+@media (prefers-color-scheme:dark){:root:not([data-theme]){--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}}
+:root[data-theme="light"]{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa}
+:root[data-theme="dark"]{--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}
+:root[data-theme="sepia"]{--bg:#f6efe1;--fg:#3b3127;--mute:#7a6a58;--line:#e2d6bf;--card:#fbf6ec;--acc:#a0522d;--code:#ece2cd;--quote:#efe5d2}
+:root[data-theme="green"]{--bg:#e3eddf;--fg:#22301f;--mute:#566650;--line:#c9d8c3;--card:#eef5eb;--acc:#2e7d4f;--code:#d6e4d0;--quote:#dae7d5}
+:root[data-theme="navy"]{--bg:#0f1a2b;--fg:#dde6f3;--mute:#93a4bd;--line:#23324a;--card:#15233a;--acc:#6cc4ff;--code:#1a2a44;--quote:#16243b}
+:root[data-fs="s"]{--fs:15px}
+:root[data-fs="m"]{--fs:16px}
+:root[data-fs="l"]{--fs:18px}
+:root[data-fs="xl"]{--fs:20px}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:var(--fs)/1.75 -apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Helvetica Neue",sans-serif}
+a{color:var(--acc)}
+header.top{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+header.top .in{max-width:860px;margin:0 auto;padding:10px 16px;display:flex;gap:6px 16px;align-items:center;flex-wrap:wrap;font-size:14px}
+header.top .brand{font-weight:600;color:var(--fg);text-decoration:none;margin-right:auto}
+header.top a{text-decoration:none}
+.prefs{display:inline-flex;gap:4px;align-items:center}
+.prefs button,.prefs select,#nav-toggle{font:inherit;font-size:13px;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:2px 8px;cursor:pointer}
+main{max-width:860px;margin:0 auto;padding:24px 16px 72px;overflow-wrap:anywhere}
+h1{font-size:1.75em;line-height:1.35;margin:8px 0 16px} h2{font-size:1.375em;margin:40px 0 12px;padding-top:8px;border-top:1px solid var(--line)} h3{font-size:1.125em;margin:28px 0 8px}
+.layout{display:grid;grid-template-columns:260px minmax(0,1fr);max-width:1180px;margin:0 auto}
+.layout main{margin:0;max-width:880px}
+nav.side{position:sticky;top:49px;align-self:start;max-height:calc(100vh - 49px);overflow-y:auto;padding:20px 8px 40px 16px;border-right:1px solid var(--line);font-size:14px;line-height:1.5}
+nav.side .h{font-weight:600;color:var(--mute);margin:4px 8px 8px;font-size:13px}
+nav.side a{display:block;padding:5px 8px;border-radius:6px;color:var(--fg);text-decoration:none}
+nav.side a:hover{background:var(--code)} nav.side a.cur{background:var(--quote);color:var(--acc);font-weight:600}
+nav.side a .n{color:var(--mute);margin-right:6px;font-variant-numeric:tabular-nums}
+#nav-toggle{display:none}
+@media (max-width:960px){.layout{display:block} nav.side{display:none;position:fixed;z-index:6;top:49px;left:0;bottom:0;width:min(300px,85vw);max-height:none;background:var(--bg);box-shadow:2px 0 12px rgba(0,0,0,.2)} nav.side.open{display:block} #nav-toggle{display:inline-block}}
+.run{display:flex;flex-wrap:wrap;align-items:center;gap:4px 0;margin:4px 0 12px}
+.run details{flex-basis:100%;margin:6px 0 0;font-size:.94em}
+img{max-width:100%;height:auto;border-radius:8px;border:1px solid var(--line);background:#fff}
+blockquote{margin:16px 0;padding:10px 16px;background:var(--quote);border-left:3px solid var(--acc);border-radius:4px;color:var(--mute)}
+blockquote p{margin:4px 0}
+code{background:var(--code);padding:1px 5px;border-radius:4px;font-size:.9em}
+pre{background:var(--code);padding:12px 14px;border-radius:8px;overflow-x:auto} pre code{padding:0;background:none}
+table{border-collapse:collapse;display:block;overflow-x:auto;max-width:100%;margin:12px 0;font-size:.94em}
+th,td{border:1px solid var(--line);padding:6px 10px;vertical-align:top} th{background:var(--code)}
+details{border:1px solid var(--line);border-radius:8px;padding:6px 12px;margin:8px 0;background:var(--card)}
+details[open]{padding-bottom:10px} summary{cursor:pointer;color:var(--acc);font-weight:500}
+mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%}
+.btn{display:inline-block;margin:4px 8px 4px 0;padding:6px 14px;border:1px solid var(--acc);border-radius:999px;text-decoration:none;font-size:14px}
+.pager{display:flex;justify-content:space-between;gap:12px;margin-top:48px;padding-top:16px;border-top:1px solid var(--line);font-size:15px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin:16px 0}
+.card{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;color:inherit;text-decoration:none}
+.card:hover{border-color:var(--acc)} .card img{border:0;border-bottom:1px solid var(--line);border-radius:0;aspect-ratio:16/10;object-fit:contain;width:100%}
+.card .no{color:var(--mute);font-size:13px;padding:8px 12px 0} .card .t{padding:0 12px 12px;font-weight:500;line-height:1.5}
+.lead{font-size:1.06em;color:var(--mute)}
+footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-size:13px}
+</style>
+<script>window.MathJax={tex:{inlineMath:[["\\(","\\)"]],displayMath:[["\\[","\\]"],["$$","$$"]],processEscapes:true,processEnvironments:true}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"></script>
+</head><body>
+<header class="top"><div class="in">
+<button type="button" id="nav-toggle" aria-label="打开章节列表">☰ 章节</button><a class="brand" href="../index.html">从约束推导 AI Infra</a>
+<a href="../lessons/index.html">讲义目录</a>
+<a href="../animations/index.html">动画</a>
+<a href="../review.html">复习卡片</a>
+<a href="../lessons/appendix-glossary.html">缩写表</a>
+<a href="https://wikieden.github.io/ai-books/glossary.html">全局词汇</a>
+<a href="https://wikieden.github.io/ai-books/">← 全部讲义书</a>
+<span class="prefs" title="字号与主题"><button type="button" data-fs-step="-1" aria-label="字号变小">A−</button><button type="button" data-fs-step="1" aria-label="字号变大">A+</button><select id="ab-theme" aria-label="主题色"><option value="">跟随系统</option><option value="light">浅色</option><option value="dark">深色</option><option value="sepia">米黄护眼</option><option value="green">豆沙绿护眼</option><option value="navy">夜蓝</option></select></span>
+</div></header>
+<div class="layout"><nav class="side" aria-label="章节"><div class="h">从约束推导 AI Infra</div><a href="index.html">讲义目录</a><a href="01-six-layers.html"><span class="n">1</span>一次请求走过的六层（进行中）</a><a href="02-request-lifecycle.html"><span class="n">2</span>一次生成请求的处理过程：权重加载一次，每个 token 都要再读一遍</a><a href="03-dataflow-hierarchy.html"><span class="n">3</span>从存储程序到数据流执行：存储层次就像大楼里的厕所</a><a href="04-key-numbers.html"><span class="n">4</span>系统设计的关键数字：容量、算力、带宽、延迟</a><a href="05-estimate.html"><span class="n">5</span>用几个数字估算一次模型执行：算和读各要多久，实测为什么达不到</a><a href="06-architecture.html"><span class="n">6</span>需求如何推动架构：TPU、SmartNIC、Unified Bus</a><a href="07-compute-graph.html"><span class="n">7</span>计算图与张量结构：一个 token 经过一层要算多少</a><a href="08-generation-budget.html"><span class="n">8</span>自回归生成的资源账：存一次的、每步读的、用完就扔的</a><a href="09-kv-sharing.html"><span class="n">9</span>KV 怎么变小 ①：头共享与潜变量压缩</a><a href="10-kv-sparse-linear.html"><span class="n">10</span>KV 怎么变小 ②：窗口、稀疏、线性与混合注意力</a><a href="11-moe.html"><span class="n">11</span>MoE：专家路由与批内权重复用</a><a href="12-network-shape.html"><span class="n">12</span>网络形状：深宽、专家粒度、残差与多 token 预测</a><a href="13-model-comparison.html"><span class="n">13</span>整个模型的资源需求与比较：存多少、算多少、能放几条请求</a><a href="14-workload-arrival.html"><span class="n">14</span>从单次请求到持续到达的负载：什么时候来，比来多少更要紧</a><a href="15-agent-tasks.html"><span class="n">15</span>多轮交互与 Agent 任务：前缀、成功成本、关键路径</a><a href="16-multimodal-realtime.html"><span class="n">16</span>多模态与实时交互：数据换形状，时间有死线（略讲）</a><a href="17-training-rl.html"><span class="n">17</span>训练与强化学习的计算和状态：为什么训练要 6ND、要存 18 字节</a><a href="18-scaling-lifecycle.html"><span class="n">18</span>Scaling law 与全生命周期成本：训练多大、训练多久、服务多少次</a><a href="19-accelerator-basics.html"><span class="n">19</span>从矩阵乘法认识加速器：算多少、搬多少、耗多少电</a><a href="20-compute-units.html"><span class="n">20</span>计算单元：矩阵、向量、流水与低精度</a><a href="21-memory-movement.html"><span class="n">21</span>存储层次与数据搬移：放得下、取得到、来得及</a><a href="22-package-interconnect.html"><span class="n">22</span>多芯片封装与互联：计算放在哪，数据走哪条路</a><a href="23-architecture-evolution.html"><span class="n">23</span>架构演进与专用架构：每一代新增的东西，省掉了哪一笔</a><a href="24-choose-accelerator.html"><span class="n">24</span>根据架构选择加速器：先估下界，再找差距，最后算账</a><a href="25-submit-sync.html"><span class="n">25</span>提交、搬移与同步：从调用返回到结果可用</a><a href="26-tiling-layout.html"><span class="n">26</span>单个算子：分块、布局与切分</a><a href="27-fusion-flash.html"><span class="n">27</span>算子融合与 FlashAttention：中间结果不落地</a><a href="28-compiler.html"><span class="n">28</span>编译器：表达、变换与选择</a><a href="29-runtime.html"><span class="n">29</span>运行时：重叠、CUDA Graph、动态形状与 persistent kernel</a><a href="30-request-view.html"><span class="n">30</span>从局部优化到完整请求</a><a href="31-multi-gpu.html"><span class="n">31</span>从单卡到多卡：放得下、算得快、接得多</a><a href="32-dp-tp-sp.html"><span class="n">32</span>数据、张量、序列并行：复制模型、切矩阵、切激活</a><a href="33-cp-pp-ep.html"><span class="n">33</span>上下文、流水线、专家并行：切位置、切层、切专家</a><a href="34-combined-parallel.html"><span class="n">34</span>组合并行与模型规模：坐标、复用与最忙的那一组</a><a href="35-collectives.html"><span class="n">35</span>集合通信的实现与代价：环、树、通信库和资源竞争</a><a href="36-topology-pool.html"><span class="n">36</span>超节点的物理组织与内存池：数据走哪条线、借谁的内存</a><a href="37-scale-choice.html"><span class="n">37</span>从并行方案到超节点规模：按期限、成本和故障挑方案</a><a href="38-cluster.html"><span class="n">38</span>从超节点走向集群：出口、割集与 Clos 网络</a><a href="39-cross-node.html"><span class="n">39</span>跨节点流量与物理路径：同样的字节，走哪几张网卡</a><a href="40-remote-access.html"><span class="n">40</span>远程访问的路径与并发：一次读多久、同时能读几个</a><a href="41-handoff-state.html"><span class="n">41</span>数据交接、顺序与状态管理：什么时候能读、能覆盖、能释放</a><a href="42-congestion.html"><span class="n">42</span>共享网络中的拥塞与可靠性：高峰、反馈、多路径、死锁</a><a href="43-task-completion.html"><span class="n">43</span>从通信改进到任务完成：先看谁晚到，再看能藏多少</a><a href="44-inference-request.html"><span class="n">44</span>推理请求的执行过程与资源需求：一条请求的时间线和账本</a><a href="45-batching.html"><span class="n">45</span>批处理与请求调度：多读一次权重做更多事，但别让别人等太久</a><a href="46-kv-cache.html"><span class="n">46</span>KV 缓存的分配、复用与释放：分页、共享、留不留</a><a href="47-compress-offload.html"><span class="n">47</span>压缩与卸载：少存字节、轮流驻留，各付什么代价</a><a href="48-speculative.html"><span class="n">48</span>推测解码：一次验证，确定好几个 token</a><a href="49-serving-choice.html"><span class="n">49</span>请求负载下的性能与配置选择：数正确且按时的答案</a><a href="50-distribution.html"><span class="n">50</span>计算与状态的分布方式：八张卡怎么接每秒 3.5 个请求</a><a href="51-pd-split.html"><span class="n">51</span>Prefill–Decode 分离与资源配比：A100 做输入，H20 做生成</a><a href="52-af-split.html" class="cur"><span class="n">52</span>Attention–FFN 分离与异构执行：专家放 CPU 还是搬到 GPU</a><a href="53-expert-balance.html"><span class="n">53</span>专家放置、复制与负载均衡：最忙的那张卡定完成时刻</a><a href="54-kv-routing.html"><span class="n">54</span>KV 的分布、共享与请求路由：存哪一级、何时取回、发给谁</a><a href="55-scale-compare.html"><span class="n">55</span>扩缩容、故障恢复与部署方案比较：积压多久消退</a><a href="56-training-budget.html"><span class="n">56</span>训练的容量与时间估算：100B token、30 天要几张卡</a><a href="57-state-sharding.html"><span class="n">57</span>训练状态的分片、重计算与卸载：显存不够时的三条路</a><a href="58-pipeline-overlap.html"><span class="n">58</span>流水调度与通信重叠：气泡、激活驻留与藏不住的那 0.08 秒</a><a href="59-data-checkpoint.html"><span class="n">59</span>数据输入、checkpoint 与故障恢复：几周的作业怎么扛住中断</a><a href="60-rl-system.html"><span class="n">60</span>强化学习训练系统：生成、验证、学习组成的反馈循环</a><a href="61-training-choice.html"><span class="n">61</span>从系统方案到期限与硬件选择：32 卡还是 48 卡</a><a href="62-agent-sandbox.html"><span class="n">62</span>Agent 任务的资源需求与运行环境：先满的是内存，不是 CPU</a><a href="63-resource-pool.html"><span class="n">63</span>共享资源池与 RL 资源配比：资源够不够，还要看在不在一起</a><a href="64-service-cost.html"><span class="n">64</span>模型服务的选择、成本与扩容：按成功任务算账</a><a href="65-interaction-time.html"><span class="n">65</span>从模型运行时间到完整交互时间：模型 0.3 秒，用户等 12.8 秒</a><a href="66-cross-device.html"><span class="n">66</span>跨设备分工与会话迁移：传图片、传特征，还是传状态</a><a href="67-wan-deploy.html"><span class="n">67</span>广域网、无线与部署选择：剩下二十轮放哪儿</a><a href="appendix-glossary.html">附录 · 缩写与术语表</a><a href="appendix-tp-pp-cp.html">附录 · 补充资料：TP、PP、CP，一个模型沿三个方向切给多张卡</a></nav><main>
+<h1 id="52-attentionffn-cpu-gpu">第 52 章 · Attention–FFN 分离与异构执行：专家放 CPU 还是搬到 GPU</h1><div class="run"><a class="btn" href="../animations/52-af-split.html">▶ 打开本章可交互动画</a><a class="btn" href="https://colab.research.google.com/github/wikieden/ai-infra-from-constraints/blob/main/code/notebooks/ch52_af_split.ipynb" target="_blank" rel="noopener">在 Colab 运行本章代码</a><a class="btn" href="../code/notebooks/ch52_af_split.ipynb" download>下载 notebook</a><details><summary>本地运行</summary><pre><code>git clone https://github.com/wikieden/ai-infra-from-constraints
+cd ai-infra-from-constraints/code/notebooks
+pip install jupyterlab torch numpy
+jupyter lab ch52_af_split.ipynb</code></pre><p>也可以下载后直接用 VS Code 打开 .ipynb 运行。需要 GPU 的章节在 Colab 里选「代码执行程序 → 更改运行时类型 → GPU」。</p></details></div>
+<blockquote>
+<p>本章回答：MoE 的专家权重大多放在主存时，是把 36 MiB 权重搬给 GPU 算，还是让 CPU 就地算、只传激活？每个专家收到几个 token 时两条路换手？CPU 用 AVX-512 还是 AMX 为什么能把交点从 72 推到 689？一批 64 个 token 会碰到多少个专家？注意力和专家分到两台机器后，micro-batch 怎么交错？AF 一步交接 0.384 ms 看着比 PD 的 48.3 ms 小，为什么整条请求反而贵 8 倍？<br />
+讲解日期：2026-11-24 · 上一章：<a href="../lessons/51-pd-split.html">第 51 章 Prefill–Decode 分离与资源配比</a> · 下一章：<a href="../lessons/53-expert-balance.html">第 53 章 专家放置、复制与负载均衡</a><br />
+对应原文：<code>materials/ai-infra-book/manuscripts/09-分布式推理.md</code> §9.3 L230–L347（例 9.3、9.4，图 9-12 至 9-18）<br />
+本章缩写：AVX-512 = Advanced Vector Extensions 512（高级 / 向量 / 扩展，512 位）· AMX = Advanced Matrix Extensions（高级 / 矩阵 / 扩展）· NUMA = Non-Uniform Memory Access（非 / 均匀 / 内存访问）· PCIe = Peripheral Component Interconnect Express（外设 / 组件 / 互连 / 高速）· EP = Expert Parallelism（专家 / 并行）· TPOT = Time Per Output Token（每个 / 输出 / token 的时间）。全部缩写见 <a href="../lessons/appendix-glossary.html">缩写与术语表</a></p>
+</blockquote>
+<h2 id="_1">讲解</h2>
+<h3 id="2026-11-24">第一步：两条路径，交点看复用（2026-11-24）</h3>
+<p><strong>类比：修家具。</strong> 家具很大（专家权重 36 MiB）、零件很小（一个 token 的激活 8 KiB）。只修一个零件，派师傅上门（CPU 就地算，只送零件）比把家具运到厂里（搬权重到 GPU）划算；要修上百个零件，运到厂里用大机床反而快。</p>
+<p>原文 L232–L256：Qwen3-235B-A22B 一个专家三个矩阵，<span class="arithmatex">\(3 \times 4096 \times 1536 = 18{,}874{,}368\)</span> 参数，BF16 <strong>36 MiB</strong>。</p>
+<p><strong>例 9.3</strong> 用 KTransformers 论文的实验机：单颗 Xeon Platinum 8452Y（同插槽内存 220 GB/s；PyTorch AVX-512 kernel 1.8 TFLOP/s、KTransformers AMX kernel 21.3 TFLOP/s）+ A100 40GB PCIe（按 50% 计 156 TFLOP/s、778 GB/s），PCIe 交接 25 GB/s、每次 5 μs。</p>
+<div class="arithmatex">\[T_C(m) = 2\alpha + \frac{2mhb}{B_L} + \max\left(\frac{2mP_e}{C_C}, \frac{W_e}{B_D}\right), \qquad T_G(m) = \alpha + \frac{W_e}{B_L} + \max\left(\frac{2mP_e}{C_G}, \frac{W_e}{B_H}\right)\]</div>
+<table>
+<thead>
+<tr>
+<th>八个专家，每专家 <span class="arithmatex">\(m\)</span> 个 token</th>
+<th style="text-align: right;">CPU AVX-512</th>
+<th style="text-align: right;">CPU AMX</th>
+<th style="text-align: right;">搬到 GPU</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\(m = 1\)</span></td>
+<td style="text-align: right;">1.46 ms</td>
+<td style="text-align: right;">1.46 ms</td>
+<td style="text-align: right;">12.5 ms</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(m = 128\)</span></td>
+<td style="text-align: right;">22.2 ms</td>
+<td style="text-align: right;">2.57 ms</td>
+<td style="text-align: right;">12.5 ms</td>
+</tr>
+<tr>
+<td>交点</td>
+<td style="text-align: right;">72</td>
+<td style="text-align: right;">689</td>
+<td style="text-align: right;">—</td>
+</tr>
+</tbody>
+</table>
+<p><img alt="CPU 就地计算与搬权重到 GPU 的耗时随每专家 token 数变化" src="../figures/52-af-split-crossover.png" /></p>
+<p><em>图 52-1 · 横轴对数。搬权重那条几乎是平的（12.5 ms 全花在 PCIe 上），CPU 两条随 m 线性上升，过了交点 GPU 占优。</em></p>
+<ul>
+<li><strong>低复用时，避开大块权重搬移比矩阵算力更值钱</strong>。</li>
+<li>同一台机器、同一批请求，CPU 用哪套指令就决定专家放哪一侧。</li>
+<li><strong>NUMA</strong>：跨插槽读只有 125 GB/s。128 token 时 AVX-512 计算 21.5 ms 远长于读取 1.37 ms，内存放哪个插槽无所谓；AMX 计算 1.81 ms 只比同插槽读取略长，跨插槽读取（2.42 ms）反而成了较长的一项。<strong>先看瓶颈是读还是算</strong>。</li>
+</ul>
+<p><strong>一句话</strong>：搬权重是一笔固定开销，就地算是每个 token 一份；每专家输入行数决定在哪边算。</p>
+<h3 id="2026-11-24_1">第二步：装得下 ≠ 来得及；一批会碰多少专家（2026-11-24）</h3>
+<p><strong>类比：仓库和货架。</strong> 仓库（主存）放得下所有货，手边货架（显存）只放常用的；一批订单会用到多少种货，决定要跑几趟仓库。</p>
+<p>原文 L282–L298：</p>
+<ul>
+<li>每层 128 个专家共 4.5 GiB；每层驻留 32 个 × 94 层 ≈ <strong>106 GiB</strong>，一张 A100 80GB 放不下；减到 16 个是 53 GiB，但更多专家交给主存一侧。<strong>容量选择直接改执行路径</strong>。</li>
+<li>64 个 token 各选 8 个、共 512 次分派：均匀覆盖每专家 4 行，集中到 8 个专家每专家 64 行；计算量一样（19.3 GFLOPs），权重读取 4.5 GiB vs 288 MiB，在 220 GB/s 上 22.0 vs 1.37 ms。</li>
+<li>随机路由期望活跃专家数（第 <a href="../lessons/33-cp-pp-ep.html">33 章</a>）：</li>
+</ul>
+<div class="arithmatex">\[\mathbb{E}[U] = E\left[1 - \left(1 - \frac{K}{E}\right)^M\right] = 128\left[1 - \left(\tfrac{120}{128}\right)^{64}\right] \approx 126\]</div>
+<p>batch 再大，不同专家数封顶 128，新 token 越来越多地复用已读入的权重。所以<strong>大主存 + 少量 GPU 适合每专家行数少的负载</strong>；并发一高，瓶颈从读权重转到 CPU 矩阵计算，正对应图 52-1 的交点。</p>
+<p><strong>一句话</strong>：总专家数定要放多少，分派次数定算多少，批内专家集合定读多少。</p>
+<h3 id="af-micro-batch-2026-11-24">第三步：跨机 AF 与 micro-batch 交错（2026-11-24）</h3>
+<p><strong>类比：两个人包饺子。</strong> 一个擀皮（注意力），一个包馅（专家）。一盆一盆轮流做，总有一个人干等；擀第二盆皮时让对方包第一盆，两人就同时在忙。</p>
+<p>原文 L300–L326：把路由专家放进独立的专家池，叫<strong>专家分离</strong>（EP 分离）。一层 MoE 依次是：A 卡算注意力和路由 → <strong>dispatch</strong>（All-to-All 把隐状态发到专家所在的 B 卡）→ B 卡按专家重排、做矩阵乘 → <strong>combine</strong>（结果原路返回，A 卡按路由权重求和）。两处等待：B 等各来源到齐，A 等一个 token 的全部专家结果。</p>
+<ul>
+<li><strong>大 EP</strong> 不自动增大每个专家的 batch：均匀路由每专家平均 <span class="arithmatex">\(nk/E\)</span> 行（1024 × 8 / 256 = 32），把 256 个专家从 32 卡摊到 128 卡，平均仍是 32，只是每卡专家变少。</li>
+<li>交错流水：<span class="arithmatex">\(q\)</span> 个 micro-batch，两阶段各 <span class="arithmatex">\(t_A\)</span>、<span class="arithmatex">\(t_F\)</span>：</li>
+</ul>
+<div class="arithmatex">\[T = t_A + t_F + (q - 1)\max(t_A, t_F)\]</div>
+<p><img alt="四个 micro-batch 依次执行 20 ms vs 交错执行 14 ms" src="../figures/52-af-split-pingpong.png" /></p>
+<p><em>图 52-2 · 注意力 2 ms、专家 3 ms。稳定后专家节点一直在算，每 3 ms 出一个。</em></p>
+<p>拆小以后每段变慢、或不能重叠的往返超过省下的 6 ms，收益就没了。MegaScale-Infer（2025）在八节点 Ampere 集群、TPOT ≤ 150 ms 下报告每 GPU decode 吞吐是 TensorRT-LLM 的 1.90 倍，但这包含放置、并行、流水和通信库的共同效果，不是"开 EP 分离"的通用加速比。</p>
+<p><strong>一句话</strong>：AF 跨机后靠 micro-batch 交错填满两边，节拍由较慢的一段定。</p>
+<h3 id="af-2026-11-24">第四步：AF 一步便宜，整条请求贵（2026-11-24）</h3>
+<p><strong>类比：一次搬家 vs 每天通勤。</strong> 搬家一次搬一卡车（PD 一次交接整份 KV）；通勤每次只带个包（AF 每层一个隐状态），但天天要走，次数一多，路上的时间就超过搬家。</p>
+<p>原文 L328–L344，<strong>例 9.4</strong>：Qwen3-8B 把 36 层 FFN 放到另一侧，每层发一个 4096 维 BF16 隐状态（8 KiB）并收回同样大小，一步 decode 72 次、576 KiB：</p>
+<div class="arithmatex">\[\frac{576\ \text{KiB}}{25\ \text{GB/s}} + 72 \times 5\ \mu\text{s} = 23.6 + 360 = 384\ \mu\text{s}\]</div>
+<p>令一次 PD 交接与一步 AF 交接相等，得临界启动时间</p>
+<div class="arithmatex">\[\frac{V_{KV}}{B} + \alpha = \frac{V_{AF}}{B} + 72\alpha \ \Longrightarrow\ \alpha^* = \frac{V_{KV} - V_{AF}}{71B}\]</div>
+<table>
+<thead>
+<tr>
+<th>状态</th>
+<th style="text-align: right;">25 GB/s</th>
+<th style="text-align: right;">50 GB/s</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GQA 1.125 GiB</td>
+<td style="text-align: right;">680 μs</td>
+<td style="text-align: right;">340 μs</td>
+</tr>
+<tr>
+<td>紧凑 MLA 549 MiB</td>
+<td style="text-align: right;">324 μs</td>
+<td style="text-align: right;">162 μs</td>
+</tr>
+</tbody>
+</table>
+<p><img alt="PD 一次交接与 AF 一步交接的时间随每次启动开销变化" src="../figures/52-af-split-alpha.png" /></p>
+<p><em>图 52-3 · PD 斜率 1，AF 斜率 72；交点就是 α</em>。*</p>
+<ul>
+<li>5 μs 远低于这些临界值，<strong>单看一步，AF 更快</strong>。</li>
+<li>放到整条请求：1024 步 AF 累计约 <strong>393 ms</strong>，是 GQA 一次 PD（48.3 ms）的 8.1 倍、MLA 一次 PD（23.0 ms）的 17 倍。AF 传的是隐状态，和 KV 头数、潜变量宽度都无关，MLA 帮不上它。</li>
+<li>8192 token 的 prefill 若也按整批 AF 交接，激活载荷 4.5 GiB，约 193 ms。</li>
+</ul>
+<p><strong>一句话</strong>：PD 一次大搬移随上下文长，AF 小搬移随步数和层数反复，前者看带宽，后者看启动。</p>
+<p><strong>场景代码</strong>：在 PyTorch 里比较"搬权重"与"就地算"的两条路，就是 CPU 张量和 <code>.to("cuda", non_blocking=True)</code> 的区别（真实 API）：</p>
+<pre><code class="language-python">import torch
+
+w_cpu = torch.randn(4096, 1536, dtype=torch.bfloat16).pin_memory()   # 专家的一个矩阵，放锁页主存
+x = torch.randn(1, 4096, dtype=torch.bfloat16, device=&quot;cuda&quot;)         # 一个 token 的激活
+
+y1 = x @ w_cpu.to(&quot;cuda&quot;, non_blocking=True)        # 路径一：搬 12 MiB 权重到 GPU 再算
+y2 = (x.cpu() @ w_cpu).to(&quot;cuda&quot;)                    # 路径二：激活回 CPU 就地算，只传 8 KiB + 3 KiB
+</code></pre>
+<h2 id="token">动画演示：每专家 token 数与执行位置</h2>
+<p><img alt="CPU 与 GPU 路径随每专家 token 数换手" src="../animations/52-af-split.gif" /></p>
+<p>可交互版：<a href="../animations/52-af-split.html">animations/52-af-split.html</a>（滑块：log₂ 每专家 token 数 0–11；CPU kernel AVX-512 / AMX；内存同插槽 / 跨插槽）。</p>
+<p><strong>怎么看</strong>：</p>
+<ol>
+<li>上面两根横条是八个专家在 CPU、GPU 两条路径上的总时间，短的标绿（第一步）；</li>
+<li>每根横条拆成交接、读取、计算三段，看哪段最长；</li>
+<li>播放：1 个 token → 64 → 128（AVX-512 输给 GPU）→ 切 AMX（又赢回来）→ 跨插槽读取。</li>
+</ol>
+<h2 id="_2">练习与作答记录</h2>
+<p><strong>题 1</strong>（第一步）：把 PCIe 换成 PCIe 5.0（交接按 50 GB/s）。<span class="arithmatex">\(m = 1\)</span> 时八个专家搬到 GPU 的时间变成多少？AVX-512 的交点会往哪边移？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p><strong>题 2</strong>（第二步）：<span class="arithmatex">\(E = 128\)</span>、<span class="arithmatex">\(K = 8\)</span>，batch 只有 8 个 token。期望活跃专家多少？读取的权重大约多少 GiB？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p><strong>题 3</strong>（第四步）：一个 48 层的稠密模型、隐状态 5120 维 BF16，AF 每层往返一次，链路 25 GB/s、每次启动 10 μs。一步 decode 的交接多久？输出 2048 个 token 累计多久？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<h2 id="_3">口诀</h2>
+<blockquote>
+<p>修一个零件派师傅上门，修一百个运回厂里；<br />
+仓库放得下，一批订单要跑几趟才是问题；<br />
+两人包饺子，擀第二盆时对方包第一盆；<br />
+搬家一次大，通勤次数多，算整条路才知道谁贵。</p>
+</blockquote>
+<h2 id="_4">本章复习卡片</h2>
+<p><a href="../review.html">I177</a>（T_C(m)、T_G(m)；八专家 1 token 1.46 vs 12.5 ms；交点 AVX-512 72、AMX 689）、<a href="../review.html">I178</a>（每层 32 驻留 106 GiB；E[U] ≈ 126；读取 4.5 GiB vs 288 MiB）、<a href="../review.html">I179</a>（AF 一步 0.384 ms、α* 680 / 324 μs；1024 步 393 ms vs PD 48.3 ms；流水 t_A + t_F + (q−1)max）。练习做完后，按答错、卡住的地方再补。</p>
+<h2 id="_5">附录 · 延伸阅读</h2>
+<blockquote>
+<p>留给以后深入学习用，不影响本章主线。★ 是建议先读的。</p>
+</blockquote>
+<h3 id="_6">推荐阅读</h3>
+<table>
+<thead>
+<tr>
+<th>读什么</th>
+<th>读哪里</th>
+<th>读它为了什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>★ AII 第 9 章</td>
+<td>§9.3 L230–L347</td>
+<td>本章原文</td>
+</tr>
+<tr>
+<td>KTransformers 论文（原文脚注 kt）</td>
+<td>CPU/GPU 混合 MoE 推理、AMX kernel</td>
+<td>例 9.3 的实验机</td>
+</tr>
+<tr>
+<td>MegaScale-Infer（2025）</td>
+<td>ping-pong 流水</td>
+<td>跨机 AF 的实证</td>
+</tr>
+<tr>
+<td><a href="../lessons/33-cp-pp-ep.html">第 33 章 上下文、流水线、专家并行</a></td>
+<td>EP、dispatch / combine</td>
+<td>前置</td>
+</tr>
+<tr>
+<td><a href="../lessons/47-compress-offload.html">第 47 章 压缩与卸载</a></td>
+<td>卸载 FFN</td>
+<td>搬权重那条路</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_7">数学原理</h3>
+<ul>
+<li><strong>固定 + 按量</strong>：搬权重是与 <span class="arithmatex">\(m\)</span> 无关的固定项，就地算是随 <span class="arithmatex">\(m\)</span> 线性的项；两条线相交给出换手点。</li>
+<li><strong>覆盖期望</strong>：每个专家不被 <span class="arithmatex">\(M\)</span> 个 token 选中的概率是 <span class="arithmatex">\((1 - K/E)^M\)</span>。</li>
+<li><strong>两阶段流水</strong>：首个 micro-batch 走完两段，之后每隔较慢一段出一个。</li>
+</ul>
+<h3 id="_8">公式清单</h3>
+<table>
+<thead>
+<tr>
+<th>公式</th>
+<th>意思</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\(T_C(m)\)</span>、<span class="arithmatex">\(T_G(m)\)</span></td>
+<td>CPU 就地 / 搬到 GPU</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\mathbb{E}[U] = E[1 - (1 - K/E)^M]\)</span></td>
+<td>活跃专家数</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(t_A + t_F + (q-1)\max(t_A, t_F)\)</span></td>
+<td>交错流水</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\alpha^* = (V_{KV} - V_{AF})/(71B)\)</span></td>
+<td>PD 与一步 AF 的临界启动</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_9">代码对照：把本章的数字用代码算一遍</h3>
+<blockquote>
+<p>代码 <code>ai-infra/solutions/chapter-code/ch52_af_split.py</code>，测试 <code>tests/test_ch52.py</code>：</p>
+<p><code>bash  
+cd ai-infra/solutions/chapter-code  
+uv run python ch52_af_split.py  
+uv run pytest tests/test_ch52.py</code></p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>讲义</th>
+<th>写法</th>
+<th>跑出来</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第一步</td>
+<td><code>8 * t_cpu(m, kernel)</code>、<code>8 * t_gpu(m)</code>、<code>crossover(kernel)</code></td>
+<td>1.46 / 12.51 ms；72、689</td>
+</tr>
+<tr>
+<td>第二步</td>
+<td><code>active_experts()</code></td>
+<td>125.9 个、4.43 GiB</td>
+</tr>
+<tr>
+<td>第三步</td>
+<td><code>pipeline_ms(2, 3, 4)</code></td>
+<td>14 ms</td>
+</tr>
+<tr>
+<td>第四步</td>
+<td><code>af_step_ms()</code>、<code>alpha_star_us(v)</code></td>
+<td>0.384 ms；680 / 324 μs</td>
+</tr>
+</tbody>
+</table>
+<p><strong>代码里才看得到的 3 件事</strong>：</p>
+<ol>
+<li><code>t_cpu</code> 有两次 α（激活去、结果回），<code>t_gpu</code> 只有一次（只搬权重），这就是"两条依赖边"。</li>
+<li><span class="arithmatex">\(m = 1\)</span> 时 AVX-512 和 AMX 一样快（都是 1.46 ms）：这时读取 36 MiB 比计算长，指令集无关紧要。</li>
+<li><code>crossover</code> 是逐个 m 试出来的整数；公式解析解会落在 71 和 72 之间。</li>
+</ol>
+<p><strong>自己改一改</strong>（不影响练习答案）：</p>
+<ul>
+<li>把 <code>dram</code> 改成 125e9，重算 AMX 的交点。</li>
+<li>给 <code>t_gpu</code> 加"权重已缓存在 GPU 上"的分支（去掉 <span class="arithmatex">\(W_e/B_L\)</span>），看还剩什么。</li>
+<li>用 <code>alpha_star_us</code> 算 100 层模型的临界启动。</li>
+</ul><nav class="pager"><a href="51-pd-split.html">← 第 51 章 · Prefill–Decode 分离与资源配比：A100 做输入，H20 做生成</a><a href="53-expert-balance.html">第 53 章 · 专家放置、复制与负载均衡：最忙的那张卡定完成时刻 →</a></nav>
+</main></div>
+<footer>来自个人学习仓库的对话讲义，含练习作答记录。源码：<a href="https://github.com/wikieden/ai-infra-from-constraints">github.com/wikieden/ai-infra-from-constraints</a>。更多讲义书：<a href="https://wikieden.github.io/ai-books/">Physical AI 0-1-♾️（合集）</a></footer>
+<script>(function(){var d=document.documentElement,K=["s","m","l","xl"];
+function save(k,v){try{v?localStorage.setItem(k,v):localStorage.removeItem(k)}catch(e){}}
+var s=document.getElementById("ab-theme");if(s){s.value=d.dataset.theme||"";s.onchange=function(){if(s.value)d.dataset.theme=s.value;else delete d.dataset.theme;save("ab-theme",s.value)}}
+document.querySelectorAll("[data-fs-step]").forEach(function(b){b.onclick=function(){var i=K.indexOf(d.dataset.fs||"m")+(+b.dataset.fsStep);i=Math.max(0,Math.min(K.length-1,i));d.dataset.fs=K[i];save("ab-fs",K[i])}});
+var nb=document.getElementById("nav-toggle"),side=document.querySelector("nav.side");if(nb&&side){nb.onclick=function(){side.classList.toggle("open")}}
+var cur=side&&side.querySelector(".cur");if(cur)cur.scrollIntoView({block:"center"});
+})();</script>
+</body></html>

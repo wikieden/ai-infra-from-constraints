@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>填满排空与 1F1B</title><link rel="stylesheet" href="anim.css">
+<style>svg text.cap{font-size:15px;font-weight:500}svg text.num{font-size:16px;font-weight:600}</style></head>
+<body><main>
+<h1>第 58 章 · 两种流水调度的时间与在途激活</h1>
+<p class="sub">配套讲义：<a href="../lessons/58-pipeline-overlap.html">第 58 章 · 流水调度与通信重叠：气泡、激活驻留与藏不住的那 0.08 秒</a>。四个阶段；前向 10 ms、反向 20 ms、参数更新 1 ms。事件模型：每阶段按顺序取下一个操作，等依赖和本阶段空闲中较晚者。</p>
+<div class="panel"><svg id="sv" viewBox="0 0 680 360"></svg></div>
+<div class="row"><button id="play">▶ 播放</button><button id="step">→ 单步</button><button id="reset">↺ 从头开始</button></div>
+<div class="row"><label for="s">调度</label><select id="s"><option value="0">填满排空</option><option value="1">1F1B</option></select><label for="m">micro-batch 数</label><input type="range" id="m" min="1" max="16" step="1" value="8"><span id="mv">8</span><label for="l">边界传输 ms</label><input type="range" id="l" min="0" max="3" step="1" value="1"><span id="lv">1</span></div>
+<p class="note">看点：① 四行是四个阶段，蓝前向、橙反向；② 右上是完成时间与阶段 0 同时在途的最多激活份数；③ 播放：填满排空 8 个（337 ms）→ 1F1B（347 ms）→ 1F1B 16 个（599 ms）→ 传输 0。</p>
+</main>
+<script src="anim.js"></script>
+<script>
+const sv=$('sv');
+function R(x,y,w,h,col,op){return el('rect',{x,y,width:Math.max(w,1),height:h,rx:4,fill:col,opacity:op??.7},sv)}
+function T(s,x,y,a,c){return txt(s,{x,y,'text-anchor':a||'start',class:c||'m'},sv)}
+function cap(s){T(s,340,26,'middle','cap')}
+const GET=ids=>ids.map(i=>{const e=$(i);return e.type==='checkbox'?+e.checked:+e.value});
+function SET(ids,v){ids.forEach((i,k)=>{const e=$(i);if(e.type==='checkbox')e.checked=!!v[k];else e.value=v[k];const o=$(i+'v');if(o)o.textContent=(+v[k]).toString()})}
+const IDS=['s','m','l'],F=[[0,8,1],[1,8,1],[1,16,1],[1,16,0]];
+function sim(s,m,l){const p=4,ord=[];for(let st=0;st<p;st++){let q=[];if(s==0){for(let j=0;j<m;j++)q.push(['F',j]);for(let j=0;j<m;j++)q.push(['B',j])}else{const w=Math.min(p-st-1,m);for(let j=0;j<w;j++)q.push(['F',j]);for(let i=0;i<m-w;i++){q.push(['F',w+i]);q.push(['B',i])}for(let j=m-w;j<m;j++)q.push(['B',j])}ord.push(q)}
+ const done={},free=[0,0,0,0],idx=[0,0,0,0],segs=[];let left=ord.reduce((a,q)=>a+q.length,0);
+ while(left>0){for(let st=0;st<p;st++){if(idx[st]>=ord[st].length)continue;const[k,j]=ord[st][idx[st]];let dep;
+  if(k=='F')dep=st==0?0:(done['F'+(st-1)+'_'+j]!==undefined?done['F'+(st-1)+'_'+j]+l:undefined);else dep=st==p-1?done['F'+st+'_'+j]:(done['B'+(st+1)+'_'+j]!==undefined?done['B'+(st+1)+'_'+j]+l:undefined);
+  if(dep===undefined)continue;const t0=Math.max(free[st],dep),d=k=='F'?10:20;free[st]=t0+d;done[k+st+'_'+j]=free[st];segs.push([st,t0,d,k,j]);idx[st]++;left--}}
+ return[segs,Math.max(...free)+1]}
+function render(s,m,l){const[segs,T0]=sim(+s,+m,+l);let inflight=0,mx=0;segs.filter(x=>x[0]==0).sort((a,b)=>a[1]-b[1]).forEach(x=>{inflight+=x[3]=='F'?1:-1;mx=Math.max(mx,inflight)});
+ cap(`${s==0?'填满排空':'1F1B'}，${m} 个 micro-batch：${T0.toFixed(0)} ms，阶段 0 最多 ${mx} 份激活在途`);const sc=560/Math.max(T0,340);
+ for(let st=0;st<4;st++)T(`阶段 ${st}`,66,90+st*50,'end');segs.forEach(([st,t0,d,k,j])=>{R(72+t0*sc,70+st*50,d*sc-1,32,k=='F'?'var(--accent)':'var(--warm)');if(d*sc>16)T(String(j+1),72+(t0+d/2)*sc,92+st*50,'middle')});
+ el('line',{x1:72+T0*sc,y1:60,x2:72+T0*sc,y2:270,stroke:'var(--bad)','stroke-dasharray':'5 4'},sv);T(`${T0.toFixed(0)} ms`,72+T0*sc,290,'middle','num')}
+let k=0,custom=null;
+function draw(){clear(sv);const v=custom||F[k];SET(IDS,v);render(...v)}
+function reset(){k=0;custom=null;draw()}
+function next(){if(custom!==null){custom=null;draw();return true}if(k>=F.length-1)return false;k++;draw();return true}
+IDS.forEach(i=>{const e=$(i);const f=()=>{ANIM.stop();custom=GET(IDS);draw()};e.oninput=f;e.onchange=f});
+setupPlayer({captureSeed:1,reset,next},1500);
+</script><a href="https://wikieden.github.io/ai-books/" style="position:fixed;right:12px;bottom:12px;z-index:99;padding:4px 10px;border-radius:14px;background:rgba(127,127,127,.18);color:inherit;font:13px/1.6 system-ui,sans-serif;text-decoration:none">← 全部讲义书</a>
+</body></html>

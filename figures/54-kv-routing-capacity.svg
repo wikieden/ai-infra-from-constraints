@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="420" viewBox="0 0 760 420">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="16.0" y="26.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="17" fill="#1f2937" text-anchor="start" font-weight="bold">所需容量随复用间隔线性增长：C = rT</text>
+<text x="16.0" y="410.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">r ≈ 1.41 GB/s（A100 连续做无命中 8K prefill）。虚线是每卡三级存储的容量；两条竖线是两类负载 80% 复用的时间。</text>
+<line x1="110.0" y1="70.0" x2="110.0" y2="340.0" stroke="#f0f1f3" stroke-width="1"/>
+<text x="110.0" y="358.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">1</text>
+<line x1="110.0" y1="340.0" x2="680.0" y2="340.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="104.0" y="344.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">1</text>
+<line x1="252.5" y1="70.0" x2="252.5" y2="340.0" stroke="#f0f1f3" stroke-width="1"/>
+<text x="252.5" y="358.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">10</text>
+<line x1="110.0" y1="272.5" x2="680.0" y2="272.5" stroke="#e5e7eb" stroke-width="1"/>
+<text x="104.0" y="276.5" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">10</text>
+<line x1="395.0" y1="70.0" x2="395.0" y2="340.0" stroke="#f0f1f3" stroke-width="1"/>
+<text x="395.0" y="358.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">100</text>
+<line x1="110.0" y1="205.0" x2="680.0" y2="205.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="104.0" y="209.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">100</text>
+<line x1="537.5" y1="70.0" x2="537.5" y2="340.0" stroke="#f0f1f3" stroke-width="1"/>
+<text x="537.5" y="358.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">1000</text>
+<line x1="110.0" y1="137.5" x2="680.0" y2="137.5" stroke="#e5e7eb" stroke-width="1"/>
+<text x="104.0" y="141.5" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">1000</text>
+<line x1="680.0" y1="70.0" x2="680.0" y2="340.0" stroke="#f0f1f3" stroke-width="1"/>
+<text x="680.0" y="358.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">10000</text>
+<line x1="110.0" y1="70.0" x2="680.0" y2="70.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="104.0" y="74.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">10000</text>
+<polyline points="110.0,329.9 657.9,70.4" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<line x1="110.0" y1="218.3" x2="680.0" y2="218.3" stroke="#7c3aed" stroke-width="1.4" stroke-dasharray="5 4"/>
+<text x="116.0" y="213.3" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#7c3aed" text-anchor="start" font-weight="normal">HBM 63.6 GB</text>
+<line x1="110.0" y1="175.3" x2="680.0" y2="175.3" stroke="#16a34a" stroke-width="1.4" stroke-dasharray="5 4"/>
+<text x="116.0" y="170.3" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#16a34a" text-anchor="start" font-weight="normal">主机内存 275 GB</text>
+<line x1="110.0" y1="98.1" x2="680.0" y2="98.1" stroke="#ea580c" stroke-width="1.4" stroke-dasharray="5 4"/>
+<text x="116.0" y="93.1" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#ea580c" text-anchor="start" font-weight="normal">SSD 3.84 TB</text>
+<line x1="252.5" y1="70.0" x2="252.5" y2="340.0" stroke="#dc2626" stroke-width="1.3" stroke-dasharray="3 3"/>
+<rect x="208.8" y="76.0" width="87.4" height="16.0" rx="3" fill="#ffffff" stroke="none" stroke-width="1.4" opacity="0.9"/>
+<text x="252.5" y="87.5" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#dc2626" text-anchor="middle" font-weight="normal">企业 API 10 s</text>
+<line x1="505.9" y1="70.0" x2="505.9" y2="340.0" stroke="#dc2626" stroke-width="1.3" stroke-dasharray="3 3"/>
+<rect x="457.6" y="76.0" width="96.7" height="16.0" rx="3" fill="#ffffff" stroke="none" stroke-width="1.4" opacity="0.9"/>
+<text x="505.9" y="87.5" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#dc2626" text-anchor="middle" font-weight="normal">个人对话 10 min</text>
+<text x="395.0" y="395.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#1f2937" text-anchor="middle" font-weight="normal">复用间隔 T（秒，对数）</text>
+<text x="70.0" y="60.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">GB</text>
+</svg>

@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="420" viewBox="0 0 760 420">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="16.0" y="26.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="17" fill="#1f2937" text-anchor="start" font-weight="bold">服务余量决定启动积压的消退速度</text>
+<text x="16.0" y="410.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">每秒到达 3.5 个，启动 10 s 后积压 35 个。就绪后斜率 = 服务率 − 到达率。红虚线是第 60 秒期限。</text>
+<line x1="100.0" y1="330.0" x2="660.0" y2="330.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="94.0" y="334.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">0</text>
+<line x1="100.0" y1="291.4" x2="660.0" y2="291.4" stroke="#e5e7eb" stroke-width="1"/>
+<text x="94.0" y="295.4" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">10</text>
+<line x1="100.0" y1="252.9" x2="660.0" y2="252.9" stroke="#e5e7eb" stroke-width="1"/>
+<text x="94.0" y="256.9" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">20</text>
+<line x1="100.0" y1="214.3" x2="660.0" y2="214.3" stroke="#e5e7eb" stroke-width="1"/>
+<text x="94.0" y="218.3" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">30</text>
+<line x1="100.0" y1="175.7" x2="660.0" y2="175.7" stroke="#e5e7eb" stroke-width="1"/>
+<text x="94.0" y="179.7" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">40</text>
+<line x1="100.0" y1="137.1" x2="660.0" y2="137.1" stroke="#e5e7eb" stroke-width="1"/>
+<text x="94.0" y="141.1" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">50</text>
+<line x1="100.0" y1="98.6" x2="660.0" y2="98.6" stroke="#e5e7eb" stroke-width="1"/>
+<text x="94.0" y="102.6" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">60</text>
+<line x1="100.0" y1="60.0" x2="660.0" y2="60.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="94.0" y="64.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">70</text>
+<line x1="100.0" y1="60.0" x2="100.0" y2="330.0" stroke="#f0f1f3" stroke-width="1"/>
+<text x="100.0" y="345.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">0</text>
+<line x1="170.0" y1="60.0" x2="170.0" y2="330.0" stroke="#f0f1f3" stroke-width="1"/>
+<text x="170.0" y="345.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">10</text>
+<line x1="240.0" y1="60.0" x2="240.0" y2="330.0" stroke="#f0f1f3" stroke-width="1"/>
+<text x="240.0" y="345.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">20</text>
+<line x1="310.0" y1="60.0" x2="310.0" y2="330.0" stroke="#f0f1f3" stroke-width="1"/>
+<text x="310.0" y="345.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">30</text>
+<line x1="380.0" y1="60.0" x2="380.0" y2="330.0" stroke="#f0f1f3" stroke-width="1"/>
+<text x="380.0" y="345.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">40</text>
+<line x1="450.0" y1="60.0" x2="450.0" y2="330.0" stroke="#f0f1f3" stroke-width="1"/>
+<text x="450.0" y="345.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">50</text>
+<line x1="520.0" y1="60.0" x2="520.0" y2="330.0" stroke="#f0f1f3" stroke-width="1"/>
+<text x="520.0" y="345.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">60</text>
+<line x1="590.0" y1="60.0" x2="590.0" y2="330.0" stroke="#f0f1f3" stroke-width="1"/>
+<text x="590.0" y="345.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">70</text>
+<line x1="660.0" y1="60.0" x2="660.0" y2="330.0" stroke="#f0f1f3" stroke-width="1"/>
+<text x="660.0" y="345.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">80</text>
+<line x1="100.0" y1="330.0" x2="660.0" y2="330.0" stroke="#1f2937" stroke-width="1.3"/>
+<line x1="100.0" y1="60.0" x2="100.0" y2="330.0" stroke="#1f2937" stroke-width="1.3"/>
+<text x="380.0" y="362.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#1f2937" text-anchor="middle" font-weight="normal">从开始启动算起（s）</text>
+<text transform="translate(60.0,195.0) rotate(-90)" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#1f2937" text-anchor="middle">积压请求数</text>
+<polyline points="100.0,330.0 170.0,195.0 402.2,330.0" fill="none" stroke="#16a34a" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<polyline points="100.0,330.0 170.0,195.0 535.7,330.0" fill="none" stroke="#ea580c" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<polyline points="100.0,330.0 170.0,195.0 660.0,64.9" fill="none" stroke="#dc2626" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<line x1="520.0" y1="60.0" x2="520.0" y2="330.0" stroke="#dc2626" stroke-width="1.3" stroke-dasharray="5 4"/>
+<line x1="130.0" y1="81.0" x2="152.0" y2="81.0" stroke="#16a34a" stroke-width="2.5"/>
+<text x="158.0" y="85.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#1f2937" text-anchor="start" font-weight="normal">直接 PD 4.55 · 第 43 秒</text>
+<line x1="130.0" y1="99.0" x2="152.0" y2="99.0" stroke="#ea580c" stroke-width="2.5"/>
+<text x="158.0" y="103.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#1f2937" text-anchor="start" font-weight="normal">分块共置 4.17 · 第 62 秒</text>
+<line x1="130.0" y1="117.0" x2="152.0" y2="117.0" stroke="#dc2626" stroke-width="2.5"/>
+<text x="158.0" y="121.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#1f2937" text-anchor="start" font-weight="normal">共置 3.02 · 一直涨</text>
+</svg>

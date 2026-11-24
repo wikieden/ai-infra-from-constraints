@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>第 65 章 · 从模型运行时间到完整交互时间：模型 0.3 秒，用户等 12.8 秒 · 从约束推导 AI Infra</title>
+<script>(function(){try{var d=document.documentElement,t=localStorage.getItem("ab-theme"),f=localStorage.getItem("ab-fs");if(t)d.dataset.theme=t;if(f)d.dataset.fs=f}catch(e){}})();</script>
+<style>:root{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa;--fs:16px}
+@media (prefers-color-scheme:dark){:root:not([data-theme]){--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}}
+:root[data-theme="light"]{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa}
+:root[data-theme="dark"]{--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}
+:root[data-theme="sepia"]{--bg:#f6efe1;--fg:#3b3127;--mute:#7a6a58;--line:#e2d6bf;--card:#fbf6ec;--acc:#a0522d;--code:#ece2cd;--quote:#efe5d2}
+:root[data-theme="green"]{--bg:#e3eddf;--fg:#22301f;--mute:#566650;--line:#c9d8c3;--card:#eef5eb;--acc:#2e7d4f;--code:#d6e4d0;--quote:#dae7d5}
+:root[data-theme="navy"]{--bg:#0f1a2b;--fg:#dde6f3;--mute:#93a4bd;--line:#23324a;--card:#15233a;--acc:#6cc4ff;--code:#1a2a44;--quote:#16243b}
+:root[data-fs="s"]{--fs:15px}
+:root[data-fs="m"]{--fs:16px}
+:root[data-fs="l"]{--fs:18px}
+:root[data-fs="xl"]{--fs:20px}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:var(--fs)/1.75 -apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Helvetica Neue",sans-serif}
+a{color:var(--acc)}
+header.top{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+header.top .in{max-width:860px;margin:0 auto;padding:10px 16px;display:flex;gap:6px 16px;align-items:center;flex-wrap:wrap;font-size:14px}
+header.top .brand{font-weight:600;color:var(--fg);text-decoration:none;margin-right:auto}
+header.top a{text-decoration:none}
+.prefs{display:inline-flex;gap:4px;align-items:center}
+.prefs button,.prefs select,#nav-toggle{font:inherit;font-size:13px;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:2px 8px;cursor:pointer}
+main{max-width:860px;margin:0 auto;padding:24px 16px 72px;overflow-wrap:anywhere}
+h1{font-size:1.75em;line-height:1.35;margin:8px 0 16px} h2{font-size:1.375em;margin:40px 0 12px;padding-top:8px;border-top:1px solid var(--line)} h3{font-size:1.125em;margin:28px 0 8px}
+.layout{display:grid;grid-template-columns:260px minmax(0,1fr);max-width:1180px;margin:0 auto}
+.layout main{margin:0;max-width:880px}
+nav.side{position:sticky;top:49px;align-self:start;max-height:calc(100vh - 49px);overflow-y:auto;padding:20px 8px 40px 16px;border-right:1px solid var(--line);font-size:14px;line-height:1.5}
+nav.side .h{font-weight:600;color:var(--mute);margin:4px 8px 8px;font-size:13px}
+nav.side a{display:block;padding:5px 8px;border-radius:6px;color:var(--fg);text-decoration:none}
+nav.side a:hover{background:var(--code)} nav.side a.cur{background:var(--quote);color:var(--acc);font-weight:600}
+nav.side a .n{color:var(--mute);margin-right:6px;font-variant-numeric:tabular-nums}
+#nav-toggle{display:none}
+@media (max-width:960px){.layout{display:block} nav.side{display:none;position:fixed;z-index:6;top:49px;left:0;bottom:0;width:min(300px,85vw);max-height:none;background:var(--bg);box-shadow:2px 0 12px rgba(0,0,0,.2)} nav.side.open{display:block} #nav-toggle{display:inline-block}}
+.run{display:flex;flex-wrap:wrap;align-items:center;gap:4px 0;margin:4px 0 12px}
+.run details{flex-basis:100%;margin:6px 0 0;font-size:.94em}
+img{max-width:100%;height:auto;border-radius:8px;border:1px solid var(--line);background:#fff}
+blockquote{margin:16px 0;padding:10px 16px;background:var(--quote);border-left:3px solid var(--acc);border-radius:4px;color:var(--mute)}
+blockquote p{margin:4px 0}
+code{background:var(--code);padding:1px 5px;border-radius:4px;font-size:.9em}
+pre{background:var(--code);padding:12px 14px;border-radius:8px;overflow-x:auto} pre code{padding:0;background:none}
+table{border-collapse:collapse;display:block;overflow-x:auto;max-width:100%;margin:12px 0;font-size:.94em}
+th,td{border:1px solid var(--line);padding:6px 10px;vertical-align:top} th{background:var(--code)}
+details{border:1px solid var(--line);border-radius:8px;padding:6px 12px;margin:8px 0;background:var(--card)}
+details[open]{padding-bottom:10px} summary{cursor:pointer;color:var(--acc);font-weight:500}
+mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%}
+.btn{display:inline-block;margin:4px 8px 4px 0;padding:6px 14px;border:1px solid var(--acc);border-radius:999px;text-decoration:none;font-size:14px}
+.pager{display:flex;justify-content:space-between;gap:12px;margin-top:48px;padding-top:16px;border-top:1px solid var(--line);font-size:15px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin:16px 0}
+.card{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;color:inherit;text-decoration:none}
+.card:hover{border-color:var(--acc)} .card img{border:0;border-bottom:1px solid var(--line);border-radius:0;aspect-ratio:16/10;object-fit:contain;width:100%}
+.card .no{color:var(--mute);font-size:13px;padding:8px 12px 0} .card .t{padding:0 12px 12px;font-weight:500;line-height:1.5}
+.lead{font-size:1.06em;color:var(--mute)}
+footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-size:13px}
+</style>
+<script>window.MathJax={tex:{inlineMath:[["\\(","\\)"]],displayMath:[["\\[","\\]"],["$$","$$"]],processEscapes:true,processEnvironments:true}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"></script>
+</head><body>
+<header class="top"><div class="in">
+<button type="button" id="nav-toggle" aria-label="打开章节列表">☰ 章节</button><a class="brand" href="../index.html">从约束推导 AI Infra</a>
+<a href="../lessons/index.html">讲义目录</a>
+<a href="../animations/index.html">动画</a>
+<a href="../review.html">复习卡片</a>
+<a href="../lessons/appendix-glossary.html">缩写表</a>
+<a href="https://wikieden.github.io/ai-books/glossary.html">全局词汇</a>
+<a href="https://wikieden.github.io/ai-books/">← 全部讲义书</a>
+<span class="prefs" title="字号与主题"><button type="button" data-fs-step="-1" aria-label="字号变小">A−</button><button type="button" data-fs-step="1" aria-label="字号变大">A+</button><select id="ab-theme" aria-label="主题色"><option value="">跟随系统</option><option value="light">浅色</option><option value="dark">深色</option><option value="sepia">米黄护眼</option><option value="green">豆沙绿护眼</option><option value="navy">夜蓝</option></select></span>
+</div></header>
+<div class="layout"><nav class="side" aria-label="章节"><div class="h">从约束推导 AI Infra</div><a href="index.html">讲义目录</a><a href="01-six-layers.html"><span class="n">1</span>一次请求走过的六层（进行中）</a><a href="02-request-lifecycle.html"><span class="n">2</span>一次生成请求的处理过程：权重加载一次，每个 token 都要再读一遍</a><a href="03-dataflow-hierarchy.html"><span class="n">3</span>从存储程序到数据流执行：存储层次就像大楼里的厕所</a><a href="04-key-numbers.html"><span class="n">4</span>系统设计的关键数字：容量、算力、带宽、延迟</a><a href="05-estimate.html"><span class="n">5</span>用几个数字估算一次模型执行：算和读各要多久，实测为什么达不到</a><a href="06-architecture.html"><span class="n">6</span>需求如何推动架构：TPU、SmartNIC、Unified Bus</a><a href="07-compute-graph.html"><span class="n">7</span>计算图与张量结构：一个 token 经过一层要算多少</a><a href="08-generation-budget.html"><span class="n">8</span>自回归生成的资源账：存一次的、每步读的、用完就扔的</a><a href="09-kv-sharing.html"><span class="n">9</span>KV 怎么变小 ①：头共享与潜变量压缩</a><a href="10-kv-sparse-linear.html"><span class="n">10</span>KV 怎么变小 ②：窗口、稀疏、线性与混合注意力</a><a href="11-moe.html"><span class="n">11</span>MoE：专家路由与批内权重复用</a><a href="12-network-shape.html"><span class="n">12</span>网络形状：深宽、专家粒度、残差与多 token 预测</a><a href="13-model-comparison.html"><span class="n">13</span>整个模型的资源需求与比较：存多少、算多少、能放几条请求</a><a href="14-workload-arrival.html"><span class="n">14</span>从单次请求到持续到达的负载：什么时候来，比来多少更要紧</a><a href="15-agent-tasks.html"><span class="n">15</span>多轮交互与 Agent 任务：前缀、成功成本、关键路径</a><a href="16-multimodal-realtime.html"><span class="n">16</span>多模态与实时交互：数据换形状，时间有死线（略讲）</a><a href="17-training-rl.html"><span class="n">17</span>训练与强化学习的计算和状态：为什么训练要 6ND、要存 18 字节</a><a href="18-scaling-lifecycle.html"><span class="n">18</span>Scaling law 与全生命周期成本：训练多大、训练多久、服务多少次</a><a href="19-accelerator-basics.html"><span class="n">19</span>从矩阵乘法认识加速器：算多少、搬多少、耗多少电</a><a href="20-compute-units.html"><span class="n">20</span>计算单元：矩阵、向量、流水与低精度</a><a href="21-memory-movement.html"><span class="n">21</span>存储层次与数据搬移：放得下、取得到、来得及</a><a href="22-package-interconnect.html"><span class="n">22</span>多芯片封装与互联：计算放在哪，数据走哪条路</a><a href="23-architecture-evolution.html"><span class="n">23</span>架构演进与专用架构：每一代新增的东西，省掉了哪一笔</a><a href="24-choose-accelerator.html"><span class="n">24</span>根据架构选择加速器：先估下界，再找差距，最后算账</a><a href="25-submit-sync.html"><span class="n">25</span>提交、搬移与同步：从调用返回到结果可用</a><a href="26-tiling-layout.html"><span class="n">26</span>单个算子：分块、布局与切分</a><a href="27-fusion-flash.html"><span class="n">27</span>算子融合与 FlashAttention：中间结果不落地</a><a href="28-compiler.html"><span class="n">28</span>编译器：表达、变换与选择</a><a href="29-runtime.html"><span class="n">29</span>运行时：重叠、CUDA Graph、动态形状与 persistent kernel</a><a href="30-request-view.html"><span class="n">30</span>从局部优化到完整请求</a><a href="31-multi-gpu.html"><span class="n">31</span>从单卡到多卡：放得下、算得快、接得多</a><a href="32-dp-tp-sp.html"><span class="n">32</span>数据、张量、序列并行：复制模型、切矩阵、切激活</a><a href="33-cp-pp-ep.html"><span class="n">33</span>上下文、流水线、专家并行：切位置、切层、切专家</a><a href="34-combined-parallel.html"><span class="n">34</span>组合并行与模型规模：坐标、复用与最忙的那一组</a><a href="35-collectives.html"><span class="n">35</span>集合通信的实现与代价：环、树、通信库和资源竞争</a><a href="36-topology-pool.html"><span class="n">36</span>超节点的物理组织与内存池：数据走哪条线、借谁的内存</a><a href="37-scale-choice.html"><span class="n">37</span>从并行方案到超节点规模：按期限、成本和故障挑方案</a><a href="38-cluster.html"><span class="n">38</span>从超节点走向集群：出口、割集与 Clos 网络</a><a href="39-cross-node.html"><span class="n">39</span>跨节点流量与物理路径：同样的字节，走哪几张网卡</a><a href="40-remote-access.html"><span class="n">40</span>远程访问的路径与并发：一次读多久、同时能读几个</a><a href="41-handoff-state.html"><span class="n">41</span>数据交接、顺序与状态管理：什么时候能读、能覆盖、能释放</a><a href="42-congestion.html"><span class="n">42</span>共享网络中的拥塞与可靠性：高峰、反馈、多路径、死锁</a><a href="43-task-completion.html"><span class="n">43</span>从通信改进到任务完成：先看谁晚到，再看能藏多少</a><a href="44-inference-request.html"><span class="n">44</span>推理请求的执行过程与资源需求：一条请求的时间线和账本</a><a href="45-batching.html"><span class="n">45</span>批处理与请求调度：多读一次权重做更多事，但别让别人等太久</a><a href="46-kv-cache.html"><span class="n">46</span>KV 缓存的分配、复用与释放：分页、共享、留不留</a><a href="47-compress-offload.html"><span class="n">47</span>压缩与卸载：少存字节、轮流驻留，各付什么代价</a><a href="48-speculative.html"><span class="n">48</span>推测解码：一次验证，确定好几个 token</a><a href="49-serving-choice.html"><span class="n">49</span>请求负载下的性能与配置选择：数正确且按时的答案</a><a href="50-distribution.html"><span class="n">50</span>计算与状态的分布方式：八张卡怎么接每秒 3.5 个请求</a><a href="51-pd-split.html"><span class="n">51</span>Prefill–Decode 分离与资源配比：A100 做输入，H20 做生成</a><a href="52-af-split.html"><span class="n">52</span>Attention–FFN 分离与异构执行：专家放 CPU 还是搬到 GPU</a><a href="53-expert-balance.html"><span class="n">53</span>专家放置、复制与负载均衡：最忙的那张卡定完成时刻</a><a href="54-kv-routing.html"><span class="n">54</span>KV 的分布、共享与请求路由：存哪一级、何时取回、发给谁</a><a href="55-scale-compare.html"><span class="n">55</span>扩缩容、故障恢复与部署方案比较：积压多久消退</a><a href="56-training-budget.html"><span class="n">56</span>训练的容量与时间估算：100B token、30 天要几张卡</a><a href="57-state-sharding.html"><span class="n">57</span>训练状态的分片、重计算与卸载：显存不够时的三条路</a><a href="58-pipeline-overlap.html"><span class="n">58</span>流水调度与通信重叠：气泡、激活驻留与藏不住的那 0.08 秒</a><a href="59-data-checkpoint.html"><span class="n">59</span>数据输入、checkpoint 与故障恢复：几周的作业怎么扛住中断</a><a href="60-rl-system.html"><span class="n">60</span>强化学习训练系统：生成、验证、学习组成的反馈循环</a><a href="61-training-choice.html"><span class="n">61</span>从系统方案到期限与硬件选择：32 卡还是 48 卡</a><a href="62-agent-sandbox.html"><span class="n">62</span>Agent 任务的资源需求与运行环境：先满的是内存，不是 CPU</a><a href="63-resource-pool.html"><span class="n">63</span>共享资源池与 RL 资源配比：资源够不够，还要看在不在一起</a><a href="64-service-cost.html"><span class="n">64</span>模型服务的选择、成本与扩容：按成功任务算账</a><a href="65-interaction-time.html" class="cur"><span class="n">65</span>从模型运行时间到完整交互时间：模型 0.3 秒，用户等 12.8 秒</a><a href="66-cross-device.html"><span class="n">66</span>跨设备分工与会话迁移：传图片、传特征，还是传状态</a><a href="67-wan-deploy.html"><span class="n">67</span>广域网、无线与部署选择：剩下二十轮放哪儿</a><a href="appendix-glossary.html">附录 · 缩写与术语表</a><a href="appendix-tp-pp-cp.html">附录 · 补充资料：TP、PP、CP，一个模型沿三个方向切给多张卡</a></nav><main>
+<h1 id="65-03-128">第 65 章 · 从模型运行时间到完整交互时间：模型 0.3 秒，用户等 12.8 秒</h1><div class="run"><a class="btn" href="../animations/65-interaction-time.html">▶ 打开本章可交互动画</a><a class="btn" href="https://colab.research.google.com/github/wikieden/ai-infra-from-constraints/blob/main/code/notebooks/ch65_interaction_time.ipynb" target="_blank" rel="noopener">在 Colab 运行本章代码</a><a class="btn" href="../code/notebooks/ch65_interaction_time.ipynb" download>下载 notebook</a><details><summary>本地运行</summary><pre><code>git clone https://github.com/wikieden/ai-infra-from-constraints
+cd ai-infra-from-constraints/code/notebooks
+pip install jupyterlab torch numpy
+jupyter lab ch65_interaction_time.ipynb</code></pre><p>也可以下载后直接用 VS Code 打开 .ipynb 运行。需要 GPU 的章节在 Colab 里选「代码执行程序 → 更改运行时类型 → GPU」。</p></details></div>
+<blockquote>
+<p>本章回答：一张图交给云端精修，模型只跑 0.3 秒，用户为什么要等 12.8 秒？把模型加速十倍和把输入压一半，哪个更值？实时语音为什么平均带宽够也会卡顿？截图 Agent 压缩截图能省多少，最多能多出几轮纠错？一部旗舰手机跑 8B 模型每秒能出几个 token、能放多长上下文、耗多少电？<br />
+讲解日期：2026-11-24 · 上一章：<a href="../lessons/64-service-cost.html">第 64 章 模型服务的选择、成本与扩容</a> · 下一章：<a href="../lessons/66-cross-device.html">第 66 章 跨设备分工与会话迁移</a><br />
+对应原文：<code>materials/ai-infra-book/manuscripts/12-端边云协同.md</code> 章首 L1–L7、§12.1 L9–L201（图 12-1 至 12-9）<br />
+本章缩写：RTT = Round-Trip Time（往返 / 时间）· ASR = Automatic Speech Recognition（自动 / 语音 / 识别）· TTS = Text-To-Speech（文本 / 转 / 语音）· PCM = Pulse-Code Modulation（脉冲 / 编码 / 调制）· SoC = System on Chip（片上 / 系统）· LPDDR5X = Low-Power Double Data Rate 5X（低功耗 / 双倍数据率内存第 5X 代）· GGUF（llama.cpp 的模型文件格式）。全部缩写见 <a href="../lessons/appendix-glossary.html">缩写与术语表</a></p>
+</blockquote>
+<p>第 8–11 部分讲了模型服务、资源调度和任务运行环境。最后一部分讲把这些服务和环境放到哪台设备上：<strong>端侧</strong>（采集输入、与用户交互）、<strong>边缘</strong>（附近的工作站或服务节点）、<strong>云端</strong>（远程资源池）。三个任务贯穿：图片精修（何时拿到完整成片）、实时语音（能否连续播放）、截图 Agent（每轮的通信与执行累积多少）。</p>
+<h2 id="_1">讲解</h2>
+<h3 id="942026-11-24">第一步：图片精修，上传占了 94%（2026-11-24）</h3>
+<p><strong>类比：寄快递修手表。</strong> 师傅修 5 分钟，快递来回三天；换个更快的师傅几乎没用，换个更快的快递才有用。</p>
+<p>原文 §12.1.1 L11–L67：上传 30 MB 原图、返回 5 MB 成片：</p>
+<div class="arithmatex">\[T_{\mathrm{serial}} = \frac{S_u}{B_u} + R + T_c + \frac{S_d}{B_d} = \frac{240}{20} + 0.1 + 0.3 + \frac{40}{100} = 12.8\ \text{s}\]</div>
+<p>（上行 20 Mbit/s、下行 100 Mbit/s、RTT 0.1 s、处理 0.3 s；MB、Mbit 都是十进制。）</p>
+<table>
+<thead>
+<tr>
+<th>改法</th>
+<th style="text-align: right;">完成时间</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>原样</td>
+<td style="text-align: right;">12.8 s</td>
+</tr>
+<tr>
+<td>模型快 10 倍</td>
+<td style="text-align: right;">12.53 s（只省 0.27 s）</td>
+</tr>
+<tr>
+<td>上行升到 100 Mbit/s</td>
+<td style="text-align: right;">3.2 s</td>
+</tr>
+<tr>
+<td>无损压缩输入减半，编解码 0.15 s</td>
+<td style="text-align: right;">约 7.0 s</td>
+</tr>
+<tr>
+<td>分三块上传、处理与回传和后续上传重叠</td>
+<td style="text-align: right;">约 12.4 s</td>
+</tr>
+</tbody>
+</table>
+<p><img alt="12.8 s 里上传占 12 s；模型快 10 倍只省 0.27 s" src="../figures/65-interaction-time-image.png" /></p>
+<p><em>图 65-1 · 模型只占约 2.3%，Amdahl 定律封顶 2.3%。</em></p>
+<ul>
+<li>压缩收益 <span class="arithmatex">\(\Delta T = (S_u - S'_u)/B_u - T_e\)</span>：20 Mbit/s 省 5.85 s，100 Mbit/s 省 1.05 s，800 Mbit/s 时收益为零。<strong>同一种压缩，值不值取决于链路</strong>。</li>
+<li>分块只能重叠前两块的处理与回传，最后一块还是第 12 s 才发完；需要全局曝光等跨块信息时，分块也没用。</li>
+</ul>
+<p><strong>一句话</strong>：先算每段要多久，再看谁在关键路径上；模型时间常常不是。</p>
+<h3 id="2026-11-24">第二步：实时语音：平均够不等于不卡（2026-11-24）</h3>
+<p><strong>类比：自来水管接水桶。</strong> 水管偶尔断一下，桶里有存水就不影响用；水管一直比用水慢，桶再大也会见底。</p>
+<p>原文 §12.1.2 L68–L111：每 20 ms 一块，处理器逐块处理、网卡逐块发送：</p>
+<div class="arithmatex">\[c_i = \max(a_i, c_{i-1}) + m_i, \qquad u_i = \max(c_i, u_{i-1}) + s_i, \qquad r_i = u_i + d_i, \qquad p_i = \max(r_i,\ p_{i-1} + \tau)\]</div>
+<p>第一个 max 是数据依赖，第二个是资源竞争，播放的 max 是"本块到了"和"上一块播完"。</p>
+<p><strong>例</strong>：24 kHz 单声道 16-bit，每块 960 B；处理 12 ms、发送 1 ms、传播 5 ms。第一块 38 ms 到，缓冲 40 ms 后 78 ms 开播，之后 98、118 ms……第三块传播变 50 ms，123 ms 才到，比计划的 118 ms 晚 5 ms，<strong>后面全部顺延</strong>。缓冲改 45 ms 就扛住了，代价是首段晚 5 ms 开播。</p>
+<p><img alt="第三块晚到 5 ms，播放器只能停顿，后续一起推迟" src="../figures/65-interaction-time-audio.png" /></p>
+<p><em>图 65-2 · 圆点是到达，横条是播放。缓冲吸收短时抖动，但推迟首播。</em></p>
+<ul>
+<li><strong>长期速率不足</strong>：16 kHz 要 256 kbit/s，网络只有 130 kbit/s，60 ms 缓冲 <span class="arithmatex">\(15360/(256000 - 130000) \approx 0.12\)</span> s 就耗尽。增大缓冲只抬高起点、斜率不变；要提速率或降码率。</li>
+</ul>
+<p><strong>一句话</strong>：缓冲治抖动，治不了速率不足。</p>
+<h3 id="computer-use2026-11-24">第三步：Computer Use：等待每轮重复累积（2026-11-24）</h3>
+<p><strong>类比：远程指导别人修电脑。</strong> 每一步都要等对方拍照发过来、你看完说下一步、他点完再拍——没法提前说下一步。</p>
+<p>原文 §12.1.3 L112–L137：只有上一轮操作完成、界面更新，才能拿到下一张截图。</p>
+<ul>
+<li>30 轮，每轮：上传 0.8 MB 截图（6.4 Mbit/s，1 s）+ 终端观测与操作 0.3 s + 远端模型 2.0 s + 往返 0.2 s = 3.5 s，共 <strong>105 s</strong>。</li>
+<li>截图压到 0.2 MB、编码 30 ms：每轮 2.78 s，共约 83 s，省 21.6 s。</li>
+<li>但图糊了可能多纠错几轮：<span class="arithmatex">\(2.78N' &lt; 105\)</span> → <span class="arithmatex">\(N' \le 37\)</span>，<strong>最多多出 7 轮</strong>才不亏。</li>
+<li>截图版本要和动作编号绑定：按旧截图做的操作可能错，界面变了就重新截图。</li>
+</ul>
+<p><strong>一句话</strong>：多轮任务里，每轮省一点，乘以轮数才是收益；省的东西若增加了轮数要扣回来。</p>
+<h3 id="2026-11-24_1">第四步：端侧、附近、云端的初步比较（2026-11-24）</h3>
+<p>原文 §12.1.4 L138–L153：</p>
+<table>
+<thead>
+<tr>
+<th>层次</th>
+<th>算什么</th>
+<th>已得到</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>各步骤耗时</td>
+<td>计算、发送、传播各多久</td>
+<td>原图上传 12 s，模型 0.3 s</td>
+</tr>
+<tr>
+<td>执行依赖</td>
+<td>哪些能重叠、哪些必须等</td>
+<td>独立图块可重叠，下一轮截图要等上一轮操作</td>
+</tr>
+<tr>
+<td>实际执行</td>
+<td>数据就绪后何时开始</td>
+<td>平均速率够，一次晚到仍会停顿</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>交给远端，节省的计算时间要超过上传、下载、传播、排队、准备增加的时间；多轮任务准备只做一次，通信每轮都有。</li>
+<li><strong>光速封底</strong>：光纤约 <span class="arithmatex">\(2 \times 10^8\)</span> m/s，单向 10,000 km 往返至少 100 ms；要 50 ms 内应答，这么远的服务器直接排除。</li>
+</ul>
+<h3 id="2026-11-24_2">第五步：手机当执行资源（2026-11-24）</h3>
+<p><strong>类比：小厨房。</strong> 灶的火力（带宽）定每道菜多快，台面（内存）定能同时摆几道，煤气罐（电池）定能做多久。</p>
+<p>原文 §12.1.5 L154–L201：Snapdragon 8 Elite 的 LPDDR5X 按 4 条 x16、每引脚 10.6 Gbit/s 估，约 <strong>84.8 GB/s</strong>。</p>
+<table>
+<thead>
+<tr>
+<th>Qwen3-8B、8K 上下文、单请求</th>
+<th style="text-align: right;">每步读取</th>
+<th style="text-align: right;">decode 上限</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>BF16 只算权重</td>
+<td style="text-align: right;">15.14 GB</td>
+<td style="text-align: right;">5.6 token/s（0.179 s/步）</td>
+</tr>
+<tr>
+<td>BF16 含 KV</td>
+<td style="text-align: right;">16.35 GB</td>
+<td style="text-align: right;">5.2 token/s</td>
+</tr>
+<tr>
+<td>q4_0（每 32 值 18 字节）</td>
+<td style="text-align: right;">4.26 + 1.21 = 5.47 GB</td>
+<td style="text-align: right;"><strong>15.5 token/s</strong>（64.4 ms/步）</td>
+</tr>
+</tbody>
+</table>
+<p>MELTing Point 在 iPhone 14 Pro 上实测：Zephyr-3B q4_k 14.8 token/s，Llama-2 7B q3_k 6.0 token/s。</p>
+<p><strong>容量</strong>（q4_0 权重 4.61 GB、预留 4 GB、每条 8K 请求 KV 1.21 GB）：</p>
+<table>
+<thead>
+<tr>
+<th>手机内存</th>
+<th style="text-align: right;">剩余</th>
+<th>能放</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>6 GB</td>
+<td style="text-align: right;">−2.61 GB</td>
+<td>放不下 8B；3B q4（约 1.7 GB）可以</td>
+</tr>
+<tr>
+<td>12 GB</td>
+<td style="text-align: right;">3.39 GB</td>
+<td>2 条 8K，或单条约 2.3 万 token</td>
+</tr>
+<tr>
+<td>16 GB</td>
+<td style="text-align: right;">7.39 GB</td>
+<td>6 条 8K，或单条约 5.0 万 token</td>
+</tr>
+<tr>
+<td>24 GB</td>
+<td style="text-align: right;">15.39 GB</td>
+<td>12 条 8K，或单条约 10.4 万 token</td>
+</tr>
+</tbody>
+</table>
+<p><img alt="手机、M3 Ultra、RTX PRO 6000 每步读取下界" src="../figures/65-interaction-time-devices.png" /></p>
+<p><em>图 65-3 · 同一模型同一上下文：手机 q4_0 64 ms，M3 Ultra（819 GB/s）BF16 约 20 ms，RTX PRO 6000（1,792 GB/s）约 9 ms。</em></p>
+<ul>
+<li><strong>能耗</strong>：实测每 token 0.576–0.756 J（整机），持续功率最高 13.8 W；14.8 token/s × 0.576 J ≈ 8.5 W，对得上。</li>
+<li><strong>运行时各管一层</strong>：llama.cpp 管权重怎么存、怎么逐块算（GGUF 分组量化），Ollama 管分发和本地服务封装，Unsloth 管训练状态：24 GB 显存全参数训练只装得下约 1.5B，LoRA 冻结基础权重能到约 12B（Qwen3-8B 约 16.5 GB）。</li>
+<li>第 67 章要用的"端侧每轮模型 2.9 s"：按 15.5 token/s，约每轮生成 45 个 token。</li>
+<li><strong>判断不对称</strong>：硬件下界已超期限 → 一定不可行；低于期限 → 只是还没被排除，要用目标设备实测校准。</li>
+</ul>
+<p><strong>场景代码</strong>：llama.cpp 的 Python 绑定在本地跑 q4_0 量化模型（真实 API）：</p>
+<pre><code class="language-python">from llama_cpp import Llama
+
+llm = Llama(model_path=&quot;Qwen3-8B-Q4_0.gguf&quot;, n_ctx=8192, n_gpu_layers=-1)   # 尽量放到 GPU / NPU
+out = llm(&quot;看这张截图，下一步点哪里？&quot;, max_tokens=45)                        # 每轮约 45 个 token
+print(out[&quot;usage&quot;])
+</code></pre>
+<p><strong>一句话</strong>：端侧看带宽定速度、容量定上下文、电池定续航；下界只能排除，不能确认。</p>
+<h2 id="_2">动画演示：图片精修的时间线</h2>
+<p><img alt="上行速率、压缩与模型加速对完成时间的影响" src="../animations/65-interaction-time.gif" /></p>
+<p>可交互版：<a href="../animations/65-interaction-time.html">animations/65-interaction-time.html</a>（滑块：上行 5–200 Mbit/s；模型加速倍数 1–20；勾选：输入压缩一半）。</p>
+<p><strong>怎么看</strong>：</p>
+<ol>
+<li>一根横条拆成上传（橙）、传播（灰）、处理（绿）、下载（蓝）（第一步）；</li>
+<li>右边是完成时间和模型所占比例；</li>
+<li>播放：原样 12.8 s → 模型快 10 倍 → 上行 100 Mbit/s → 压缩一半（20 Mbit/s）→ 压缩一半（800 Mbit/s，收益为零）。</li>
+</ol>
+<h2 id="_3">练习与作答记录</h2>
+<p><strong>题 1</strong>（第一步）：上传 12 MB、上行 40 Mbit/s、下载 2 MB、下行 200 Mbit/s、RTT 50 ms、处理 1 s。完成多久？模型快 4 倍省多少？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p><strong>题 2</strong>（第二步）：每块 20 ms，处理 15 ms、发送 2 ms、传播 8 ms，缓冲 30 ms。第五块传播变成 45 ms，会不会停顿？缓冲至少要多少？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p><strong>题 3</strong>（第五步）：一部手机带宽 60 GB/s，跑 q4_0 的 Qwen3-8B、8K 上下文。每秒最多几个 token？内存 12 GB 时能放几条 8K 请求？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<h2 id="_4">口诀</h2>
+<blockquote>
+<p>修表五分钟，快递三天，换快递才快；<br />
+水管偶尔断看水桶，水管一直细桶再大也见底；<br />
+远程指导修电脑，每步都要等照片；<br />
+小厨房：火力定快慢，台面定几道，煤气罐定多久。</p>
+</blockquote>
+<h2 id="_5">本章复习卡片</h2>
+<p><a href="../review.html">I215</a>（T_serial = S_u/B_u + R + T_c + S_d/B_d = 12.8 s：模型快 10 倍 12.53、上行 100 Mbit/s 3.2、压缩一半约 7.0；ΔT 在 800 Mbit/s 为零）、<a href="../review.html">I216</a>（音频逐块递推与 p_i = max(r_i, p_{i−1} + τ)：晚 5 ms 顺延、缓冲 45 ms 扛住；速率不足 0.12 s 耗尽；截图 Agent 105 → 83 s、最多多 7 轮）、<a href="../review.html">I217</a>（手机 84.8 GB/s：BF16 5.2、q4_0 15.5 token/s；12 / 16 / 24 GB 放 2 / 6 / 12 条 8K；下界只能排除）。练习做完后，按答错、卡住的地方再补。</p>
+<h2 id="_6">附录 · 延伸阅读</h2>
+<blockquote>
+<p>留给以后深入学习用，不影响本章主线。★ 是建议先读的。</p>
+</blockquote>
+<h3 id="_7">推荐阅读</h3>
+<table>
+<thead>
+<tr>
+<th>读什么</th>
+<th>读哪里</th>
+<th>读它为了什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>★ AII 第 12 章</td>
+<td>章首、§12.1 L1–L201</td>
+<td>本章原文</td>
+</tr>
+<tr>
+<td>MELTing Point（Laskaridis et al., MobiCom 2024）</td>
+<td>手机端 LLM 实测</td>
+<td>token/s 与能耗</td>
+</tr>
+<tr>
+<td>llama.cpp / GGUF 文档</td>
+<td>量化格式</td>
+<td>端侧运行时</td>
+</tr>
+<tr>
+<td><a href="../lessons/47-compress-offload.html">第 47 章 压缩与卸载</a></td>
+<td>q4_0、q8_0</td>
+<td>每步读取量</td>
+</tr>
+<tr>
+<td><a href="../lessons/24-choose-accelerator.html">第 24 章 根据架构选择加速器</a></td>
+<td>11 款设备的下界</td>
+<td>M3 Ultra、RTX PRO 6000</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_8">数学原理</h3>
+<ul>
+<li><strong>串行相加、并行取最大</strong>：完成时间由依赖关系决定。</li>
+<li><strong>递推中的 max</strong>：一个是数据依赖，一个是资源竞争。</li>
+<li><strong>缓冲</strong>：只平移起点；净流出速率 = 播放码率 − 到达速率。</li>
+</ul>
+<h3 id="_9">公式清单</h3>
+<table>
+<thead>
+<tr>
+<th>公式</th>
+<th>意思</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\(T = S_u/B_u + R + T_c + S_d/B_d\)</span></td>
+<td>串行完成时间</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\Delta T = (S_u - S'_u)/B_u - T_e\)</span></td>
+<td>压缩收益</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(c_i, u_i, r_i, p_i\)</span> 的递推</td>
+<td>流式流水线</td>
+</tr>
+<tr>
+<td>缓冲 / (需求 − 供给)</td>
+<td>耗尽时间</td>
+</tr>
+<tr>
+<td>每步读取 / 带宽</td>
+<td>端侧 decode 下界</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_10">代码对照：把本章的数字用代码算一遍</h3>
+<blockquote>
+<p>代码 <code>ai-infra/solutions/chapter-code/ch65_interaction_time.py</code>，测试 <code>tests/test_ch65.py</code>：</p>
+<p><code>bash  
+cd ai-infra/solutions/chapter-code  
+uv run python ch65_interaction_time.py  
+uv run pytest tests/test_ch65.py</code></p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>讲义</th>
+<th>写法</th>
+<th>跑出来</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第一步</td>
+<td><code>serial(...)</code>、<code>compress_gain(...)</code>、<code>chunked(...)</code></td>
+<td>12.8 / 12.53 / 3.2 s；5.85 / 1.05 / 0 s；12.36 s</td>
+</tr>
+<tr>
+<td>第二步</td>
+<td><code>audio(prop=..., J=...)</code>、<code>drain_s(...)</code></td>
+<td>停顿 5 → 0 ms；0.12 s</td>
+</tr>
+<tr>
+<td>第三步</td>
+<td><code>rounds_time(...)</code></td>
+<td>105 / 83.4 s</td>
+</tr>
+<tr>
+<td>第五步</td>
+<td><code>phone_decode(...)</code>、<code>phone_context(m)</code></td>
+<td>5.6 / 5.2 / 15.5 token/s；2 / 6 / 12 条</td>
+</tr>
+</tbody>
+</table>
+<p><strong>代码里才看得到的 3 件事</strong>：</p>
+<ol>
+<li><code>chunked</code> 里上传、处理、回传各是一个串行资源，块 i 的处理要等它上传完再加半个 RTT 的单向传播。</li>
+<li>压一半那行算出 6.95 s，原文写"约 7.0 秒"。</li>
+<li><code>phone_context</code> 的单条上下文按每 token 147,456 字节整除剩余内存，12 GB 时 23,011 个 token。</li>
+</ol>
+<p><strong>自己改一改</strong>（不影响练习答案）：</p>
+<ul>
+<li>给 <code>serial</code> 加"服务器边收边处理"的版本，看分块是否还有意义。</li>
+<li>用 <code>audio</code> 找第三块传播 80 ms 时需要的最小缓冲。</li>
+<li>给 <code>phone_decode</code> 加持续负载降频：带宽打八折后 q4_0 还剩多少 token/s。</li>
+</ul><nav class="pager"><a href="64-service-cost.html">← 第 64 章 · 模型服务的选择、成本与扩容：按成功任务算账</a><a href="66-cross-device.html">第 66 章 · 跨设备分工与会话迁移：传图片、传特征，还是传状态 →</a></nav>
+</main></div>
+<footer>来自个人学习仓库的对话讲义，含练习作答记录。源码：<a href="https://github.com/wikieden/ai-infra-from-constraints">github.com/wikieden/ai-infra-from-constraints</a>。更多讲义书：<a href="https://wikieden.github.io/ai-books/">Physical AI 0-1-♾️（合集）</a></footer>
+<script>(function(){var d=document.documentElement,K=["s","m","l","xl"];
+function save(k,v){try{v?localStorage.setItem(k,v):localStorage.removeItem(k)}catch(e){}}
+var s=document.getElementById("ab-theme");if(s){s.value=d.dataset.theme||"";s.onchange=function(){if(s.value)d.dataset.theme=s.value;else delete d.dataset.theme;save("ab-theme",s.value)}}
+document.querySelectorAll("[data-fs-step]").forEach(function(b){b.onclick=function(){var i=K.indexOf(d.dataset.fs||"m")+(+b.dataset.fsStep);i=Math.max(0,Math.min(K.length-1,i));d.dataset.fs=K[i];save("ab-fs",K[i])}});
+var nb=document.getElementById("nav-toggle"),side=document.querySelector("nav.side");if(nb&&side){nb.onclick=function(){side.classList.toggle("open")}}
+var cur=side&&side.querySelector(".cur");if(cur)cur.scrollIntoView({block:"center"});
+})();</script>
+</body></html>

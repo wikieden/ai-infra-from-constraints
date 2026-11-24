@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="230" viewBox="0 0 800 230">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="16.0" y="26.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="17" fill="#1f2937" text-anchor="start" font-weight="bold">跨设备 TP = 2：每个 token 144 次通信启动</text>
+<text x="16.0" y="220.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">36 层 × 每层 2 次归约 × 每次 2 阶段。α = 2 μs 时 0.29 ms；无聚合 Wi-Fi 短帧交换 134 μs 时 19.3 ms，是一步 decode 读取下界 9.12 ms 的两倍多。</text>
+<text x="198.0" y="80.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="end" font-weight="normal">卡间互连 α = 2 μs</text>
+<rect x="210.0" y="60.0" width="6.8" height="30.0" rx="4" fill="#dcfce7" stroke="#16a34a" stroke-width="1.4" opacity="1"/>
+<text x="224.8" y="80.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#16a34a" text-anchor="start" font-weight="bold">0.29 ms</text>
+<text x="198.0" y="126.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="end" font-weight="normal">Wi-Fi α = 134 μs</text>
+<rect x="210.0" y="106.0" width="453.5" height="30.0" rx="4" fill="#fee2e2" stroke="#dc2626" stroke-width="1.4" opacity="1"/>
+<text x="671.5" y="126.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#dc2626" text-anchor="start" font-weight="bold">19.3 ms</text>
+<text x="198.0" y="172.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="end" font-weight="normal">一步 decode 读取下界</text>
+<rect x="210.0" y="152.0" width="214.3" height="30.0" rx="4" fill="#f3f4f6" stroke="#6b7280" stroke-width="1.4" opacity="1"/>
+<text x="432.3" y="172.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#6b7280" text-anchor="start" font-weight="bold">9.12 ms</text>
+</svg>

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="780" height="240" viewBox="0 0 780 240">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="16.0" y="26.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="17" fill="#1f2937" text-anchor="start" font-weight="bold">Qwen3-8B、8K 上下文，一步 decode 的读取下界</text>
+<text x="16.0" y="230.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">手机按 84.8 GB/s、q4_0（5.47 GB）；M3 Ultra 819 GB/s、RTX PRO 6000 1,792 GB/s 按 BF16（16.35 GB）。右边是 token/s 上限。</text>
+<text x="168.0" y="73.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="end" font-weight="normal">手机 q4_0</text>
+<rect x="180.0" y="55.0" width="148.1" height="26.0" rx="4" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<text x="336.1" y="73.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#ea580c" text-anchor="start" font-weight="bold">64.4 ms · 15.5 token/s</text>
+<text x="168.0" y="113.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="end" font-weight="normal">手机 BF16</text>
+<rect x="180.0" y="95.0" width="443.9" height="26.0" rx="4" fill="#fee2e2" stroke="#dc2626" stroke-width="1.4" opacity="1"/>
+<text x="631.9" y="113.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#dc2626" text-anchor="start" font-weight="bold">193 ms · 5.2 token/s</text>
+<text x="168.0" y="153.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="end" font-weight="normal">M3 Ultra BF16</text>
+<rect x="180.0" y="135.0" width="45.9" height="26.0" rx="4" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<text x="233.9" y="153.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#2563eb" text-anchor="start" font-weight="bold">19.96 ms · 50.1 token/s</text>
+<text x="168.0" y="193.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="end" font-weight="normal">RTX PRO 6000 BF16</text>
+<rect x="180.0" y="175.0" width="21.0" height="26.0" rx="4" fill="#dcfce7" stroke="#16a34a" stroke-width="1.4" opacity="1"/>
+<text x="209.0" y="193.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#16a34a" text-anchor="start" font-weight="bold">9.12 ms · 109.6 token/s</text>
+</svg>

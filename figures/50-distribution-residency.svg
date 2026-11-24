@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="300" viewBox="0 0 860 300">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="16.0" y="26.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="17" fill="#1f2937" text-anchor="start" font-weight="bold">计算停了，状态还在：一条多轮请求的阶段与状态驻留</text>
+<text x="16.0" y="290.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">横轴按阶段排列，不按真实时长。8K 上下文 KV 1.125 GiB，工具执行 10 s 时占 11.25 GiB·s。</text>
+<rect x="140.0" y="70.0" width="130.0" height="34.0" rx="4" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<text x="205.0" y="92.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#2563eb" text-anchor="middle" font-weight="bold">P</text>
+<rect x="276.0" y="70.0" width="130.0" height="34.0" rx="4" fill="#dcfce7" stroke="#16a34a" stroke-width="1.4" opacity="1"/>
+<text x="341.0" y="92.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#16a34a" text-anchor="middle" font-weight="bold">D</text>
+<rect x="412.0" y="70.0" width="130.0" height="34.0" rx="4" fill="#f3f4f6" stroke="#6b7280" stroke-width="1.4" opacity="1"/>
+<text x="477.0" y="92.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#6b7280" text-anchor="middle" font-weight="bold">工具等待</text>
+<rect x="548.0" y="70.0" width="130.0" height="34.0" rx="4" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<text x="613.0" y="92.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#2563eb" text-anchor="middle" font-weight="bold">P（新增）</text>
+<rect x="684.0" y="70.0" width="130.0" height="34.0" rx="4" fill="#dcfce7" stroke="#16a34a" stroke-width="1.4" opacity="1"/>
+<text x="749.0" y="92.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#16a34a" text-anchor="middle" font-weight="bold">D</text>
+<text x="130.0" y="92.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="end" font-weight="normal">计算</text>
+<text x="130.0" y="143.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="end" font-weight="normal">权重</text>
+<rect x="140.0" y="125.0" width="676.0" height="24.0" rx="3" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.4" opacity="1"/>
+<text x="130.0" y="177.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="end" font-weight="normal">KV</text>
+<rect x="140.0" y="177.0" width="130.0" height="6.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<rect x="276.0" y="174.0" width="130.0" height="9.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<rect x="412.0" y="171.0" width="130.0" height="12.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<rect x="548.0" y="168.0" width="130.0" height="15.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<rect x="684.0" y="165.0" width="130.0" height="18.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<text x="130.0" y="211.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="end" font-weight="normal">激活</text>
+<rect x="140.0" y="193.0" width="130.0" height="24.0" rx="3" fill="#ccfbf1" stroke="#0d9488" stroke-width="1.4" opacity="1"/>
+<rect x="276.0" y="193.0" width="130.0" height="24.0" rx="3" fill="#ccfbf1" stroke="#0d9488" stroke-width="1.4" opacity="1"/>
+<rect x="548.0" y="193.0" width="130.0" height="24.0" rx="3" fill="#ccfbf1" stroke="#0d9488" stroke-width="1.4" opacity="1"/>
+<rect x="684.0" y="193.0" width="130.0" height="24.0" rx="3" fill="#ccfbf1" stroke="#0d9488" stroke-width="1.4" opacity="1"/>
+<rect x="338.8" y="227.5" width="282.4" height="16.5" rx="3" fill="#ffffff" stroke="none" stroke-width="1.4" opacity="0.9"/>
+<text x="480.0" y="239.5" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#ea580c" text-anchor="middle" font-weight="normal">工具等待：GPU 去做别的请求，KV 仍占 1.125 GiB</text>
+</svg>

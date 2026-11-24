@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>剩余二十轮放哪里</title><link rel="stylesheet" href="anim.css">
+<style>svg text.cap{font-size:15px;font-weight:500}svg text.num{font-size:16px;font-weight:600}</style></head>
+<body><main>
+<h1>第 67 章 · 端侧、附近还是云端</h1>
+<p class="sub">配套讲义：<a href="../lessons/67-wan-deploy.html">第 67 章 · 广域网、无线与部署选择：剩下二十轮放哪儿</a>。二十轮：准备 + 20 × (截图 / 上行 + 终端 0.3 s + 模型 + RTT)。端侧 2.9 s/轮；附近 80 Mbit/s、RTT 0.02 s；云端上行和 RTT 可调。</p>
+<div class="panel"><svg id="sv" viewBox="0 0 680 360"></svg></div>
+<div class="row"><button id="play">▶ 播放</button><button id="step">→ 单步</button><button id="reset">↺ 从头开始</button></div>
+<div class="row"><label for="u">云端上行 Mbit/s</label><input type="range" id="u" min="1" max="50" step="0.5" value="6.4"><span id="uv">6.4</span><label for="r">云端 RTT s</label><input type="range" id="r" min="0.02" max="0.5" step="0.01" value="0.2"><span id="rv">0.2</span><label for="d">期限 s</label><input type="range" id="d" min="10" max="80" step="1" value="45"><span id="dv">45</span><label for="m">截图 MB</label><input type="range" id="m" min="0.1" max="2" step="0.1" value="0.8"><span id="mv">0.8</span></div>
+<p class="note">看点：① 三根横条是二十轮完成时间，竖线是期限；② 能按时的标绿，能耗最低的再标出；③ 播放：6.4 Mbit/s（选云）→ 3.5（改附近）→ 期限 12 s → 截图 0.2 MB。</p>
+</main>
+<script src="anim.js"></script>
+<script>
+const sv=$('sv');
+function R(x,y,w,h,col,op){return el('rect',{x,y,width:Math.max(w,1),height:h,rx:4,fill:col,opacity:op??.7},sv)}
+function T(s,x,y,a,c){return txt(s,{x,y,'text-anchor':a||'start',class:c||'m'},sv)}
+function cap(s){T(s,340,26,'middle','cap')}
+const GET=ids=>ids.map(i=>{const e=$(i);return e.type==='checkbox'?+e.checked:+e.value});
+function SET(ids,v){ids.forEach((i,k)=>{const e=$(i);if(e.type==='checkbox')e.checked=!!v[k];else e.value=v[k];const o=$(i+'v');if(o)o.textContent=(+v[k]).toString()})}
+const IDS=['u','r','d','m'],F=[[6.4,0.2,45,0.8],[3.5,0.2,45,0.8],[6.4,0.2,12,0.8],[3.5,0.2,45,0.2]];
+function render(u,r,d,m){const S=[['端侧手机',20*3.2,600],['附近 RTX PRO 6000',0.27+20*(m*8/80+0.3+0.137+0.02),1806],['云地域 H100',0.14+20*(m*8/u+0.3+0.073+ +r),1120]];
+ const ok=S.filter(x=>x[1]<=d),best=ok.length?ok.reduce((a,b)=>a[2]<b[2]?a:b)[0]:'无';cap(`期限 ${d} s：选 ${best}`);const sc=v=>Math.min(v,100)/100*420;
+ S.forEach(([n,t,e],i)=>{const y=80+i*60;T(n,170,y+22,'end');R(180,y,sc(t),34,t<=d?'var(--good)':'var(--bad)');T(`${t.toFixed(1)} s · ${e} J${n==best?' ← 选':''}`,188+sc(t),y+22)});
+ el('line',{x1:180+sc(d),y1:66,x2:180+sc(d),y2:270,stroke:'var(--text)','stroke-dasharray':'5 4'},sv)}
+let k=0,custom=null;
+function draw(){clear(sv);const v=custom||F[k];SET(IDS,v);render(...v)}
+function reset(){k=0;custom=null;draw()}
+function next(){if(custom!==null){custom=null;draw();return true}if(k>=F.length-1)return false;k++;draw();return true}
+IDS.forEach(i=>{const e=$(i);const f=()=>{ANIM.stop();custom=GET(IDS);draw()};e.oninput=f;e.onchange=f});
+setupPlayer({captureSeed:1,reset,next},1500);
+</script><a href="https://wikieden.github.io/ai-books/" style="position:fixed;right:12px;bottom:12px;z-index:99;padding:4px 10px;border-radius:14px;background:rgba(127,127,127,.18);color:inherit;font:13px/1.6 system-ui,sans-serif;text-decoration:none">← 全部讲义书</a>
+</body></html>

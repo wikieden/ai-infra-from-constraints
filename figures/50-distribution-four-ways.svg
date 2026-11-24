@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="400" viewBox="0 0 900 400">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="16.0" y="26.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="17" fill="#1f2937" text-anchor="start" font-weight="bold">四种组织方式：八卡协作、完整副本、按阶段分工、按层内算子分工</text>
+<text x="16.0" y="390.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">前两种都跑完整模型；PD 每个请求交接一次上下文 KV，AF 每层每步都要交接激活。</text>
+<rect x="20.0" y="50.0" width="420.0" height="150.0" rx="10" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" stroke-dasharray="5 4" opacity="0.55"/>
+<text x="30.0" y="68.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#2563eb" text-anchor="start" font-weight="bold">① 八卡协作：一个实例，接同一批请求</text>
+<rect x="36.0" y="100.0" width="42.0" height="40.0" rx="8" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<text x="57.0" y="123.9" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="13" fill="#1f2937" text-anchor="middle" font-weight="bold">0</text>
+<rect x="86.0" y="100.0" width="42.0" height="40.0" rx="8" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<text x="107.0" y="123.9" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="13" fill="#1f2937" text-anchor="middle" font-weight="bold">1</text>
+<rect x="136.0" y="100.0" width="42.0" height="40.0" rx="8" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<text x="157.0" y="123.9" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="13" fill="#1f2937" text-anchor="middle" font-weight="bold">2</text>
+<rect x="186.0" y="100.0" width="42.0" height="40.0" rx="8" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<text x="207.0" y="123.9" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="13" fill="#1f2937" text-anchor="middle" font-weight="bold">3</text>
+<rect x="236.0" y="100.0" width="42.0" height="40.0" rx="8" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<text x="257.0" y="123.9" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="13" fill="#1f2937" text-anchor="middle" font-weight="bold">4</text>
+<rect x="286.0" y="100.0" width="42.0" height="40.0" rx="8" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<text x="307.0" y="123.9" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="13" fill="#1f2937" text-anchor="middle" font-weight="bold">5</text>
+<rect x="336.0" y="100.0" width="42.0" height="40.0" rx="8" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<text x="357.0" y="123.9" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="13" fill="#1f2937" text-anchor="middle" font-weight="bold">6</text>
+<rect x="386.0" y="100.0" width="42.0" height="40.0" rx="8" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<text x="407.0" y="123.9" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="13" fill="#1f2937" text-anchor="middle" font-weight="bold">7</text>
+<text x="230.0" y="170.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="middle" font-weight="normal">TP / EP 组内每步都要通信</text>
+<rect x="460.0" y="50.0" width="420.0" height="150.0" rx="10" fill="#dcfce7" stroke="#16a34a" stroke-width="1.4" stroke-dasharray="5 4" opacity="0.55"/>
+<text x="470.0" y="68.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#16a34a" text-anchor="start" font-weight="bold">② 完整副本：各接各的请求</text>
+<rect x="480.0" y="92.0" width="180.0" height="70.0" rx="8" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<text x="570.0" y="123.3" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="13.5" fill="#1f2937" text-anchor="middle" font-weight="bold">副本 0</text>
+<text x="570.0" y="140.8" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#4b5563" text-anchor="middle" font-weight="normal">完整权重 + 自己的 KV</text>
+<rect x="680.0" y="92.0" width="180.0" height="70.0" rx="8" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<text x="770.0" y="123.3" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="13.5" fill="#1f2937" text-anchor="middle" font-weight="bold">副本 1</text>
+<text x="770.0" y="140.8" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#4b5563" text-anchor="middle" font-weight="normal">完整权重 + 自己的 KV</text>
+<rect x="20.0" y="220.0" width="420.0" height="150.0" rx="10" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" stroke-dasharray="5 4" opacity="0.55"/>
+<text x="30.0" y="238.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#ea580c" text-anchor="start" font-weight="bold">③ PD：按生成阶段分工</text>
+<rect x="40.0" y="262.0" width="120.0" height="56.0" rx="8" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<text x="100.0" y="286.3" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="13.5" fill="#1f2937" text-anchor="middle" font-weight="bold">P 池</text>
+<text x="100.0" y="303.8" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#4b5563" text-anchor="middle" font-weight="normal">处理输入</text>
+<rect x="300.0" y="262.0" width="120.0" height="56.0" rx="8" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<text x="360.0" y="286.3" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="13.5" fill="#1f2937" text-anchor="middle" font-weight="bold">D 池</text>
+<text x="360.0" y="303.8" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#4b5563" text-anchor="middle" font-weight="normal">逐 token 生成</text>
+<line x1="160.0" y1="290.0" x2="300.0" y2="290.0" stroke="#4b5563" stroke-width="1.6"/>
+<polygon points="300.0,290.0 292.1,294.2 292.1,285.8" fill="#4b5563" stroke="#4b5563" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<text x="230.0" y="346.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#ea580c" text-anchor="middle" font-weight="normal">上下文 KV · 每请求一次</text>
+<rect x="460.0" y="220.0" width="420.0" height="150.0" rx="10" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.4" stroke-dasharray="5 4" opacity="0.55"/>
+<text x="470.0" y="238.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#7c3aed" text-anchor="start" font-weight="bold">④ AF：按层内算子分工</text>
+<rect x="480.0" y="270.0" width="150.0" height="60.0" rx="8" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<text x="555.0" y="304.1" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="13.5" fill="#1f2937" text-anchor="middle" font-weight="bold">注意力 + KV</text>
+<rect x="710.0" y="270.0" width="150.0" height="60.0" rx="8" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<text x="785.0" y="304.1" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="13.5" fill="#1f2937" text-anchor="middle" font-weight="bold">FFN / 专家</text>
+<line x1="630.0" y1="290.0" x2="710.0" y2="290.0" stroke="#7c3aed" stroke-width="1.6"/>
+<polygon points="710.0,290.0 702.1,294.2 702.1,285.8" fill="#7c3aed" stroke="#7c3aed" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<line x1="710.0" y1="312.0" x2="630.0" y2="312.0" stroke="#7c3aed" stroke-width="1.6"/>
+<polygon points="630.0,312.0 637.9,307.8 637.9,316.2" fill="#7c3aed" stroke="#7c3aed" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<text x="670.0" y="352.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#7c3aed" text-anchor="middle" font-weight="normal">每层、每步一次往返</text>
+</svg>

@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="780" height="360" viewBox="0 0 780 360">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="16.0" y="26.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="17" fill="#1f2937" text-anchor="start" font-weight="bold">共享卡从训练切到生成：两种次序的显存峰值</text>
+<text x="16.0" y="350.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">训练状态 40、生成权重 15.3、KV 池 24、共用 4 GiB。红线是 H100 的 74.5 GiB。</text>
+<line x1="100.0" y1="290.0" x2="700.0" y2="290.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="94.0" y="294.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">0</text>
+<line x1="100.0" y1="238.9" x2="700.0" y2="238.9" stroke="#e5e7eb" stroke-width="1"/>
+<text x="94.0" y="242.9" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">20</text>
+<line x1="100.0" y1="187.8" x2="700.0" y2="187.8" stroke="#e5e7eb" stroke-width="1"/>
+<text x="94.0" y="191.8" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">40</text>
+<line x1="100.0" y1="136.7" x2="700.0" y2="136.7" stroke="#e5e7eb" stroke-width="1"/>
+<text x="94.0" y="140.7" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">60</text>
+<line x1="100.0" y1="99.6" x2="700.0" y2="99.6" stroke="#e5e7eb" stroke-width="1"/>
+<text x="94.0" y="103.6" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">74.5</text>
+<line x1="100.0" y1="60.0" x2="700.0" y2="60.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="94.0" y="64.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">90</text>
+<line x1="100.0" y1="290.0" x2="700.0" y2="290.0" stroke="#1f2937" stroke-width="1.3"/>
+<line x1="100.0" y1="60.0" x2="100.0" y2="290.0" stroke="#1f2937" stroke-width="1.3"/>
+<text transform="translate(60.0,175.0) rotate(-90)" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#1f2937" text-anchor="middle">GiB</text>
+<rect x="122.5" y="177.6" width="34.0" height="112.4" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<text x="139.5" y="172.6" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#ea580c" text-anchor="middle" font-weight="normal">44.0</text>
+<rect x="175.0" y="177.6" width="34.0" height="112.4" rx="2" fill="#dcfce7" stroke="#16a34a" stroke-width="1.4" opacity="1"/>
+<text x="192.0" y="172.6" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#16a34a" text-anchor="middle" font-weight="normal">44.0</text>
+<text x="163.8" y="310.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">训练 / 训练</text>
+<rect x="272.5" y="138.5" width="34.0" height="151.5" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<text x="289.5" y="133.5" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#ea580c" text-anchor="middle" font-weight="normal">59.3</text>
+<rect x="325.0" y="138.5" width="34.0" height="151.5" rx="2" fill="#dcfce7" stroke="#16a34a" stroke-width="1.4" opacity="1"/>
+<text x="342.0" y="133.5" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#16a34a" text-anchor="middle" font-weight="normal">59.3</text>
+<text x="313.8" y="310.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">+权重 / +权重</text>
+<rect x="422.5" y="77.1" width="34.0" height="212.9" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<text x="439.5" y="72.1" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#ea580c" text-anchor="middle" font-weight="normal">83.3</text>
+<rect x="475.0" y="240.7" width="34.0" height="49.3" rx="2" fill="#dcfce7" stroke="#16a34a" stroke-width="1.4" opacity="1"/>
+<text x="492.0" y="235.7" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#16a34a" text-anchor="middle" font-weight="normal">19.3</text>
+<text x="463.8" y="310.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">+KV / 放训练</text>
+<rect x="572.5" y="179.3" width="34.0" height="110.7" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<text x="589.5" y="174.3" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#ea580c" text-anchor="middle" font-weight="normal">43.3</text>
+<rect x="625.0" y="179.3" width="34.0" height="110.7" rx="2" fill="#dcfce7" stroke="#16a34a" stroke-width="1.4" opacity="1"/>
+<text x="642.0" y="174.3" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#16a34a" text-anchor="middle" font-weight="normal">43.3</text>
+<text x="613.8" y="310.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">放训练 / +KV</text>
+<polyline points="100.0,99.6 700.0,99.6" fill="none" stroke="#dc2626" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="5 4" opacity="1"/>
+<line x1="130.0" y1="72.0" x2="152.0" y2="72.0" stroke="#ea580c" stroke-width="2.5"/>
+<text x="158.0" y="76.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#1f2937" text-anchor="start" font-weight="normal">先权重和 KV 再释放 · 83.3</text>
+<line x1="130.0" y1="90.0" x2="152.0" y2="90.0" stroke="#16a34a" stroke-width="2.5"/>
+<text x="158.0" y="94.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#1f2937" text-anchor="start" font-weight="normal">权重 → 释放 → KV · 59.3</text>
+</svg>

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="250" viewBox="0 0 900 250">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="16.0" y="26.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="17" fill="#1f2937" text-anchor="start" font-weight="bold">剩余二十轮、45 s 期限：端侧、附近工作站、云端</text>
+<text x="16.0" y="240.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">同一 Qwen3-8B q4_0。端侧 64.0 s 超期；附近 11.0 s、约 1.81 kJ；云端 31.6 s、约 1.12 kJ（能按时里能耗最低）。</text>
+<text x="160.0" y="81.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="end" font-weight="normal">端侧手机</text>
+<rect x="170.0" y="60.0" width="576.0" height="32.0" rx="3" fill="#fee2e2" stroke="#dc2626" stroke-width="1.4" opacity="1"/>
+<text x="752.0" y="81.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#dc2626" text-anchor="start" font-weight="bold">64.0 s · 518–680 J</text>
+<text x="160.0" y="131.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="end" font-weight="normal">附近 RTX PRO 6000</text>
+<rect x="170.0" y="110.0" width="99.0" height="32.0" rx="3" fill="#dcfce7" stroke="#16a34a" stroke-width="1.4" opacity="1"/>
+<text x="275.0" y="131.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#16a34a" text-anchor="start" font-weight="bold">11.0 s · 1.81 kJ</text>
+<text x="160.0" y="181.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="end" font-weight="normal">云地域 H100</text>
+<rect x="170.0" y="160.0" width="284.4" height="32.0" rx="3" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<text x="460.4" y="181.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#2563eb" text-anchor="start" font-weight="bold">31.6 s · 1.12 kJ ← 选</text>
+<line x1="575.0" y1="50.0" x2="575.0" y2="216.0" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="5 4"/>
+<rect x="558.2" y="218.0" width="33.5" height="16.0" rx="3" fill="#ffffff" stroke="none" stroke-width="1.4" opacity="0.9"/>
+<text x="575.0" y="229.5" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#dc2626" text-anchor="middle" font-weight="normal">45 s</text>
+</svg>

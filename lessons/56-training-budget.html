@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>第 56 章 · 训练的容量与时间估算：100B token、30 天要几张卡 · 从约束推导 AI Infra</title>
+<script>(function(){try{var d=document.documentElement,t=localStorage.getItem("ab-theme"),f=localStorage.getItem("ab-fs");if(t)d.dataset.theme=t;if(f)d.dataset.fs=f}catch(e){}})();</script>
+<style>:root{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa;--fs:16px}
+@media (prefers-color-scheme:dark){:root:not([data-theme]){--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}}
+:root[data-theme="light"]{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa}
+:root[data-theme="dark"]{--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}
+:root[data-theme="sepia"]{--bg:#f6efe1;--fg:#3b3127;--mute:#7a6a58;--line:#e2d6bf;--card:#fbf6ec;--acc:#a0522d;--code:#ece2cd;--quote:#efe5d2}
+:root[data-theme="green"]{--bg:#e3eddf;--fg:#22301f;--mute:#566650;--line:#c9d8c3;--card:#eef5eb;--acc:#2e7d4f;--code:#d6e4d0;--quote:#dae7d5}
+:root[data-theme="navy"]{--bg:#0f1a2b;--fg:#dde6f3;--mute:#93a4bd;--line:#23324a;--card:#15233a;--acc:#6cc4ff;--code:#1a2a44;--quote:#16243b}
+:root[data-fs="s"]{--fs:15px}
+:root[data-fs="m"]{--fs:16px}
+:root[data-fs="l"]{--fs:18px}
+:root[data-fs="xl"]{--fs:20px}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:var(--fs)/1.75 -apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Helvetica Neue",sans-serif}
+a{color:var(--acc)}
+header.top{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+header.top .in{max-width:860px;margin:0 auto;padding:10px 16px;display:flex;gap:6px 16px;align-items:center;flex-wrap:wrap;font-size:14px}
+header.top .brand{font-weight:600;color:var(--fg);text-decoration:none;margin-right:auto}
+header.top a{text-decoration:none}
+.prefs{display:inline-flex;gap:4px;align-items:center}
+.prefs button,.prefs select,#nav-toggle{font:inherit;font-size:13px;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:2px 8px;cursor:pointer}
+main{max-width:860px;margin:0 auto;padding:24px 16px 72px;overflow-wrap:anywhere}
+h1{font-size:1.75em;line-height:1.35;margin:8px 0 16px} h2{font-size:1.375em;margin:40px 0 12px;padding-top:8px;border-top:1px solid var(--line)} h3{font-size:1.125em;margin:28px 0 8px}
+.layout{display:grid;grid-template-columns:260px minmax(0,1fr);max-width:1180px;margin:0 auto}
+.layout main{margin:0;max-width:880px}
+nav.side{position:sticky;top:49px;align-self:start;max-height:calc(100vh - 49px);overflow-y:auto;padding:20px 8px 40px 16px;border-right:1px solid var(--line);font-size:14px;line-height:1.5}
+nav.side .h{font-weight:600;color:var(--mute);margin:4px 8px 8px;font-size:13px}
+nav.side a{display:block;padding:5px 8px;border-radius:6px;color:var(--fg);text-decoration:none}
+nav.side a:hover{background:var(--code)} nav.side a.cur{background:var(--quote);color:var(--acc);font-weight:600}
+nav.side a .n{color:var(--mute);margin-right:6px;font-variant-numeric:tabular-nums}
+#nav-toggle{display:none}
+@media (max-width:960px){.layout{display:block} nav.side{display:none;position:fixed;z-index:6;top:49px;left:0;bottom:0;width:min(300px,85vw);max-height:none;background:var(--bg);box-shadow:2px 0 12px rgba(0,0,0,.2)} nav.side.open{display:block} #nav-toggle{display:inline-block}}
+.run{display:flex;flex-wrap:wrap;align-items:center;gap:4px 0;margin:4px 0 12px}
+.run details{flex-basis:100%;margin:6px 0 0;font-size:.94em}
+img{max-width:100%;height:auto;border-radius:8px;border:1px solid var(--line);background:#fff}
+blockquote{margin:16px 0;padding:10px 16px;background:var(--quote);border-left:3px solid var(--acc);border-radius:4px;color:var(--mute)}
+blockquote p{margin:4px 0}
+code{background:var(--code);padding:1px 5px;border-radius:4px;font-size:.9em}
+pre{background:var(--code);padding:12px 14px;border-radius:8px;overflow-x:auto} pre code{padding:0;background:none}
+table{border-collapse:collapse;display:block;overflow-x:auto;max-width:100%;margin:12px 0;font-size:.94em}
+th,td{border:1px solid var(--line);padding:6px 10px;vertical-align:top} th{background:var(--code)}
+details{border:1px solid var(--line);border-radius:8px;padding:6px 12px;margin:8px 0;background:var(--card)}
+details[open]{padding-bottom:10px} summary{cursor:pointer;color:var(--acc);font-weight:500}
+mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%}
+.btn{display:inline-block;margin:4px 8px 4px 0;padding:6px 14px;border:1px solid var(--acc);border-radius:999px;text-decoration:none;font-size:14px}
+.pager{display:flex;justify-content:space-between;gap:12px;margin-top:48px;padding-top:16px;border-top:1px solid var(--line);font-size:15px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin:16px 0}
+.card{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;color:inherit;text-decoration:none}
+.card:hover{border-color:var(--acc)} .card img{border:0;border-bottom:1px solid var(--line);border-radius:0;aspect-ratio:16/10;object-fit:contain;width:100%}
+.card .no{color:var(--mute);font-size:13px;padding:8px 12px 0} .card .t{padding:0 12px 12px;font-weight:500;line-height:1.5}
+.lead{font-size:1.06em;color:var(--mute)}
+footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-size:13px}
+</style>
+<script>window.MathJax={tex:{inlineMath:[["\\(","\\)"]],displayMath:[["\\[","\\]"],["$$","$$"]],processEscapes:true,processEnvironments:true}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"></script>
+</head><body>
+<header class="top"><div class="in">
+<button type="button" id="nav-toggle" aria-label="打开章节列表">☰ 章节</button><a class="brand" href="../index.html">从约束推导 AI Infra</a>
+<a href="../lessons/index.html">讲义目录</a>
+<a href="../animations/index.html">动画</a>
+<a href="../review.html">复习卡片</a>
+<a href="../lessons/appendix-glossary.html">缩写表</a>
+<a href="https://wikieden.github.io/ai-books/glossary.html">全局词汇</a>
+<a href="https://wikieden.github.io/ai-books/">← 全部讲义书</a>
+<span class="prefs" title="字号与主题"><button type="button" data-fs-step="-1" aria-label="字号变小">A−</button><button type="button" data-fs-step="1" aria-label="字号变大">A+</button><select id="ab-theme" aria-label="主题色"><option value="">跟随系统</option><option value="light">浅色</option><option value="dark">深色</option><option value="sepia">米黄护眼</option><option value="green">豆沙绿护眼</option><option value="navy">夜蓝</option></select></span>
+</div></header>
+<div class="layout"><nav class="side" aria-label="章节"><div class="h">从约束推导 AI Infra</div><a href="index.html">讲义目录</a><a href="01-six-layers.html"><span class="n">1</span>一次请求走过的六层（进行中）</a><a href="02-request-lifecycle.html"><span class="n">2</span>一次生成请求的处理过程：权重加载一次，每个 token 都要再读一遍</a><a href="03-dataflow-hierarchy.html"><span class="n">3</span>从存储程序到数据流执行：存储层次就像大楼里的厕所</a><a href="04-key-numbers.html"><span class="n">4</span>系统设计的关键数字：容量、算力、带宽、延迟</a><a href="05-estimate.html"><span class="n">5</span>用几个数字估算一次模型执行：算和读各要多久，实测为什么达不到</a><a href="06-architecture.html"><span class="n">6</span>需求如何推动架构：TPU、SmartNIC、Unified Bus</a><a href="07-compute-graph.html"><span class="n">7</span>计算图与张量结构：一个 token 经过一层要算多少</a><a href="08-generation-budget.html"><span class="n">8</span>自回归生成的资源账：存一次的、每步读的、用完就扔的</a><a href="09-kv-sharing.html"><span class="n">9</span>KV 怎么变小 ①：头共享与潜变量压缩</a><a href="10-kv-sparse-linear.html"><span class="n">10</span>KV 怎么变小 ②：窗口、稀疏、线性与混合注意力</a><a href="11-moe.html"><span class="n">11</span>MoE：专家路由与批内权重复用</a><a href="12-network-shape.html"><span class="n">12</span>网络形状：深宽、专家粒度、残差与多 token 预测</a><a href="13-model-comparison.html"><span class="n">13</span>整个模型的资源需求与比较：存多少、算多少、能放几条请求</a><a href="14-workload-arrival.html"><span class="n">14</span>从单次请求到持续到达的负载：什么时候来，比来多少更要紧</a><a href="15-agent-tasks.html"><span class="n">15</span>多轮交互与 Agent 任务：前缀、成功成本、关键路径</a><a href="16-multimodal-realtime.html"><span class="n">16</span>多模态与实时交互：数据换形状，时间有死线（略讲）</a><a href="17-training-rl.html"><span class="n">17</span>训练与强化学习的计算和状态：为什么训练要 6ND、要存 18 字节</a><a href="18-scaling-lifecycle.html"><span class="n">18</span>Scaling law 与全生命周期成本：训练多大、训练多久、服务多少次</a><a href="19-accelerator-basics.html"><span class="n">19</span>从矩阵乘法认识加速器：算多少、搬多少、耗多少电</a><a href="20-compute-units.html"><span class="n">20</span>计算单元：矩阵、向量、流水与低精度</a><a href="21-memory-movement.html"><span class="n">21</span>存储层次与数据搬移：放得下、取得到、来得及</a><a href="22-package-interconnect.html"><span class="n">22</span>多芯片封装与互联：计算放在哪，数据走哪条路</a><a href="23-architecture-evolution.html"><span class="n">23</span>架构演进与专用架构：每一代新增的东西，省掉了哪一笔</a><a href="24-choose-accelerator.html"><span class="n">24</span>根据架构选择加速器：先估下界，再找差距，最后算账</a><a href="25-submit-sync.html"><span class="n">25</span>提交、搬移与同步：从调用返回到结果可用</a><a href="26-tiling-layout.html"><span class="n">26</span>单个算子：分块、布局与切分</a><a href="27-fusion-flash.html"><span class="n">27</span>算子融合与 FlashAttention：中间结果不落地</a><a href="28-compiler.html"><span class="n">28</span>编译器：表达、变换与选择</a><a href="29-runtime.html"><span class="n">29</span>运行时：重叠、CUDA Graph、动态形状与 persistent kernel</a><a href="30-request-view.html"><span class="n">30</span>从局部优化到完整请求</a><a href="31-multi-gpu.html"><span class="n">31</span>从单卡到多卡：放得下、算得快、接得多</a><a href="32-dp-tp-sp.html"><span class="n">32</span>数据、张量、序列并行：复制模型、切矩阵、切激活</a><a href="33-cp-pp-ep.html"><span class="n">33</span>上下文、流水线、专家并行：切位置、切层、切专家</a><a href="34-combined-parallel.html"><span class="n">34</span>组合并行与模型规模：坐标、复用与最忙的那一组</a><a href="35-collectives.html"><span class="n">35</span>集合通信的实现与代价：环、树、通信库和资源竞争</a><a href="36-topology-pool.html"><span class="n">36</span>超节点的物理组织与内存池：数据走哪条线、借谁的内存</a><a href="37-scale-choice.html"><span class="n">37</span>从并行方案到超节点规模：按期限、成本和故障挑方案</a><a href="38-cluster.html"><span class="n">38</span>从超节点走向集群：出口、割集与 Clos 网络</a><a href="39-cross-node.html"><span class="n">39</span>跨节点流量与物理路径：同样的字节，走哪几张网卡</a><a href="40-remote-access.html"><span class="n">40</span>远程访问的路径与并发：一次读多久、同时能读几个</a><a href="41-handoff-state.html"><span class="n">41</span>数据交接、顺序与状态管理：什么时候能读、能覆盖、能释放</a><a href="42-congestion.html"><span class="n">42</span>共享网络中的拥塞与可靠性：高峰、反馈、多路径、死锁</a><a href="43-task-completion.html"><span class="n">43</span>从通信改进到任务完成：先看谁晚到，再看能藏多少</a><a href="44-inference-request.html"><span class="n">44</span>推理请求的执行过程与资源需求：一条请求的时间线和账本</a><a href="45-batching.html"><span class="n">45</span>批处理与请求调度：多读一次权重做更多事，但别让别人等太久</a><a href="46-kv-cache.html"><span class="n">46</span>KV 缓存的分配、复用与释放：分页、共享、留不留</a><a href="47-compress-offload.html"><span class="n">47</span>压缩与卸载：少存字节、轮流驻留，各付什么代价</a><a href="48-speculative.html"><span class="n">48</span>推测解码：一次验证，确定好几个 token</a><a href="49-serving-choice.html"><span class="n">49</span>请求负载下的性能与配置选择：数正确且按时的答案</a><a href="50-distribution.html"><span class="n">50</span>计算与状态的分布方式：八张卡怎么接每秒 3.5 个请求</a><a href="51-pd-split.html"><span class="n">51</span>Prefill–Decode 分离与资源配比：A100 做输入，H20 做生成</a><a href="52-af-split.html"><span class="n">52</span>Attention–FFN 分离与异构执行：专家放 CPU 还是搬到 GPU</a><a href="53-expert-balance.html"><span class="n">53</span>专家放置、复制与负载均衡：最忙的那张卡定完成时刻</a><a href="54-kv-routing.html"><span class="n">54</span>KV 的分布、共享与请求路由：存哪一级、何时取回、发给谁</a><a href="55-scale-compare.html"><span class="n">55</span>扩缩容、故障恢复与部署方案比较：积压多久消退</a><a href="56-training-budget.html" class="cur"><span class="n">56</span>训练的容量与时间估算：100B token、30 天要几张卡</a><a href="57-state-sharding.html"><span class="n">57</span>训练状态的分片、重计算与卸载：显存不够时的三条路</a><a href="58-pipeline-overlap.html"><span class="n">58</span>流水调度与通信重叠：气泡、激活驻留与藏不住的那 0.08 秒</a><a href="59-data-checkpoint.html"><span class="n">59</span>数据输入、checkpoint 与故障恢复：几周的作业怎么扛住中断</a><a href="60-rl-system.html"><span class="n">60</span>强化学习训练系统：生成、验证、学习组成的反馈循环</a><a href="61-training-choice.html"><span class="n">61</span>从系统方案到期限与硬件选择：32 卡还是 48 卡</a><a href="62-agent-sandbox.html"><span class="n">62</span>Agent 任务的资源需求与运行环境：先满的是内存，不是 CPU</a><a href="63-resource-pool.html"><span class="n">63</span>共享资源池与 RL 资源配比：资源够不够，还要看在不在一起</a><a href="64-service-cost.html"><span class="n">64</span>模型服务的选择、成本与扩容：按成功任务算账</a><a href="65-interaction-time.html"><span class="n">65</span>从模型运行时间到完整交互时间：模型 0.3 秒，用户等 12.8 秒</a><a href="66-cross-device.html"><span class="n">66</span>跨设备分工与会话迁移：传图片、传特征，还是传状态</a><a href="67-wan-deploy.html"><span class="n">67</span>广域网、无线与部署选择：剩下二十轮放哪儿</a><a href="appendix-glossary.html">附录 · 缩写与术语表</a><a href="appendix-tp-pp-cp.html">附录 · 补充资料：TP、PP、CP，一个模型沿三个方向切给多张卡</a></nav><main>
+<h1 id="56-100b-token30">第 56 章 · 训练的容量与时间估算：100B token、30 天要几张卡</h1><div class="run"><a class="btn" href="../animations/56-training-budget.html">▶ 打开本章可交互动画</a><a class="btn" href="https://colab.research.google.com/github/wikieden/ai-infra-from-constraints/blob/main/code/notebooks/ch56_training_budget.ipynb" target="_blank" rel="noopener">在 Colab 运行本章代码</a><a class="btn" href="../code/notebooks/ch56_training_budget.ipynb" download>下载 notebook</a><details><summary>本地运行</summary><pre><code>git clone https://github.com/wikieden/ai-infra-from-constraints
+cd ai-infra-from-constraints/code/notebooks
+pip install jupyterlab torch numpy
+jupyter lab ch56_training_budget.ipynb</code></pre><p>也可以下载后直接用 VS Code 打开 .ipynb 运行。需要 GPU 的章节在 Colab 里选「代码执行程序 → 更改运行时类型 → GPU」。</p></details></div>
+<blockquote>
+<p>本章回答：能在一张卡上推理的模型，为什么不能在这张卡上训练？混合精度 Adam 每个参数为什么是 16 字节？100B token、30 天，每步只能花多少秒？batch 为什么取 384 条而不更大（临界 batch）？H100 至少几张、RTX 4090 至少几张？32 卡和 48 卡哪个在加通信前就已经超时？<br />
+讲解日期：2026-11-24 · 上一章：<a href="../lessons/55-scale-compare.html">第 55 章 扩缩容、故障恢复与部署方案比较</a> · 下一章：<a href="../lessons/57-state-sharding.html">第 57 章 训练状态的分片、重计算与卸载</a><br />
+对应原文：<code>materials/ai-infra-book/manuscripts/10-训练系统.md</code> 章首 L1–L15、§10.1 L17–L146（图 10-1 至 10-5）<br />
+本章缩写：MFU = Model FLOPs Utilization（模型 / 浮点运算 / 利用率）· LoRA = Low-Rank Adaptation（低秩 / 适配）· FP8 E4M3（8 位浮点：4 位指数 / 3 位尾数）· Hessian（二阶导数矩阵）。全部缩写见 <a href="../lessons/appendix-glossary.html">缩写与术语表</a></p>
+</blockquote>
+<p>第 9 部分讲推理系统怎么把卡用满。本部分讲训练：状态更多、要留得更久，计算要等别的卡，还要扛住几周的故障。</p>
+<p><strong>本部分的贯穿任务</strong>（原文 L13）：用 Qwen3-8B 做领域继续训练，<strong>全参数、混合精度 Adam、序列 8192、100B 有效 token、30 天</strong>。比较 32 张和 48 张 RTX 4090 两套方案（每台主机 8 卡）。</p>
+<h2 id="_1">讲解</h2>
+<h3 id="2026-11-24">第一步：任务与每步时间预算（2026-11-24）</h3>
+<p><strong>类比：赶工期的装修队。</strong> 总共 30 天，先扣掉 5 天验收、等材料，剩下 25 天分到每一天，每天能花多少时间是定死的；每天的施工、等料、返工都得塞进去。</p>
+<p>原文 L19–L27：</p>
+<ul>
+<li>每步 384 条 × 8192 = <strong>3,145,728</strong> 个有效 token（不算填充 token）。</li>
+<li><span class="arithmatex">\(\lceil 10^{11} / 3{,}145{,}728 \rceil = 31{,}790\)</span> 步。</li>
+<li>30 天全用于训练要 38,600 token/s；扣 5 天给启动、评估、停顿，剩 25 天要 <strong>46,300 token/s</strong>。</li>
+<li>25 天 ÷ 31,790 步 ≈ <strong>67.9 s/步</strong>。每步的计算、通信等待、输入等待、分摊的 checkpoint 与故障恢复都在这 67.9 s 里。</li>
+</ul>
+<p>LoRA 在原权重旁加小的可训练矩阵：基础权重仍参与前向，梯度和优化器状态主要按适配器参数算。本章是全参数训练。</p>
+<p><strong>一句话</strong>：先把期限和数据量换成"每步最多几秒"，后面每项设计都往这个预算里扣。</p>
+<h3 id="batch-384-2026-11-24">第二步：batch 为什么停在 384 条（2026-11-24）</h3>
+<p><strong>类比：问路。</strong> 问 3 个人比问 1 个人可靠得多，问 300 个人比问 100 个人就没可靠多少了，却多花三倍时间。</p>
+<p>原文 L29–L55：梯度噪声尺度</p>
+<div class="arithmatex">\[B_{\mathrm{noise}} = \frac{\mathrm{tr}(H\Sigma)}{G^{\mathsf{T}}HG}, \qquad \left(\frac{S}{S_{\min}} - 1\right)\left(\frac{E}{E_{\min}} - 1\right) = 1, \qquad B_{\mathrm{crit}} = \frac{E_{\min}}{S_{\min}}\]</div>
+<p><span class="arithmatex">\(B\)</span> 远小于临界 batch 时，batch 翻倍、步数几乎减半；超过以后，步数只略降，每步计算却翻倍。按临界 batch 训练，步数和样本数都是各自最小值的两倍。</p>
+<p>取 <span class="arithmatex">\(B_{\mathrm{noise}} = 2\)</span>M token（文献在大模型收敛时测得 1–2M），把 48 卡参考运行（31,790 步）当作恰好达标，反推 <span class="arithmatex">\(S_{\min} \approx 19{,}434\)</span> 步、<span class="arithmatex">\(E_{\min} \approx 38.9\)</span>B token；当前 batch 已是 <span class="arithmatex">\(B_{\mathrm{noise}}\)</span> 的 1.57 倍。</p>
+<table>
+<thead>
+<tr>
+<th>卡数</th>
+<th style="text-align: right;">弱扩展（每卡活不变，batch 跟着放大）</th>
+<th style="text-align: right;">强扩展（batch 不变，每卡活变少）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>48（参考）</td>
+<td style="text-align: right;">19.4 天</td>
+<td style="text-align: right;">19.4 天</td>
+</tr>
+<tr>
+<td>96</td>
+<td style="text-align: right;">15.7</td>
+<td style="text-align: right;">9.8</td>
+</tr>
+<tr>
+<td>192</td>
+<td style="text-align: right;">13.8</td>
+<td style="text-align: right;">5.0</td>
+</tr>
+<tr>
+<td>384</td>
+<td style="text-align: right;">12.8</td>
+<td style="text-align: right;">2.6</td>
+</tr>
+<tr>
+<td>1536</td>
+<td style="text-align: right;">12.1</td>
+<td style="text-align: right;">0.8</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>弱扩展上限 <span class="arithmatex">\(31{,}790 / 19{,}434 \approx 1.64\)</span> 倍：1536 卡把 batch 放大 32 倍，只从 19.4 天降到 12.1 天。</li>
+<li>强扩展不受 <span class="arithmatex">\(B_{\mathrm{noise}}\)</span> 限制，但每步 0.58 s 的通信与输入等待不变，0.8 天里已占约四分之一。</li>
+<li>若 <span class="arithmatex">\(B_{\mathrm{noise}}\)</span> 是 2000 万 token，弱扩展上限升到 7.36 倍。<strong>扩卡后 batch 能不能跟着放大，先估 <span class="arithmatex">\(B_{\mathrm{noise}}\)</span></strong>。</li>
+</ul>
+<p><img alt="batch 放大后达到同一损失所需的步数" src="../figures/56-training-budget-critical.png" /></p>
+<p><em>图 56-1 · 横轴是每步 token 数（对数），纵轴是达到同一损失所需的步数。过了临界 batch，步数趋近 <span class="arithmatex">\(S_{\min}\)</span>，再放大 batch 只多花计算。</em></p>
+<p><strong>一句话</strong>：batch 超过梯度噪声尺度以后，加卡只能走强扩展。</p>
+<h3 id="16-2026-11-24">第三步：每参数 16 字节（2026-11-24）</h3>
+<p><strong>类比：装修的账本。</strong> 墙面本身（权重）之外，还要有这次的改动清单（梯度）、精确到毫米的原始图纸（FP32 主权重）、过去几次改动的趋势记录（两份矩）。</p>
+<p>原文 L57–L112：</p>
+<table>
+<thead>
+<tr>
+<th>状态</th>
+<th style="text-align: right;">字节/参数</th>
+<th style="text-align: right;">Qwen3-8B</th>
+<th>什么时候用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>BF16 权重</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">16.4 GB</td>
+<td>前向、反向矩阵运算</td>
+</tr>
+<tr>
+<td>BF16 梯度</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">16.4 GB</td>
+<td>反向产生，更新时用</td>
+</tr>
+<tr>
+<td>FP32 主权重</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">32.8 GB</td>
+<td>保存更新后的参数，再生成 BF16 副本</td>
+</tr>
+<tr>
+<td>Adam 一阶矩</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">32.8 GB</td>
+<td>跨步保留梯度方向历史</td>
+</tr>
+<tr>
+<td>Adam 二阶矩</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">32.8 GB</td>
+<td>跨步保留梯度平方历史</td>
+</tr>
+<tr>
+<td><strong>合计</strong></td>
+<td style="text-align: right;"><strong>16</strong></td>
+<td style="text-align: right;"><strong>131.1 GB（122.1 GiB）</strong></td>
+<td>常驻训练状态</td>
+</tr>
+</tbody>
+</table>
+<p><img alt="五类训练状态累计相当于八份 BF16 权重" src="../figures/56-training-budget-state.png" /></p>
+<p><em>图 56-2 · 梯度改 FP32 就是每参数 18 字节；MoE 的专家也都有梯度和优化器历史，状态按全部可训练参数算。</em></p>
+<ul>
+<li>显存峰值看<strong>同一时刻</strong>：<span class="arithmatex">\(M_{\mathrm{peak},i} = \max_t[M_{\mathrm{persistent}} + M_{\mathrm{activation}} + M_{\mathrm{temporary}}]\)</span>。8 GiB 激活和 4 GiB 收集缓冲同时存在就要 12 GiB，先后出现就能复用。</li>
+<li><strong>精度</strong>：FP16 最小正规数 <span class="arithmatex">\(2^{-14}\)</span>，小于 <span class="arithmatex">\(2^{-24}\)</span> 直接变零，要<strong>损失缩放</strong>（乘 <span class="arithmatex">\(S\)</span> 反传、更新前除回，8 到 32K）；BF16 指数位和 FP32 一样，不用缩放，但尾数只有 7 位，靠 FP32 累加。FP8 E4M3 最大 448，DeepSeek-V3 按块缩放（激活 1×128、权重 128×128，每累加 128 个转 FP32），相对损失误差 &lt; 0.25%。</li>
+<li>FP8 只改送进矩阵单元的那份权重副本：每参数约 1.0002 字节，读权重 16.4 → 8.2 GB，<strong>常驻的 16 字节不变</strong>。</li>
+<li>训练偏离表现为损失尖峰，常见处理是回滚到上一份 checkpoint（第 59 章）。</li>
+</ul>
+<p><strong>场景代码</strong>：PyTorch 里混合精度 Adam 的这几份状态是怎么来的（真实 API）：</p>
+<pre><code class="language-python">import torch
+
+model = MyModel().cuda()                      # 参数是 FP32（主权重 4 B）
+opt = torch.optim.AdamW(model.parameters())   # 首次 step 后每个参数多出 exp_avg、exp_avg_sq（各 4 B）
+with torch.autocast(&quot;cuda&quot;, dtype=torch.bfloat16):   # 矩阵运算用 BF16 副本
+    loss = model(batch).loss
+loss.backward()                               # 梯度（这里与参数同为 FP32；FSDP 可设成 BF16）
+opt.step(); opt.zero_grad(set_to_none=True)
+</code></pre>
+<p><strong>一句话</strong>：训练状态是推理权重的 8 倍；峰值看同一时刻有什么在显存里。</p>
+<h3 id="mfu-2026-11-24">第四步：计算量、MFU 与卡数下界（2026-11-24）</h3>
+<p><strong>类比：搬砖。</strong> 一共多少砖（总 FLOPs）÷ 每人每天能搬多少（峰值 × 效率）÷ 天数 = 至少几个人。房间够不够大（显存）是另一回事。</p>
+<p>原文 L114–L145：一条 8192 token 序列前向 + 反向约 <span class="arithmatex">\(4.31 \times 10^{14}\)</span> FLOPs，每 token 约 52.7 GFLOPs，100B token 共 <span class="arithmatex">\(5.27 \times 10^{21}\)</span>。</p>
+<div class="arithmatex">\[T = \frac{F}{pP\eta}, \qquad p_{\mathrm{compute}} = \left\lceil \frac{F}{P\eta T_{\mathrm{available}}} \right\rceil\]</div>
+<ul>
+<li><strong>H100</strong>（989 TFLOP/s，40%）：每卡约 7,500 token/s，五张 37,600 &lt; 38,600，<strong>至少六张</strong>。两张 80 GB 已装得下 131.1 GB，却要约 77 天。</li>
+<li><strong>RTX 4090</strong>（165.2 TFLOP/s，40%）：<strong>至少 31 张</strong>。每步 <span class="arithmatex">\(1.66 \times 10^{17}\)</span> FLOPs：32 卡每卡 <strong>78.3 s</strong>（不加通信就超了 67.9 s），48 卡 <strong>52.2 s</strong>（留下 15.7 s）。</li>
+<li>40% 取自 Llama 3（405B，8K–16K 张 H100，BF16 MFU 38%–43%）；那组数已含通信，本章再单独加通信，结果偏长。</li>
+</ul>
+<p><img alt="MFU 30% / 40% / 50% 时各型号所需卡数：蓝柱为计算，橙色菱形为状态容量下限" src="../figures/56-training-budget-cards.png" /></p>
+<p><em>图 56-3 · 对本章任务，卡数主要由计算决定，容量下限低得多。</em></p>
+<p>另外六成峰值去哪了，后面几章逐项回答：没藏住的通信（第 58 章）、流水线气泡（第 58 章）、受内存带宽限制的更新与转换（第 57 章）、重计算（第 57 章）、掉队者和 checkpoint（第 59 章）。前四项是模型必须计入的工作，后两项和没重叠的通信才是可优化的开销。</p>
+<p><strong>一句话</strong>：容量定能不能开始，计算定能不能按期；本任务由计算定卡数。</p>
+<h2 id="_2">动画演示：卡数、效率与期限</h2>
+<p><img alt="卡数、MFU 与完成天数" src="../animations/56-training-budget.gif" /></p>
+<p>可交互版：<a href="../animations/56-training-budget.html">animations/56-training-budget.html</a>（选择：H100 / A100 / RTX 4090；滑块：MFU 20–60%；卡数 1–64；期限 10–60 天）。</p>
+<p><strong>怎么看</strong>：</p>
+<ol>
+<li>横条是只算计算时的完成天数，竖线是期限，越线变红（第四步）；</li>
+<li>右边列出每步计算秒数和 67.9 s 预算的比较，以及装下 131.1 GB 状态最少几张卡；</li>
+<li>播放：4090 32 卡（每步 78.3 s，超）→ 48 卡（52.2 s）→ MFU 30% → H100 6 张。</li>
+</ol>
+<h2 id="_3">练习与作答记录</h2>
+<p><strong>题 1</strong>（第一步）：同样 100B token，期限改成 20 天、预留 3 天。每步最多几秒？要多少 token/s？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p><strong>题 2</strong>（第三步）：一个 14B 参数模型，梯度用 FP32。常驻训练状态多少 GB？用 ZeRO 之前，一张 80 GB 卡能放下吗？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p><strong>题 3</strong>（第四步）：每 token 52.7 GFLOPs，A100（312 TFLOP/s）MFU 45%，30 天全用于计算。至少几张？用 25 天呢？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<h2 id="_4">口诀</h2>
+<blockquote>
+<p>先把工期换成每天几小时，再往里塞活；<br />
+问三个人比一个可靠，问三百个就是白跑；<br />
+墙面之外还有改动单、原图纸、两本趋势账，一共八份；<br />
+砖数除以人效除以天数，房子够大是另一回事。</p>
+</blockquote>
+<h2 id="_5">本章复习卡片</h2>
+<p><a href="../review.html">I189</a>（31,790 步、67.9 s/步、46,300 token/s；临界 batch 与弱 / 强扩展：S_min 19,434、上限 1.64 倍）、<a href="../review.html">I190</a>（每参数 16 字节 = 131.1 GB；FP16 损失缩放、BF16、FP8 分块缩放只改操作数副本）、<a href="../review.html">I191</a>（p = ⌈F/(PηT)⌉：H100 6 张、4090 31 张；32 卡 78.3 s 超、48 卡 52.2 s）。练习做完后，按答错、卡住的地方再补。</p>
+<h2 id="_6">附录 · 延伸阅读</h2>
+<blockquote>
+<p>留给以后深入学习用，不影响本章主线。★ 是建议先读的。</p>
+</blockquote>
+<h3 id="_7">推荐阅读</h3>
+<table>
+<thead>
+<tr>
+<th>读什么</th>
+<th>读哪里</th>
+<th>读它为了什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>★ AII 第 10 章</td>
+<td>章首、§10.1 L1–L146</td>
+<td>本章原文</td>
+</tr>
+<tr>
+<td>McCandlish et al. 2018《An Empirical Model of Large-Batch Training》</td>
+<td>梯度噪声尺度</td>
+<td>临界 batch</td>
+</tr>
+<tr>
+<td>Micikevicius et al. 2018《Mixed Precision Training》</td>
+<td>损失缩放</td>
+<td>FP16 下溢</td>
+</tr>
+<tr>
+<td>DeepSeek-V3 技术报告</td>
+<td>FP8 训练</td>
+<td>分块缩放</td>
+</tr>
+<tr>
+<td><a href="../lessons/17-training-rl.html">第 17 章 训练与强化学习的计算和状态</a></td>
+<td>6ND、每参数 18 字节</td>
+<td>前置</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_8">数学原理</h3>
+<ul>
+<li><strong>双曲线关系</strong>：<span class="arithmatex">\((S/S_{\min} - 1)(E/E_{\min} - 1) = 1\)</span>，<span class="arithmatex">\(E = SB\)</span>；给定 <span class="arithmatex">\(B\)</span> 解一元二次方程得步数。</li>
+<li><strong>下界</strong>：卡数 = 总工作 / 每卡能力 / 时间，上取整。</li>
+</ul>
+<h3 id="_9">公式清单</h3>
+<table>
+<thead>
+<tr>
+<th>公式</th>
+<th>意思</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\(\lceil D/b \rceil\)</span></td>
+<td>步数</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(B_{\mathrm{noise}} = \mathrm{tr}(H\Sigma)/(G^{\mathsf{T}}HG)\)</span></td>
+<td>梯度噪声尺度</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(M_{\mathrm{persistent}} = 16N\)</span></td>
+<td>混合精度 Adam 常驻状态</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(p = \lceil F/(P\eta T) \rceil\)</span></td>
+<td>计算卡数下界</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_10">代码对照：把本章的数字用代码算一遍</h3>
+<blockquote>
+<p>代码 <code>ai-infra/solutions/chapter-code/ch56_training_budget.py</code>，测试 <code>tests/test_ch56.py</code>：</p>
+<p><code>bash  
+cd ai-infra/solutions/chapter-code  
+uv run python ch56_training_budget.py  
+uv run pytest tests/test_ch56.py</code></p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>讲义</th>
+<th>写法</th>
+<th>跑出来</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第一步</td>
+<td><code>steps()</code></td>
+<td>31,790 步、67.9 s</td>
+</tr>
+<tr>
+<td>第二步</td>
+<td><code>critical_fit()</code>、<code>steps_at(B, s_min, e_min)</code></td>
+<td>19,434 步、38.9B；弱扩展表</td>
+</tr>
+<tr>
+<td>第三步</td>
+<td><code>state_bytes()</code></td>
+<td>131.1 GB、122.1 GiB</td>
+</tr>
+<tr>
+<td>第四步</td>
+<td><code>cards_for_compute(peak)</code>、<code>step_compute_s(cards)</code></td>
+<td>6、31 张；78.3 / 52.2 s</td>
+</tr>
+</tbody>
+</table>
+<p><strong>代码里才看得到的 3 件事</strong>：</p>
+<ol>
+<li><code>critical_fit</code> 解 <span class="arithmatex">\((x - 1)(kx - 1) = 1\)</span> 得正根 <span class="arithmatex">\(x = (k + 1)/k\)</span>，其中 <span class="arithmatex">\(k = B/B_{\mathrm{noise}}\)</span>；所以 <span class="arithmatex">\(S/S_{\min}\)</span> 只由 batch 是噪声尺度的几倍决定。</li>
+<li>每 token FLOPs 用 <span class="arithmatex">\(4.31 \times 10^{14}/8192 = 52.6\)</span> G，原文写 52.7（总量 5.26 vs 5.27 × 10²¹），不影响卡数。</li>
+<li>强扩展那列把每步拆成 <span class="arithmatex">\(52.2 \times 48/p + 0.58\)</span> s，0.58 是通信 0.08 + 输入 0.5。</li>
+</ol>
+<p><strong>自己改一改</strong>（不影响练习答案）：</p>
+<ul>
+<li>把 <code>b_noise</code> 改成 4M，重算弱扩展那一列。</li>
+<li>给 <code>state_bytes</code> 加 LoRA：基础权重 2 字节，适配器 1% 参数按 16 字节。</li>
+<li>算一张 B200（2.25 PFLOP/s）做本任务至少几张。</li>
+</ul><nav class="pager"><a href="55-scale-compare.html">← 第 55 章 · 扩缩容、故障恢复与部署方案比较：积压多久消退</a><a href="57-state-sharding.html">第 57 章 · 训练状态的分片、重计算与卸载：显存不够时的三条路 →</a></nav>
+</main></div>
+<footer>来自个人学习仓库的对话讲义，含练习作答记录。源码：<a href="https://github.com/wikieden/ai-infra-from-constraints">github.com/wikieden/ai-infra-from-constraints</a>。更多讲义书：<a href="https://wikieden.github.io/ai-books/">Physical AI 0-1-♾️（合集）</a></footer>
+<script>(function(){var d=document.documentElement,K=["s","m","l","xl"];
+function save(k,v){try{v?localStorage.setItem(k,v):localStorage.removeItem(k)}catch(e){}}
+var s=document.getElementById("ab-theme");if(s){s.value=d.dataset.theme||"";s.onchange=function(){if(s.value)d.dataset.theme=s.value;else delete d.dataset.theme;save("ab-theme",s.value)}}
+document.querySelectorAll("[data-fs-step]").forEach(function(b){b.onclick=function(){var i=K.indexOf(d.dataset.fs||"m")+(+b.dataset.fsStep);i=Math.max(0,Math.min(K.length-1,i));d.dataset.fs=K[i];save("ab-fs",K[i])}});
+var nb=document.getElementById("nav-toggle"),side=document.querySelector("nav.side");if(nb&&side){nb.onclick=function(){side.classList.toggle("open")}}
+var cur=side&&side.querySelector(".cur");if(cur)cur.scrollIntoView({block:"center"});
+})();</script>
+</body></html>
