@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>第 42 章 · 共享网络中的拥塞与可靠性：高峰、反馈、多路径、死锁 · 从约束推导 AI Infra</title>
+<script>(function(){try{var d=document.documentElement,t=localStorage.getItem("ab-theme"),f=localStorage.getItem("ab-fs");if(t)d.dataset.theme=t;if(f)d.dataset.fs=f}catch(e){}})();</script>
+<style>:root{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa;--fs:16px}
+@media (prefers-color-scheme:dark){:root:not([data-theme]){--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}}
+:root[data-theme="light"]{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa}
+:root[data-theme="dark"]{--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}
+:root[data-theme="sepia"]{--bg:#f6efe1;--fg:#3b3127;--mute:#7a6a58;--line:#e2d6bf;--card:#fbf6ec;--acc:#a0522d;--code:#ece2cd;--quote:#efe5d2}
+:root[data-theme="green"]{--bg:#e3eddf;--fg:#22301f;--mute:#566650;--line:#c9d8c3;--card:#eef5eb;--acc:#2e7d4f;--code:#d6e4d0;--quote:#dae7d5}
+:root[data-theme="navy"]{--bg:#0f1a2b;--fg:#dde6f3;--mute:#93a4bd;--line:#23324a;--card:#15233a;--acc:#6cc4ff;--code:#1a2a44;--quote:#16243b}
+:root[data-fs="s"]{--fs:15px}
+:root[data-fs="m"]{--fs:16px}
+:root[data-fs="l"]{--fs:18px}
+:root[data-fs="xl"]{--fs:20px}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:var(--fs)/1.75 -apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Helvetica Neue",sans-serif}
+a{color:var(--acc)}
+header.top{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+header.top .in{max-width:860px;margin:0 auto;padding:10px 16px;display:flex;gap:6px 16px;align-items:center;flex-wrap:wrap;font-size:14px}
+header.top .brand{font-weight:600;color:var(--fg);text-decoration:none;margin-right:auto}
+header.top a{text-decoration:none}
+.prefs{display:inline-flex;gap:4px;align-items:center}
+.prefs button,.prefs select,#nav-toggle{font:inherit;font-size:13px;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:2px 8px;cursor:pointer}
+main{max-width:860px;margin:0 auto;padding:24px 16px 72px;overflow-wrap:anywhere}
+h1{font-size:1.75em;line-height:1.35;margin:8px 0 16px} h2{font-size:1.375em;margin:40px 0 12px;padding-top:8px;border-top:1px solid var(--line)} h3{font-size:1.125em;margin:28px 0 8px}
+.layout{display:grid;grid-template-columns:260px minmax(0,1fr);max-width:1180px;margin:0 auto}
+.layout main{margin:0;max-width:880px}
+nav.side{position:sticky;top:49px;align-self:start;max-height:calc(100vh - 49px);overflow-y:auto;padding:20px 8px 40px 16px;border-right:1px solid var(--line);font-size:14px;line-height:1.5}
+nav.side .h{font-weight:600;color:var(--mute);margin:4px 8px 8px;font-size:13px}
+nav.side a{display:block;padding:5px 8px;border-radius:6px;color:var(--fg);text-decoration:none}
+nav.side a:hover{background:var(--code)} nav.side a.cur{background:var(--quote);color:var(--acc);font-weight:600}
+nav.side a .n{color:var(--mute);margin-right:6px;font-variant-numeric:tabular-nums}
+#nav-toggle{display:none}
+@media (max-width:960px){.layout{display:block} nav.side{display:none;position:fixed;z-index:6;top:49px;left:0;bottom:0;width:min(300px,85vw);max-height:none;background:var(--bg);box-shadow:2px 0 12px rgba(0,0,0,.2)} nav.side.open{display:block} #nav-toggle{display:inline-block}}
+.run{display:flex;flex-wrap:wrap;align-items:center;gap:4px 0;margin:4px 0 12px}
+.run details{flex-basis:100%;margin:6px 0 0;font-size:.94em}
+img{max-width:100%;height:auto;border-radius:8px;border:1px solid var(--line);background:#fff}
+blockquote{margin:16px 0;padding:10px 16px;background:var(--quote);border-left:3px solid var(--acc);border-radius:4px;color:var(--mute)}
+blockquote p{margin:4px 0}
+code{background:var(--code);padding:1px 5px;border-radius:4px;font-size:.9em}
+pre{background:var(--code);padding:12px 14px;border-radius:8px;overflow-x:auto} pre code{padding:0;background:none}
+table{border-collapse:collapse;display:block;overflow-x:auto;max-width:100%;margin:12px 0;font-size:.94em}
+th,td{border:1px solid var(--line);padding:6px 10px;vertical-align:top} th{background:var(--code)}
+details{border:1px solid var(--line);border-radius:8px;padding:6px 12px;margin:8px 0;background:var(--card)}
+details[open]{padding-bottom:10px} summary{cursor:pointer;color:var(--acc);font-weight:500}
+mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%}
+.btn{display:inline-block;margin:4px 8px 4px 0;padding:6px 14px;border:1px solid var(--acc);border-radius:999px;text-decoration:none;font-size:14px}
+.pager{display:flex;justify-content:space-between;gap:12px;margin-top:48px;padding-top:16px;border-top:1px solid var(--line);font-size:15px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin:16px 0}
+.card{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;color:inherit;text-decoration:none}
+.card:hover{border-color:var(--acc)} .card img{border:0;border-bottom:1px solid var(--line);border-radius:0;aspect-ratio:16/10;object-fit:contain;width:100%}
+.card .no{color:var(--mute);font-size:13px;padding:8px 12px 0} .card .t{padding:0 12px 12px;font-weight:500;line-height:1.5}
+.lead{font-size:1.06em;color:var(--mute)}
+footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-size:13px}
+</style>
+<script>window.MathJax={tex:{inlineMath:[["\\(","\\)"]],displayMath:[["\\[","\\]"],["$$","$$"]],processEscapes:true,processEnvironments:true}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"></script>
+</head><body>
+<header class="top"><div class="in">
+<button type="button" id="nav-toggle" aria-label="打开章节列表">☰ 章节</button><a class="brand" href="../index.html">从约束推导 AI Infra</a>
+<a href="../lessons/index.html">讲义目录</a>
+<a href="../animations/index.html">动画</a>
+<a href="../review.html">复习卡片</a>
+<a href="../lessons/appendix-glossary.html">缩写表</a>
+<a href="https://wikieden.github.io/ai-books/glossary.html">全局词汇</a>
+<a href="https://wikieden.github.io/ai-books/">← 全部讲义书</a>
+<span class="prefs" title="字号与主题"><button type="button" data-fs-step="-1" aria-label="字号变小">A−</button><button type="button" data-fs-step="1" aria-label="字号变大">A+</button><select id="ab-theme" aria-label="主题色"><option value="">跟随系统</option><option value="light">浅色</option><option value="dark">深色</option><option value="sepia">米黄护眼</option><option value="green">豆沙绿护眼</option><option value="navy">夜蓝</option></select></span>
+</div></header>
+<div class="layout"><nav class="side" aria-label="章节"><div class="h">从约束推导 AI Infra</div><a href="index.html">讲义目录</a><a href="01-six-layers.html"><span class="n">1</span>一次请求走过的六层（进行中）</a><a href="02-request-lifecycle.html"><span class="n">2</span>一次生成请求的处理过程：权重加载一次，每个 token 都要再读一遍</a><a href="03-dataflow-hierarchy.html"><span class="n">3</span>从存储程序到数据流执行：存储层次就像大楼里的厕所</a><a href="04-key-numbers.html"><span class="n">4</span>系统设计的关键数字：容量、算力、带宽、延迟</a><a href="05-estimate.html"><span class="n">5</span>用几个数字估算一次模型执行：算和读各要多久，实测为什么达不到</a><a href="06-architecture.html"><span class="n">6</span>需求如何推动架构：TPU、SmartNIC、Unified Bus</a><a href="07-compute-graph.html"><span class="n">7</span>计算图与张量结构：一个 token 经过一层要算多少</a><a href="08-generation-budget.html"><span class="n">8</span>自回归生成的资源账：存一次的、每步读的、用完就扔的</a><a href="09-kv-sharing.html"><span class="n">9</span>KV 怎么变小 ①：头共享与潜变量压缩</a><a href="10-kv-sparse-linear.html"><span class="n">10</span>KV 怎么变小 ②：窗口、稀疏、线性与混合注意力</a><a href="11-moe.html"><span class="n">11</span>MoE：专家路由与批内权重复用</a><a href="12-network-shape.html"><span class="n">12</span>网络形状：深宽、专家粒度、残差与多 token 预测</a><a href="13-model-comparison.html"><span class="n">13</span>整个模型的资源需求与比较：存多少、算多少、能放几条请求</a><a href="14-workload-arrival.html"><span class="n">14</span>从单次请求到持续到达的负载：什么时候来，比来多少更要紧</a><a href="15-agent-tasks.html"><span class="n">15</span>多轮交互与 Agent 任务：前缀、成功成本、关键路径</a><a href="16-multimodal-realtime.html"><span class="n">16</span>多模态与实时交互：数据换形状，时间有死线（略讲）</a><a href="17-training-rl.html"><span class="n">17</span>训练与强化学习的计算和状态：为什么训练要 6ND、要存 18 字节</a><a href="18-scaling-lifecycle.html"><span class="n">18</span>Scaling law 与全生命周期成本：训练多大、训练多久、服务多少次</a><a href="19-accelerator-basics.html"><span class="n">19</span>从矩阵乘法认识加速器：算多少、搬多少、耗多少电</a><a href="20-compute-units.html"><span class="n">20</span>计算单元：矩阵、向量、流水与低精度</a><a href="21-memory-movement.html"><span class="n">21</span>存储层次与数据搬移：放得下、取得到、来得及</a><a href="22-package-interconnect.html"><span class="n">22</span>多芯片封装与互联：计算放在哪，数据走哪条路</a><a href="23-architecture-evolution.html"><span class="n">23</span>架构演进与专用架构：每一代新增的东西，省掉了哪一笔</a><a href="24-choose-accelerator.html"><span class="n">24</span>根据架构选择加速器：先估下界，再找差距，最后算账</a><a href="25-submit-sync.html"><span class="n">25</span>提交、搬移与同步：从调用返回到结果可用</a><a href="26-tiling-layout.html"><span class="n">26</span>单个算子：分块、布局与切分</a><a href="27-fusion-flash.html"><span class="n">27</span>算子融合与 FlashAttention：中间结果不落地</a><a href="28-compiler.html"><span class="n">28</span>编译器：表达、变换与选择</a><a href="29-runtime.html"><span class="n">29</span>运行时：重叠、CUDA Graph、动态形状与 persistent kernel</a><a href="30-request-view.html"><span class="n">30</span>从局部优化到完整请求</a><a href="31-multi-gpu.html"><span class="n">31</span>从单卡到多卡：放得下、算得快、接得多</a><a href="32-dp-tp-sp.html"><span class="n">32</span>数据、张量、序列并行：复制模型、切矩阵、切激活</a><a href="33-cp-pp-ep.html"><span class="n">33</span>上下文、流水线、专家并行：切位置、切层、切专家</a><a href="34-combined-parallel.html"><span class="n">34</span>组合并行与模型规模：坐标、复用与最忙的那一组</a><a href="35-collectives.html"><span class="n">35</span>集合通信的实现与代价：环、树、通信库和资源竞争</a><a href="36-topology-pool.html"><span class="n">36</span>超节点的物理组织与内存池：数据走哪条线、借谁的内存</a><a href="37-scale-choice.html"><span class="n">37</span>从并行方案到超节点规模：按期限、成本和故障挑方案</a><a href="38-cluster.html"><span class="n">38</span>从超节点走向集群：出口、割集与 Clos 网络</a><a href="39-cross-node.html"><span class="n">39</span>跨节点流量与物理路径：同样的字节，走哪几张网卡</a><a href="40-remote-access.html"><span class="n">40</span>远程访问的路径与并发：一次读多久、同时能读几个</a><a href="41-handoff-state.html"><span class="n">41</span>数据交接、顺序与状态管理：什么时候能读、能覆盖、能释放</a><a href="42-congestion.html" class="cur"><span class="n">42</span>共享网络中的拥塞与可靠性：高峰、反馈、多路径、死锁</a><a href="43-task-completion.html"><span class="n">43</span>从通信改进到任务完成：先看谁晚到，再看能藏多少</a><a href="44-inference-request.html"><span class="n">44</span>推理请求的执行过程与资源需求：一条请求的时间线和账本</a><a href="45-batching.html"><span class="n">45</span>批处理与请求调度：多读一次权重做更多事，但别让别人等太久</a><a href="46-kv-cache.html"><span class="n">46</span>KV 缓存的分配、复用与释放：分页、共享、留不留</a><a href="47-compress-offload.html"><span class="n">47</span>压缩与卸载：少存字节、轮流驻留，各付什么代价</a><a href="48-speculative.html"><span class="n">48</span>推测解码：一次验证，确定好几个 token</a><a href="49-serving-choice.html"><span class="n">49</span>请求负载下的性能与配置选择：数正确且按时的答案</a><a href="appendix-glossary.html">附录 · 缩写与术语表</a><a href="appendix-tp-pp-cp.html">附录 · 补充资料：TP、PP、CP，一个模型沿三个方向切给多张卡</a></nav><main>
+<h1 id="42">第 42 章 · 共享网络中的拥塞与可靠性：高峰、反馈、多路径、死锁</h1><div class="run"><a class="btn" href="../animations/42-congestion.html">▶ 打开本章可交互动画</a><a class="btn" href="https://colab.research.google.com/github/wikieden/ai-infra-from-constraints/blob/main/code/notebooks/ch42_congestion.ipynb" target="_blank" rel="noopener">在 Colab 运行本章代码</a><a class="btn" href="../code/notebooks/ch42_congestion.ipynb" download>下载 notebook</a><details><summary>本地运行</summary><pre><code>git clone https://github.com/wikieden/ai-infra-from-constraints
+cd ai-infra-from-constraints/code/notebooks
+pip install jupyterlab torch numpy
+jupyter lab ch42_congestion.ipynb</code></pre><p>也可以下载后直接用 VS Code 打开 .ipynb 运行。需要 GPU 的章节在 Colab 里选「代码执行程序 → 更改运行时类型 → GPU」。</p></details></div>
+<blockquote>
+<p>本章回答：平均只用了 40% 的带宽，为什么还排出 1 GB 的队？反馈要多快才不丢包，PFC 和 DCQCN 各管多远？把一份数据拆到两条路径，什么时候反而更慢？ECMP 哈希冲突让整组只剩多少速度？什么情况下会死锁？<br />
+讲解日期：2026-11-24 · 上一章：<a href="../lessons/41-handoff-state.html">第 41 章 数据交接、顺序与状态管理</a> · 下一章：<a href="../lessons/43-task-completion.html">第 43 章 从通信改进到任务完成</a><br />
+对应原文：<code>materials/ai-infra-book/manuscripts/07-数据中心网络.md</code> §7.5 L664–L829（例题 7.5，图 7-40 到 7-50）<br />
+本章缩写：ECN = Explicit Congestion Notification（显式 / 拥塞 / 通知）· DCQCN = Data Center Quantized Congestion Notification（数据中心 / 量化 / 拥塞通知，RDMA 的拥塞控制）· PFC = Priority-based Flow Control（基于优先级的 / 流控，IEEE 802.1Qbb）· incast = 多对一汇聚 · ECMP = Equal-Cost Multi-Path（等价 / 多路径）· MTU = Maximum Transmission Unit（最大 / 传输 / 单元）· C-AQM = UB 的协同主动队列管理。全部缩写见 <a href="../lessons/appendix-glossary.html">缩写与术语表</a></p>
+</blockquote>
+<h2 id="_1">讲解</h2>
+<h3 id="2026-11-24">第一步：平均不高，高峰重叠照样排队（2026-11-24）</h3>
+<p><strong>类比：两个公司都在 9 点上班。</strong> 一天里路上大部分时间空着，可 9 点那一阵两家的车同时挤上同一条路，就堵了；让一家 9:20 上班，路就不堵。</p>
+<p><strong>例题 7.5</strong>（原文 L670–L696）：两个作业每 100 ms 各有 20 ms 高峰，速率 50 GB/s，共享一条 50 GB/s 上联：</p>
+<div class="arithmatex">\[\bar\lambda = 2 \times 50 \times \frac{20}{100} = 20\ \text{GB/s（40\%）}, \qquad Q_{\max} = (100 - 50) \times 20\ \text{ms} = 1\ \text{GB}\]</div>
+<p>高峰结束后还要 20 ms 才排空。重叠 5 ms 积压 250 MB；完全错开就是 0。只给 512 KiB 缓冲，允许的重叠只有约 10.5 μs。CASSINI 利用训练通信的周期错峰；配套实验里一次性推迟 50 ms，相位还会漂移。</p>
+<p><img alt="两作业高峰重叠 20 / 5 / 0 ms 时的积压" src="../figures/42-congestion-backlog.png" /></p>
+<p><em>图 42-1 · 发送同样多的数据，差别只在开始的相对时刻。</em></p>
+<p><strong>一句话</strong>：缓冲存的是一段时间内到达和出口的差额；相位决定差额积累多久。</p>
+<h3 id="pfc-dcqcn2026-11-24">第二步：反馈要多快：一跳的 PFC，端到端的 DCQCN（2026-11-24）</h3>
+<p><strong>类比：高速收费站排队。</strong> 站口的人看到排满了，向上一个路口举牌（PFC，一跳）；同时打电话让源头的车慢点开（DCQCN，端到端）。举牌快但只管一个路口，打电话慢但能从源头解决。</p>
+<p>原文 L700–L746：<span class="arithmatex">\(dQ/dt = \lambda(t) - B\)</span>。剩余缓冲 <span class="arithmatex">\(Q_{\mathrm{free}}\)</span>、发现拥塞到降速的时延 <span class="arithmatex">\(T_f\)</span>：</p>
+<div class="arithmatex">\[T_f \le \frac{Q_{\mathrm{free}}}{\lambda - B}\]</div>
+<p>100 GB/s 到达、50 GB/s 出口、剩 256 KiB：只够 5.2 μs；20 μs 才降速就丢约 738 KB。降到 50 GB/s 只让队列不涨，降到 40 GB/s 才以 10 GB/s 排空（512 KiB 约 52 μs）。</p>
+<p><strong>incast</strong>（多对一汇聚）：<span class="arithmatex">\(N\)</span> 个发送方同时打一个出口，到达 <span class="arithmatex">\((N-1) \times 50\)</span> GB/s，剩余缓冲 1 MiB：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;"><span class="arithmatex">\(N\)</span></th>
+<th style="text-align: right;">超额速率</th>
+<th style="text-align: right;">允许反馈时延</th>
+<th style="text-align: right;">PFC 一跳 headroom</th>
+<th style="text-align: right;">端到端 20 μs 内超额</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">300 GB/s</td>
+<td style="text-align: right;">3.50 μs</td>
+<td style="text-align: right;">99 KB</td>
+<td style="text-align: right;">6.0 MB</td>
+</tr>
+<tr>
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">700 GB/s</td>
+<td style="text-align: right;">1.50 μs</td>
+<td style="text-align: right;">231 KB</td>
+<td style="text-align: right;">14 MB</td>
+</tr>
+<tr>
+<td style="text-align: right;">64</td>
+<td style="text-align: right;">3100 GB/s</td>
+<td style="text-align: right;">0.34 μs</td>
+<td style="text-align: right;">1.02 MB</td>
+<td style="text-align: right;">62 MB</td>
+</tr>
+</tbody>
+</table>
+<p>PFC 一跳：30 m 线缆往返 300 ns + 1500 B 串行化 30 ns ≈ 0.33 μs，三种都在 1 MiB 内；端到端 20 μs 没有一个放得下。<strong>分工</strong>：PFC 在 0.33 μs 内挡住相邻一跳，让缓冲撑到 DCQCN 把源头降下来。只靠端到端不丢包要 <span class="arithmatex">\((N - 2) \times 50 \times 20\ \mu\text{s} \le Q_{\mathrm{free}}\)</span>：1 MiB 只到 <span class="arithmatex">\(N \le 3\)</span>。</p>
+<p><img alt="incast 下队列增长：PFC 的 0.33 μs 之前都没填满" src="../figures/42-congestion-incast.png" /></p>
+<p><em>图 42-2 · 端到端 20 μs 在横轴之外。</em></p>
+<p><strong>一句话</strong>：反馈时延 ≤ 剩余缓冲 ÷ 超额速率；PFC 管一跳、快，DCQCN 管源头、慢，两者配合。</p>
+<h3 id="2026-11-24_1">第三步：多路径：拆开传，等最慢的；哈希冲突（2026-11-24）</h3>
+<p><strong>类比：两个快递员分送一本书的八页。</strong> 都从同一个仓库出发时，两人一起送快一倍；一个人绕远路，读者要等他的那几页才能按顺序读。</p>
+<p><strong>拆到两条路径</strong>（原文 L760–L780）：32 KiB 拆 8 个 4 KiB 报文（每个 82 ns）：</p>
+<table>
+<thead>
+<tr>
+<th>路径</th>
+<th style="text-align: right;">完成</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>一条 1 μs</td>
+<td style="text-align: right;">1.66 μs</td>
+</tr>
+<tr>
+<td>两条都 1 μs</td>
+<td style="text-align: right;">1.33 μs</td>
+</tr>
+<tr>
+<td>两条，第二条 9 μs</td>
+<td style="text-align: right;">9.33 μs（还要缓存 12 KiB 乱序）</td>
+</tr>
+<tr>
+<td>首包丢失，20 μs 后只补发它</td>
+<td style="text-align: right;">21.2 μs（选择性重传）</td>
+</tr>
+</tbody>
+</table>
+<p>双路径只省 0.33 μs 串行时间；<strong>路径时延差超过它就不划算</strong>（30 m 线缆就有 150 ns）。只有每条路径分到的串行时间远大于时延差才值得：8 MiB 喷洒到 8 条路径（时延 1–8 μs），29.0 μs vs 单路径 168.8 μs，代价是接收方最多缓存约 1.39 MB 乱序。</p>
+<p><strong>ECMP 哈希冲突</strong>（原文 L782–L800）：同一台叶交换机上的 <span class="arithmatex">\(n\)</span> 条跨组流随机哈希到 <span class="arithmatex">\(m\)</span> 条上联，整组要等最慢的流：</p>
+<table>
+<thead>
+<tr>
+<th><span class="arithmatex">\(n\)</span> 流 → <span class="arithmatex">\(m\)</span> 上联</th>
+<th style="text-align: right;"><span class="arithmatex">\(E[L_{\max}]\)</span></th>
+<th style="text-align: right;">无冲突概率</th>
+<th style="text-align: right;">相对无冲突的速度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>8 → 32</td>
+<td style="text-align: right;">1.66</td>
+<td style="text-align: right;">38.6%</td>
+<td style="text-align: right;">60.1%</td>
+</tr>
+<tr>
+<td>8 → 16（3:1 超售）</td>
+<td style="text-align: right;">2.06</td>
+<td style="text-align: right;">12.1%</td>
+<td style="text-align: right;">48.5%</td>
+</tr>
+<tr>
+<td>32 → 32</td>
+<td style="text-align: right;">3.53</td>
+<td style="text-align: right;">≈ 0</td>
+<td style="text-align: right;">28.3%（最差）</td>
+</tr>
+<tr>
+<td>128 → 16</td>
+<td style="text-align: right;">13.36</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">59.9%</td>
+</tr>
+</tbody>
+</table>
+<p><img alt="最忙上联的期望流数 / 无冲突值" src="../figures/42-congestion-ecmp.png" /></p>
+<p><em>图 42-3 · 流数和上联数接近时冲突代价最大。</em></p>
+<p>对策：rail 对齐减少同一叶上的跨组流；或改成逐包喷洒（Ultra Ethernet 用熵值喷洒 + 选择性确认）。</p>
+<p><strong>一句话</strong>：多路径省的是串行发送时间，多的是时延差和乱序；按流哈希会冲突，逐包喷洒换乱序缓存。</p>
+<h3 id="2026-11-24_2">第四步：死锁：持有一个、等另一个，绕成环（2026-11-24）</h3>
+<p><strong>类比：两辆车在窄桥两头对开。</strong> 都占着桥的一半，都等对方先退，谁也过不去。</p>
+<p>原文 L812–L828：请求 1 持有 A 等 B，请求 2 持有 B 等 A。归约系统里：请求占满接收缓冲 → 完成响应等发送队列 → 发送队列等远端释放请求空间。PFC 的暂停逐跳往上游传，形成环就是死锁。</p>
+<ul>
+<li><strong>规定申请顺序</strong>：所有人先 A 后 B，环被打断。</li>
+<li><strong>给响应预留通路</strong>：接收方 8 个数据槽满了，响应也要占数据槽就一起停；加独立的响应槽，释放消息能回去，队列就能周转。</li>
+<li>虚拟通道把请求和响应分到不同队列。地址转换要发远程访问、又和原请求争同一组槽位，也会成环：<strong>为完成通知、地址转换、故障恢复预留资源</strong>。</li>
+</ul>
+<p><img alt="为完成响应预留通路，打破循环等待" src="../figures/42-congestion-deadlock.png" /></p>
+<p><em>图 42-4 · 起作用的是独立容量和使用次序。</em></p>
+<p><strong>一句话</strong>：死锁是资源依赖成环；规定申请顺序或为响应预留独立资源就能打断。</p>
+<h2 id="_2">动画演示：反馈来得及吗</h2>
+<p><img alt="incast 与反馈时延" src="../animations/42-congestion.gif" /></p>
+<p>可交互版：<a href="../animations/42-congestion.html">animations/42-congestion.html</a>（滑块：发送方数 N 2–64；剩余缓冲 256 KiB–8 MiB；反馈时延 0.1–30 μs）。</p>
+<p><strong>怎么看</strong>：</p>
+<ol>
+<li>一条曲线是队列随时间增长（超额速率 <span class="arithmatex">\((N - 2) \times 50\)</span> GB/s）（第二步）；</li>
+<li>水平虚线是剩余缓冲，竖线是反馈生效时刻；</li>
+<li>竖线在曲线碰到虚线之前 = 不丢，之后 = 丢包量显示在右边；</li>
+<li>播放：N = 8 时 PFC 0.33 μs（来得及）→ 端到端 20 μs（丢 5 MB）→ N = 64 → 缓冲加到 4 MiB。</li>
+</ol>
+<h2 id="_3">练习与作答记录</h2>
+<p><strong>题 1</strong>（第一步）：两个作业每 200 ms 各有 30 ms 高峰，速率 50 GB/s，共享 50 GB/s 出口。平均利用率多少？完全重叠时最大积压和排空时间？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p><strong>题 2</strong>（第二步）：出口 100 GB/s，每个发送方 50 GB/s，<span class="arithmatex">\(N = 16\)</span>，剩余缓冲 2 MiB。允许的反馈时延是多少？PFC 一跳 0.33 μs 内的 headroom 要多少？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p><strong>题 3</strong>（第三步）：16 个 4 KiB 报文（50 GB/s）均分到两条路径，时延 1 μs 和 3 μs。完成时间多少？只走第一条呢？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p>原书实验 7-11 到 7-14（L748、L752、L802、L806）。想多练可以做。</p>
+<h2 id="_4">口诀</h2>
+<blockquote>
+<p>两家都九点上班，路平时空也会堵；错开二十分钟就不堵；<br />
+站口举牌管一个路口、快，打电话管源头、慢；<br />
+两人分送八页，绕远路的拖全书；随机分道最怕车道和车一样多；<br />
+窄桥对开都等对方退，先后规矩或留一条退路。</p>
+</blockquote>
+<h2 id="_5">本章复习卡片</h2>
+<p><a href="../review.html">I149</a>（例题 7.5：40% 利用率也积压 1 GB，相位决定）、<a href="../review.html">I150</a>（<span class="arithmatex">\(T_f \le Q_{\mathrm{free}}/(\lambda - B)\)</span>、incast 表、PFC 0.33 μs vs DCQCN 20 μs）、<a href="../review.html">I151</a>（多路径的时延差、选择性重传、ECMP 冲突 28.3% 与死锁的两种解法）。练习做完后，按答错、卡住的地方再补。</p>
+<h2 id="_6">附录 · 延伸阅读</h2>
+<blockquote>
+<p>留给以后深入学习用，不影响本章主线。★ 是建议先读的。</p>
+</blockquote>
+<h3 id="_7">推荐阅读</h3>
+<table>
+<thead>
+<tr>
+<th>读什么</th>
+<th>读哪里</th>
+<th>读它为了什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>★ AII 第 7 章</td>
+<td>§7.5 L664–L829</td>
+<td>本章原文</td>
+</tr>
+<tr>
+<td>Zhu 等，DCQCN（SIGCOMM 2015）</td>
+<td>算法与 headroom</td>
+<td>22.4 KB / 端口 / 优先级</td>
+</tr>
+<tr>
+<td>Rajasekaran 等，CASSINI（NSDI 2024）</td>
+<td>方法</td>
+<td>训练作业错峰</td>
+</tr>
+<tr>
+<td>Ultra Ethernet 规范概览</td>
+<td>传输层</td>
+<td>熵值喷洒与选择性确认</td>
+</tr>
+<tr>
+<td>Hu 等，Deadlocks in Datacenter Networks（HotNets 2016）</td>
+<td>全文</td>
+<td>PFC 死锁</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_8">数学原理</h3>
+<ul>
+<li><strong>流体队列</strong>：<span class="arithmatex">\(dQ/dt = \lambda - B\)</span>，积压 = 超额 × 时长。</li>
+<li><strong>最大负载分布</strong>：<span class="arithmatex">\(n\)</span> 球 <span class="arithmatex">\(m\)</span> 盒，<span class="arithmatex">\(P(L_{\max} \le c)\)</span> 用多项式计数精确求。</li>
+<li><strong>资源依赖图</strong>：有环 ⇒ 可能死锁；全序申请 ⇒ 无环。</li>
+</ul>
+<h3 id="_9">公式清单</h3>
+<table>
+<thead>
+<tr>
+<th>公式</th>
+<th>意思</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\(Q_{\max} = (\lambda - B) h\)</span></td>
+<td>重叠 <span class="arithmatex">\(h\)</span> 的积压</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(T_f \le Q_{\mathrm{free}}/(\lambda - B)\)</span></td>
+<td>允许的反馈时延</td>
+</tr>
+<tr>
+<td>headroom <span class="arithmatex">\(= (\lambda - B) \times T_{\mathrm{hop}}\)</span></td>
+<td>PFC 预留</td>
+</tr>
+<tr>
+<td>速度比 <span class="arithmatex">\(= \lceil n/m \rceil / E[L_{\max}]\)</span></td>
+<td>ECMP 冲突</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_10">代码对照：把本章的数字用代码算一遍</h3>
+<blockquote>
+<p>代码 <code>ai-infra/solutions/chapter-code/ch42_congestion.py</code>，测试 <code>tests/test_ch42.py</code>：</p>
+<p><code>bash  
+cd ai-infra/solutions/chapter-code  
+uv run python ch42_congestion.py  
+uv run pytest tests/test_ch42.py</code></p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>讲义</th>
+<th>写法</th>
+<th>跑出来</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第一步</td>
+<td><code>overlap_backlog_gb(h)</code></td>
+<td>1 GB、250 MB</td>
+</tr>
+<tr>
+<td>第二步</td>
+<td><code>tolerable_delay_us</code>、<code>incast(N)</code>、<code>pfc_hop_us()</code></td>
+<td>5.2 μs；3.50 / 1.50 / 0.34 μs；0.33 μs</td>
+</tr>
+<tr>
+<td>第三步</td>
+<td><code>multipath_us(...)</code>、<code>ecmp(n, m)</code></td>
+<td>1.33 / 1.66 / 9.33 μs；60.1% / 28.3%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>代码里才看得到的 3 件事</strong>：</p>
+<ol>
+<li><code>max_load_dist</code> 用 <code>Fraction</code> 和组合数精确计数（<span class="arithmatex">\(m^n\)</span> 种放法），不是蒙特卡洛；128 球 16 盒也只要一两秒。</li>
+<li>incast 的超额是 <span class="arithmatex">\((N - 2) \times 50\)</span>：<span class="arithmatex">\(N - 1\)</span> 个发送方减去出口能送走的一份。</li>
+<li>多路径模型里每条路径的完成 = 时延 + 分到的报文数 × 82 ns，取最大。</li>
+</ol>
+<p><strong>自己改一改</strong>（不影响练习答案）：</p>
+<ul>
+<li>用 <code>ecmp</code> 画 <span class="arithmatex">\(n\)</span> 从 1 到 64、<span class="arithmatex">\(m = 32\)</span> 的速度曲线，找最低点。</li>
+<li>给 <code>multipath_us</code> 加不均匀分配，找时延 1 μs 和 9 μs 两条路径的最优分法。</li>
+<li>模拟一个周期性 incast：每 100 μs 来一次 <span class="arithmatex">\(N = 16\)</span>，看 PFC 暂停占了多少时间。</li>
+</ul><nav class="pager"><a href="41-handoff-state.html">← 第 41 章 · 数据交接、顺序与状态管理：什么时候能读、能覆盖、能释放</a><a href="43-task-completion.html">第 43 章 · 从通信改进到任务完成：先看谁晚到，再看能藏多少 →</a></nav>
+</main></div>
+<footer>来自个人学习仓库的对话讲义，含练习作答记录。源码：<a href="https://github.com/wikieden/ai-infra-from-constraints">github.com/wikieden/ai-infra-from-constraints</a>。更多讲义书：<a href="https://wikieden.github.io/ai-books/">Physical AI 0-1-♾️（合集）</a></footer>
+<script>(function(){var d=document.documentElement,K=["s","m","l","xl"];
+function save(k,v){try{v?localStorage.setItem(k,v):localStorage.removeItem(k)}catch(e){}}
+var s=document.getElementById("ab-theme");if(s){s.value=d.dataset.theme||"";s.onchange=function(){if(s.value)d.dataset.theme=s.value;else delete d.dataset.theme;save("ab-theme",s.value)}}
+document.querySelectorAll("[data-fs-step]").forEach(function(b){b.onclick=function(){var i=K.indexOf(d.dataset.fs||"m")+(+b.dataset.fsStep);i=Math.max(0,Math.min(K.length-1,i));d.dataset.fs=K[i];save("ab-fs",K[i])}});
+var nb=document.getElementById("nav-toggle"),side=document.querySelector("nav.side");if(nb&&side){nb.onclick=function(){side.classList.toggle("open")}}
+var cur=side&&side.querySelector(".cur");if(cur)cur.scrollIntoView({block:"center"});
+})();</script>
+</body></html>

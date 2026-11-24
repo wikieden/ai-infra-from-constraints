@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>训练步的安排</title><link rel="stylesheet" href="anim.css">
+<style>svg text.cap{font-size:15px;font-weight:500}svg text.num{font-size:16px;font-weight:600}</style></head>
+<body><main>
+<h1>第 43 章 · 通信能不能藏进计算</h1>
+<p class="sub">配套讲义：<a href="../lessons/43-task-completion.html">第 43 章 · 从通信改进到任务完成：先看谁晚到，再看能藏多少</a>。计算 20 ms、更新 2 ms；重叠时通信从梯度就绪时刻开始，与剩余计算并行。</p>
+<div class="panel"><svg id="sv" viewBox="0 0 680 360"></svg></div>
+<div class="row"><button id="play">▶ 播放</button><button id="step">→ 单步</button><button id="reset">↺ 从头开始</button></div>
+<div class="row"><label for="c">通信时长（ms）</label><input type="range" id="c" min="0.5" max="10" step="0.1" value="7.6"><span id="cv">7.6</span><label for="r">梯度就绪（ms）</label><input type="range" id="r" min="10" max="20" step="0.5" value="17"><span id="rv">17</span><label><input type="checkbox" id="o"> 重叠</label></div>
+<p class="note">看点：① 灰 = 计算、蓝 = 通信、绿 = 更新；② 串行时通信接在计算后，重叠时从就绪时刻开始；③ 右边是整步时间和藏住的比例；④ 播放：连续环串行 → 分层串行 → 连续环重叠 → 分层重叠（全藏住）→ 一张网卡。</p>
+</main>
+<script src="anim.js"></script>
+<script>
+const sv=$('sv');
+function R(x,y,w,h,col,op){return el('rect',{x,y,width:Math.max(w,1),height:h,rx:4,fill:col,opacity:op??.7},sv)}
+function T(s,x,y,a,c){return txt(s,{x,y,'text-anchor':a||'start',class:c||'m'},sv)}
+function cap(s){T(s,340,26,'middle','cap')}
+const GET=ids=>ids.map(i=>{const e=$(i);return e.type==='checkbox'?+e.checked:+e.value});
+function SET(ids,v){ids.forEach((i,k)=>{const e=$(i);if(e.type==='checkbox')e.checked=!!v[k];else e.value=v[k];const o=$(i+'v');if(o)o.textContent=(+v[k]).toString()})}
+const IDS=['c','r','o'],F=[[7.6,17,0],[1.3,17,0],[7.6,17,1],[1.3,17,1],[4.8,17,1]];
+function render(c,r,o){const st=o?r:20,end=Math.max(20,st+c),tot=end+2,hid=o?Math.max(0,Math.min(c,20-r)):0,sc=18;
+ cap(`${o?'重叠':'串行'}：整步 ${tot.toFixed(1)} ms，通信藏住 ${(hid/c*100).toFixed(0)}%`);
+ R(60,100,20*sc,40,'var(--muted)',.4);T('计算 20 ms',60+10*sc,125,'middle');
+ R(60+st*sc,o?160:100,c*sc,o?30:40,'var(--accent)');R(60+end*sc,100,2*sc,40,'var(--good)');
+ T(`${tot.toFixed(1)} ms`,66+(end+2)*sc,125);if(o){el('line',{x1:60+r*sc,y1:90,x2:60+r*sc,y2:200,stroke:'var(--warm)','stroke-dasharray':'4 3'},sv);T('就绪',60+r*sc,214,'middle')}
+ T(`20 ms 时通信${st+c<=20?'已经结束':'还剩 '+(st+c-20).toFixed(1)+' ms'}`,340,280,'middle','num')}
+let k=0,custom=null;
+function draw(){clear(sv);const v=custom||F[k];SET(IDS,v);render(...v)}
+function reset(){k=0;custom=null;draw()}
+function next(){if(custom!==null){custom=null;draw();return true}if(k>=F.length-1)return false;k++;draw();return true}
+IDS.forEach(i=>{const e=$(i);const f=()=>{ANIM.stop();custom=GET(IDS);draw()};e.oninput=f;e.onchange=f});
+setupPlayer({captureSeed:1,reset,next},1500);
+</script><a href="https://wikieden.github.io/ai-books/" style="position:fixed;right:12px;bottom:12px;z-index:99;padding:4px 10px;border-radius:14px;background:rgba(127,127,127,.18);color:inherit;font:13px/1.6 system-ui,sans-serif;text-decoration:none">← 全部讲义书</a>
+</body></html>

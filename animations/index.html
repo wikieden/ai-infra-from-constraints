@@ -262,6 +262,120 @@ footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-
 <td><a href="30-request-view.html">html</a></td>
 </tr>
 <tr>
+<td>31</td>
+<td>一次处理的 token 数从 1 到 8192：被选中的专家、读取与计算时间、MFU 上限（滑块改 token 数）</td>
+<td><a href="31-multi-gpu.gif">31-multi-gpu.gif</a></td>
+<td><a href="31-multi-gpu.html">html</a></td>
+</tr>
+<tr>
+<td>32</td>
+<td>TP 1 / 2 / 4 / 8 的每卡内存、可放会话数与单步时间（切换 TP 和上下文）</td>
+<td><a href="32-dp-tp-sp.gif">32-dp-tp-sp.gif</a></td>
+<td><a href="32-dp-tp-sp.html">html</a></td>
+</tr>
+<tr>
+<td>33</td>
+<td>四阶段流水线随 micro-batch 填满，慢阶段让节拍变成 2 ms（滑块改 micro-batch 数）</td>
+<td><a href="33-cp-pp-ep.gif">33-cp-pp-ep.gif</a></td>
+<td><a href="33-cp-pp-ep.html">html</a></td>
+</tr>
+<tr>
+<td>34</td>
+<td>专家分派：均匀、集中、分散、随机下的读取与各组任务数（切换分派方式）</td>
+<td><a href="34-combined-parallel.gif">34-combined-parallel.gif</a></td>
+<td><a href="34-combined-parallel.html">html</a></td>
+</tr>
+<tr>
+<td>35</td>
+<td>环与树的启动和传输随数据量变化，交点随 α 移动（滑块改数据量、α、卡数）</td>
+<td><a href="35-collectives.gif">35-collectives.gif</a></td>
+<td><a href="35-collectives.html">html</a></td>
+</tr>
+<tr>
+<td>36</td>
+<td>远端读取：在途事务数与往返决定可用带宽（滑块改在途数）</td>
+<td><a href="36-topology-pool.gif">36-topology-pool.gif</a></td>
+<td><a href="36-topology-pool.html">html</a></td>
+</tr>
+<tr>
+<td>37</td>
+<td>部署方案、期限与一次卡故障（切换 TP、滑块改期限）</td>
+<td><a href="37-scale-choice.gif">37-scale-choice.gif</a></td>
+<td><a href="37-scale-choice.html">html</a></td>
+</tr>
+<tr>
+<td>38</td>
+<td>卡数、跨服务器流量与出口网卡数：计算与割集传输谁先停（滑块）</td>
+<td><a href="38-cluster.gif">38-cluster.gif</a></td>
+<td><a href="38-cluster.html">html</a></td>
+</tr>
+<tr>
+<td>39</td>
+<td>三种归约下 16 张网卡各传多少字节、要多久（切换方案和本地带宽）</td>
+<td><a href="39-cross-node.gif">39-cross-node.gif</a></td>
+<td><a href="39-cross-node.html">html</a></td>
+</tr>
+<tr>
+<td>40</td>
+<td>在途槽位、每事务字节与发起间隔：三个上限谁最先卡住（滑块）</td>
+<td><a href="40-remote-access.gif">40-remote-access.gif</a></td>
+<td><a href="40-remote-access.html">html</a></td>
+</tr>
+<tr>
+<td>41</td>
+<td>请求槽位的占用与释放：加槽位只提前传输，释放看完成通知（滑块改槽位和每批条数）</td>
+<td><a href="41-handoff-state.gif">41-handoff-state.gif</a></td>
+<td><a href="41-handoff-state.html">html</a></td>
+</tr>
+<tr>
+<td>42</td>
+<td>incast 下队列增长与反馈时刻：来得及就不丢（滑块改 N、缓冲、反馈时延）</td>
+<td><a href="42-congestion.gif">42-congestion.gif</a></td>
+<td><a href="42-congestion.html">html</a></td>
+</tr>
+<tr>
+<td>43</td>
+<td>通信时长与就绪时刻：串行和重叠下的整步时间（滑块）</td>
+<td><a href="43-task-completion.gif">43-task-completion.gif</a></td>
+<td><a href="43-task-completion.html">html</a></td>
+</tr>
+<tr>
+<td>44</td>
+<td>请求时间线：排队、prefill、输出间隔与 7 s 时限（滑块）</td>
+<td><a href="44-inference-request.gif">44-inference-request.gif</a></td>
+<td><a href="44-inference-request.html">html</a></td>
+</tr>
+<tr>
+<td>45</td>
+<td>batch 与上下文：分摊的权重和每请求 KV 谁更多（滑块改 batch、切换上下文）</td>
+<td><a href="45-batching.gif">45-batching.gif</a></td>
+<td><a href="45-batching.html">html</a></td>
+</tr>
+<tr>
+<td>46</td>
+<td>12 GiB 里能放多少条请求：独立与共享前缀（滑块改请求数）</td>
+<td><a href="46-kv-cache.gif">46-kv-cache.gif</a></td>
+<td><a href="46-kv-cache.html">html</a></td>
+</tr>
+<tr>
+<td>47</td>
+<td>权重卸载：腾出的显存与每轮搬移、255 轮累计（滑块改卸载层数、切换链路）</td>
+<td><a href="47-compress-offload.gif">47-compress-offload.gif</a></td>
+<td><a href="47-compress-offload.html">html</a></td>
+</tr>
+<tr>
+<td>48</td>
+<td>接受率、草稿长度与每 token 耗时（滑块）</td>
+<td><a href="48-speculative.gif">48-speculative.gif</a></td>
+<td><a href="48-speculative.html">html</a></td>
+</tr>
+<tr>
+<td>49</td>
+<td>四种方案在内存上限与时限下的位置（滑块改内存、时限、输出长度）</td>
+<td><a href="49-serving-choice.gif">49-serving-choice.gif</a></td>
+<td><a href="49-serving-choice.html">html</a></td>
+</tr>
+<tr>
 <td>补充</td>
 <td>TP、PP、CP 三种切法：PP 按层分段与 bubble（滑块改 micro-batch 数）；TP 切矩阵、部分和 AllReduce；CP 切序列、因果三角形的跨卡依赖和前后搭配；组合 TP=8 × PP=3 × DP=2</td>
 <td><a href="appendix-tp-pp-cp.gif">appendix-tp-pp-cp.gif</a></td>

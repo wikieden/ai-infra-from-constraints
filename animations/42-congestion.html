@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>incast 与反馈时延</title><link rel="stylesheet" href="anim.css">
+<style>svg text.cap{font-size:15px;font-weight:500}svg text.num{font-size:16px;font-weight:600}</style></head>
+<body><main>
+<h1>第 42 章 · 反馈来得及吗</h1>
+<p class="sub">配套讲义：<a href="../lessons/42-congestion.html">第 42 章 · 共享网络中的拥塞与可靠性：高峰、反馈、多路径、死锁</a>。N 个发送方各 50 GB/s 打一个 50 GB/s 出口，超额速率 = (N − 1) 路到达 − 出口的一份 = (N − 2)×50 GB/s。</p>
+<div class="panel"><svg id="sv" viewBox="0 0 680 360"></svg></div>
+<div class="row"><button id="play">▶ 播放</button><button id="step">→ 单步</button><button id="reset">↺ 从头开始</button></div>
+<div class="row"><label for="n">发送方数 N</label><input type="range" id="n" min="2" max="64" step="1" value="8"><span id="nv">8</span><label for="q">剩余缓冲</label><select id="q"><option value="1">1 MiB</option><option value="0.25">256 KiB</option><option value="4">4 MiB</option><option value="8">8 MiB</option></select><label for="ld">log10(反馈时延 / μs)</label><input type="range" id="ld" min="-1" max="1.5" step="0.05" value="-0.48"><span id="ldv">-0.48</span></div>
+<p class="note">看点：① 曲线是队列随时间增长；② 水平虚线是剩余缓冲，竖线是反馈生效时刻；③ 竖线在碰到虚线之前 = 不丢；④ 播放 N = 8 时 PFC 0.33 μs → 端到端 20 μs → N = 64 → 缓冲 4 MiB。</p>
+</main>
+<script src="anim.js"></script>
+<script>
+const sv=$('sv');
+function R(x,y,w,h,col,op){return el('rect',{x,y,width:Math.max(w,1),height:h,rx:4,fill:col,opacity:op??.7},sv)}
+function T(s,x,y,a,c){return txt(s,{x,y,'text-anchor':a||'start',class:c||'m'},sv)}
+function cap(s){T(s,340,26,'middle','cap')}
+const GET=ids=>ids.map(i=>{const e=$(i);return e.type==='checkbox'?+e.checked:+e.value});
+function SET(ids,v){ids.forEach((i,k)=>{const e=$(i);if(e.type==='checkbox')e.checked=!!v[k];else e.value=v[k];const o=$(i+'v');if(o)o.textContent=(+v[k]).toString()})}
+const IDS=['n','q','ld'],F=[[8,1,-0.48],[8,1,1.3],[64,1,-0.48],[64,4,-0.48]];
+function render(n,q,ld){const ex=Math.max(n-2,0)*50e9,cap_=q*2**20,tf=10**ld,full=ex>0?cap_/ex*1e6:Infinity,loss=Math.max(0,ex*tf*1e-6-cap_);
+ const tmax=Math.max(tf*1.3,Math.min(full*1.5,40),1),X=t=>70+t/tmax*560,Y=v=>300-v/(cap_*1.4)*230;
+ cap(`N = ${n}、缓冲 ${q} MiB、反馈 ${tf.toFixed(2)} μs：${loss>0?'丢 '+(loss/1e6).toFixed(2)+' MB':'不丢'}`);
+ el('line',{x1:70,y1:300,x2:630,y2:300,stroke:'var(--line)'},sv);
+ const tEnd=Math.min(tmax,full);el('line',{x1:X(0),y1:Y(0),x2:X(tEnd),y2:Y(Math.min(cap_,ex*tEnd*1e-6)),stroke:'var(--warm)','stroke-width':2.5},sv);
+ if(full<tmax)el('line',{x1:X(full),y1:Y(cap_),x2:X(tmax),y2:Y(cap_),stroke:'var(--bad)','stroke-width':2.5},sv);
+ el('line',{x1:70,y1:Y(cap_),x2:630,y2:Y(cap_),stroke:'var(--muted)','stroke-dasharray':'5 4'},sv);
+ el('line',{x1:X(tf),y1:60,x2:X(tf),y2:300,stroke:'var(--good)','stroke-dasharray':'4 3'},sv);T('反馈',X(tf)+4,72);
+ T(`填满于 ${isFinite(full)?full.toFixed(2)+' μs':'—'}`,630,330,'end');T('0',70,318,'middle');T(`${tmax.toFixed(1)} μs`,630,318,'end')}
+let k=0,custom=null;
+function draw(){clear(sv);const v=custom||F[k];SET(IDS,v);render(...v)}
+function reset(){k=0;custom=null;draw()}
+function next(){if(custom!==null){custom=null;draw();return true}if(k>=F.length-1)return false;k++;draw();return true}
+IDS.forEach(i=>{const e=$(i);const f=()=>{ANIM.stop();custom=GET(IDS);draw()};e.oninput=f;e.onchange=f});
+setupPlayer({captureSeed:1,reset,next},1500);
+</script><a href="https://wikieden.github.io/ai-books/" style="position:fixed;right:12px;bottom:12px;z-index:99;padding:4px 10px;border-radius:14px;background:rgba(127,127,127,.18);color:inherit;font:13px/1.6 system-ui,sans-serif;text-decoration:none">← 全部讲义书</a>
+</body></html>

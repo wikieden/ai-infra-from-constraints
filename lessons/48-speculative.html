@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>第 48 章 · 推测解码：一次验证，确定好几个 token · 从约束推导 AI Infra</title>
+<script>(function(){try{var d=document.documentElement,t=localStorage.getItem("ab-theme"),f=localStorage.getItem("ab-fs");if(t)d.dataset.theme=t;if(f)d.dataset.fs=f}catch(e){}})();</script>
+<style>:root{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa;--fs:16px}
+@media (prefers-color-scheme:dark){:root:not([data-theme]){--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}}
+:root[data-theme="light"]{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa}
+:root[data-theme="dark"]{--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}
+:root[data-theme="sepia"]{--bg:#f6efe1;--fg:#3b3127;--mute:#7a6a58;--line:#e2d6bf;--card:#fbf6ec;--acc:#a0522d;--code:#ece2cd;--quote:#efe5d2}
+:root[data-theme="green"]{--bg:#e3eddf;--fg:#22301f;--mute:#566650;--line:#c9d8c3;--card:#eef5eb;--acc:#2e7d4f;--code:#d6e4d0;--quote:#dae7d5}
+:root[data-theme="navy"]{--bg:#0f1a2b;--fg:#dde6f3;--mute:#93a4bd;--line:#23324a;--card:#15233a;--acc:#6cc4ff;--code:#1a2a44;--quote:#16243b}
+:root[data-fs="s"]{--fs:15px}
+:root[data-fs="m"]{--fs:16px}
+:root[data-fs="l"]{--fs:18px}
+:root[data-fs="xl"]{--fs:20px}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:var(--fs)/1.75 -apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Helvetica Neue",sans-serif}
+a{color:var(--acc)}
+header.top{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+header.top .in{max-width:860px;margin:0 auto;padding:10px 16px;display:flex;gap:6px 16px;align-items:center;flex-wrap:wrap;font-size:14px}
+header.top .brand{font-weight:600;color:var(--fg);text-decoration:none;margin-right:auto}
+header.top a{text-decoration:none}
+.prefs{display:inline-flex;gap:4px;align-items:center}
+.prefs button,.prefs select,#nav-toggle{font:inherit;font-size:13px;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:2px 8px;cursor:pointer}
+main{max-width:860px;margin:0 auto;padding:24px 16px 72px;overflow-wrap:anywhere}
+h1{font-size:1.75em;line-height:1.35;margin:8px 0 16px} h2{font-size:1.375em;margin:40px 0 12px;padding-top:8px;border-top:1px solid var(--line)} h3{font-size:1.125em;margin:28px 0 8px}
+.layout{display:grid;grid-template-columns:260px minmax(0,1fr);max-width:1180px;margin:0 auto}
+.layout main{margin:0;max-width:880px}
+nav.side{position:sticky;top:49px;align-self:start;max-height:calc(100vh - 49px);overflow-y:auto;padding:20px 8px 40px 16px;border-right:1px solid var(--line);font-size:14px;line-height:1.5}
+nav.side .h{font-weight:600;color:var(--mute);margin:4px 8px 8px;font-size:13px}
+nav.side a{display:block;padding:5px 8px;border-radius:6px;color:var(--fg);text-decoration:none}
+nav.side a:hover{background:var(--code)} nav.side a.cur{background:var(--quote);color:var(--acc);font-weight:600}
+nav.side a .n{color:var(--mute);margin-right:6px;font-variant-numeric:tabular-nums}
+#nav-toggle{display:none}
+@media (max-width:960px){.layout{display:block} nav.side{display:none;position:fixed;z-index:6;top:49px;left:0;bottom:0;width:min(300px,85vw);max-height:none;background:var(--bg);box-shadow:2px 0 12px rgba(0,0,0,.2)} nav.side.open{display:block} #nav-toggle{display:inline-block}}
+.run{display:flex;flex-wrap:wrap;align-items:center;gap:4px 0;margin:4px 0 12px}
+.run details{flex-basis:100%;margin:6px 0 0;font-size:.94em}
+img{max-width:100%;height:auto;border-radius:8px;border:1px solid var(--line);background:#fff}
+blockquote{margin:16px 0;padding:10px 16px;background:var(--quote);border-left:3px solid var(--acc);border-radius:4px;color:var(--mute)}
+blockquote p{margin:4px 0}
+code{background:var(--code);padding:1px 5px;border-radius:4px;font-size:.9em}
+pre{background:var(--code);padding:12px 14px;border-radius:8px;overflow-x:auto} pre code{padding:0;background:none}
+table{border-collapse:collapse;display:block;overflow-x:auto;max-width:100%;margin:12px 0;font-size:.94em}
+th,td{border:1px solid var(--line);padding:6px 10px;vertical-align:top} th{background:var(--code)}
+details{border:1px solid var(--line);border-radius:8px;padding:6px 12px;margin:8px 0;background:var(--card)}
+details[open]{padding-bottom:10px} summary{cursor:pointer;color:var(--acc);font-weight:500}
+mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%}
+.btn{display:inline-block;margin:4px 8px 4px 0;padding:6px 14px;border:1px solid var(--acc);border-radius:999px;text-decoration:none;font-size:14px}
+.pager{display:flex;justify-content:space-between;gap:12px;margin-top:48px;padding-top:16px;border-top:1px solid var(--line);font-size:15px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin:16px 0}
+.card{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;color:inherit;text-decoration:none}
+.card:hover{border-color:var(--acc)} .card img{border:0;border-bottom:1px solid var(--line);border-radius:0;aspect-ratio:16/10;object-fit:contain;width:100%}
+.card .no{color:var(--mute);font-size:13px;padding:8px 12px 0} .card .t{padding:0 12px 12px;font-weight:500;line-height:1.5}
+.lead{font-size:1.06em;color:var(--mute)}
+footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-size:13px}
+</style>
+<script>window.MathJax={tex:{inlineMath:[["\\(","\\)"]],displayMath:[["\\[","\\]"],["$$","$$"]],processEscapes:true,processEnvironments:true}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"></script>
+</head><body>
+<header class="top"><div class="in">
+<button type="button" id="nav-toggle" aria-label="打开章节列表">☰ 章节</button><a class="brand" href="../index.html">从约束推导 AI Infra</a>
+<a href="../lessons/index.html">讲义目录</a>
+<a href="../animations/index.html">动画</a>
+<a href="../review.html">复习卡片</a>
+<a href="../lessons/appendix-glossary.html">缩写表</a>
+<a href="https://wikieden.github.io/ai-books/glossary.html">全局词汇</a>
+<a href="https://wikieden.github.io/ai-books/">← 全部讲义书</a>
+<span class="prefs" title="字号与主题"><button type="button" data-fs-step="-1" aria-label="字号变小">A−</button><button type="button" data-fs-step="1" aria-label="字号变大">A+</button><select id="ab-theme" aria-label="主题色"><option value="">跟随系统</option><option value="light">浅色</option><option value="dark">深色</option><option value="sepia">米黄护眼</option><option value="green">豆沙绿护眼</option><option value="navy">夜蓝</option></select></span>
+</div></header>
+<div class="layout"><nav class="side" aria-label="章节"><div class="h">从约束推导 AI Infra</div><a href="index.html">讲义目录</a><a href="01-six-layers.html"><span class="n">1</span>一次请求走过的六层（进行中）</a><a href="02-request-lifecycle.html"><span class="n">2</span>一次生成请求的处理过程：权重加载一次，每个 token 都要再读一遍</a><a href="03-dataflow-hierarchy.html"><span class="n">3</span>从存储程序到数据流执行：存储层次就像大楼里的厕所</a><a href="04-key-numbers.html"><span class="n">4</span>系统设计的关键数字：容量、算力、带宽、延迟</a><a href="05-estimate.html"><span class="n">5</span>用几个数字估算一次模型执行：算和读各要多久，实测为什么达不到</a><a href="06-architecture.html"><span class="n">6</span>需求如何推动架构：TPU、SmartNIC、Unified Bus</a><a href="07-compute-graph.html"><span class="n">7</span>计算图与张量结构：一个 token 经过一层要算多少</a><a href="08-generation-budget.html"><span class="n">8</span>自回归生成的资源账：存一次的、每步读的、用完就扔的</a><a href="09-kv-sharing.html"><span class="n">9</span>KV 怎么变小 ①：头共享与潜变量压缩</a><a href="10-kv-sparse-linear.html"><span class="n">10</span>KV 怎么变小 ②：窗口、稀疏、线性与混合注意力</a><a href="11-moe.html"><span class="n">11</span>MoE：专家路由与批内权重复用</a><a href="12-network-shape.html"><span class="n">12</span>网络形状：深宽、专家粒度、残差与多 token 预测</a><a href="13-model-comparison.html"><span class="n">13</span>整个模型的资源需求与比较：存多少、算多少、能放几条请求</a><a href="14-workload-arrival.html"><span class="n">14</span>从单次请求到持续到达的负载：什么时候来，比来多少更要紧</a><a href="15-agent-tasks.html"><span class="n">15</span>多轮交互与 Agent 任务：前缀、成功成本、关键路径</a><a href="16-multimodal-realtime.html"><span class="n">16</span>多模态与实时交互：数据换形状，时间有死线（略讲）</a><a href="17-training-rl.html"><span class="n">17</span>训练与强化学习的计算和状态：为什么训练要 6ND、要存 18 字节</a><a href="18-scaling-lifecycle.html"><span class="n">18</span>Scaling law 与全生命周期成本：训练多大、训练多久、服务多少次</a><a href="19-accelerator-basics.html"><span class="n">19</span>从矩阵乘法认识加速器：算多少、搬多少、耗多少电</a><a href="20-compute-units.html"><span class="n">20</span>计算单元：矩阵、向量、流水与低精度</a><a href="21-memory-movement.html"><span class="n">21</span>存储层次与数据搬移：放得下、取得到、来得及</a><a href="22-package-interconnect.html"><span class="n">22</span>多芯片封装与互联：计算放在哪，数据走哪条路</a><a href="23-architecture-evolution.html"><span class="n">23</span>架构演进与专用架构：每一代新增的东西，省掉了哪一笔</a><a href="24-choose-accelerator.html"><span class="n">24</span>根据架构选择加速器：先估下界，再找差距，最后算账</a><a href="25-submit-sync.html"><span class="n">25</span>提交、搬移与同步：从调用返回到结果可用</a><a href="26-tiling-layout.html"><span class="n">26</span>单个算子：分块、布局与切分</a><a href="27-fusion-flash.html"><span class="n">27</span>算子融合与 FlashAttention：中间结果不落地</a><a href="28-compiler.html"><span class="n">28</span>编译器：表达、变换与选择</a><a href="29-runtime.html"><span class="n">29</span>运行时：重叠、CUDA Graph、动态形状与 persistent kernel</a><a href="30-request-view.html"><span class="n">30</span>从局部优化到完整请求</a><a href="31-multi-gpu.html"><span class="n">31</span>从单卡到多卡：放得下、算得快、接得多</a><a href="32-dp-tp-sp.html"><span class="n">32</span>数据、张量、序列并行：复制模型、切矩阵、切激活</a><a href="33-cp-pp-ep.html"><span class="n">33</span>上下文、流水线、专家并行：切位置、切层、切专家</a><a href="34-combined-parallel.html"><span class="n">34</span>组合并行与模型规模：坐标、复用与最忙的那一组</a><a href="35-collectives.html"><span class="n">35</span>集合通信的实现与代价：环、树、通信库和资源竞争</a><a href="36-topology-pool.html"><span class="n">36</span>超节点的物理组织与内存池：数据走哪条线、借谁的内存</a><a href="37-scale-choice.html"><span class="n">37</span>从并行方案到超节点规模：按期限、成本和故障挑方案</a><a href="38-cluster.html"><span class="n">38</span>从超节点走向集群：出口、割集与 Clos 网络</a><a href="39-cross-node.html"><span class="n">39</span>跨节点流量与物理路径：同样的字节，走哪几张网卡</a><a href="40-remote-access.html"><span class="n">40</span>远程访问的路径与并发：一次读多久、同时能读几个</a><a href="41-handoff-state.html"><span class="n">41</span>数据交接、顺序与状态管理：什么时候能读、能覆盖、能释放</a><a href="42-congestion.html"><span class="n">42</span>共享网络中的拥塞与可靠性：高峰、反馈、多路径、死锁</a><a href="43-task-completion.html"><span class="n">43</span>从通信改进到任务完成：先看谁晚到，再看能藏多少</a><a href="44-inference-request.html"><span class="n">44</span>推理请求的执行过程与资源需求：一条请求的时间线和账本</a><a href="45-batching.html"><span class="n">45</span>批处理与请求调度：多读一次权重做更多事，但别让别人等太久</a><a href="46-kv-cache.html"><span class="n">46</span>KV 缓存的分配、复用与释放：分页、共享、留不留</a><a href="47-compress-offload.html"><span class="n">47</span>压缩与卸载：少存字节、轮流驻留，各付什么代价</a><a href="48-speculative.html" class="cur"><span class="n">48</span>推测解码：一次验证，确定好几个 token</a><a href="49-serving-choice.html"><span class="n">49</span>请求负载下的性能与配置选择：数正确且按时的答案</a><a href="appendix-glossary.html">附录 · 缩写与术语表</a><a href="appendix-tp-pp-cp.html">附录 · 补充资料：TP、PP、CP，一个模型沿三个方向切给多张卡</a></nav><main>
+<h1 id="48-token">第 48 章 · 推测解码：一次验证，确定好几个 token</h1><div class="run"><a class="btn" href="../animations/48-speculative.html">▶ 打开本章可交互动画</a><a class="btn" href="https://colab.research.google.com/github/wikieden/ai-infra-from-constraints/blob/main/code/notebooks/ch48_speculative.ipynb" target="_blank" rel="noopener">在 Colab 运行本章代码</a><a class="btn" href="../code/notebooks/ch48_speculative.ipynb" download>下载 notebook</a><details><summary>本地运行</summary><pre><code>git clone https://github.com/wikieden/ai-infra-from-constraints
+cd ai-infra-from-constraints/code/notebooks
+pip install jupyterlab torch numpy
+jupyter lab ch48_speculative.ipynb</code></pre><p>也可以下载后直接用 VS Code 打开 .ipynb 运行。需要 GPU 的章节在 Colab 里选「代码执行程序 → 更改运行时类型 → GPU」。</p></details></div>
+<blockquote>
+<p>本章回答：先猜几个 token 再让大模型验证，为什么输出分布还和原来一模一样？猜得大多不对，为什么也能加速？草稿怎么来，串行和并行生成差在哪？草稿该多长，越长越好吗？<br />
+讲解日期：2026-11-24 · 上一章：<a href="../lessons/47-compress-offload.html">第 47 章 压缩与卸载</a> · 下一章：<a href="../lessons/49-serving-choice.html">第 49 章 请求负载下的性能与配置选择</a><br />
+对应原文：<code>materials/ai-infra-book/manuscripts/08-推理优化.md</code> §8.5 L500–L593（图 8-29 到 8-32）<br />
+本章缩写：EAGLE = 用目标模型中间特征预测草稿的方法 · DFlash = 一次前向并行生成整段草稿的草稿网络 · MTP = Multi-Token Prediction（多 / token / 预测）· K7 / K15 = 每轮 7 / 15 个草稿 token。全部缩写见 <a href="../lessons/appendix-glossary.html">缩写与术语表</a></p>
+</blockquote>
+<h2 id="_1">讲解</h2>
+<h3 id="2026-11-24">第一步：草稿、验证、回退（2026-11-24）</h3>
+<p><strong>类比：老师批改学生的草稿。</strong> 学生先写四个词，老师一次看完：前两个对，第三个错，就改成老师的词，第四个是接着错词写的，整个划掉。这一轮至少能定下一个词，最多能定下五个。</p>
+<p>原文 L504–L532：<strong>贪心生成</strong>：草稿 a b c d，目标模型在第三处选了 x：保留 a、b，第三处输出 x，d 丢弃；下一轮从 a b x 继续。四个全对时还能再多生成一个。</p>
+<p><strong>随机采样保持分布</strong>：目标分布 <span class="arithmatex">\(p\)</span>，草稿分布 <span class="arithmatex">\(q\)</span>，从 <span class="arithmatex">\(q\)</span> 采到 <span class="arithmatex">\(x\)</span> 后按</p>
+<div class="arithmatex">\[\alpha(x) = \min\left(1, \frac{p(x)}{q(x)}\right)\]</div>
+<p>接受；拒绝则从 <span class="arithmatex">\([p(x) - q(x)]_+\)</span> 归一化后的分布重采。直接接受的概率 <span class="arithmatex">\(q(x)\alpha(x) = \min(p(x), q(x))\)</span>，加上拒绝后补的 <span class="arithmatex">\([p - q]_+\)</span>，正好是 <span class="arithmatex">\(p(x)\)</span>。</p>
+<p><strong>两符号例子</strong>：<span class="arithmatex">\(p(A) = 1/4\)</span>，<span class="arithmatex">\(p(B) = 3/4\)</span>。草稿总是 A：1/4 接受 A，其余改成 B；草稿总是 B：3/4 接受 B，其余改成 A。<strong>两种都得到目标分布，接受率不同，效率不同。</strong></p>
+<p><img alt="草稿第三个 token 不匹配：保留两个、修正一个、丢弃其后" src="../figures/48-speculative-verify.png" /></p>
+<p><em>图 48-1 · 验证后 KV 有效长度、块表、采样器和语法检查器都回到确定的位置。</em></p>
+<p><strong>一句话</strong>：按 <span class="arithmatex">\(\min(1, p/q)\)</span> 接受、拒绝后从剩余差额重采，输出分布和目标模型完全一样；加速只看接受了多少。</p>
+<h3 id="2026-11-24_1">第二步：每轮多久、出几个（2026-11-24）</h3>
+<p><strong>类比：一趟车送几个包裹。</strong> 车开一趟的时间几乎固定，能多带几件就摊得更薄；平均每件的时间要用总时间除以总件数，不能把每趟的平均再平均。</p>
+<p>原文 L536–L558：</p>
+<div class="arithmatex">\[\bar t_{\mathrm{spec}} = \frac{\sum_r T_r}{\sum_r N_r}, \qquad \mathbb{E}[N] = 1 + a + a^2 + a^3 + a^4\ (\text{4 个草稿})\]</div>
+<p>（两轮各 1.5 ms、各出 1 和 5 个：0.5 ms/token，不是 0.9。）RTX PRO 6000、batch 1、2K：验证 5 个位置的读取和普通 decode 一样，多出的 4 行矩阵只要约 0.2 ms，所以一轮仍按 26.26 ms + 查草稿 0.1 ms：</p>
+<table>
+<thead>
+<tr>
+<th>草稿</th>
+<th style="text-align: right;">接受率 <span class="arithmatex">\(a\)</span></th>
+<th style="text-align: right;">每轮期望输出</th>
+<th style="text-align: right;">每 token</th>
+<th style="text-align: right;">查询开销上限</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AAAA</td>
+<td style="text-align: right;">1/4</td>
+<td style="text-align: right;">1.33</td>
+<td style="text-align: right;">19.8 ms</td>
+<td style="text-align: right;">8.7 ms</td>
+</tr>
+<tr>
+<td>BBBB</td>
+<td style="text-align: right;">3/4</td>
+<td style="text-align: right;">3.05</td>
+<td style="text-align: right;">8.64 ms</td>
+<td style="text-align: right;">53.9 ms</td>
+</tr>
+<tr>
+<td>普通 decode</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">26.26 ms</td>
+<td style="text-align: right;">—</td>
+</tr>
+</tbody>
+</table>
+<p><img alt="草稿查询时间与每 token 耗时的交点" src="../figures/48-speculative-cost.png" /></p>
+<p><em>图 48-2 · 验证几乎不加时间，每轮至少得到一个 token，所以接受率低的 AAAA 也能加速。</em></p>
+<p><strong>准备工作也要算</strong>：建上下文索引 2 s，BBBB 每 token 省约 17.6 ms，约 114 个 token 回本；256 个 token 从 6.72 s 降到约 4.2 s。</p>
+<p><strong>一句话</strong>：验证一轮的时间几乎和普通 decode 一样；只要查草稿的时间小于多出的输出 × 26 ms，就划算。</p>
+<h3 id="2026-11-24_2">第三步：草稿从哪来，串行还是并行（2026-11-24）</h3>
+<p><strong>类比：抄答案的来源。</strong> 从课本里找原句最快但不一定有；请一个小助手逐字写要等；请一个小助手一口气写完一段最快，但可能写得不准。</p>
+<p>原文 L562–L568：上下文查找（匹配和索引）、独立小模型（自带权重和 KV）、EAGLE（用目标模型中间特征）、DFlash（并行生成整段）、MTP（模型自带的多 token 头）。DFlash 草稿网络 2.10 GB，按 batch 1 有效带宽 588 GB/s 一次前向 3.57 ms：</p>
+<table>
+<thead>
+<tr>
+<th>每轮 4 个草稿，验证 26.26 ms</th>
+<th style="text-align: right;">每轮出 3 个</th>
+<th style="text-align: right;">每轮出 2 个</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>串行逐个生成（4 × 3.57 ms）</td>
+<td style="text-align: right;">13.5 ms/token</td>
+<td style="text-align: right;"></td>
+</tr>
+<tr>
+<td>并行一次生成（3.57 ms）</td>
+<td style="text-align: right;">9.9 ms/token</td>
+<td style="text-align: right;">14.9 ms/token（反而更慢）</td>
+</tr>
+</tbody>
+</table>
+<p>更快的草稿生成省了 10.7 ms，但接受率一低、每轮输出少了，每 token 分摊的时间就上去了。</p>
+<p><strong>场景代码</strong>：vLLM 打开从提示中查找草稿的 n-gram 推测（真实 API）：</p>
+<pre><code class="language-python">from vllm import LLM
+
+llm = LLM(model=&quot;Qwen/Qwen3-8B&quot;,
+          speculative_config={&quot;method&quot;: &quot;ngram&quot;, &quot;num_speculative_tokens&quot;: 4,
+                              &quot;prompt_lookup_max&quot;: 4})   # 从上下文里找重复片段当草稿
+</code></pre>
+<p><strong>一句话</strong>：草稿来源决定准备时间、显存和接受率；生成快但接受率低，可能比慢而准的更慢。</p>
+<h3 id="2026-11-24_3">第四步：草稿多长：边际条件（2026-11-24）</h3>
+<p><strong>类比：一次多猜几个字。</strong> 第一个字猜对才有资格猜第二个；越往后猜对的概率连乘越小，多猜一个字带来的期望收益越少。</p>
+<p>原文 L572–L590：</p>
+<div class="arithmatex">\[\mathbb{E}[N_m] = 1 + \sum_{j=1}^{m}\prod_{i=1}^{j}a_i, \qquad \text{加长划算} \iff \frac{\Delta T}{\Delta N} &lt; \frac{T}{N}\]</div>
+<p>为新增输出付的平均时间要低于原来的每 token 耗时。<span class="arithmatex">\(a = 3/4\)</span>、每个草稿 token 3.6 ms（<span class="arithmatex">\(T = 26.3 + 3.6m\)</span>）：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;"><span class="arithmatex">\(m\)</span></th>
+<th style="text-align: right;"><span class="arithmatex">\(\mathbb{E}[N]\)</span></th>
+<th style="text-align: right;">ms/token</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1.75</td>
+<td style="text-align: right;">17.1</td>
+</tr>
+<tr>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">2.31</td>
+<td style="text-align: right;">14.5</td>
+</tr>
+<tr>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">3.05</td>
+<td style="text-align: right;">13.3</td>
+</tr>
+<tr>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">3.70</td>
+<td style="text-align: right;">14.9</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>执行形状</strong>：验证 4–5 个都补到 8 行，增加一个几乎不加时间；8 → 9 个要换 16 行的图，时间突增。</li>
+<li><strong>并发</strong>：低负载时多行验证用的是闲置算力；高负载时普通批处理已经把权重摊薄，草稿和验证还要抢加速器和内存。</li>
+<li><strong>实测</strong>（DFlash 短提取、并发 1）：普通 90.0 ms、K7 30.6 ms、K15 29.4 ms；从 K7 到 K15 只再省 1.2 ms，有的轮两者都只接受 1 个，K15 白丢 14 个。</li>
+</ul>
+<p><strong>一句话</strong>：越靠后的草稿 token 存活概率越低；按 <span class="arithmatex">\(\Delta T/\Delta N &lt; T/N\)</span> 动态调长度，还要看执行形状和并发。</p>
+<h2 id="_2">动画演示：接受率与草稿长度</h2>
+<p><img alt="推测解码每 token 耗时" src="../animations/48-speculative.gif" /></p>
+<p>可交互版：<a href="../animations/48-speculative.html">animations/48-speculative.html</a>（滑块：接受率 0–1；草稿长度 1–16；每个草稿 token 的生成时间 0–6 ms）。</p>
+<p><strong>怎么看</strong>：</p>
+<ol>
+<li>一排格子是草稿 token，每个格子的深浅是它"活到被接受"的概率 <span class="arithmatex">\(a^j\)</span>（第四步）；</li>
+<li>中间显示每轮期望输出 <span class="arithmatex">\(\mathbb{E}[N]\)</span> 和一轮时间 <span class="arithmatex">\(26.3 + t_d m\)</span>；</li>
+<li>右边一根条是每 token 耗时，和普通 decode 26.26 ms 比；</li>
+<li>播放：<span class="arithmatex">\(a\)</span> = 3/4 时 <span class="arithmatex">\(m\)</span> = 1 → 4 → 8（变慢），再把 <span class="arithmatex">\(a\)</span> 拉到 0.9。</li>
+</ol>
+<h2 id="_3">练习与作答记录</h2>
+<p><strong>题 1</strong>（第一步）：<span class="arithmatex">\(p(A) = 0.6\)</span>、<span class="arithmatex">\(p(B) = 0.4\)</span>，草稿分布 <span class="arithmatex">\(q(A) = 0.9\)</span>、<span class="arithmatex">\(q(B) = 0.1\)</span>。采到 A 时接受概率是多少？拒绝后从什么分布重采？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p><strong>题 2</strong>（第二步）：接受率 <span class="arithmatex">\(a = 0.62\)</span>，每轮 3 个草稿。<span class="arithmatex">\(\mathbb{E}[N]\)</span> 是多少？一轮 30 ms（含查询）时每 token 多少 ms？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p><strong>题 3</strong>（第四步）：<span class="arithmatex">\(a = 0.8\)</span>、每个草稿 token 2 ms、验证 25 ms。<span class="arithmatex">\(m = 3\)</span> 和 <span class="arithmatex">\(m = 6\)</span> 的每 token 耗时各多少？从 3 加到 6 划算吗？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p>原书练习 8-7（L592）。想多练可以做。</p>
+<h2 id="_4">口诀</h2>
+<blockquote>
+<p>学生写草稿老师一次改，错处后面全划掉，至少定一个；<br />
+按 p 比 q 接受，拒了从差额重抽，分布不走样；<br />
+一趟车多带几件，平均要总时间除总件数；<br />
+猜得越远越难活，多猜一个要比原来便宜才猜。</p>
+</blockquote>
+<h2 id="_5">本章复习卡片</h2>
+<p><a href="../review.html">I166</a>（贪心验证的保留 / 修正 / 丢弃；<span class="arithmatex">\(\min(1, p/q)\)</span> 与 <span class="arithmatex">\([p - q]_+\)</span> 保持分布）、<a href="../review.html">I167</a>（<span class="arithmatex">\(\mathbb{E}[N] = 1 + a + \cdots + a^4\)</span>：1.33 / 3.05；19.8 / 8.64 ms；查询上限 8.7 / 53.9 ms）、<a href="../review.html">I168</a>（串行 vs 并行草稿 13.5 / 9.9 / 14.9 ms；边际条件 <span class="arithmatex">\(\Delta T/\Delta N &lt; T/N\)</span>）。练习做完后，按答错、卡住的地方再补。</p>
+<h2 id="_6">附录 · 延伸阅读</h2>
+<blockquote>
+<p>留给以后深入学习用，不影响本章主线。★ 是建议先读的。</p>
+</blockquote>
+<h3 id="_7">推荐阅读</h3>
+<table>
+<thead>
+<tr>
+<th>读什么</th>
+<th>读哪里</th>
+<th>读它为了什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>★ AII 第 8 章</td>
+<td>§8.5 L500–L593</td>
+<td>本章原文</td>
+</tr>
+<tr>
+<td>★ Leviathan 等，Fast Inference from Transformers via Speculative Decoding（ICML 2023）</td>
+<td>定理 1</td>
+<td>接受规则保持分布的证明</td>
+</tr>
+<tr>
+<td>Chen 等，Accelerating LLM Decoding with Speculative Sampling（2023）</td>
+<td>算法</td>
+<td>同一规则的另一写法</td>
+</tr>
+<tr>
+<td>Li 等，EAGLE（2024）</td>
+<td>方法</td>
+<td>特征级草稿</td>
+</tr>
+<tr>
+<td>DeepSeek-V3 技术报告</td>
+<td>MTP</td>
+<td>模型自带多 token 头</td>
+</tr>
+<tr>
+<td><a href="../lessons/26-tiling-layout.html">第 26 章 单个算子</a></td>
+<td>执行形状</td>
+<td>补齐的代价</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_8">数学原理</h3>
+<ul>
+<li><strong>拒绝采样</strong>：<span class="arithmatex">\(q\alpha + (1 - \sum q\alpha)\cdot \frac{[p - q]_+}{\sum [p - q]_+} = p\)</span>。</li>
+<li><strong>几何级数</strong>：<span class="arithmatex">\(\mathbb{E}[N] = \sum_{j=0}^{m} a^j = (1 - a^{m+1})/(1 - a)\)</span>。</li>
+<li><strong>比值平均</strong>：总量之比，不是比值之平均。</li>
+</ul>
+<h3 id="_9">公式清单</h3>
+<table>
+<thead>
+<tr>
+<th>公式</th>
+<th>意思</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\(\alpha(x) = \min(1, p(x)/q(x))\)</span></td>
+<td>接受概率</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\bar t = \sum T_r / \sum N_r\)</span></td>
+<td>每 token 平均耗时</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\mathbb{E}[N_m] = 1 + \sum_{j=1}^{m}\prod_{i \le j} a_i\)</span></td>
+<td>每轮期望输出</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\Delta T/\Delta N &lt; T/N\)</span></td>
+<td>加长草稿的条件</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_10">代码对照：把本章的数字用代码算一遍</h3>
+<blockquote>
+<p>代码 <code>ai-infra/solutions/chapter-code/ch48_speculative.py</code>，测试 <code>tests/test_ch48.py</code>：</p>
+<p><code>bash  
+cd ai-infra/solutions/chapter-code  
+uv run python ch48_speculative.py  
+uv run pytest tests/test_ch48.py</code></p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>讲义</th>
+<th>写法</th>
+<th>跑出来</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第一步</td>
+<td><code>speculative_sample(p, q, rng)</code></td>
+<td>两种草稿采样都得 P(A) ≈ 0.25</td>
+</tr>
+<tr>
+<td>第二步</td>
+<td><code>expected_tokens(a)</code>、<code>per_token_ms</code></td>
+<td>1.33 / 3.05；19.8 / 8.64 ms</td>
+</tr>
+<tr>
+<td>第四步</td>
+<td><code>expected_tokens(0.75, m)</code></td>
+<td>1.75 / 2.31 / 3.05 / 3.70</td>
+</tr>
+</tbody>
+</table>
+<p><strong>代码里才看得到的 3 件事</strong>：</p>
+<ol>
+<li>测试用三种草稿分布（全 A、全 B、各半）各采 4 万次，都和目标的 0.25 相差不到 0.01。</li>
+<li>256 个 token 的总时间代码得 4.21 s，原文 4.22 s：每 token 8.64 的末位舍入。</li>
+<li>并行草稿那行只换了草稿生成时间，验证的 26.26 ms 不变。</li>
+</ol>
+<p><strong>自己改一改</strong>（不影响练习答案）：</p>
+<ul>
+<li>让 <code>expected_tokens</code> 接受逐位置不同的 <span class="arithmatex">\(a_i\)</span>（比如 0.9、0.8、0.6、0.4），找最优长度。</li>
+<li>给每 token 耗时加"补齐到 8 行"的形状规则，复现 4 vs 5 的比较。</li>
+<li>模拟 batch 16 时验证一轮变成 27.35 ms、草稿占显存 3 GiB，算还值不值。</li>
+</ul><nav class="pager"><a href="47-compress-offload.html">← 第 47 章 · 压缩与卸载：少存字节、轮流驻留，各付什么代价</a><a href="49-serving-choice.html">第 49 章 · 请求负载下的性能与配置选择：数正确且按时的答案 →</a></nav>
+</main></div>
+<footer>来自个人学习仓库的对话讲义，含练习作答记录。源码：<a href="https://github.com/wikieden/ai-infra-from-constraints">github.com/wikieden/ai-infra-from-constraints</a>。更多讲义书：<a href="https://wikieden.github.io/ai-books/">Physical AI 0-1-♾️（合集）</a></footer>
+<script>(function(){var d=document.documentElement,K=["s","m","l","xl"];
+function save(k,v){try{v?localStorage.setItem(k,v):localStorage.removeItem(k)}catch(e){}}
+var s=document.getElementById("ab-theme");if(s){s.value=d.dataset.theme||"";s.onchange=function(){if(s.value)d.dataset.theme=s.value;else delete d.dataset.theme;save("ab-theme",s.value)}}
+document.querySelectorAll("[data-fs-step]").forEach(function(b){b.onclick=function(){var i=K.indexOf(d.dataset.fs||"m")+(+b.dataset.fsStep);i=Math.max(0,Math.min(K.length-1,i));d.dataset.fs=K[i];save("ab-fs",K[i])}});
+var nb=document.getElementById("nav-toggle"),side=document.querySelector("nav.side");if(nb&&side){nb.onclick=function(){side.classList.toggle("open")}}
+var cur=side&&side.querySelector(".cur");if(cur)cur.scrollIntoView({block:"center"});
+})();</script>
+</body></html>

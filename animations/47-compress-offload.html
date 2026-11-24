@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>权重卸载的每轮搬移</title><link rel="stylesheet" href="anim.css">
+<style>svg text.cap{font-size:15px;font-weight:500}svg text.num{font-size:16px;font-weight:600}</style></head>
+<body><main>
+<h1>第 47 章 · 卸载和压缩的账</h1>
+<p class="sub">配套讲义：<a href="../lessons/47-compress-offload.html">第 47 章 · 压缩与卸载：少存字节、轮流驻留，各付什么代价</a>。Qwen3-8B 每层 FFN 288 MiB；卸载的层每轮都要搬回；一轮 decode 26.26 ms，255 轮须在 7 s 内。</p>
+<div class="panel"><svg id="sv" viewBox="0 0 680 360"></svg></div>
+<div class="row"><button id="play">▶ 播放</button><button id="step">→ 单步</button><button id="reset">↺ 从头开始</button></div>
+<div class="row"><label for="l">卸载层数</label><input type="range" id="l" min="0" max="36" step="1" value="9"><span id="lv">9</span><label for="b">链路</label><select id="b"><option value="64">PCIe Gen5 64 GB/s</option><option value="32">PCIe Gen4 32 GB/s</option><option value="450">NVLink-C2C 450 GB/s</option></select><label><input type="checkbox" id="d"> 两组预取缓冲</label></div>
+<p class="note">看点：① 左边是腾出的显存（卸载量 − 预取缓冲）；② 中间是每轮搬移，和 26.26 ms 比；③ 右边是 255 轮累计，和 7 s 比；④ 播放 PCIe Gen5 卸 9 层 → 4 层 → NVLink-C2C 9 层。</p>
+</main>
+<script src="anim.js"></script>
+<script>
+const sv=$('sv');
+function R(x,y,w,h,col,op){return el('rect',{x,y,width:Math.max(w,1),height:h,rx:4,fill:col,opacity:op??.7},sv)}
+function T(s,x,y,a,c){return txt(s,{x,y,'text-anchor':a||'start',class:c||'m'},sv)}
+function cap(s){T(s,340,26,'middle','cap')}
+const GET=ids=>ids.map(i=>{const e=$(i);return e.type==='checkbox'?+e.checked:+e.value});
+function SET(ids,v){ids.forEach((i,k)=>{const e=$(i);if(e.type==='checkbox')e.checked=!!v[k];else e.value=v[k];const o=$(i+'v');if(o)o.textContent=(+v[k]).toString()})}
+const IDS=['l','b','d'],F=[[9,64,0],[4,64,0],[9,450,0]];
+function render(l,b,d){const freed=l*288,net=Math.max(0,freed-(l?(d?2:1)*288:0)),t=freed*2**20/(b*1e9)*1e3,tot=255*t/1e3;
+ cap(`卸 ${l} 层、${b} GB/s：每轮 ${t.toFixed(1)} ms，255 轮 ${tot.toFixed(2)} s`);
+ T('净腾出',60,80);R(60,90,net/10368*180,30,'var(--good)');T(`${net} MiB（多放 ${Math.floor(net/1188)} 条完整长请求）`,60,140);
+ const sc=v=>Math.min(v,80)/80*300;T('每轮搬移',330,80);R(330,90,sc(t),30,t>26.26?'var(--bad)':'var(--accent)');el('line',{x1:330+sc(26.26),y1:85,x2:330+sc(26.26),y2:125,stroke:'var(--text)','stroke-dasharray':'4 3'},sv);T('一轮 decode',330+sc(26.26),140,'middle');
+ T(`255 轮 ${tot.toFixed(2)} s ${tot>7?'> 7 s 时限':'≤ 7 s'}`,340,240,'middle','num')}
+let k=0,custom=null;
+function draw(){clear(sv);const v=custom||F[k];SET(IDS,v);render(...v)}
+function reset(){k=0;custom=null;draw()}
+function next(){if(custom!==null){custom=null;draw();return true}if(k>=F.length-1)return false;k++;draw();return true}
+IDS.forEach(i=>{const e=$(i);const f=()=>{ANIM.stop();custom=GET(IDS);draw()};e.oninput=f;e.onchange=f});
+setupPlayer({captureSeed:1,reset,next},1500);
+</script><a href="https://wikieden.github.io/ai-books/" style="position:fixed;right:12px;bottom:12px;z-index:99;padding:4px 10px;border-radius:14px;background:rgba(127,127,127,.18);color:inherit;font:13px/1.6 system-ui,sans-serif;text-decoration:none">← 全部讲义书</a>
+</body></html>

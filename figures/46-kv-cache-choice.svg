@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="780" height="240" viewBox="0 0 780 240">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="16.0" y="26.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="17" fill="#1f2937" text-anchor="start" font-weight="bold">同样 864 MiB：留一个大前缀 132.7 ms vs 三个小前缀 120.9 ms</text>
+<text x="16.0" y="230.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">命中率都是 50%，RTX PRO 6000 重算、PCIe Gen5 取回。每 MiB：A 0.154 ms、B 0.140 ms。</text>
+<rect x="140.0" y="70.0" width="600.0" height="40.0" rx="4" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.4" opacity="1"/>
+<text x="440.0" y="96.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#7c3aed" text-anchor="middle" font-weight="bold">A：6144 token · 864 MiB · 净省 132.7 ms</text>
+<rect x="140.0" y="140.0" width="196.0" height="40.0" rx="4" fill="#ccfbf1" stroke="#0d9488" stroke-width="1.4" opacity="1"/>
+<text x="238.0" y="166.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#0d9488" text-anchor="middle" font-weight="bold">B · 288 MiB · 40.3 ms</text>
+<rect x="340.0" y="140.0" width="196.0" height="40.0" rx="4" fill="#ccfbf1" stroke="#0d9488" stroke-width="1.4" opacity="1"/>
+<text x="438.0" y="166.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#0d9488" text-anchor="middle" font-weight="bold">B · 288 MiB · 40.3 ms</text>
+<rect x="540.0" y="140.0" width="196.0" height="40.0" rx="4" fill="#ccfbf1" stroke="#0d9488" stroke-width="1.4" opacity="1"/>
+<text x="638.0" y="166.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#0d9488" text-anchor="middle" font-weight="bold">B · 288 MiB · 40.3 ms</text>
+</svg>

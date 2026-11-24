@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>部署方案与期限</title><link rel="stylesheet" href="anim.css">
+<style>svg text.cap{font-size:15px;font-weight:500}svg text.num{font-size:16px;font-weight:600}</style></head>
+<body><main>
+<h1>第 37 章 · 期限、实例大小与一次故障</h1>
+<p class="sub">配套讲义：<a href="../lessons/37-scale-choice.html">第 37 章 · 从并行方案到超节点规模：按期限、成本和故障挑方案</a>。八张 H100、四个 128K 会话各续写 8 个 token；单会话 TP2 119.1、TP4 63.8、TP8 41.2 ms。故障：20 ms 时卡 0 失效，所在实例停到 60 ms 后从头重做。</p>
+<div class="panel"><svg id="sv" viewBox="0 0 680 360"></svg></div>
+<div class="row"><button id="play">▶ 播放</button><button id="step">→ 单步</button><button id="reset">↺ 从头开始</button></div>
+<div class="row"><label for="p">每实例卡数</label><select id="p"><option value="2">TP2</option><option value="4">TP4</option><option value="8">TP8</option></select><label for="d">期限（ms）</label><input type="range" id="d" min="40" max="200" step="5" value="130"><span id="dv">130</span><label><input type="checkbox" id="f"> 卡 0 故障</label></div>
+<p class="note">看点：① 每条轨道是一个实例，色块是一个会话的 8 步；② 竖线是期限，按时的打勾；③ 右边是占用 GPU·s 和每个按时会话的成本；④ 播放 TP2 → TP4 → TP8 → TP2 故障 → TP8 故障。</p>
+</main>
+<script src="anim.js"></script>
+<script>
+const sv=$('sv');
+function R(x,y,w,h,col,op){return el('rect',{x,y,width:Math.max(w,1),height:h,rx:4,fill:col,opacity:op??.7},sv)}
+function T(s,x,y,a,c){return txt(s,{x,y,'text-anchor':a||'start',class:c||'m'},sv)}
+function cap(s){T(s,340,26,'middle','cap')}
+const GET=ids=>ids.map(i=>{const e=$(i);return e.type==='checkbox'?+e.checked:+e.value});
+function SET(ids,v){ids.forEach((i,k)=>{const e=$(i);if(e.type==='checkbox')e.checked=!!v[k];else e.value=v[k];const o=$(i+'v');if(o)o.textContent=(+v[k]).toString()})}
+const IDS=['p','d','f'],F=[[2,130,0],[4,130,0],[8,130,0],[2,130,1],[8,130,1]];const TS={2:119.1,4:63.8,8:41.2},C=['var(--accent)','var(--good)','var(--warm)','var(--purple)'];
+function render(p,d,f){const t=TS[p],inst=8/p,per=4/inst,sc=2.4;const fin=[];
+ cap(`${inst} 个 TP${p}${f?'，卡 0 故障':''}`);
+ for(let i=0;i<inst;i++){let start=f&&i===0?60:0;for(let j=0;j<per;j++){const s=i+j*inst,a=start+j*t,b=a+t;fin[s]=b;R(70+a*sc,60+i*36,t*sc-2,26,C[s]);T(b<=d?'✓':'✗',72+b*sc,78+i*36)}
+  if(f&&i===0)R(70+20*sc,60,40*sc,26,'var(--bad)',.35)}
+ const x=70+d*sc;el('line',{x1:x,y1:50,x2:x,y2:60+inst*36,stroke:'var(--bad)','stroke-dasharray':'5 4'},sv);T(`${d} ms`,x,52+inst*36+18,'middle');
+ const occ=8*Math.max(...fin)/1e3,n=fin.filter(v=>v<=d).length;T(`占用 ${occ.toFixed(3)} GPU·s　按时 ${n} / 4　每个按时会话 ${n?(occ/n).toFixed(3):'—'} GPU·s`,340,330,'middle','num')}
+let k=0,custom=null;
+function draw(){clear(sv);const v=custom||F[k];SET(IDS,v);render(...v)}
+function reset(){k=0;custom=null;draw()}
+function next(){if(custom!==null){custom=null;draw();return true}if(k>=F.length-1)return false;k++;draw();return true}
+IDS.forEach(i=>{const e=$(i);const f=()=>{ANIM.stop();custom=GET(IDS);draw()};e.oninput=f;e.onchange=f});
+setupPlayer({captureSeed:1,reset,next},1500);
+</script><a href="https://wikieden.github.io/ai-books/" style="position:fixed;right:12px;bottom:12px;z-index:99;padding:4px 10px;border-radius:14px;background:rgba(127,127,127,.18);color:inherit;font:13px/1.6 system-ui,sans-serif;text-decoration:none">← 全部讲义书</a>
+</body></html>

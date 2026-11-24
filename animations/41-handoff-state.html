@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>请求槽位的占用与释放</title><link rel="stylesheet" href="anim.css">
+<style>svg text.cap{font-size:15px;font-weight:500}svg text.num{font-size:16px;font-weight:600}</style></head>
+<body><main>
+<h1>第 41 章 · 槽位、传输与完成通知</h1>
+<p class="sub">配套讲义：<a href="../lessons/41-handoff-state.html">第 41 章 · 数据交接、顺序与状态管理：什么时候能读、能覆盖、能释放</a>。16 次操作，每 1 μs 最多提交一次，提交后 5 μs 完成；软件每 20 μs 处理一批完成通知并释放槽位。</p>
+<div class="panel"><svg id="sv" viewBox="0 0 680 360"></svg></div>
+<div class="row"><button id="play">▶ 播放</button><button id="step">→ 单步</button><button id="reset">↺ 从头开始</button></div>
+<div class="row"><label for="s">槽位数</label><input type="range" id="s" min="4" max="16" step="1" value="8"><span id="sv">8</span><label for="b">每批处理的完成通知</label><input type="range" id="b" min="2" max="16" step="1" value="4"><span id="bv">4</span></div>
+<p class="note">看点：① 16 行是 16 次操作：蓝 = 提交到完成，橙 = 等完成通知被处理；② 竖线是每 20 μs 一批；③ 右边是全部传完和全部释放的时刻；④ 播放 8 槽 → 16 槽 → 每批 8 条。</p>
+</main>
+<script src="anim.js"></script>
+<script>
+const sv=$('sv');
+function R(x,y,w,h,col,op){return el('rect',{x,y,width:Math.max(w,1),height:h,rx:4,fill:col,opacity:op??.7},sv)}
+function T(s,x,y,a,c){return txt(s,{x,y,'text-anchor':a||'start',class:c||'m'},sv)}
+function cap(s){T(s,340,26,'middle','cap')}
+const GET=ids=>ids.map(i=>{const e=$(i);return e.type==='checkbox'?+e.checked:+e.value});
+function SET(ids,v){ids.forEach((i,k)=>{const e=$(i);if(e.type==='checkbox')e.checked=!!v[k];else e.value=v[k];const o=$(i+'v');if(o)o.textContent=(+v[k]).toString()})}
+const IDS=['s','b'],F=[[8,4],[16,4],[16,8]];
+function sim(slots,batch){let t=0,free=slots,sub=[],rel=[],released=0,k=1;
+ function tick(){const done=sub.map((s,i)=>[s+5,i]).filter(([d,i])=>rel[i]===undefined).sort((a,b)=>a[0]-b[0]);const T=20*k++;let n=0;for(const [d,i] of done){if(d<=T&&n<batch){rel[i]=T;n++}}released+=n;free+=n;return T}
+ while(sub.length<16){while(free===0){t=Math.max(t,tick())}sub.push(t);free--;t+=1}
+ while(released<16)tick();return {sub,rel}}
+function render(s,b){const {sub,rel}=sim(s,b),sc=6.5,done=Math.max(...sub)+5,fr=Math.max(...rel);
+ cap(`${s} 个槽位、每批 ${b} 条：传完 ${done} μs，释放完 ${fr} μs`);
+ for(let i=0;i<16;i++){const y=48+i*16;R(40+sub[i]*sc,y,5*sc,12,'var(--accent)');R(40+(sub[i]+5)*sc,y,(rel[i]-sub[i]-5)*sc,12,'var(--warm)',.5)}
+ for(let tt=20;tt<=fr;tt+=20){el('line',{x1:40+tt*sc,y1:44,x2:40+tt*sc,y2:310,stroke:'var(--line)','stroke-dasharray':'3 3'},sv);T(String(tt),40+tt*sc,326,'middle')}}
+let k=0,custom=null;
+function draw(){clear(sv);const v=custom||F[k];SET(IDS,v);render(...v)}
+function reset(){k=0;custom=null;draw()}
+function next(){if(custom!==null){custom=null;draw();return true}if(k>=F.length-1)return false;k++;draw();return true}
+IDS.forEach(i=>{const e=$(i);const f=()=>{ANIM.stop();custom=GET(IDS);draw()};e.oninput=f;e.onchange=f});
+setupPlayer({captureSeed:1,reset,next},1500);
+</script><a href="https://wikieden.github.io/ai-books/" style="position:fixed;right:12px;bottom:12px;z-index:99;padding:4px 10px;border-radius:14px;background:rgba(127,127,127,.18);color:inherit;font:13px/1.6 system-ui,sans-serif;text-decoration:none">← 全部讲义书</a>
+</body></html>

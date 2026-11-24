@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>第 41 章 · 数据交接、顺序与状态管理：什么时候能读、能覆盖、能释放 · 从约束推导 AI Infra</title>
+<script>(function(){try{var d=document.documentElement,t=localStorage.getItem("ab-theme"),f=localStorage.getItem("ab-fs");if(t)d.dataset.theme=t;if(f)d.dataset.fs=f}catch(e){}})();</script>
+<style>:root{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa;--fs:16px}
+@media (prefers-color-scheme:dark){:root:not([data-theme]){--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}}
+:root[data-theme="light"]{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa}
+:root[data-theme="dark"]{--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}
+:root[data-theme="sepia"]{--bg:#f6efe1;--fg:#3b3127;--mute:#7a6a58;--line:#e2d6bf;--card:#fbf6ec;--acc:#a0522d;--code:#ece2cd;--quote:#efe5d2}
+:root[data-theme="green"]{--bg:#e3eddf;--fg:#22301f;--mute:#566650;--line:#c9d8c3;--card:#eef5eb;--acc:#2e7d4f;--code:#d6e4d0;--quote:#dae7d5}
+:root[data-theme="navy"]{--bg:#0f1a2b;--fg:#dde6f3;--mute:#93a4bd;--line:#23324a;--card:#15233a;--acc:#6cc4ff;--code:#1a2a44;--quote:#16243b}
+:root[data-fs="s"]{--fs:15px}
+:root[data-fs="m"]{--fs:16px}
+:root[data-fs="l"]{--fs:18px}
+:root[data-fs="xl"]{--fs:20px}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:var(--fs)/1.75 -apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Helvetica Neue",sans-serif}
+a{color:var(--acc)}
+header.top{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+header.top .in{max-width:860px;margin:0 auto;padding:10px 16px;display:flex;gap:6px 16px;align-items:center;flex-wrap:wrap;font-size:14px}
+header.top .brand{font-weight:600;color:var(--fg);text-decoration:none;margin-right:auto}
+header.top a{text-decoration:none}
+.prefs{display:inline-flex;gap:4px;align-items:center}
+.prefs button,.prefs select,#nav-toggle{font:inherit;font-size:13px;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:2px 8px;cursor:pointer}
+main{max-width:860px;margin:0 auto;padding:24px 16px 72px;overflow-wrap:anywhere}
+h1{font-size:1.75em;line-height:1.35;margin:8px 0 16px} h2{font-size:1.375em;margin:40px 0 12px;padding-top:8px;border-top:1px solid var(--line)} h3{font-size:1.125em;margin:28px 0 8px}
+.layout{display:grid;grid-template-columns:260px minmax(0,1fr);max-width:1180px;margin:0 auto}
+.layout main{margin:0;max-width:880px}
+nav.side{position:sticky;top:49px;align-self:start;max-height:calc(100vh - 49px);overflow-y:auto;padding:20px 8px 40px 16px;border-right:1px solid var(--line);font-size:14px;line-height:1.5}
+nav.side .h{font-weight:600;color:var(--mute);margin:4px 8px 8px;font-size:13px}
+nav.side a{display:block;padding:5px 8px;border-radius:6px;color:var(--fg);text-decoration:none}
+nav.side a:hover{background:var(--code)} nav.side a.cur{background:var(--quote);color:var(--acc);font-weight:600}
+nav.side a .n{color:var(--mute);margin-right:6px;font-variant-numeric:tabular-nums}
+#nav-toggle{display:none}
+@media (max-width:960px){.layout{display:block} nav.side{display:none;position:fixed;z-index:6;top:49px;left:0;bottom:0;width:min(300px,85vw);max-height:none;background:var(--bg);box-shadow:2px 0 12px rgba(0,0,0,.2)} nav.side.open{display:block} #nav-toggle{display:inline-block}}
+.run{display:flex;flex-wrap:wrap;align-items:center;gap:4px 0;margin:4px 0 12px}
+.run details{flex-basis:100%;margin:6px 0 0;font-size:.94em}
+img{max-width:100%;height:auto;border-radius:8px;border:1px solid var(--line);background:#fff}
+blockquote{margin:16px 0;padding:10px 16px;background:var(--quote);border-left:3px solid var(--acc);border-radius:4px;color:var(--mute)}
+blockquote p{margin:4px 0}
+code{background:var(--code);padding:1px 5px;border-radius:4px;font-size:.9em}
+pre{background:var(--code);padding:12px 14px;border-radius:8px;overflow-x:auto} pre code{padding:0;background:none}
+table{border-collapse:collapse;display:block;overflow-x:auto;max-width:100%;margin:12px 0;font-size:.94em}
+th,td{border:1px solid var(--line);padding:6px 10px;vertical-align:top} th{background:var(--code)}
+details{border:1px solid var(--line);border-radius:8px;padding:6px 12px;margin:8px 0;background:var(--card)}
+details[open]{padding-bottom:10px} summary{cursor:pointer;color:var(--acc);font-weight:500}
+mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%}
+.btn{display:inline-block;margin:4px 8px 4px 0;padding:6px 14px;border:1px solid var(--acc);border-radius:999px;text-decoration:none;font-size:14px}
+.pager{display:flex;justify-content:space-between;gap:12px;margin-top:48px;padding-top:16px;border-top:1px solid var(--line);font-size:15px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin:16px 0}
+.card{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;color:inherit;text-decoration:none}
+.card:hover{border-color:var(--acc)} .card img{border:0;border-bottom:1px solid var(--line);border-radius:0;aspect-ratio:16/10;object-fit:contain;width:100%}
+.card .no{color:var(--mute);font-size:13px;padding:8px 12px 0} .card .t{padding:0 12px 12px;font-weight:500;line-height:1.5}
+.lead{font-size:1.06em;color:var(--mute)}
+footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-size:13px}
+</style>
+<script>window.MathJax={tex:{inlineMath:[["\\(","\\)"]],displayMath:[["\\[","\\]"],["$$","$$"]],processEscapes:true,processEnvironments:true}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"></script>
+</head><body>
+<header class="top"><div class="in">
+<button type="button" id="nav-toggle" aria-label="打开章节列表">☰ 章节</button><a class="brand" href="../index.html">从约束推导 AI Infra</a>
+<a href="../lessons/index.html">讲义目录</a>
+<a href="../animations/index.html">动画</a>
+<a href="../review.html">复习卡片</a>
+<a href="../lessons/appendix-glossary.html">缩写表</a>
+<a href="https://wikieden.github.io/ai-books/glossary.html">全局词汇</a>
+<a href="https://wikieden.github.io/ai-books/">← 全部讲义书</a>
+<span class="prefs" title="字号与主题"><button type="button" data-fs-step="-1" aria-label="字号变小">A−</button><button type="button" data-fs-step="1" aria-label="字号变大">A+</button><select id="ab-theme" aria-label="主题色"><option value="">跟随系统</option><option value="light">浅色</option><option value="dark">深色</option><option value="sepia">米黄护眼</option><option value="green">豆沙绿护眼</option><option value="navy">夜蓝</option></select></span>
+</div></header>
+<div class="layout"><nav class="side" aria-label="章节"><div class="h">从约束推导 AI Infra</div><a href="index.html">讲义目录</a><a href="01-six-layers.html"><span class="n">1</span>一次请求走过的六层（进行中）</a><a href="02-request-lifecycle.html"><span class="n">2</span>一次生成请求的处理过程：权重加载一次，每个 token 都要再读一遍</a><a href="03-dataflow-hierarchy.html"><span class="n">3</span>从存储程序到数据流执行：存储层次就像大楼里的厕所</a><a href="04-key-numbers.html"><span class="n">4</span>系统设计的关键数字：容量、算力、带宽、延迟</a><a href="05-estimate.html"><span class="n">5</span>用几个数字估算一次模型执行：算和读各要多久，实测为什么达不到</a><a href="06-architecture.html"><span class="n">6</span>需求如何推动架构：TPU、SmartNIC、Unified Bus</a><a href="07-compute-graph.html"><span class="n">7</span>计算图与张量结构：一个 token 经过一层要算多少</a><a href="08-generation-budget.html"><span class="n">8</span>自回归生成的资源账：存一次的、每步读的、用完就扔的</a><a href="09-kv-sharing.html"><span class="n">9</span>KV 怎么变小 ①：头共享与潜变量压缩</a><a href="10-kv-sparse-linear.html"><span class="n">10</span>KV 怎么变小 ②：窗口、稀疏、线性与混合注意力</a><a href="11-moe.html"><span class="n">11</span>MoE：专家路由与批内权重复用</a><a href="12-network-shape.html"><span class="n">12</span>网络形状：深宽、专家粒度、残差与多 token 预测</a><a href="13-model-comparison.html"><span class="n">13</span>整个模型的资源需求与比较：存多少、算多少、能放几条请求</a><a href="14-workload-arrival.html"><span class="n">14</span>从单次请求到持续到达的负载：什么时候来，比来多少更要紧</a><a href="15-agent-tasks.html"><span class="n">15</span>多轮交互与 Agent 任务：前缀、成功成本、关键路径</a><a href="16-multimodal-realtime.html"><span class="n">16</span>多模态与实时交互：数据换形状，时间有死线（略讲）</a><a href="17-training-rl.html"><span class="n">17</span>训练与强化学习的计算和状态：为什么训练要 6ND、要存 18 字节</a><a href="18-scaling-lifecycle.html"><span class="n">18</span>Scaling law 与全生命周期成本：训练多大、训练多久、服务多少次</a><a href="19-accelerator-basics.html"><span class="n">19</span>从矩阵乘法认识加速器：算多少、搬多少、耗多少电</a><a href="20-compute-units.html"><span class="n">20</span>计算单元：矩阵、向量、流水与低精度</a><a href="21-memory-movement.html"><span class="n">21</span>存储层次与数据搬移：放得下、取得到、来得及</a><a href="22-package-interconnect.html"><span class="n">22</span>多芯片封装与互联：计算放在哪，数据走哪条路</a><a href="23-architecture-evolution.html"><span class="n">23</span>架构演进与专用架构：每一代新增的东西，省掉了哪一笔</a><a href="24-choose-accelerator.html"><span class="n">24</span>根据架构选择加速器：先估下界，再找差距，最后算账</a><a href="25-submit-sync.html"><span class="n">25</span>提交、搬移与同步：从调用返回到结果可用</a><a href="26-tiling-layout.html"><span class="n">26</span>单个算子：分块、布局与切分</a><a href="27-fusion-flash.html"><span class="n">27</span>算子融合与 FlashAttention：中间结果不落地</a><a href="28-compiler.html"><span class="n">28</span>编译器：表达、变换与选择</a><a href="29-runtime.html"><span class="n">29</span>运行时：重叠、CUDA Graph、动态形状与 persistent kernel</a><a href="30-request-view.html"><span class="n">30</span>从局部优化到完整请求</a><a href="31-multi-gpu.html"><span class="n">31</span>从单卡到多卡：放得下、算得快、接得多</a><a href="32-dp-tp-sp.html"><span class="n">32</span>数据、张量、序列并行：复制模型、切矩阵、切激活</a><a href="33-cp-pp-ep.html"><span class="n">33</span>上下文、流水线、专家并行：切位置、切层、切专家</a><a href="34-combined-parallel.html"><span class="n">34</span>组合并行与模型规模：坐标、复用与最忙的那一组</a><a href="35-collectives.html"><span class="n">35</span>集合通信的实现与代价：环、树、通信库和资源竞争</a><a href="36-topology-pool.html"><span class="n">36</span>超节点的物理组织与内存池：数据走哪条线、借谁的内存</a><a href="37-scale-choice.html"><span class="n">37</span>从并行方案到超节点规模：按期限、成本和故障挑方案</a><a href="38-cluster.html"><span class="n">38</span>从超节点走向集群：出口、割集与 Clos 网络</a><a href="39-cross-node.html"><span class="n">39</span>跨节点流量与物理路径：同样的字节，走哪几张网卡</a><a href="40-remote-access.html"><span class="n">40</span>远程访问的路径与并发：一次读多久、同时能读几个</a><a href="41-handoff-state.html" class="cur"><span class="n">41</span>数据交接、顺序与状态管理：什么时候能读、能覆盖、能释放</a><a href="42-congestion.html"><span class="n">42</span>共享网络中的拥塞与可靠性：高峰、反馈、多路径、死锁</a><a href="43-task-completion.html"><span class="n">43</span>从通信改进到任务完成：先看谁晚到，再看能藏多少</a><a href="44-inference-request.html"><span class="n">44</span>推理请求的执行过程与资源需求：一条请求的时间线和账本</a><a href="45-batching.html"><span class="n">45</span>批处理与请求调度：多读一次权重做更多事，但别让别人等太久</a><a href="46-kv-cache.html"><span class="n">46</span>KV 缓存的分配、复用与释放：分页、共享、留不留</a><a href="47-compress-offload.html"><span class="n">47</span>压缩与卸载：少存字节、轮流驻留，各付什么代价</a><a href="48-speculative.html"><span class="n">48</span>推测解码：一次验证，确定好几个 token</a><a href="49-serving-choice.html"><span class="n">49</span>请求负载下的性能与配置选择：数正确且按时的答案</a><a href="appendix-glossary.html">附录 · 缩写与术语表</a><a href="appendix-tp-pp-cp.html">附录 · 补充资料：TP、PP、CP，一个模型沿三个方向切给多张卡</a></nav><main>
+<h1 id="41">第 41 章 · 数据交接、顺序与状态管理：什么时候能读、能覆盖、能释放</h1><div class="run"><a class="btn" href="../animations/41-handoff-state.html">▶ 打开本章可交互动画</a><a class="btn" href="https://colab.research.google.com/github/wikieden/ai-infra-from-constraints/blob/main/code/notebooks/ch41_handoff_state.ipynb" target="_blank" rel="noopener">在 Colab 运行本章代码</a><a class="btn" href="../code/notebooks/ch41_handoff_state.ipynb" download>下载 notebook</a><details><summary>本地运行</summary><pre><code>git clone https://github.com/wikieden/ai-infra-from-constraints
+cd ai-infra-from-constraints/code/notebooks
+pip install jupyterlab torch numpy
+jupyter lab ch41_handoff_state.ipynb</code></pre><p>也可以下载后直接用 VS Code 打开 .ipynb 运行。需要 GPU 的章节在 Colab 里选「代码执行程序 → 更改运行时类型 → GPU」。</p></details></div>
+<blockquote>
+<p>本章回答：数据"发完了"、"对方能看见了"、"对方用完了"为什么是三个时刻？8192 条通信关系为什么能从 8.5 MiB 状态压到 0.64 MiB？去掉一条多余的顺序约束，为什么能让一个操作提前 100 μs？槽位加倍，为什么持续吞吐没变？<br />
+讲解日期：2026-11-24 · 上一章：<a href="../lessons/40-remote-access.html">第 40 章 远程访问的路径与并发</a> · 下一章：<a href="../lessons/42-congestion.html">第 42 章 共享网络中的拥塞与可靠性</a><br />
+对应原文：<code>materials/ai-infra-book/manuscripts/07-数据中心网络.md</code> §7.4 L520–L663（例题 7.4，图 7-30 到 7-39）；§7.4.2 Jetty 略讲<br />
+本章缩写：Jetty = UB 事务层的应用端点 · QP = Queue Pair（队列 / 对，RDMA 的通信端点）· head-of-line blocking = 队头阻塞 · 1Pipe = 网络提供全局全序的研究系统。全部缩写见 <a href="../lessons/appendix-glossary.html">缩写与术语表</a></p>
+</blockquote>
+<h2 id="_1">讲解</h2>
+<h3 id="2026-11-24">第一步：一份分片的一生：发完、可见、用完（2026-11-24）</h3>
+<p><strong>类比：传托盘。</strong> 托盘送到下一道工序（发送完成），对方看到了（可见）；但对方还在用里面的材料，用完之前你不能往这个托盘里放下一批。</p>
+<p>原文 L522–L540：一份分片的流程：生成 → 写入远端 → 对接收方可见 → 发出就绪通知 → 读取处理 → 释放空间。</p>
+<ul>
+<li><strong>源缓冲</strong>：接口保证传输不再读它，就能复用（发送完成，比如 5 μs）。</li>
+<li><strong>目的缓冲</strong>：要等接收方用完（比如消费者 8–12 μs 读，12 μs 才能覆盖）。6 μs 就写下一份：<strong>网络每个字节都对，程序却用了错的数据</strong>。</li>
+</ul>
+<p><img alt="源缓冲 5 μs 可复用，目的缓冲要到 12 μs" src="../figures/41-handoff-state-lifetime.png" /></p>
+<p><em>图 41-1 · 6 μs 提前覆盖目的地址就是错误操作。</em></p>
+<p>把"必须等哪个事件"画成边，得到<strong>依赖图</strong>：节点的完成时刻 = 所有前驱的最晚完成 + 自身时间；最长的链是关键路径。缺边（可见 → 通知）就读到未发布的数据；多余的边（无关传输也等）就多等。让计算直接写进通信库注册的缓冲区能省一次复制，但事件顺序随之变严。</p>
+<p><strong>一句话</strong>：发送完成、对方可见、对方用完是三个事件，分别决定源缓冲、读取、目的缓冲何时可用。</p>
+<h3 id="2026-11-24_1">第二步：应用身份和传输状态分开存（略讲）（2026-11-24）</h3>
+<p><strong>类比：公司的快递收发室。</strong> 每个员工有自己的工号（应用端点），但寄往同一个城市的包裹共用一条物流线路（传输状态），不必每人单独签一份物流合同。</p>
+<p>原文 L544–L596：64 个应用端点、每个访问 128 个目标，共 8192 条关系；端点 256 B、每条关系绑定 64 B、每份传输状态 1 KiB：</p>
+<div class="arithmatex">\[S_{\mathrm{private}} = Le + LP(r + t), \qquad S_{\mathrm{shared}} = Le + LPr + Pt\]</div>
+<table>
+<thead>
+<tr>
+<th></th>
+<th style="text-align: right;">状态总量</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>每条关系独占传输状态</td>
+<td style="text-align: right;">8.52 MiB</td>
+</tr>
+<tr>
+<td>同一目标共享</td>
+<td style="text-align: right;">0.64 MiB（约 1/13）</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(K\)</span> 组隔离：<span class="arithmatex">\(Le + LPr + KPt\)</span></td>
+<td style="text-align: right;">3 组 912 KiB、4 组 1040 KiB（超 1 MiB）</td>
+</tr>
+</tbody>
+</table>
+<p>共享省存储，代价是争用同一条通道的发送窗口和恢复资源（队头阻塞）；关键业务单独一组、其他共享。<strong>OpenURMA 的实现尺寸</strong>：Jetty 20 B + 内存段 32 B、传输通道 56 B，RoCE 每条连接 512 B：<span class="arithmatex">\(S_{\mathrm{pair}} = 512NM + 32N\)</span>，<span class="arithmatex">\(S_{\mathrm{UB}} = 52N + 56M\)</span>。<span class="arithmatex">\(N = M = 1024\)</span>：512 MiB vs 108 KiB（约 4855 倍）；256 KiB 片上缓存，逐对在 <span class="arithmatex">\(N \ge 23\)</span> 溢出，UB 在 <span class="arithmatex">\(N \ge 2428\)</span>。溢出后每次操作重读上下文：PCIe 外设网卡 +1000 ns，片上控制器 +200 ns。</p>
+<p><strong>一句话</strong>：应用身份按端点存，传输进度按目标共享；状态从 <span class="arithmatex">\(O(LP)\)</span> 变成 <span class="arithmatex">\(O(L + P)\)</span>，缓存能装下更多关系。</p>
+<h3 id="2026-11-24_2">第三步：只保留必要的顺序（2026-11-24）</h3>
+<p><strong>类比：快递员送三件货。</strong> A 要先放进柜子再发取件短信 B；C 是另一家的货。非要按 A、B、C 的顺序送，C 就白等了半天。</p>
+<p><strong>例题 7.4</strong>（原文 L606–L622）：A 写入 20 μs，随后恢复 80 μs 后数据才可见；B 通知 2 μs；C 是无关传输 10 μs。</p>
+<table>
+<thead>
+<tr>
+<th>安排</th>
+<th style="text-align: right;">发布链完成</th>
+<th style="text-align: right;">C 完成</th>
+<th style="text-align: right;">全组完成</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A、B、C 依次</td>
+<td style="text-align: right;">102 μs</td>
+<td style="text-align: right;">112 μs</td>
+<td style="text-align: right;">112 μs</td>
+</tr>
+<tr>
+<td>只保留 A → B</td>
+<td style="text-align: right;">102 μs</td>
+<td style="text-align: right;"><strong>10 μs</strong></td>
+<td style="text-align: right;">102 μs</td>
+</tr>
+<tr>
+<td>恢复变 200 μs，依次</td>
+<td style="text-align: right;">222 μs</td>
+<td style="text-align: right;">232 μs</td>
+<td style="text-align: right;"></td>
+</tr>
+</tbody>
+</table>
+<p><img alt="只保留必要依赖：C 从 0 开始，10 μs 完成" src="../figures/41-handoff-state-ordering.png" /></p>
+<p><em>图 41-2 · 全组只提前 10 μs，C 提前 102 μs：对等着 C 的下游，隔离比全组提前重要得多。</em></p>
+<p><strong>资源依赖也是边</strong>：所有操作共用一个处理单元时，两种安排都 112 μs。OpenURMA 按需指定顺序：要求等前序的请求最多等约 155 ns，不要求的不承担；一个发起方被停住，另外四个发起方的 8 个请求仍在约 242 ns 内全部发出。RoCE 同一 QP 必须严格按序。</p>
+<p><strong>读的时刻才算数</strong>（原文 L630–L636）：D 在 2 μs 更新、标志 3 μs 可见；消费者 1 μs 提前读了 D、4 μs 读标志：保存的是新标志、旧数据。<strong>按序返回不能把旧值变成新值</strong>：要么看到标志再读，要么提前读、检查冲突再重读。</p>
+<p><strong>一句话</strong>：网络只为真正有依赖的操作保证顺序，独立操作照常推进；顺序要约束实际读取的时刻。</p>
+<h3 id="2026-11-24_3">第四步：槽位要等完成通知处理完才释放（2026-11-24）</h3>
+<p><strong>类比：餐厅的桌子。</strong> 客人吃完了（传输完成），服务员还没收桌（处理完成通知），下一桌客人就坐不下。桌子多几张能让一时的高峰进来，但收桌的速度决定一晚上能接多少桌。</p>
+<p>原文 L640–L658：16 次操作、每次 8 KiB，每 1 μs 最多提交一次，提交后 5 μs 完成；软件每 20 μs 处理 4 条完成通知：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">槽位</th>
+<th style="text-align: right;">全部传完</th>
+<th style="text-align: right;">全部槽位释放</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">48 μs</td>
+<td style="text-align: right;">80 μs</td>
+</tr>
+<tr>
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">20 μs</td>
+<td style="text-align: right;">80 μs</td>
+</tr>
+</tbody>
+</table>
+<p><img alt="完成通知处理慢：槽位加倍让传输提前，释放仍在 80 μs" src="../figures/41-handoff-state-slots.png" /></p>
+<p><em>图 41-3 · 蓝色是传输，橙色是等软件处理完成通知。</em></p>
+<p>持续吞吐 = 每秒处理的完成通知数 × 每项字节：<span class="arithmatex">\(200{,}000 \times 8\)</span> KiB ≈ 1.64 GB/s；要到 50 GB/s 需每秒约 610 万项。<strong>加槽位只容纳突发；持续负载要提高完成处理速率或加大每项载荷。</strong> 槽位满了就暂停提交，就是背压；故障时要先停止新提交、结束或隔离旧请求、再释放空间（版本号、撤销权限），否则迟到的旧写入会覆盖新对象。</p>
+<p><strong>一句话</strong>：槽位的释放速度决定持续吞吐；完成处理跟不上，背压就会顺着共享状态传播。</p>
+<h2 id="_2">动画演示：槽位、传输与完成通知</h2>
+<p><img alt="请求槽位的占用与释放" src="../animations/41-handoff-state.gif" /></p>
+<p>可交互版：<a href="../animations/41-handoff-state.html">animations/41-handoff-state.html</a>（滑块：槽位数 4–16；每批处理的完成通知 2–16 条）。</p>
+<p><strong>怎么看</strong>：</p>
+<ol>
+<li>16 行是 16 次操作：蓝色是提交到传输完成，橙色是等完成通知被处理（第四步）；</li>
+<li>竖线是软件每 20 μs 处理一批；</li>
+<li>右边显示全部传完和全部释放的时刻；</li>
+<li>播放：8 槽 → 16 槽（传完提前、释放不变）→ 每批处理 8 条（释放提前）。</li>
+</ol>
+<h2 id="_3">练习与作答记录</h2>
+<p><strong>题 1</strong>（第二步）：32 个端点、每个访问 256 个目标，<span class="arithmatex">\(e = 256\)</span>、<span class="arithmatex">\(r = 64\)</span>、<span class="arithmatex">\(t = 1024\)</span> B。独占和共享各需多少 KiB？2 MiB 能放几组隔离？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p><strong>题 2</strong>（第三步）：A 写入 15 μs、恢复 60 μs、B 通知 3 μs、C 无关传输 40 μs。两种安排下 C 和全组各何时完成？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p><strong>题 3</strong>（第四步）：完成通知每 10 μs 处理 6 条，每项 16 KiB。持续吞吐上限多少 GB/s？要到 50 GB/s 每秒要处理多少项？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p>原书实验 7-9、7-10（L598、L660）。想多练可以做。</p>
+<h2 id="_4">口诀</h2>
+<blockquote>
+<p>托盘送到、对方看到、对方用完，是三个时刻；<br />
+工号各管各的，同城包裹共一条线；<br />
+柜子先放再发短信，别家的货不用等；先读的旧值，晚点返回也还是旧的；<br />
+桌子多容高峰，收桌快才接得多。</p>
+</blockquote>
+<h2 id="_5">本章复习卡片</h2>
+<p><a href="../review.html">I146</a>（发送完成 / 可见 / 用完三个事件与依赖图）、<a href="../review.html">I147</a>（共享传输状态 8.52 → 0.64 MiB、<span class="arithmatex">\(O(LP) \to O(L + P)\)</span>、溢出点 23 vs 2428；例题 7.4 只保留必要顺序）、<a href="../review.html">I148</a>（槽位释放决定持续吞吐 1.64 GB/s、背压与故障回收）。练习做完后，按答错、卡住的地方再补。</p>
+<h2 id="_6">附录 · 延伸阅读</h2>
+<blockquote>
+<p>留给以后深入学习用，不影响本章主线。★ 是建议先读的。</p>
+</blockquote>
+<h3 id="_7">推荐阅读</h3>
+<table>
+<thead>
+<tr>
+<th>读什么</th>
+<th>读哪里</th>
+<th>读它为了什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>★ AII 第 7 章</td>
+<td>§7.4 L520–L663</td>
+<td>本章原文</td>
+</tr>
+<tr>
+<td>李博杰，Unified Bus 背后的思考</td>
+<td>Jetty、事务序</td>
+<td>设计动机（原文 <code>[^ub-design]</code>）</td>
+</tr>
+<tr>
+<td>Li 等，1Pipe（SIGCOMM 2021）</td>
+<td>全局全序</td>
+<td>设计背景</td>
+</tr>
+<tr>
+<td>OpenURMA 论文</td>
+<td>§10 顺序</td>
+<td>按需顺序的仿真</td>
+</tr>
+<tr>
+<td><a href="../lessons/25-submit-sync.html">第 25 章 提交、搬移与同步</a></td>
+<td>event 与缓冲</td>
+<td>单机版本的同一件事</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_8">数学原理</h3>
+<ul>
+<li><strong>依赖图的最长路径</strong>：完成时刻 = max(前驱完成) + 自身。</li>
+<li><strong>状态计数</strong>：独占 <span class="arithmatex">\(LP(r + t)\)</span>，共享 <span class="arithmatex">\(LPr + Pt\)</span>。</li>
+<li><strong>吞吐 = 服务速率 × 每项字节</strong>（完成处理是服务台）。</li>
+</ul>
+<h3 id="_9">公式清单</h3>
+<table>
+<thead>
+<tr>
+<th>公式</th>
+<th>意思</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\(S_{\mathrm{private}} = Le + LP(r + t)\)</span>，<span class="arithmatex">\(S_{\mathrm{shared}} = Le + LPr + Pt\)</span>，<span class="arithmatex">\(S(K) = Le + LPr + KPt\)</span></td>
+<td>状态</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(S_{\mathrm{pair}} = 512NM + 32N\)</span>，<span class="arithmatex">\(S_{\mathrm{UB}} = 52N + 56M\)</span></td>
+<td>实现尺寸</td>
+</tr>
+<tr>
+<td>持续吞吐 = 完成处理速率 × 每项字节</td>
+<td>背压</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_10">代码对照：把本章的数字用代码算一遍</h3>
+<blockquote>
+<p>代码 <code>ai-infra/solutions/chapter-code/ch41_handoff_state.py</code>，测试 <code>tests/test_ch41.py</code>：</p>
+<p><code>bash  
+cd ai-infra/solutions/chapter-code  
+uv run python ch41_handoff_state.py  
+uv run pytest tests/test_ch41.py</code></p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>讲义</th>
+<th>写法</th>
+<th>跑出来</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第二步</td>
+<td><code>state_bytes(L, P, groups=K)</code>、<code>impl_state(N, M)</code>、<code>overflow_n()</code></td>
+<td>8.52 / 0.64 MiB；4855 倍；(23, 2428)</td>
+</tr>
+<tr>
+<td>第三步</td>
+<td><code>ordering(recover)</code></td>
+<td>(112, 10, 102)</td>
+</tr>
+<tr>
+<td>第四步</td>
+<td><code>slots_sim(slots=n)</code></td>
+<td>(48, 80)、(20, 80)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>代码里才看得到的 3 件事</strong>：</p>
+<ol>
+<li><code>slots_sim</code> 每批只处理已经传完的那几条，按完成先后取前 4 条，所以 8 槽时第 9 次提交要等 20 μs 的第一批。</li>
+<li><code>ordering</code> 的串行安排里 C 等的是整条发布链（写 + 恢复 + 通知）。</li>
+<li><code>impl_state</code> 的 UB 一项没有 <span class="arithmatex">\(NM\)</span> 项：关系绑定放在软件映射里，网卡不存。</li>
+</ol>
+<p><strong>自己改一改</strong>（不影响练习答案）：</p>
+<ul>
+<li>给 <code>slots_sim</code> 加"每处理一条通知要 1 μs"的模型，求能维持的最大提交速率。</li>
+<li>把 <code>ordering</code> 改成三条独立链，算全组和每条链的完成时刻。</li>
+<li>用 <code>overflow_n</code> 算 1 MiB 缓存的溢出点。</li>
+</ul><nav class="pager"><a href="40-remote-access.html">← 第 40 章 · 远程访问的路径与并发：一次读多久、同时能读几个</a><a href="42-congestion.html">第 42 章 · 共享网络中的拥塞与可靠性：高峰、反馈、多路径、死锁 →</a></nav>
+</main></div>
+<footer>来自个人学习仓库的对话讲义，含练习作答记录。源码：<a href="https://github.com/wikieden/ai-infra-from-constraints">github.com/wikieden/ai-infra-from-constraints</a>。更多讲义书：<a href="https://wikieden.github.io/ai-books/">Physical AI 0-1-♾️（合集）</a></footer>
+<script>(function(){var d=document.documentElement,K=["s","m","l","xl"];
+function save(k,v){try{v?localStorage.setItem(k,v):localStorage.removeItem(k)}catch(e){}}
+var s=document.getElementById("ab-theme");if(s){s.value=d.dataset.theme||"";s.onchange=function(){if(s.value)d.dataset.theme=s.value;else delete d.dataset.theme;save("ab-theme",s.value)}}
+document.querySelectorAll("[data-fs-step]").forEach(function(b){b.onclick=function(){var i=K.indexOf(d.dataset.fs||"m")+(+b.dataset.fsStep);i=Math.max(0,Math.min(K.length-1,i));d.dataset.fs=K[i];save("ab-fs",K[i])}});
+var nb=document.getElementById("nav-toggle"),side=document.querySelector("nav.side");if(nb&&side){nb.onclick=function(){side.classList.toggle("open")}}
+var cur=side&&side.querySelector(".cur");if(cur)cur.scrollIntoView({block:"center"});
+})();</script>
+</body></html>

@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="300" viewBox="0 0 800 300">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="16.0" y="26.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="17" fill="#1f2937" text-anchor="start" font-weight="bold">完成吞吐（浅）与有效吞吐（深）：16/s 时完成不涨、按时的正确答案反而少</text>
+<text x="16.0" y="290.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">实验 8-9，Qwen3-8B 检索，3 秒时限；三个 16 请求窗口的中位数（req/s）。</text>
+<text x="140.0" y="80.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="end" font-weight="normal">逐个 1/s</text>
+<rect x="150.0" y="60.0" width="224.4" height="30.0" rx="3" fill="#e5e7eb" stroke="#6b7280" stroke-width="1.4" opacity="1"/>
+<rect x="150.0" y="60.0" width="198.0" height="30.0" rx="3" fill="#dcfce7" stroke="#16a34a" stroke-width="1.4" opacity="1"/>
+<text x="382.4" y="80.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="start" font-weight="bold">1.02 / 0.90</text>
+<text x="140.0" y="124.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="end" font-weight="normal">连续 1/s</text>
+<rect x="150.0" y="104.0" width="224.4" height="30.0" rx="3" fill="#e5e7eb" stroke="#6b7280" stroke-width="1.4" opacity="1"/>
+<rect x="150.0" y="104.0" width="198.0" height="30.0" rx="3" fill="#dcfce7" stroke="#16a34a" stroke-width="1.4" opacity="1"/>
+<text x="382.4" y="124.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="start" font-weight="bold">1.02 / 0.90</text>
+<text x="140.0" y="168.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="end" font-weight="normal">逐个 4/s</text>
+<rect x="150.0" y="148.0" width="268.4" height="30.0" rx="3" fill="#e5e7eb" stroke="#6b7280" stroke-width="1.4" opacity="1"/>
+<rect x="150.0" y="148.0" width="68.2" height="30.0" rx="3" fill="#dcfce7" stroke="#16a34a" stroke-width="1.4" opacity="1"/>
+<text x="426.4" y="168.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="start" font-weight="bold">1.22 / 0.31</text>
+<text x="140.0" y="212.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="end" font-weight="normal">连续 4/s</text>
+<rect x="150.0" y="192.0" width="512.6" height="30.0" rx="3" fill="#e5e7eb" stroke="#6b7280" stroke-width="1.4" opacity="1"/>
+<rect x="150.0" y="192.0" width="224.4" height="30.0" rx="3" fill="#dcfce7" stroke="#16a34a" stroke-width="1.4" opacity="1"/>
+<text x="670.6" y="212.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="start" font-weight="bold">2.33 / 1.02</text>
+<text x="140.0" y="256.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="end" font-weight="normal">连续 16/s</text>
+<rect x="150.0" y="236.0" width="523.6" height="30.0" rx="3" fill="#e5e7eb" stroke="#6b7280" stroke-width="1.4" opacity="1"/>
+<rect x="150.0" y="236.0" width="132.0" height="30.0" rx="3" fill="#dcfce7" stroke="#16a34a" stroke-width="1.4" opacity="1"/>
+<text x="681.6" y="256.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="start" font-weight="bold">2.38 / 0.60</text>
+</svg>

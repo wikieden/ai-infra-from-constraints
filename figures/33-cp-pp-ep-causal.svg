@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="780" height="330" viewBox="0 0 780 330">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="16.0" y="26.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="17" fill="#1f2937" text-anchor="start" font-weight="bold">8 个位置的因果注意力：连续切半 10 vs 26 对，首尾搭配 18 vs 18</text>
+<text x="16.0" y="320.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">横轴是键的位置、纵轴是查询的位置；实色格是要算的查询—键对。左：位置 1–4 给卡 0；右：位置 1、2、7、8 给卡 0。</text>
+<rect x="60.0" y="60.0" width="26.0" height="24.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1" opacity="1"/>
+<rect x="60.0" y="88.0" width="26.0" height="24.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1" opacity="1"/>
+<rect x="90.0" y="88.0" width="26.0" height="24.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1" opacity="1"/>
+<rect x="60.0" y="116.0" width="26.0" height="24.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1" opacity="1"/>
+<rect x="90.0" y="116.0" width="26.0" height="24.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1" opacity="1"/>
+<rect x="120.0" y="116.0" width="26.0" height="24.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1" opacity="1"/>
+<rect x="60.0" y="144.0" width="26.0" height="24.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1" opacity="1"/>
+<rect x="90.0" y="144.0" width="26.0" height="24.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1" opacity="1"/>
+<rect x="120.0" y="144.0" width="26.0" height="24.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1" opacity="1"/>
+<rect x="150.0" y="144.0" width="26.0" height="24.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1" opacity="1"/>
+<rect x="60.0" y="172.0" width="26.0" height="24.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1" opacity="1"/>
+<rect x="90.0" y="172.0" width="26.0" height="24.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1" opacity="1"/>
+<rect x="120.0" y="172.0" width="26.0" height="24.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1" opacity="1"/>
+<rect x="150.0" y="172.0" width="26.0" height="24.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1" opacity="1"/>
+<rect x="180.0" y="172.0" width="26.0" height="24.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1" opacity="1"/>
+<rect x="60.0" y="200.0" width="26.0" height="24.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1" opacity="1"/>
+<rect x="90.0" y="200.0" width="26.0" height="24.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1" opacity="1"/>
+<rect x="120.0" y="200.0" width="26.0" height="24.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1" opacity="1"/>
+<rect x="150.0" y="200.0" width="26.0" height="24.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1" opacity="1"/>
+<rect x="180.0" y="200.0" width="26.0" height="24.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1" opacity="1"/>
+<rect x="210.0" y="200.0" width="26.0" height="24.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1" opacity="1"/>
+<rect x="60.0" y="228.0" width="26.0" height="24.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1" opacity="1"/>
+<rect x="90.0" y="228.0" width="26.0" height="24.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1" opacity="1"/>
+<rect x="120.0" y="228.0" width="26.0" height="24.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1" opacity="1"/>
+<rect x="150.0" y="228.0" width="26.0" height="24.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1" opacity="1"/>
+<rect x="180.0" y="228.0" width="26.0" height="24.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1" opacity="1"/>
+<rect x="210.0" y="228.0" width="26.0" height="24.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1" opacity="1"/>
+<rect x="240.0" y="228.0" width="26.0" height="24.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1" opacity="1"/>
+<rect x="60.0" y="256.0" width="26.0" height="24.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1" opacity="1"/>
+<rect x="90.0" y="256.0" width="26.0" height="24.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1" opacity="1"/>
+<rect x="120.0" y="256.0" width="26.0" height="24.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1" opacity="1"/>
+<rect x="150.0" y="256.0" width="26.0" height="24.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1" opacity="1"/>
+<rect x="180.0" y="256.0" width="26.0" height="24.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1" opacity="1"/>
+<rect x="210.0" y="256.0" width="26.0" height="24.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1" opacity="1"/>
+<rect x="240.0" y="256.0" width="26.0" height="24.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1" opacity="1"/>
+<rect x="270.0" y="256.0" width="26.0" height="24.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1" opacity="1"/>
+<text x="180.0" y="300.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="middle" font-weight="bold">卡 0 10 对 · 卡 1 26 对</text>
+<rect x="440.0" y="60.0" width="26.0" height="24.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1" opacity="1"/>
+<rect x="440.0" y="88.0" width="26.0" height="24.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1" opacity="1"/>
+<rect x="470.0" y="88.0" width="26.0" height="24.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1" opacity="1"/>
+<rect x="440.0" y="116.0" width="26.0" height="24.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1" opacity="1"/>
+<rect x="470.0" y="116.0" width="26.0" height="24.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1" opacity="1"/>
+<rect x="500.0" y="116.0" width="26.0" height="24.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1" opacity="1"/>
+<rect x="440.0" y="144.0" width="26.0" height="24.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1" opacity="1"/>
+<rect x="470.0" y="144.0" width="26.0" height="24.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1" opacity="1"/>
+<rect x="500.0" y="144.0" width="26.0" height="24.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1" opacity="1"/>
+<rect x="530.0" y="144.0" width="26.0" height="24.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1" opacity="1"/>
+<rect x="440.0" y="172.0" width="26.0" height="24.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1" opacity="1"/>
+<rect x="470.0" y="172.0" width="26.0" height="24.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1" opacity="1"/>
+<rect x="500.0" y="172.0" width="26.0" height="24.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1" opacity="1"/>
+<rect x="530.0" y="172.0" width="26.0" height="24.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1" opacity="1"/>
+<rect x="560.0" y="172.0" width="26.0" height="24.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1" opacity="1"/>
+<rect x="440.0" y="200.0" width="26.0" height="24.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1" opacity="1"/>
+<rect x="470.0" y="200.0" width="26.0" height="24.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1" opacity="1"/>
+<rect x="500.0" y="200.0" width="26.0" height="24.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1" opacity="1"/>
+<rect x="530.0" y="200.0" width="26.0" height="24.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1" opacity="1"/>
+<rect x="560.0" y="200.0" width="26.0" height="24.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1" opacity="1"/>
+<rect x="590.0" y="200.0" width="26.0" height="24.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1" opacity="1"/>
+<rect x="440.0" y="228.0" width="26.0" height="24.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1" opacity="1"/>
+<rect x="470.0" y="228.0" width="26.0" height="24.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1" opacity="1"/>
+<rect x="500.0" y="228.0" width="26.0" height="24.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1" opacity="1"/>
+<rect x="530.0" y="228.0" width="26.0" height="24.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1" opacity="1"/>
+<rect x="560.0" y="228.0" width="26.0" height="24.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1" opacity="1"/>
+<rect x="590.0" y="228.0" width="26.0" height="24.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1" opacity="1"/>
+<rect x="620.0" y="228.0" width="26.0" height="24.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1" opacity="1"/>
+<rect x="440.0" y="256.0" width="26.0" height="24.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1" opacity="1"/>
+<rect x="470.0" y="256.0" width="26.0" height="24.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1" opacity="1"/>
+<rect x="500.0" y="256.0" width="26.0" height="24.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1" opacity="1"/>
+<rect x="530.0" y="256.0" width="26.0" height="24.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1" opacity="1"/>
+<rect x="560.0" y="256.0" width="26.0" height="24.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1" opacity="1"/>
+<rect x="590.0" y="256.0" width="26.0" height="24.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1" opacity="1"/>
+<rect x="620.0" y="256.0" width="26.0" height="24.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1" opacity="1"/>
+<rect x="650.0" y="256.0" width="26.0" height="24.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1" opacity="1"/>
+<text x="560.0" y="300.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="middle" font-weight="bold">卡 0 18 对 · 卡 1 18 对</text>
+</svg>

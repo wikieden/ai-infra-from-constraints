@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="380" viewBox="0 0 720 380">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="16.0" y="26.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="17" fill="#1f2937" text-anchor="start" font-weight="bold">固定 1024 卡：超节点 8 → 64 卡吞吐 +36%，之后几乎不变</text>
+<text x="16.0" y="370.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">TP8×DP128 的 Qwen3-32B，每步 2^20 token。蓝：出口随卡数增长；橙：每超节点出口封顶 400 GB/s。</text>
+<line x1="100.0" y1="310.0" x2="620.0" y2="310.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="94.0" y="314.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">100</text>
+<line x1="100.0" y1="233.1" x2="620.0" y2="233.1" stroke="#e5e7eb" stroke-width="1"/>
+<text x="94.0" y="237.1" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">120</text>
+<line x1="100.0" y1="156.2" x2="620.0" y2="156.2" stroke="#e5e7eb" stroke-width="1"/>
+<text x="94.0" y="160.2" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">140</text>
+<line x1="100.0" y1="79.2" x2="620.0" y2="79.2" stroke="#e5e7eb" stroke-width="1"/>
+<text x="94.0" y="83.2" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">160</text>
+<line x1="100.0" y1="60.0" x2="100.0" y2="310.0" stroke="#f0f1f3" stroke-width="1"/>
+<text x="100.0" y="325.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">8</text>
+<line x1="230.0" y1="60.0" x2="230.0" y2="310.0" stroke="#f0f1f3" stroke-width="1"/>
+<text x="230.0" y="325.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">64</text>
+<line x1="360.0" y1="60.0" x2="360.0" y2="310.0" stroke="#f0f1f3" stroke-width="1"/>
+<text x="360.0" y="325.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">128</text>
+<line x1="490.0" y1="60.0" x2="490.0" y2="310.0" stroke="#f0f1f3" stroke-width="1"/>
+<text x="490.0" y="325.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">256</text>
+<line x1="100.0" y1="310.0" x2="620.0" y2="310.0" stroke="#1f2937" stroke-width="1.3"/>
+<line x1="100.0" y1="60.0" x2="100.0" y2="310.0" stroke="#1f2937" stroke-width="1.3"/>
+<text x="360.0" y="342.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#1f2937" text-anchor="middle" font-weight="normal">超节点卡数</text>
+<text transform="translate(60.0,185.0) rotate(-90)" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#1f2937" text-anchor="middle">吞吐（万 token/s）</text>
+<polyline points="100.0,265.0 230.0,110.0 360.0,94.6 490.0,86.5" fill="none" stroke="#2563eb" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<polyline points="100.0,265.0 230.0,265.0 360.0,263.1 490.0,244.2" fill="none" stroke="#ea580c" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<circle cx="100.0" cy="265.0" r="4" fill="#2563eb" stroke="#2563eb" stroke-width="1.4"/>
+<circle cx="230.0" cy="110.0" r="4" fill="#2563eb" stroke="#2563eb" stroke-width="1.4"/>
+<circle cx="360.0" cy="94.6" r="4" fill="#2563eb" stroke="#2563eb" stroke-width="1.4"/>
+<circle cx="490.0" cy="86.5" r="4" fill="#2563eb" stroke="#2563eb" stroke-width="1.4"/>
+<line x1="380.0" y1="226.0" x2="402.0" y2="226.0" stroke="#2563eb" stroke-width="2.5"/>
+<text x="408.0" y="230.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#1f2937" text-anchor="start" font-weight="normal">出口随卡数</text>
+<line x1="380.0" y1="244.0" x2="402.0" y2="244.0" stroke="#ea580c" stroke-width="2.5"/>
+<text x="408.0" y="248.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#1f2937" text-anchor="start" font-weight="normal">出口 400 GB/s</text>
+</svg>

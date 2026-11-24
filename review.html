@@ -1134,6 +1134,426 @@ footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-
 <p>误区：看 kernel 数判断成本（图重放不减 kernel）；访问量最小就最快（b = 1 更新多 41 倍）；加缓冲就提吞吐（第三个槽没用）；稳态最快总耗时就最短（70 组分桶 1.27 &lt; 特化 1.38 s）。</p>
 <p>口诀：先数次数，再算每次，最后看关键路径。</p>
 </details>
+<h2 id="_19">超节点 · 并行方式</h2>
+<h3 id="i119">I119 · 为什么要用多张卡？八个单卡实例和一个八卡实例的吞吐怎么比？</h3>
+<p>来源：<a href="lessons/31-multi-gpu.html">第 31 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>三个理由：权重放不下（容量）、单请求太慢（延迟）、请求太多（吞吐）。</p>
+<p>八个单卡实例每秒 <span class="arithmatex">\(8r\)</span>；一个八卡实例单请求加速 <span class="arithmatex">\(S(8)\)</span>，每秒 <span class="arithmatex">\(S(8)r\)</span>；吞吐比 <span class="arithmatex">\(S(8)/8\)</span>。有通信和不可并行的工作时，协作实例拿吞吐换单请求时间。</p>
+<p>口诀：装不下、跑得慢、接不过来，三种病三种药。</p>
+</details>
+<h3 id="i120-qwen3-235b-a22b-hgx-h100-gb-token">I120 · Qwen3-235B-A22B 放到 HGX H100 八卡上每卡多少 GB？一层专家单 token 读和算各多久？</h3>
+<p>来源：<a href="lessons/31-multi-gpu.html">第 31 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>KV 每 token <span class="arithmatex">\(2 \times 94 \times 4 \times 128 \times 2 = 188\)</span> KiB；单卡要 473.9 GB，八卡每卡 58.96 + 0.39 + 2.15 = 61.50 GB（KV 每卡存 1/4，4 个 KV 头分给 8 卡）。</p>
+<p>一层专家单 token 选 8 个：读 288 MiB 90.1 μs、算 0.31 μs，MFU 上限 0.3%；8192 token prefill：读 4.5 GiB 1.44 ms、算 2.50 ms，计算主导。</p>
+<p>口诀：送快递花在路上，拉满车花在装卸。</p>
+</details>
+<h3 id="i121">I121 · 六种并行各切哪一维、卡之间各交换什么？</h3>
+<p>来源：<a href="lessons/31-multi-gpu.html">第 31 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>DP 切样本 B（推理不交换，训练汇合梯度）；TP 切特征 H（部分和相加或分片收集）；SP 切逐 token 算子的位置（进矩阵乘前收齐、出来归约再分片）；CP 切注意力的位置（远端 K、V 或统计量）；PP 切层（相邻阶段交接激活）；EP 切专家（dispatch、combine）。</p>
+<p>组合写成 DP2×PP2×TP4 = 16 卡，SP 在 TP 组内不再多乘。</p>
+<p>口诀：套娃从外到里：请求、层、专家、特征、位置。</p>
+</details>
+<h3 id="i122-tp-swiglu-allreduce">I122 · TP 按列切和按行切有什么不同？SwiGLU 怎么切，每层几次 AllReduce？</h3>
+<p>来源：<a href="lessons/32-dp-tp-sp.html">第 32 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>按列（切输出特征）：各卡得不同输出元素，拼接；按行（切输入特征）：各卡得同一输出的部分和，相加。<span class="arithmatex">\(x = [2, 3]\)</span>、<span class="arithmatex">\(W = [[1, 4], [2, 5]]\)</span>：列切得 8 和 23，行切得 [2, 8] + [6, 15]。</p>
+<p>SwiGLU：<span class="arithmatex">\(W_g\)</span>、<span class="arithmatex">\(W_u\)</span> 按列，逐元素本地，<span class="arithmatex">\(W_d\)</span> 按行，<span class="arithmatex">\(Y = Z_0 W_{d,0} + Z_1 W_{d,1}\)</span>。注意力按头切同理。Qwen3-32B 每层 2 次、64 层 128 次。TP 卡数超过 KV 头数就开始复制 KV。</p>
+<p>口诀：分科目并排抄，分单据小计相加。</p>
+</details>
+<h3 id="i123-qwen3-32b-128k-tp1-2-4-8-tp">I123 · Qwen3-32B 一个 128K 会话 TP1 / 2 / 4 / 8 每卡多少？TP 翻倍什么时候还划算？</h3>
+<p>来源：<a href="lessons/32-dp-tp-sp.html">第 32 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>KV 每 token 256 KiB，128K 会话 34.36 GB：单卡 102.03 GB（放不下），TP2 52.09、TP4 27.12、TP8 14.63 GB；每卡最多 2 / 7 / 16 个会话。</p>
+<p><span class="arithmatex">\(T(p) = T_{\mathrm{local}}/p + 128T_{\mathrm{AR}}(p)\)</span>，<span class="arithmatex">\(T_{\mathrm{local}} \approx 29.35\)</span> ms（一步 98.32 GB）。翻倍有用 <span class="arithmatex">\(\iff 128[T_{\mathrm{AR}}(2p) - T_{\mathrm{AR}}(p)] &lt; T_{\mathrm{local}}/(2p)\)</span>。</p>
+<p>口诀：抬钢琴人少抬不动，人多喊口令。</p>
+</details>
+<h3 id="i124-sp-allreduce">I124 · 序列并行（SP）省的是什么？它和 AllReduce 什么关系？</h3>
+<p>来源：<a href="lessons/32-dp-tp-sp.html">第 32 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>LayerNorm、Dropout、残差只依赖本 token，SP 让 TP 组内每卡只处理一段位置：进列并行线性层前 AllGather，出行并行线性层后 ReduceScatter。</p>
+<p>AllReduce = ReduceScatter + AllGather，SP 把两半挪到算子边界。[8192, 4096] BF16 激活：各存完整共 256 MiB，按位置分片共 64 MiB。只省保持分片区间的激活。</p>
+<p>口诀：质检各检各的，要整箱时再收齐。</p>
+</details>
+<h3 id="i125-cp-8-decode">I125 · CP 把 8 个位置切给两卡，为什么不均？decode 时各卡的注意力结果怎么合并？</h3>
+<p>来源：<a href="lessons/33-cp-pp-ep.html">第 33 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>因果注意力共 36 对；连续切半 10 vs 26，首尾搭配（1、2、7、8 vs 3、4、5、6）18 vs 18。</p>
+<p>各卡算 <span class="arithmatex">\(m_r\)</span>、<span class="arithmatex">\(l_r\)</span>、<span class="arithmatex">\(u_r\)</span>：<span class="arithmatex">\(m = \max m_r\)</span>，<span class="arithmatex">\(l = \sum e^{m_r - m} l_r\)</span>，<span class="arithmatex">\(u = \sum e^{m_r - m} u_r\)</span>，<span class="arithmatex">\(o = u/l\)</span>。不能各卡做完 softmax 再平均。Ring Attention 是 CP 的一种调度方式。</p>
+<p>口诀：分读小说，后半本要知道前情；统计量合并，不能各算完再平均。</p>
+</details>
+<h3 id="i126-q-b-micro-batch">I126 · 流水线 <span class="arithmatex">\(q\)</span> 个阶段、<span class="arithmatex">\(b\)</span> 个 micro-batch，总时间和利用率是多少？阶段不均会怎样？</h3>
+<p>来源：<a href="lessons/33-cp-pp-ep.html">第 33 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p><span class="arithmatex">\(T = (q + b - 1)t\)</span>，<span class="arithmatex">\(\eta = b/(q + b - 1)\)</span>：4 阶段 4 个 57%，16 个 84%。</p>
+<p>阶段 1、1、2、1 ms：第一项 5 ms，之后每 2 ms 一项，慢阶段前积压，缓冲满了上游暂停。decode 同一会话的后续 token 是依赖链，提供不了独立 micro-batch。</p>
+<p>口诀：洗烘叠包，第一筐走四道，筐多才不闲；最慢那道定节拍。</p>
+</details>
+<h3 id="i127-ep-dispatch-combine">I127 · EP 的 dispatch 和 combine 各做什么？为什么要按目的卡打包？</h3>
+<p>来源：<a href="lessons/33-cp-pp-ep.html">第 33 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>注意力和路由器在 token 所在卡；dispatch 把输入送到专家所在卡，combine 把结果送回并按路由权重 <span class="arithmatex">\(a_e y_e\)</span> 求和。多 token 时是不等长的 All-to-All。</p>
+<p>同一卡上的多个专家只发一份：8 个专家两两在 4 张远端卡，按专家发 64 KiB、按卡发 32 KiB。Qwen3-235B 每专家 36 MiB，94 层 423 GiB。</p>
+<p>口诀：大厅挂号、科室看病、报告送回；同一科室只跑一趟。</p>
+</details>
+<h2 id="_20">超节点 · 组合、通信与物理组织</h2>
+<h3 id="i128-tp2ep4-dispatch-token">I128 · TP2×EP4 的布局是什么？为什么能省掉跨组 dispatch？每 token 每卡发多少？</h3>
+<p>来源：<a href="lessons/34-combined-parallel.html">第 34 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>128 专家分 4 组各 32 个，组内两卡沿专家中间维各算 768。每组都算注意力、各存 KV，所以专家输入就在本组，省掉 dispatch；代价是每卡权重 64.8 GB（多 48 GB）、KV 存四份。</p>
+<p>每层三次汇合（注意力组内、专家组内、四组之间），FP32 16 KiB 向量：<span class="arithmatex">\(16 + 16 + 24 = 56\)</span> KiB。</p>
+<p>口诀：小组先对账，部门再对账：一倍、一倍、一倍半。</p>
+</details>
+<h3 id="i129-64-token-8-16-4">I129 · 64 个 token × 8 个专家，为什么权重读取能差 16 倍、最忙的组能差 4 倍？</h3>
+<p>来源：<a href="lessons/34-combined-parallel.html">第 34 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>均匀覆盖 128 个专家：读 4.5 GiB，四组各 128；全选同 8 个、都在组 0：读 288 MiB，组 0 承担 512；同 8 个分散到四组：288 MiB、各 128。</p>
+<p>随机路由期望活跃 <span class="arithmatex">\(E[1 - (1 - k/E)^m]\)</span>：<span class="arithmatex">\(m = 8\)</span> 约 52 个，<span class="arithmatex">\(m = 64\)</span> 约 126 个。decode 看读取，prefill 看最忙组。</p>
+<p>口诀：借同几本书取得少，都在一个柜台排长队。</p>
+</details>
+<h3 id="i130-allreduce">I130 · 四种集合通信开始和结束时各卡有什么？AllReduce 和它们什么关系？</h3>
+<p>来源：<a href="lessons/35-collectives.html">第 35 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>AllReduce：部分结果 → 完整归约；ReduceScatter：部分结果 → 归约后的不同分片；AllGather：不同分片 → 完整拼接；All-to-All：发往不同目的地的数据 → 各源发给本卡的数据。</p>
+<p>AllReduce = ReduceScatter（改数值）+ AllGather（改位置）。All-to-All 不会按路由权重合并，MoE combine ≠ AllReduce。全组要等最后一张卡发起。</p>
+<p>口诀：收作业四种法：总分给每人、一科给一人、名单拼全、纸条各写。</p>
+</details>
+<h3 id="i131-allreduce-tp">I131 · 环形 AllReduce 的时间模型是什么？八卡 TP 里带宽翻倍和 α 减半哪个更有用？</h3>
+<p>来源：<a href="lessons/35-collectives.html">第 35 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p><span class="arithmatex">\(T = 2(n - 1)\alpha + 2(n - 1)M/(nB)\)</span>。Qwen3-32B 128K、<span class="arithmatex">\(M = 10\)</span> KiB、<span class="arithmatex">\(\alpha = 0.822\)</span> μs、450 GB/s：TP2 / 4 / 8 单步 14.89 / 7.97 / 5.15 ms；TP8 一次 11.55 μs，其中 11.51 μs 是 14 轮启动。</p>
+<p>带宽翻倍整步省约 2.5 μs，α 减半省约 0.74 ms。</p>
+<p>口诀：传话围一圈；小数据时全在喊开始。</p>
+</details>
+<h3 id="i132-allreduce">I132 · 树形和环形 AllReduce 的交点在哪？通信和计算一起跑时怎么评价？</h3>
+<p>来源：<a href="lessons/35-collectives.html">第 35 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>树 <span class="arithmatex">\(2\log_2 n(\alpha + M/B)\)</span>：八卡 10 KiB 树 5.07 vs 环 11.55 μs；80 MiB 树 1.12 vs 环 0.34 ms；交点约 680 KiB（α 减半移到 340 KiB）。</p>
+<p>busbw = algbw × 2(n − 1)/n（16 rank 64 MiB：143.99 → 269.98 GB/s）。实验 6-5：64 MiB 通信与矩阵乘同时跑只省 2.7 ms；要比同时运行的完成时间，不能把单独测的相减。</p>
+<p>口诀：淘汰赛轮少每轮传整份；六百八十 KiB 换手。</p>
+</details>
+<h3 id="i133-tp16-tp8-nvswitch">I133 · 两台服务器做 TP16 为什么比机内 TP8 慢？NVSwitch 的端口怎么分？</h3>
+<p>来源：<a href="lessons/36-topology-pool.html">第 36 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>只有 8 个 KV 头，每卡 KV 不再减少，本地只从 3.67 降到 2.48 ms；跨服务器 AllReduce 实测 32.74 μs × 128：6.67 ms &gt; 5.15 ms。即使同一 NVLink 域（30 轮）也要 5.64 ms。</p>
+<p>64 端口 NVSwitch：32 下 / 32 上联 800 GB/s，48 / 16 只有 400 GB/s。割集下界 <span class="arithmatex">\(V/B\)</span>。</p>
+<p>口诀：多叫外地同事，材料分得少，表决要等电话。</p>
+</details>
+<h3 id="i134-64">I134 · 64 卡环面和交换网络各在什么流量下吃亏？环面放大后每芯片的跨分区带宽怎么变？</h3>
+<p>来源：<a href="lessons/36-topology-pool.html">第 36 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>每卡 6 × 50 GB/s：沿维度归约两者一样快；均匀 All-to-All（每卡 32 MiB）环面平均 3 跳 336 μs、交换 112 μs；512 卡环面 6 跳慢 6 倍。环面最远多 0.8 μs，128 次约 0.10 ms。</p>
+<p><span class="arithmatex">\(k^3\)</span> 环面二分链路 <span class="arithmatex">\(2k^2\)</span>：64 → 512 芯片，链路只 32 → 128，每芯片减半。供电：<span class="arithmatex">\(N \le g\lfloor (P_b - P_0)/P_s \rfloor\)</span>，120 kW 最多 88 卡（DGX H100 10.2 kW）。</p>
+<p>口诀：棋盘街去远处穿好几户，规则的活棋盘不吃亏。</p>
+</details>
+<h3 id="i135-ub">I135 · UB 为什么能让上千台主机共用一块网卡缓存？借远端内存读得多快？</h3>
+<p>来源：<a href="lessons/36-topology-pool.html">第 36 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>逐对连接每主机 +32 KiB（<span class="arithmatex">\(512A^2(H - 1)\)</span>），256 KiB 只装 8 台；端点加通道每主机 +56 B，装 4000 多台；192 台时 6 MiB vs 11 KiB。1024 × 1024 建连 17 s vs 16 ms。</p>
+<p>内存池 <span class="arithmatex">\(B = \min(B_{\mathrm{path}}, uq/L)\)</span>：256 B、7.52 μs，128 个在途 4.36 GB/s，1469 个才到 50 GB/s。20 GB 读 10 次：远端 4.0 s，取回再本地 0.46 s。</p>
+<p>口诀：借邻居书柜，往返一趟带几本决定查得多快。</p>
+</details>
+<h3 id="i136-128k-tp2-tp4-tp8">I136 · 八张卡、四个 128K 会话，TP2 / TP4 / TP8 各什么时候完成？按时会话成本多少？</h3>
+<p>来源：<a href="lessons/37-scale-choice.html">第 37 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>单会话 8 步 119.1 / 63.8 / 41.2 ms；四个 TP2 全在 119.1 ms，两个 TP4 在 63.8、127.6，一个 TP8 在 41.2、82.4、123.5、164.7 ms。</p>
+<p>期限 130 ms：每个按时会话 0.238 / 0.255 / 0.439 GPU·s。20 ms 卡 0 故障、停 40 ms 重做：TP2 0.478、TP4 0.500，TP8 只按时 1 个。单会话 50 ms 只有 TP8；32K 时 TP1 放得下但 8 步 173.3 ms。</p>
+<p>口诀：两人一灶齐上菜，围一灶第一桌快后面排队。</p>
+</details>
+<h3 id="i137">I137 · 给定模型和硬件选并行方案的五步是什么？超节点放大换来什么？</h3>
+<p>来源：<a href="lessons/37-scale-choice.html">第 37 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>记录模型 / 负载 / 硬件 → 按瓶颈列候选（放不下：TP、PP、EP；请求多：多 DP；激活重复：SP；长上下文：CP；跨节点归约贵：节点内 TP + 跨节点 PP；专家热点：EP、副本）→ 写数据归属和时间表 → 按同一目标排序 → 测量修正。</p>
+<p>V4.1 Flash：超节点 8 → 64 卡每卡吞吐 ×7.4（容量），单用户速度不变；权重进 ROM 后集合通信占每 token 65%。</p>
+<p>口诀：先列食材忌口，再选做法写步骤，最后试吃。</p>
+</details>
+<h2 id="_21">数据中心网络</h2>
+<h3 id="i138">I138 · 跨服务器传输量固定时，加卡的收益到哪为止？</h3>
+<p>来源：<a href="lessons/38-cluster.html">第 38 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>割集下界 <span class="arithmatex">\(T = V/B\)</span>。例题 7.1：360 MiB 过 50 GB/s 网卡 7.55 ms，原计算 20 ms。串行 <span class="arithmatex">\(20/x + 7.5\)</span>，完全重叠 <span class="arithmatex">\(\max(20/x, 7.5)\)</span>；<span class="arithmatex">\(x \approx 2.6\)</span> 后重叠安排不再变快。要再快就减少过割集的字节，或让更多网卡同时工作。</p>
+<p>口诀：一座桥过货有上限，人再多也快不过桥。</p>
+</details>
+<h3 id="i139-k-clos-31">I139 · <span class="arithmatex">\(k\)</span> 端口交换机的两层 / 三层 Clos 能接多少端点？超售比 3:1 让每卡少多少？</h3>
+<p>来源：<a href="lessons/38-cluster.html">第 38 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>两层 <span class="arithmatex">\(k^2/2\)</span>（<span class="arithmatex">\(k = 64\)</span>：2048 端点、96 台交换机、半分 51.2 TB/s），三层 fat-tree <span class="arithmatex">\(k^3/4\)</span>（65,536、5120 台、1638.4 TB/s）。</p>
+<p>3:1（48 下 / 16 上）：3072 端点、80 台，半分 25.6 TB/s（同规模无阻塞的 1/3）；1024 卡作业占 22 台叶、352 条上联、17.6 TB/s，每卡 17.2 GB/s。超售不成瓶颈 <span class="arithmatex">\(\iff f \le 1/r\)</span>。</p>
+<p>口诀：支路宽主干窄是超售，留在片区里就不堵。</p>
+</details>
+<h3 id="i140-72">I140 · 例题 7.2：连续环、交错环、分层归约各跨服务器多少字节、多久？分层什么时候不划算？</h3>
+<p>来源：<a href="lessons/39-cross-node.html">第 39 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>192 MiB FP32 梯度、16 参与者，都发 5760 MiB：跨服务器 720 / 5760 / 384 MiB；时间 7.6 / 7.6 / 1.3 ms。<span class="arithmatex">\(T = \sum_r(\alpha + \max_e V_{r,e}/B_e)\)</span>：连续环每轮等一张网卡，分层两轮八张网卡同时传。</p>
+<p>本地带宽不低于网卡（约 50 GB/s）就划算。对照配置（A100 PCIe、共享 32 GB/s 插槽）：连续环 11.0 ms、分层 15.7 ms，本地要约 64 GB/s 才持平。</p>
+<p>口诀：先楼内合并再八门各运一份。</p>
+</details>
+<h3 id="i141-tp-pp">I141 · 在网归约什么时候值得？TP / PP 跨服务器各怕什么？</h3>
+<p>来源：<a href="lessons/39-cross-node.html">第 39 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>两台服务器时在网归约只省一次启动（0.505 vs 0.504 ms）；32 台时环 1.027 ms、在网 0.504 ms。</p>
+<p><span class="arithmatex">\(T = \alpha + M/B\)</span>（α = 5 μs、50 GB/s）：64 MiB 1.35 ms（传输主导），8 KiB 5.16 μs（启动主导），转折 244 KiB。PP 4 阶段 8 个 micro-batch 利用率 73%，90% 要 27 个。</p>
+<p>口诀：大箱看卡车，小螺丝全在开门签收。</p>
+</details>
+<h3 id="i142-ep-rail">I142 · EP 跨服务器的流量多大？多网卡什么时候真有用？rail 对齐是什么？</h3>
+<p>来源：<a href="lessons/39-cross-node.html">第 39 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p><span class="arithmatex">\(2nkfd\)</span>：1024 token × 8 专家 × 8 KiB × 一半 = 32 MiB dispatch；一张网卡 0.67 ms，八张 0.084 ms，共享 32 GB/s 插槽 1.05 ms。</p>
+<p>多网卡要有独立带宽、有数据分给它；借相邻网卡 <span class="arithmatex">\(\min(B_D, 50 + \min(450, 100))\)</span>。rail 对齐：rank <span class="arithmatex">\(i\)</span> 配 rank <span class="arithmatex">\(i + 8\)</span>，同号网卡接同一叶交换机，不碰脊层。</p>
+<p>口诀：分拣多开口，后面共一条传送带还是卡；同号车道不上主干。</p>
+</details>
+<h3 id="i143">I143 · 数据交接为什么要分写数据和发通知？小消息该优化什么？</h3>
+<p>来源：<a href="lessons/40-remote-access.html">第 40 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>单边写把分片放进对方已授权的内存，再发短消息说明可用；RPC 请对方执行函数（base64 让 1 MiB 变 1.33 MiB）。</p>
+<p>8 KiB 启动 5 → 2 μs，总时间 5.2 → 2.2 μs；64 MiB 时这 3 μs 无关紧要。设备发起（GPUDirect、URMA）让产生数据的一方直接发，省 CPU 中转。</p>
+<p>口诀：包裹放柜再发短信。</p>
+</details>
+<h3 id="i144-64-b-pcie-ub-ub-load">I144 · 一次 64 B 远程读取，PCIe 外设网卡、UB 异步、UB Load 各多久？快照读几次就该搬回？</h3>
+<p>来源：<a href="lessons/40-remote-access.html">第 40 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>2222 / 746 / 419 ns（仿真 2236 / 757 / 500）；PCIe 外设网卡里五次 PCIe 穿越 1650 ns。都 = 固定开销 + 2L，线路 100 ns 差 5.3 倍、500 ns 差 2.5 倍。</p>
+<p>144 MiB 快照：远程 3.02r vs 搬回 3.07 + 0.046r，交点 1.03（第二次起划算）；每次只读 10% 时交点 10.3。</p>
+<p>口诀：借盐路上那段省不掉，借条转物业是手续。</p>
+</details>
+<h3 id="i145-50-gbs-pcie">I145 · 要用满 50 GB/s 需要多少请求在途？发起速率怎么限制？PCIe 读写为什么不对称？</h3>
+<p>来源：<a href="lessons/40-remote-access.html">第 40 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p><span class="arithmatex">\(N \ge BT/m\)</span>：256 B、2 μs 要 391 个；128 个只有 16.4 GB/s。<span class="arithmatex">\(B_{\mathrm{eff}} \le \min(B, Nm/T, m/\delta)\)</span>：δ = 18.6 ns 时卡在 13.8 GB/s；256 B 要 δ ≤ 5.12 ns，4 KiB 只要 82 ns、25 个槽。</p>
+<p>PCIe 写 posted 发出即完成，读 non-posted 要标签和完成报文：KV-Direct 64 个标签 ÷ 1050 ns = 6100 万次/秒（实测 6000 万）。</p>
+<p>口诀：骑手数 = 速率 × 来回；派单慢骑手再多也白搭。</p>
+</details>
+<h3 id="i146">I146 · 一份分片的发送完成、可见、用完分别决定什么？</h3>
+<p>来源：<a href="lessons/41-handoff-state.html">第 41 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>发送完成 → 源缓冲可复用（例 5 μs）；可见 + 通知 → 接收方可读；用完 → 目的缓冲可覆盖（例 12 μs）。6 μs 就覆盖目的地址：网络每个字节都对，消费者却读到下一份。</p>
+<p>依赖图：完成时刻 = max(前驱) + 自身；缺边读到未发布数据，多边就多等。</p>
+<p>口诀：托盘送到、对方看到、对方用完是三个时刻。</p>
+</details>
+<h3 id="i147">I147 · 共享传输状态能省多少？只保留必要的顺序能让谁提前？</h3>
+<p>来源：<a href="lessons/41-handoff-state.html">第 41 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>64 端点 × 128 目标：独占 8.52 MiB，按目标共享 0.64 MiB；<span class="arithmatex">\(S = Le + LPr + KPt\)</span>，1 MiB 只放 3 组隔离。实现尺寸：<span class="arithmatex">\(512NM + 32N\)</span> vs <span class="arithmatex">\(52N + 56M\)</span>，1024 × 1024 时 512 MiB vs 108 KiB，256 KiB 缓存溢出点 23 vs 2428。</p>
+<p>例题 7.4：A 写 20 + 恢复 80 + B 2 μs、C 10 μs：串行 C 在 112 μs，只保留 A → B 时 C 在 10 μs。先读的旧值晚返回也还是旧值。</p>
+<p>口诀：工号各管各的，同城包裹共一条线；别家的货不用等。</p>
+</details>
+<h3 id="i148">I148 · 为什么加槽位不能提高持续吞吐？</h3>
+<p>来源：<a href="lessons/41-handoff-state.html">第 41 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>16 次 8 KiB 操作，每 20 μs 处理 4 条完成通知：8 槽 48 μs 传完、16 槽 20 μs 传完，但两者都到 80 μs 才全部释放。</p>
+<p>持续吞吐 = 完成处理速率 × 每项字节 = 200,000/s × 8 KiB ≈ 1.64 GB/s；50 GB/s 要每秒约 610 万项。加槽位只容纳突发；槽满就背压，故障时先停提交、结束旧请求再释放空间。</p>
+<p>口诀：桌子多容高峰，收桌快才接得多。</p>
+</details>
+<h3 id="i149-40-1-gb">I149 · 平均利用率只有 40%，为什么还积压 1 GB？</h3>
+<p>来源：<a href="lessons/42-congestion.html">第 42 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>两作业每 100 ms 各发 20 ms、50 GB/s，共享 50 GB/s：平均 20 GB/s；高峰重叠时超额 50 GB/s × 20 ms = 1 GB，再要 20 ms 排空。重叠 5 ms 积压 250 MB；错开就是 0。512 KiB 缓冲只容忍约 10.5 μs 的重叠。</p>
+<p>口诀：两家都九点上班，路平时空也会堵。</p>
+</details>
+<h3 id="i150-incast-pfc-dcqcn">I150 · 反馈要多快才不丢包？incast 下 PFC 和 DCQCN 怎么分工？</h3>
+<p>来源：<a href="lessons/42-congestion.html">第 42 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p><span class="arithmatex">\(T_f \le Q_{\mathrm{free}}/(\lambda - B)\)</span>：剩 256 KiB、超额 50 GB/s 只有 5.2 μs；20 μs 才降速丢约 738 KB；降到 40 GB/s 才排空。</p>
+<p>incast <span class="arithmatex">\(N\)</span> 路：超额 <span class="arithmatex">\((N - 2) \times 50\)</span> GB/s，1 MiB 时允许 3.50 / 1.50 / 0.34 μs（N = 8 / 16 / 64）。PFC 一跳约 0.33 μs（30 m 往返 + 1500 B 串行化），headroom 99 KB–1.02 MB；DCQCN 端到端 20 μs 来不及，靠 PFC 撑住、DCQCN 从源头降速。</p>
+<p>口诀：站口举牌管一个路口快，打电话管源头慢。</p>
+</details>
+<h3 id="i151-ecmp">I151 · 把数据拆到多条路径何时更慢？ECMP 冲突代价多大？死锁怎么解？</h3>
+<p>来源：<a href="lessons/42-congestion.html">第 42 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>8 × 4 KiB：两条 1 μs 路径 1.33 μs，单路径 1.66 μs，第二条 9 μs 时 9.33 μs；路径时延差超过省下的串行时间就不划算。首包丢失选择性重传 21.2 μs。8 MiB 喷洒到 8 条路径 29.0 vs 168.8 μs。</p>
+<p>ECMP <span class="arithmatex">\(n\)</span> 流 <span class="arithmatex">\(m\)</span> 上联：32 → 32 只剩 28.3%，8 → 32 为 60.1%。死锁：持有一个等另一个成环；规定申请顺序或为响应预留独立资源。</p>
+<p>口诀：两人分送八页，绕远路的拖全书；窄桥对开留一条退路。</p>
+</details>
+<h3 id="i152-0002-ms-04-ms">I152 · 四个参与者在 0、0、0、2 ms 就绪，交换 0.4 ms：缩短交换和消除偏差各省多少？</h3>
+<p>来源：<a href="lessons/43-task-completion.html">第 43 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>原 2.4 ms；交换减半 2.2 ms；同时就绪 0.4 ms。通信何时开始由最晚就绪的参与者决定，等待记在通信调用里，根源在前面的计算（MegaScale）。分桶让一个桶的梯度一生成就开始归约。</p>
+<p>口诀：四人约出发看最晚那个。</p>
+</details>
+<h3 id="i153-76">I153 · 例题 7.6 六种安排的整步时间？训练和低并发推理各先优化什么？</h3>
+<p>来源：<a href="lessons/43-task-completion.html">第 43 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>计算 20、更新 2 ms：连续环串行 29.6、分层串行 23.3、分层 128 槽 24.3、连续环 17 ms 起重叠 26.6、分层重叠 22.0（全藏住，最晚 18.7 ms 就绪）、一张网卡 23.8 ms。<span class="arithmatex">\(S = (T_c + T_n)/(T_c + T_n/s)\)</span>。</p>
+<p>8 卡环 <span class="arithmatex">\(14\alpha + 1.75M/B\)</span>：8 MiB 带宽 ×3 从 364 到 168 μs；8 KiB 72 次，带宽 ×3 只省 14 μs，α 5 → 2 μs 省 3.0 ms。</p>
+<p>口诀：装盘等菜和汤；搬家换大车，寄信少跑邮局。</p>
+</details>
+<h3 id="i154-1024-8-256">I154 · 固定 1024 卡，超节点从 8 卡变 256 卡，吞吐和故障开销怎么变？</h3>
+<p>来源：<a href="lessons/43-task-completion.html">第 43 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>TP8×DP128 Qwen3-32B：出口随卡数时 0.939 / 0.690 / 0.672 / 0.663 s（111.7 → 158.1 万 token/s），8 → 64 卡 +36%，之后几乎不变；出口固定 400 GB/s 时几乎不变。超节点扩大 16 倍，跨出口字节只 127 → 112 GB。TP8 仍最好。</p>
+<p><span class="arithmatex">\(\epsilon \approx C/I + \lambda(I/2 + R)\)</span>：128 / 256 卡 3.4% / 3.8%，有效 150.9 / 152.3 万。</p>
+<p>口诀：部门大了跨部门会少，大到头只剩出错牵连的人多。</p>
+</details>
+<h2 id="_22">推理优化</h2>
+<h3 id="i155-2k-695-s-prefill">I155 · 一条 2K 短请求的 6.95 s 怎么来？插一次别人的 prefill 会怎样？</h3>
+<p>来源：<a href="lessons/44-inference-request.html">第 44 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>排队 0.1 + prefill 0.096 + 255 × 26.5 ms = 6.95 s（TTFT 0.196 s）。插一次 prefill，某个间隔变成约 123 ms，总时间 7.05 s 超时：计算一样，只是顺序变了。</p>
+<p>batch 16 一轮 27.44 ms 出 16 个，约 583 token/s；batch 1 约 38。</p>
+<p>口诀：第一道菜到手看排队加开火，之后看上菜间隔。</p>
+</details>
+<h3 id="i156-qwen3-8b-token-kv-12-gib">I156 · Qwen3-8B 每 token KV 多少？12 GiB 能同时接多少条短请求、长请求？</h3>
+<p>来源：<a href="lessons/44-inference-request.html">第 44 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p><span class="arithmatex">\(2 \times 36 \times 8 \times 128 \times 2 = 144\)</span> KiB。2K 输入 288 MiB，生成 256 个后按块分配 324 MiB，12 GiB 放 37 条；8K 输入 1152 MiB，生成完 1188 MiB，放 10 条。只按 prefill 算会放 42 条短请求，生成完要 13,608 MiB：接收时按生成结束预留。</p>
+<p>口诀：车会变长，按进场时的长度卖票就停不下。</p>
+</details>
+<h3 id="i157-token-batch-8k-batch-kv">I157 · 每输出 token 的读取怎么随 batch 变？8K 上下文 batch 多大后读 KV 就比读权重多？</h3>
+<p>来源：<a href="lessons/45-batching.html">第 45 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p><span class="arithmatex">\(d(b, L) = D_w/b + Lk\)</span>，<span class="arithmatex">\(D_w \approx 14.1\)</span> GiB：2K 时 batch 1 → 64 从 14.38 降到 0.50 GiB（1/29）。<span class="arithmatex">\(b_{\mathrm{KV}} = \lceil D_w/(Lk) \rceil\)</span>：2K 51，8K 13。</p>
+<p>实测 batch 1 → 64：吞吐 37 → 1165 token/s，首 token 96 ms → 3.29 s。LoRA（Q、V，r = 16）一套 14.6 MiB，能放多少 adapter 和能服务多少请求是两回事。</p>
+<p>口诀：班车开一趟摊油钱，行李各扛各的。</p>
+</details>
+<h3 id="i158-batch-prefill">I158 · 固定 batch、连续批处理、分块 prefill 各有什么代价？</h3>
+<p>来源：<a href="lessons/45-batching.html">第 45 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>步时间 26.22 ms + 30.4 μs × 新 token + 3 ns × 因果配对（2K prefill 94.8 ms、decode 26.26 ms）。四条请求：固定 batch 870 ms、最长间隔 26 ms；连续批处理 766 ms，但 r0 等 r2 的 8K prefill，最长间隔 376 ms；分块（每块 2048、decode 优先）844 ms、133 ms。</p>
+<p>口诀：翻台谁吃完谁走，新客点大菜大家等。</p>
+</details>
+<h3 id="i159-prefill-token">I159 · 同样长的 prefill 块，为什么越往后越慢？token 预算怎么定？</h3>
+<p>来源：<a href="lessons/45-batching.html">第 45 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p><span class="arithmatex">\(N_{\mathrm{pair}} = ch + c(c+1)/2\)</span>：<span class="arithmatex">\(c = 512\)</span> 首块 131,328 对，已有 7680 时 4,063,488 对（31 倍），实测末块慢约 39%。块太小每块都重读一遍权重。</p>
+<p>预算 512 → 8192：后到请求排队 149 ms → 不足 0.1 ms，最长间隔 32 → 183 ms。先按允许的输出间隔定一轮多久，再换算成新 token 数；CUDA Graph 形状补齐也要算。</p>
+<p>口诀：读书越往后越要回头对照。</p>
+</details>
+<h3 id="i160-kv-abcd-913515">I160 · KV 分页省的是什么？A、B、C、D 长 9、13、5、15 的例子？</h3>
+<p>来源：<a href="lessons/46-kv-cache.html">第 46 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>块表把逻辑块映射到分散的物理块，浪费只在最后一块（≤ <span class="arithmatex">\(p - 1\)</span>）。整段预留 64 token（未用 22），每块 4 分页 52（未用 10），A、B 共享前 8 个 token 再降到 44。分页去掉没用的预留，共享去掉重复保存。</p>
+<p>口诀：活页册页码定顺序，纸夹哪都行。</p>
+</details>
+<h3 id="i161-16">I161 · 共享块什么时候释放？写时复制做什么？16 条长请求共享前缀后多大？</h3>
+<p>来源：<a href="lessons/46-kv-cache.html">第 46 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>引用计数归零且加速器不再访问才回空闲池（取消调用 1.6 ms 返回，块 31 ms 才释放）。写入共享尾块前先复制自己的副本。四分支 416 个引用、131 个物理块（−69%）。</p>
+<p>16 条 8K：共享 6144 token（864 MiB）+ 每条私有 324 MiB = 6048 MiB（独立 19,008）；12 GiB 上限 10 → 35 条。</p>
+<p>口诀：合租的书记人数，最后一人走才还；做笔记先复印。</p>
+</details>
+<h3 id="i162">I162 · 前缀复用要满足什么？一个前缀值不值得留，怎么算？</h3>
+<p>来源：<a href="lessons/46-kv-cache.html">第 46 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>必须从头连续匹配：开头改一个 token 后面全失效；稳定的系统提示和工具定义放前面。</p>
+<p><span class="arithmatex">\(V_h = p_h(T_r - T_f) - T_m\)</span>，值得留 <span class="arithmatex">\(\iff p_h &gt; T_m/(T_r - T_f)\)</span>。6144 token 前缀：重算 307.9 ms、PCIe Gen5 取回 14.2 ms，门槛 4.8%，命中 50% 净省 132.7 ms；同样 864 MiB 留三个 2048 token 前缀只省 120.9 ms：按每 MiB 收益排序。</p>
+<p>口诀：抄写接龙从头接；剩菜按下顿吃的概率乘省下的工夫。</p>
+</details>
+<h3 id="i163-q2_k-2625-bitm2-max-2-gib">I163 · Q2_K 为什么平均 2.625 bit？M2 Max 上两个只差 2 GiB 的文件为什么一个能用一个不行？</h3>
+<p>来源：<a href="lessons/47-compress-offload.html">第 47 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>每组 256 个值：64 B 码值 + 20 B 元数据 = 84 B → 2.625 bit，元数据约 24%。</p>
+<p>M2 Max 96 GB = 89.41 GiB，留 8 GiB 剩 81.41：79.81 GiB 文件剩 1.60（还能放一条 8K 请求的 1.47 GiB），81.97 GiB 文件超出 0.56，加载都不行。</p>
+<p>口诀：照片压缩每块还要记基准。</p>
+</details>
+<h3 id="i164-kv-q8_0-q4_0">I164 · KV 改 q8_0 / q4_0 省多少？一定更快吗？</h3>
+<p>来源：<a href="lessons/47-compress-offload.html">第 47 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>每 32 值：BF16 64 B，q8_0 34 B，q4_0 18 B；8K 1152 → 612 / 324 MiB；16 条完整长请求 q8_0 9.86 GiB。</p>
+<p><span class="arithmatex">\(\Delta T = \Delta D/\beta - T_c\)</span>：少读 540 MiB 省约 0.49 ms，转换 0.2 ms 净省 0.29，0.8 ms 反而慢 0.31。FP8 vs BF16 输出间隔交点约 7000 token。</p>
+<p>口诀：包装压小省车厢，拆包慢了白省。</p>
+</details>
+<h3 id="i165-ffn">I165 · 卸载九份 FFN 每轮要搬多久？先压缩再搬的条件？换格式后答案还对吗？</h3>
+<p>来源：<a href="lessons/47-compress-offload.html">第 47 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>2592 MiB：一组预取缓冲净省 2304、两组 2016 MiB。PCIe Gen5 每轮 42.5 ms（&gt; 26.26 ms 一轮 decode），255 轮 10.8 s 超时；NVLink-C2C 6.0 ms、1.54 s。<span class="arithmatex">\(R_{\mathrm{dec}} &gt; B_{\mathrm{link}}/(1 - r)\)</span>：压到 1/4 要 85.3 GB/s。</p>
+<p>BF16 KV 28/32、原 FP8 26/32、FP8 KV + BF16 Q 28/32 但错在不同的题：逐题对照，重试时间算进总耗时。</p>
+<p>口诀：借邻居冰箱每轮都去取；换速记法逐题对。</p>
+</details>
+<h3 id="i166">I166 · 推测解码的接受规则是什么，为什么输出分布不变？</h3>
+<p>来源：<a href="lessons/48-speculative.html">第 48 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>贪心：草稿与目标逐位比，第一个不同处换成目标的 token，其后丢弃；全对时多一个。随机：按 <span class="arithmatex">\(\alpha = \min(1, p/q)\)</span> 接受，拒绝后从 <span class="arithmatex">\([p - q]_+\)</span> 归一化重采；$q\alpha + $ 补差 <span class="arithmatex">\(= p\)</span>。</p>
+<p><span class="arithmatex">\(p(A) = 1/4\)</span>：草稿恒 A 接受率 1/4，恒 B 接受率 3/4，都得到目标分布。</p>
+<p>口诀：老师改草稿，错处后面全划掉；分布不走样。</p>
+</details>
+<h3 id="i167-14-34-token">I167 · 每轮期望输出多少？接受率 1/4 和 3/4 每 token 多久？查草稿最多能花多久？</h3>
+<p>来源：<a href="lessons/48-speculative.html">第 48 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p><span class="arithmatex">\(\mathbb{E}[N] = 1 + a + a^2 + a^3 + a^4\)</span>：1.33 / 3.05。验证一轮 26.26 ms（多 4 行只加约 0.2 ms）+ 查询 0.1 ms：19.8 / 8.64 ms/token（普通 26.26）。查询上限 <span class="arithmatex">\((\mathbb{E}[N] - 1) \times 26.26\)</span>：8.7 / 53.9 ms。平均耗时 = 总时间 / 总 token，不是每轮比值的平均。建索引 2 s，约 114 个 token 回本。</p>
+<p>口诀：一趟车多带几件，平均要总时间除总件数。</p>
+</details>
+<h3 id="i168">I168 · 草稿串行生成和并行生成哪个快？草稿多长最好？</h3>
+<p>来源：<a href="lessons/48-speculative.html">第 48 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>DFlash 2.10 GB、588 GB/s 一次前向 3.57 ms：串行 4 次每轮出 3 个 13.5 ms/token，并行一次 9.9 ms；并行但只出 2 个时 14.9 ms，反而更慢。</p>
+<p>加长划算 <span class="arithmatex">\(\iff \Delta T/\Delta N &lt; T/N\)</span>；<span class="arithmatex">\(a = 3/4\)</span>、每个草稿 3.6 ms：m = 1 / 2 / 4 / 8 为 17.1 / 14.5 / 13.3 / 14.9 ms/token。还要看执行形状（8 → 9 换 16 行图）和并发。</p>
+<p>口诀：猜得越远越难活，多猜一个要比原来便宜才猜。</p>
+</details>
+<h3 id="i169">I169 · 系统里平均有多少条请求？准入和取消要检查什么？</h3>
+<p>来源：<a href="lessons/49-serving-choice.html">第 49 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>Little 定律 <span class="arithmatex">\(\bar n = \lambda\bar T\)</span>：4 req/s × 0.5 s = 2 条，× 2 s = 8 条。准入前查 KV 空间和离截止还剩多久（短请求已用 6.95 s，再排 0.1 s 就超时），可拒绝、转交或换更快配置；取消后等加速器操作完成再释放。</p>
+<p>口诀：候诊厅人数 = 来的速度 × 待的时间。</p>
+</details>
+<h3 id="i170-decode-86-ms-26-ms">I170 · 完成吞吐和有效吞吐差在哪？decode 一轮只读 8.6 ms 的数据为什么要 26 ms？</h3>
+<p>来源：<a href="lessons/49-serving-choice.html">第 49 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p><span class="arithmatex">\(R_{\mathrm{good}} = \sum Q_i D_i / T\)</span>：336 次回答，294 正确，155 正确且按时。连续批处理 4/s：完成 2.33、有效 1.02 req/s；16/s：完成 2.38、有效 0.60（−41%）。</p>
+<p>实验 8-1：batch 1 / 4 / 16 / 64 读取下界 8.62 / 9.12 / 11.14 / 19.23 ms，实测 26.26 / 26.62 / 27.44 / 29.63，MBU 33 / 34 / 41 / 65%；多出的约 17.6 ms 是逐个提交 kernel 和主机调度。</p>
+<p>口诀：快递考核只数准时没送错的。</p>
+</details>
+<h3 id="i171-16-8k-6k12-gib7-s-a-b-c-d">I171 · 16 条 8K 长请求（共享 6K），12 GiB、7 s 内，A / B / C / D 四种方案谁可行？</h3>
+<p>来源：<a href="lessons/49-serving-choice.html">第 49 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>A BF16 独立 18.56 GiB（放不下），B 共享前缀 5.91 GiB 但 2.04 + 255 × 27.35 ms = 9.01 s 超时，C q8_0 独立 9.86 GiB 但 14.55 s，D 共享 + 推测 9.02 GiB、2.23 + 85 × 27.35 ms = 4.56 s ✓（每个合格结果 0.285 GPU s、≤ 171 J）。只剩 6 GiB 时无解；输出只要 16 个时 B 2.45、D 2.37 s。</p>
+<p>任务级 Amdahl：decode 占 50% 快 4 倍 → 1.6 倍，占 20% → 1.18 倍。</p>
+<p>口诀：先看装得下，再看到得了，最后挑最省。</p>
+</details>
 </main>
 <footer>来自个人学习仓库的对话讲义，含练习作答记录。源码：<a href="https://github.com/wikieden/ai-infra-from-constraints">github.com/wikieden/ai-infra-from-constraints</a>。更多讲义书：<a href="https://wikieden.github.io/ai-books/">Physical AI 0-1-♾️（合集）</a></footer>
 <script>(function(){var d=document.documentElement,K=["s","m","l","xl"];

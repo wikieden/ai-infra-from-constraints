@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="820" height="260" viewBox="0 0 820 260">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="16.0" y="26.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="17" fill="#1f2937" text-anchor="start" font-weight="bold">SP：逐 token 算子按位置分片，矩阵乘前收齐、矩阵乘后归约再分片</text>
+<text x="16.0" y="250.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">AllReduce = ReduceScatter + AllGather；SP 把两半放到算子边界上，中间的 LayerNorm、残差每卡只存一段位置。</text>
+<rect x="30.0" y="100.0" width="150.0" height="60.0" rx="8" fill="#ccfbf1" stroke="#0d9488" stroke-width="1.4" opacity="1"/>
+<text x="105.0" y="126.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="middle" font-weight="bold">LayerNorm / 残差</text>
+<text x="105.0" y="142.2" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#4b5563" text-anchor="middle" font-weight="normal">各卡一段位置</text>
+<rect x="230.0" y="100.0" width="120.0" height="60.0" rx="8" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<text x="290.0" y="126.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="middle" font-weight="bold">AllGather</text>
+<text x="290.0" y="142.2" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#4b5563" text-anchor="middle" font-weight="normal">收齐位置</text>
+<rect x="400.0" y="100.0" width="140.0" height="60.0" rx="8" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.4" opacity="1"/>
+<text x="470.0" y="126.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="middle" font-weight="bold">列并行 → 行并行</text>
+<text x="470.0" y="142.2" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#4b5563" text-anchor="middle" font-weight="normal">TP 线性层</text>
+<rect x="590.0" y="100.0" width="140.0" height="60.0" rx="8" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<text x="660.0" y="126.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="middle" font-weight="bold">ReduceScatter</text>
+<text x="660.0" y="142.2" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#4b5563" text-anchor="middle" font-weight="normal">求和 + 按位置分片</text>
+<line x1="180.0" y1="130.0" x2="230.0" y2="130.0" stroke="#4b5563" stroke-width="1.6"/>
+<polygon points="230.0,130.0 222.1,134.2 222.1,125.8" fill="#4b5563" stroke="#4b5563" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<line x1="350.0" y1="130.0" x2="400.0" y2="130.0" stroke="#4b5563" stroke-width="1.6"/>
+<polygon points="400.0,130.0 392.1,134.2 392.1,125.8" fill="#4b5563" stroke="#4b5563" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<line x1="540.0" y1="130.0" x2="590.0" y2="130.0" stroke="#4b5563" stroke-width="1.6"/>
+<polygon points="590.0,130.0 582.1,134.2 582.1,125.8" fill="#4b5563" stroke="#4b5563" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<text x="410.0" y="210.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#6b7280" text-anchor="middle" font-weight="normal">[8192, 4096] 激活：各存完整 4 × 64 = 256 MiB → 分片共 64 MiB</text>
+</svg>

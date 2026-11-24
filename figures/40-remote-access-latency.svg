@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="300" viewBox="0 0 800 300">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="16.0" y="26.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="17" fill="#1f2937" text-anchor="start" font-weight="bold">一次 64 B 远程读取：五次 PCIe 穿越占 1650 ns</text>
+<text x="16.0" y="290.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">线路单程 100 ns。仿真实测 2236 / 757 / 500 ns。每条路径 = 固定开销 + 2L。</text>
+<text x="150.0" y="102.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="end" font-weight="normal">PCIe 外设网卡</text>
+<rect x="160.0" y="80.0" width="20.0" height="34.0" rx="2" fill="#f3f4f6" stroke="#6b7280" stroke-width="1.4" opacity="1"/>
+<rect x="180.0" y="80.0" width="412.5" height="34.0" rx="2" fill="#fee2e2" stroke="#dc2626" stroke-width="1.4" opacity="1"/>
+<text x="386.2" y="102.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#dc2626" text-anchor="middle" font-weight="bold">PCIe 穿越</text>
+<rect x="592.5" y="80.0" width="28.0" height="34.0" rx="2" fill="#ccfbf1" stroke="#0d9488" stroke-width="1.4" opacity="1"/>
+<rect x="620.5" y="80.0" width="50.0" height="34.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<rect x="670.5" y="80.0" width="45.0" height="34.0" rx="2" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.4" opacity="1"/>
+<text x="723.5" y="102.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="start" font-weight="bold">2222 ns</text>
+<text x="150.0" y="162.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="end" font-weight="normal">UB 异步读</text>
+<rect x="160.0" y="140.0" width="20.0" height="34.0" rx="2" fill="#f3f4f6" stroke="#6b7280" stroke-width="1.4" opacity="1"/>
+<rect x="180.0" y="140.0" width="22.5" height="34.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<rect x="202.5" y="140.0" width="77.8" height="34.0" rx="2" fill="#ccfbf1" stroke="#0d9488" stroke-width="1.4" opacity="1"/>
+<text x="241.4" y="162.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#0d9488" text-anchor="middle" font-weight="bold">网卡流水</text>
+<rect x="280.2" y="140.0" width="50.0" height="34.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<rect x="330.2" y="140.0" width="16.2" height="34.0" rx="2" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.4" opacity="1"/>
+<text x="354.5" y="162.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="start" font-weight="bold">746 ns</text>
+<text x="150.0" y="222.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="end" font-weight="normal">UB Load</text>
+<rect x="160.0" y="200.0" width="22.5" height="34.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<rect x="182.5" y="200.0" width="24.8" height="34.0" rx="2" fill="#ccfbf1" stroke="#0d9488" stroke-width="1.4" opacity="1"/>
+<rect x="207.2" y="200.0" width="50.0" height="34.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<rect x="257.2" y="200.0" width="7.5" height="34.0" rx="2" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.4" opacity="1"/>
+<text x="272.8" y="222.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="start" font-weight="bold">419 ns</text>
+</svg>

@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TP 卡数、容量与单步时间</title><link rel="stylesheet" href="anim.css">
+<style>svg text.cap{font-size:15px;font-weight:500}svg text.num{font-size:16px;font-weight:600}</style></head>
+<body><main>
+<h1>第 32 章 · TP 几卡，放得下几个会话、一步多久</h1>
+<p class="sub">配套讲义：<a href="../lessons/32-dp-tp-sp.html">第 32 章 · 数据、张量、序列并行：复制模型、切矩阵、切激活</a>。Qwen3-32B，H100 80 GB，每卡留 2 GiB 工作区；KV 每 token 256 KiB；归约按第 35 章环形算法（α = 0.822 μs、450 GB/s、每步 128 次）。</p>
+<div class="panel"><svg id="sv" viewBox="0 0 680 360"></svg></div>
+<div class="row"><button id="play">▶ 播放</button><button id="step">→ 单步</button><button id="reset">↺ 从头开始</button></div>
+<div class="row"><label for="p">TP 卡数</label><select id="p"><option value="1">1</option><option value="2">2</option><option value="4">4</option><option value="8">8</option></select><label for="c">上下文</label><select id="c"><option value="131064">128K</option><option value="32760">32K</option></select></div>
+<p class="note">看点：① 左边竖条是每卡内存（权重、一个会话的 KV、工作区），虚线 80 GB；② 中间是每卡最多几个会话；③ 右边是一步的时间：本地读取 + 128 次归约；④ 播放 128K 下 TP1 → 2 → 4 → 8，再切到 32K 看 TP1。</p>
+</main>
+<script src="anim.js"></script>
+<script>
+const sv=$('sv');
+function R(x,y,w,h,col,op){return el('rect',{x,y,width:Math.max(w,1),height:h,rx:4,fill:col,opacity:op??.7},sv)}
+function T(s,x,y,a,c){return txt(s,{x,y,'text-anchor':a||'start',class:c||'m'},sv)}
+function cap(s){T(s,340,26,'middle','cap')}
+const GET=ids=>ids.map(i=>{const e=$(i);return e.type==='checkbox'?+e.checked:+e.value});
+function SET(ids,v){ids.forEach((i,k)=>{const e=$(i);if(e.type==='checkbox')e.checked=!!v[k];else e.value=v[k];const o=$(i+'v');if(o)o.textContent=(+v[k]).toString()})}
+const IDS=['p','c'],F=[[1,131064],[2,131064],[4,131064],[8,131064],[1,32760]];
+const V=s=>64*930*2**20+262144*(s+1)+151936*5120*2;const AR=p=>p>1?(2*(p-1)*0.822e-6+2*(p-1)*10240/(p*450e9)):0;
+function render(p,s){const w=65.52/p,sess=262144*(s+1)/1e9,kv=sess/p,u=2.147,tot=w+kv+u,n=Math.floor((80-u-w)/kv),loc=V(s)/3350e9/p*1e3,ar=128*AR(p)*1e3,Y=v=>300-v/110*240;
+ cap(`TP${p}、${s>100000?'128K':'32K'}：每卡 ${tot.toFixed(2)} GB，最多 ${Math.max(n,0)} 个会话`);
+ R(80,Y(w),60,300-Y(w),'var(--purple)');R(80,Y(w+kv),60,Y(w)-Y(w+kv),'var(--accent)');R(80,Y(tot),60,Y(w+kv)-Y(tot),'var(--muted)');
+ el('line',{x1:60,y1:Y(80),x2:170,y2:Y(80),stroke:'var(--bad)','stroke-dasharray':'5 4'},sv);T('80 GB',175,Y(80)+4);T(tot>80?'放不下':'',110,Y(tot)-8,'middle','num');
+ T(`${Math.max(n,0)} 个会话`,290,170,'middle','num');T('每卡可放',290,145,'middle');
+ const sc=v=>v/30*240;T('一步',420,90);R(420,110,sc(loc),28,'var(--accent)');R(420+sc(loc),110,Math.max(sc(ar),1),28,'var(--warm)');
+ T(`${(loc+ar).toFixed(2)} ms`,420,170,'start','num');T(`本地 ${loc.toFixed(2)} + 归约 ${ar.toFixed(2)}`,420,195)}
+let k=0,custom=null;
+function draw(){clear(sv);const v=custom||F[k];SET(IDS,v);render(...v)}
+function reset(){k=0;custom=null;draw()}
+function next(){if(custom!==null){custom=null;draw();return true}if(k>=F.length-1)return false;k++;draw();return true}
+IDS.forEach(i=>{const e=$(i);const f=()=>{ANIM.stop();custom=GET(IDS);draw()};e.oninput=f;e.onchange=f});
+setupPlayer({captureSeed:1,reset,next},1500);
+</script><a href="https://wikieden.github.io/ai-books/" style="position:fixed;right:12px;bottom:12px;z-index:99;padding:4px 10px;border-radius:14px;background:rgba(127,127,127,.18);color:inherit;font:13px/1.6 system-ui,sans-serif;text-decoration:none">← 全部讲义书</a>
+</body></html>

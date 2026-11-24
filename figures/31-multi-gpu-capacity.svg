@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="780" height="300" viewBox="0 0 780 300">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="16.0" y="26.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="17" fill="#1f2937" text-anchor="start" font-weight="bold">Qwen3-235B-A22B：单卡要 473.9 GB，分到八张卡每卡 61.50 GB</text>
+<text x="16.0" y="290.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">BF16，8192 个上下文 token。KV 每卡存 1/4（4 个 KV 头分给 8 张卡）；2 GiB 工作区每卡一份。虚线是 H100 的 80 GB。</text>
+<text x="160.0" y="112.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="end" font-weight="normal">单卡</text>
+<rect x="170.0" y="90.0" width="517.2" height="34.0" rx="3" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.4" opacity="1"/>
+<rect x="687.2" y="90.0" width="2.0" height="34.0" rx="3" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<rect x="689.0" y="90.0" width="2.4" height="34.0" rx="3" fill="#f3f4f6" stroke="#6b7280" stroke-width="1.4" opacity="1"/>
+<text x="699.3" y="112.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="start" font-weight="bold">473.9 GB</text>
+<text x="160.0" y="192.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="end" font-weight="normal">八卡中的每卡</text>
+<rect x="170.0" y="170.0" width="64.9" height="34.0" rx="3" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.4" opacity="1"/>
+<rect x="234.9" y="170.0" width="2.0" height="34.0" rx="3" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<rect x="235.3" y="170.0" width="2.4" height="34.0" rx="3" fill="#f3f4f6" stroke="#6b7280" stroke-width="1.4" opacity="1"/>
+<text x="245.7" y="192.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="start" font-weight="bold">61.5 GB</text>
+<line x1="258.0" y1="70.0" x2="258.0" y2="230.0" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="5 4"/>
+<rect x="238.1" y="240.0" width="39.9" height="16.0" rx="3" fill="#ffffff" stroke="none" stroke-width="1.4" opacity="0.9"/>
+<text x="258.0" y="251.5" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#dc2626" text-anchor="middle" font-weight="normal">80 GB</text>
+<line x1="470.0" y1="206.0" x2="492.0" y2="206.0" stroke="#7c3aed" stroke-width="2.5"/>
+<text x="498.0" y="210.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#1f2937" text-anchor="start" font-weight="normal">权重</text>
+<line x1="470.0" y1="224.0" x2="492.0" y2="224.0" stroke="#2563eb" stroke-width="2.5"/>
+<text x="498.0" y="228.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#1f2937" text-anchor="start" font-weight="normal">KV</text>
+<line x1="470.0" y1="242.0" x2="492.0" y2="242.0" stroke="#6b7280" stroke-width="2.5"/>
+<text x="498.0" y="246.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#1f2937" text-anchor="start" font-weight="normal">工作区</text>
+</svg>

@@ -68,10 +68,10 @@ footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-
 <a href="https://wikieden.github.io/ai-books/">← 全部讲义书</a>
 <span class="prefs" title="字号与主题"><button type="button" data-fs-step="-1" aria-label="字号变小">A−</button><button type="button" data-fs-step="1" aria-label="字号变大">A+</button><select id="ab-theme" aria-label="主题色"><option value="">跟随系统</option><option value="light">浅色</option><option value="dark">深色</option><option value="sepia">米黄护眼</option><option value="green">豆沙绿护眼</option><option value="navy">夜蓝</option></select></span>
 </div></header>
-<div class="layout"><nav class="side" aria-label="章节"><div class="h">从约束推导 AI Infra</div><a href="index.html" class="cur">讲义目录</a><a href="01-six-layers.html"><span class="n">1</span>一次请求走过的六层（进行中）</a><a href="02-request-lifecycle.html"><span class="n">2</span>一次生成请求的处理过程：权重加载一次，每个 token 都要再读一遍</a><a href="03-dataflow-hierarchy.html"><span class="n">3</span>从存储程序到数据流执行：存储层次就像大楼里的厕所</a><a href="04-key-numbers.html"><span class="n">4</span>系统设计的关键数字：容量、算力、带宽、延迟</a><a href="05-estimate.html"><span class="n">5</span>用几个数字估算一次模型执行：算和读各要多久，实测为什么达不到</a><a href="06-architecture.html"><span class="n">6</span>需求如何推动架构：TPU、SmartNIC、Unified Bus</a><a href="07-compute-graph.html"><span class="n">7</span>计算图与张量结构：一个 token 经过一层要算多少</a><a href="08-generation-budget.html"><span class="n">8</span>自回归生成的资源账：存一次的、每步读的、用完就扔的</a><a href="09-kv-sharing.html"><span class="n">9</span>KV 怎么变小 ①：头共享与潜变量压缩</a><a href="10-kv-sparse-linear.html"><span class="n">10</span>KV 怎么变小 ②：窗口、稀疏、线性与混合注意力</a><a href="11-moe.html"><span class="n">11</span>MoE：专家路由与批内权重复用</a><a href="12-network-shape.html"><span class="n">12</span>网络形状：深宽、专家粒度、残差与多 token 预测</a><a href="13-model-comparison.html"><span class="n">13</span>整个模型的资源需求与比较：存多少、算多少、能放几条请求</a><a href="14-workload-arrival.html"><span class="n">14</span>从单次请求到持续到达的负载：什么时候来，比来多少更要紧</a><a href="15-agent-tasks.html"><span class="n">15</span>多轮交互与 Agent 任务：前缀、成功成本、关键路径</a><a href="16-multimodal-realtime.html"><span class="n">16</span>多模态与实时交互：数据换形状，时间有死线（略讲）</a><a href="17-training-rl.html"><span class="n">17</span>训练与强化学习的计算和状态：为什么训练要 6ND、要存 18 字节</a><a href="18-scaling-lifecycle.html"><span class="n">18</span>Scaling law 与全生命周期成本：训练多大、训练多久、服务多少次</a><a href="19-accelerator-basics.html"><span class="n">19</span>从矩阵乘法认识加速器：算多少、搬多少、耗多少电</a><a href="20-compute-units.html"><span class="n">20</span>计算单元：矩阵、向量、流水与低精度</a><a href="21-memory-movement.html"><span class="n">21</span>存储层次与数据搬移：放得下、取得到、来得及</a><a href="22-package-interconnect.html"><span class="n">22</span>多芯片封装与互联：计算放在哪，数据走哪条路</a><a href="23-architecture-evolution.html"><span class="n">23</span>架构演进与专用架构：每一代新增的东西，省掉了哪一笔</a><a href="24-choose-accelerator.html"><span class="n">24</span>根据架构选择加速器：先估下界，再找差距，最后算账</a><a href="25-submit-sync.html"><span class="n">25</span>提交、搬移与同步：从调用返回到结果可用</a><a href="26-tiling-layout.html"><span class="n">26</span>单个算子：分块、布局与切分</a><a href="27-fusion-flash.html"><span class="n">27</span>算子融合与 FlashAttention：中间结果不落地</a><a href="28-compiler.html"><span class="n">28</span>编译器：表达、变换与选择</a><a href="29-runtime.html"><span class="n">29</span>运行时：重叠、CUDA Graph、动态形状与 persistent kernel</a><a href="30-request-view.html"><span class="n">30</span>从局部优化到完整请求</a><a href="appendix-glossary.html">附录 · 缩写与术语表</a><a href="appendix-tp-pp-cp.html">附录 · 补充资料：TP、PP、CP，一个模型沿三个方向切给多张卡</a></nav><main>
+<div class="layout"><nav class="side" aria-label="章节"><div class="h">从约束推导 AI Infra</div><a href="index.html" class="cur">讲义目录</a><a href="01-six-layers.html"><span class="n">1</span>一次请求走过的六层（进行中）</a><a href="02-request-lifecycle.html"><span class="n">2</span>一次生成请求的处理过程：权重加载一次，每个 token 都要再读一遍</a><a href="03-dataflow-hierarchy.html"><span class="n">3</span>从存储程序到数据流执行：存储层次就像大楼里的厕所</a><a href="04-key-numbers.html"><span class="n">4</span>系统设计的关键数字：容量、算力、带宽、延迟</a><a href="05-estimate.html"><span class="n">5</span>用几个数字估算一次模型执行：算和读各要多久，实测为什么达不到</a><a href="06-architecture.html"><span class="n">6</span>需求如何推动架构：TPU、SmartNIC、Unified Bus</a><a href="07-compute-graph.html"><span class="n">7</span>计算图与张量结构：一个 token 经过一层要算多少</a><a href="08-generation-budget.html"><span class="n">8</span>自回归生成的资源账：存一次的、每步读的、用完就扔的</a><a href="09-kv-sharing.html"><span class="n">9</span>KV 怎么变小 ①：头共享与潜变量压缩</a><a href="10-kv-sparse-linear.html"><span class="n">10</span>KV 怎么变小 ②：窗口、稀疏、线性与混合注意力</a><a href="11-moe.html"><span class="n">11</span>MoE：专家路由与批内权重复用</a><a href="12-network-shape.html"><span class="n">12</span>网络形状：深宽、专家粒度、残差与多 token 预测</a><a href="13-model-comparison.html"><span class="n">13</span>整个模型的资源需求与比较：存多少、算多少、能放几条请求</a><a href="14-workload-arrival.html"><span class="n">14</span>从单次请求到持续到达的负载：什么时候来，比来多少更要紧</a><a href="15-agent-tasks.html"><span class="n">15</span>多轮交互与 Agent 任务：前缀、成功成本、关键路径</a><a href="16-multimodal-realtime.html"><span class="n">16</span>多模态与实时交互：数据换形状，时间有死线（略讲）</a><a href="17-training-rl.html"><span class="n">17</span>训练与强化学习的计算和状态：为什么训练要 6ND、要存 18 字节</a><a href="18-scaling-lifecycle.html"><span class="n">18</span>Scaling law 与全生命周期成本：训练多大、训练多久、服务多少次</a><a href="19-accelerator-basics.html"><span class="n">19</span>从矩阵乘法认识加速器：算多少、搬多少、耗多少电</a><a href="20-compute-units.html"><span class="n">20</span>计算单元：矩阵、向量、流水与低精度</a><a href="21-memory-movement.html"><span class="n">21</span>存储层次与数据搬移：放得下、取得到、来得及</a><a href="22-package-interconnect.html"><span class="n">22</span>多芯片封装与互联：计算放在哪，数据走哪条路</a><a href="23-architecture-evolution.html"><span class="n">23</span>架构演进与专用架构：每一代新增的东西，省掉了哪一笔</a><a href="24-choose-accelerator.html"><span class="n">24</span>根据架构选择加速器：先估下界，再找差距，最后算账</a><a href="25-submit-sync.html"><span class="n">25</span>提交、搬移与同步：从调用返回到结果可用</a><a href="26-tiling-layout.html"><span class="n">26</span>单个算子：分块、布局与切分</a><a href="27-fusion-flash.html"><span class="n">27</span>算子融合与 FlashAttention：中间结果不落地</a><a href="28-compiler.html"><span class="n">28</span>编译器：表达、变换与选择</a><a href="29-runtime.html"><span class="n">29</span>运行时：重叠、CUDA Graph、动态形状与 persistent kernel</a><a href="30-request-view.html"><span class="n">30</span>从局部优化到完整请求</a><a href="31-multi-gpu.html"><span class="n">31</span>从单卡到多卡：放得下、算得快、接得多</a><a href="32-dp-tp-sp.html"><span class="n">32</span>数据、张量、序列并行：复制模型、切矩阵、切激活</a><a href="33-cp-pp-ep.html"><span class="n">33</span>上下文、流水线、专家并行：切位置、切层、切专家</a><a href="34-combined-parallel.html"><span class="n">34</span>组合并行与模型规模：坐标、复用与最忙的那一组</a><a href="35-collectives.html"><span class="n">35</span>集合通信的实现与代价：环、树、通信库和资源竞争</a><a href="36-topology-pool.html"><span class="n">36</span>超节点的物理组织与内存池：数据走哪条线、借谁的内存</a><a href="37-scale-choice.html"><span class="n">37</span>从并行方案到超节点规模：按期限、成本和故障挑方案</a><a href="38-cluster.html"><span class="n">38</span>从超节点走向集群：出口、割集与 Clos 网络</a><a href="39-cross-node.html"><span class="n">39</span>跨节点流量与物理路径：同样的字节，走哪几张网卡</a><a href="40-remote-access.html"><span class="n">40</span>远程访问的路径与并发：一次读多久、同时能读几个</a><a href="41-handoff-state.html"><span class="n">41</span>数据交接、顺序与状态管理：什么时候能读、能覆盖、能释放</a><a href="42-congestion.html"><span class="n">42</span>共享网络中的拥塞与可靠性：高峰、反馈、多路径、死锁</a><a href="43-task-completion.html"><span class="n">43</span>从通信改进到任务完成：先看谁晚到，再看能藏多少</a><a href="44-inference-request.html"><span class="n">44</span>推理请求的执行过程与资源需求：一条请求的时间线和账本</a><a href="45-batching.html"><span class="n">45</span>批处理与请求调度：多读一次权重做更多事，但别让别人等太久</a><a href="46-kv-cache.html"><span class="n">46</span>KV 缓存的分配、复用与释放：分页、共享、留不留</a><a href="47-compress-offload.html"><span class="n">47</span>压缩与卸载：少存字节、轮流驻留，各付什么代价</a><a href="48-speculative.html"><span class="n">48</span>推测解码：一次验证，确定好几个 token</a><a href="49-serving-choice.html"><span class="n">49</span>请求负载下的性能与配置选择：数正确且按时的答案</a><a href="appendix-glossary.html">附录 · 缩写与术语表</a><a href="appendix-tp-pp-cp.html">附录 · 补充资料：TP、PP、CP，一个模型沿三个方向切给多张卡</a></nav><main>
 <h1 id="ai-infra">从约束推导 AI Infra · 讲义目录</h1>
 <blockquote>
-<p>30 / 67 章已写（覆盖 AII 第 1–5 章）· 31 个动画（GIF + 可交互页面）· 104 张静态图 · 118 张复习卡片 · 主线《深入理解 AI Infra》（AII）12 章，AISPE 配读</p>
+<p>49 / 67 章已写（覆盖 AII 第 1–8 章）· 50 个动画（GIF + 可交互页面）· 154 张静态图 · 171 张复习卡片 · 主线《深入理解 AI Infra》（AII）12 章，AISPE 配读</p>
 </blockquote>
 <h2 id="_1">这本书讲什么</h2>
 <p>从一个"帮我找代码里的 bug"的请求讲起：它在系统里穿过哪几层、要存多少、读多少、算多少、在卡之间传多少，最后在哪块硬件上等。之后沿原书顺序，从模型架构、负载、单卡加速器和算子，一路讲到超节点、数据中心网络、推理与训练系统、资源调度和端边云。</p>
@@ -471,6 +471,177 @@ footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-
 <td>I116–I118</td>
 <td>🟡 正文已写，练习 0 / 3</td>
 </tr>
+<tr>
+<td><a href="../lessons/31-multi-gpu.html">31</a></td>
+<td>从单卡到多卡</td>
+<td>放不下、跑得慢、接不过来三种需求；Qwen3-235B 八卡每卡 61.50 GB；单 token 读 90.1 μs 算 0.31 μs；六种并行各切一维</td>
+<td>AII §6.1 L1–L124</td>
+<td><a href="../animations/31-multi-gpu.html">▶</a></td>
+<td>I119–I121</td>
+<td>🟡 正文已写，练习 0 / 3</td>
+</tr>
+<tr>
+<td><a href="../lessons/32-dp-tp-sp.html">32</a></td>
+<td>数据、张量、序列并行</td>
+<td>按列拼接、按行相加；SwiGLU 先列后行每层两次 AllReduce；Qwen3-32B 128K 单卡放不下；SP 把 AllReduce 拆到算子边界</td>
+<td>AII §6.2.1–§6.2.3 L125–L266</td>
+<td><a href="../animations/32-dp-tp-sp.html">▶</a></td>
+<td>I122–I124</td>
+<td>🟡 正文已写，练习 0 / 3</td>
+</tr>
+<tr>
+<td><a href="../lessons/33-cp-pp-ep.html">33</a></td>
+<td>上下文、流水线、专家并行</td>
+<td>因果切半 10 vs 26，首尾搭配 18 vs 18；跨卡合并 m、ℓ、u；流水线 b/(q+b−1)；EP 的 dispatch / combine 与按卡打包</td>
+<td>AII §6.2.4–§6.2.6 L267–L359</td>
+<td><a href="../animations/33-cp-pp-ep.html">▶</a></td>
+<td>I125–I127</td>
+<td>🟡 正文已写，练习 0 / 3</td>
+</tr>
+<tr>
+<td><a href="../lessons/34-combined-parallel.html">34</a></td>
+<td>组合并行与模型规模</td>
+<td>TP2×EP4 的坐标与每 token 56 KiB；批内复用 4.5 GiB vs 288 MiB；最忙的组 512 vs 128；万亿参数怎么组合</td>
+<td>AII §6.3 L360–L462</td>
+<td><a href="../animations/34-combined-parallel.html">▶</a></td>
+<td>I128–I129</td>
+<td>🟡 正文已写，练习 0 / 3</td>
+</tr>
+<tr>
+<td><a href="../lessons/35-collectives.html">35</a></td>
+<td>集合通信的实现与代价</td>
+<td>AllReduce = RS + AG；环 2(n−1) 轮、TP8 11.55 μs 几乎全是启动；树与环交点 680 KiB；busbw 与资源竞争</td>
+<td>AII §6.4 L464–L607</td>
+<td><a href="../animations/35-collectives.html">▶</a></td>
+<td>I130–I132</td>
+<td>🟡 正文已写，练习 0 / 3</td>
+</tr>
+<tr>
+<td><a href="../lessons/36-topology-pool.html">36</a></td>
+<td>超节点的物理组织与内存池（部分略讲）</td>
+<td>跨服务器 TP16 反而慢；端口分配与割集；环面 vs 交换网络；功率上限；UB 状态规模；内存池的在途窗口</td>
+<td>AII §6.5–§6.6 L609–L882</td>
+<td><a href="../animations/36-topology-pool.html">▶</a></td>
+<td>I133–I135</td>
+<td>🟡 正文已写，练习 0 / 3</td>
+</tr>
+<tr>
+<td><a href="../lessons/37-scale-choice.html">37</a></td>
+<td>从并行方案到超节点规模（部分略讲）</td>
+<td>四个 128K 会话 TP2 / 4 / 8 的时间线与按时会话成本、故障；选切分的五步；超节点放大与权重进 ROM</td>
+<td>AII §6.7 L883–L1183</td>
+<td><a href="../animations/37-scale-choice.html">▶</a></td>
+<td>I136–I137</td>
+<td>🟡 正文已写，练习 0 / 3</td>
+</tr>
+<tr>
+<td><a href="../lessons/38-cluster.html">38</a></td>
+<td>从超节点走向集群</td>
+<td>割集下界与强扩展交点 2.6；Clos 两层 k²/2、三层 k³/4；超售比 3:1 每卡 17.2 GB/s</td>
+<td>AII §7.1 L1–L115</td>
+<td><a href="../animations/38-cluster.html">▶</a></td>
+<td>I138–I139</td>
+<td>🟡 正文已写，练习 0 / 3</td>
+</tr>
+<tr>
+<td><a href="../lessons/39-cross-node.html">39</a></td>
+<td>跨节点流量与物理路径</td>
+<td>连续环 / 交错环 / 分层 720 / 5760 / 384 MiB 与 7.6 / 7.6 / 1.3 ms；在网归约；EP 的 2nkfd；多网卡与 rail 对齐</td>
+<td>AII §7.2 L116–L314</td>
+<td><a href="../animations/39-cross-node.html">▶</a></td>
+<td>I140–I142</td>
+<td>🟡 正文已写，练习 0 / 3</td>
+</tr>
+<tr>
+<td><a href="../lessons/40-remote-access.html">40</a></td>
+<td>远程访问的路径与并发（部分略讲）</td>
+<td>64 B 远程读 2222 / 746 / 419 ns；快照交点 1.03；N ≥ BT/m 与发起速率；PCIe 读写不对称</td>
+<td>AII §7.3 L315–L519</td>
+<td><a href="../animations/40-remote-access.html">▶</a></td>
+<td>I143–I145</td>
+<td>🟡 正文已写，练习 0 / 3</td>
+</tr>
+<tr>
+<td><a href="../lessons/41-handoff-state.html">41</a></td>
+<td>数据交接、顺序与状态管理（部分略讲）</td>
+<td>发完、可见、用完三个时刻；共享传输状态 8.52 → 0.64 MiB；只保留必要顺序；槽位释放决定持续吞吐</td>
+<td>AII §7.4 L520–L663</td>
+<td><a href="../animations/41-handoff-state.html">▶</a></td>
+<td>I146–I148</td>
+<td>🟡 正文已写，练习 0 / 3</td>
+</tr>
+<tr>
+<td><a href="../lessons/42-congestion.html">42</a></td>
+<td>共享网络中的拥塞与可靠性</td>
+<td>40% 利用率也积压 1 GB；反馈时延上限与 incast；PFC 0.33 μs vs DCQCN 20 μs；多路径、ECMP 冲突与死锁</td>
+<td>AII §7.5 L664–L829</td>
+<td><a href="../animations/42-congestion.html">▶</a></td>
+<td>I149–I151</td>
+<td>🟡 正文已写，练习 0 / 3</td>
+</tr>
+<tr>
+<td><a href="../lessons/43-task-completion.html">43</a></td>
+<td>从通信改进到任务完成</td>
+<td>就绪偏差；例题 7.6 六种安排；训练看带宽、低并发推理看启动；固定 1024 卡的超节点表与故障开销</td>
+<td>AII §7.6 L830–L1115</td>
+<td><a href="../animations/43-task-completion.html">▶</a></td>
+<td>I152–I154</td>
+<td>🟡 正文已写，练习 0 / 3</td>
+</tr>
+<tr>
+<td><a href="../lessons/44-inference-request.html">44</a></td>
+<td>推理请求的执行过程与资源需求</td>
+<td>一条请求 6.95 s 的时间线；插一次 prefill 就超时；144 KiB/token、12 GiB 放 37 / 10 条</td>
+<td>AII §8.1 L1–L99</td>
+<td><a href="../animations/44-inference-request.html">▶</a></td>
+<td>I155–I156</td>
+<td>🟡 正文已写，练习 0 / 3</td>
+</tr>
+<tr>
+<td><a href="../lessons/45-batching.html">45</a></td>
+<td>批处理与请求调度</td>
+<td>每 token 读取 D_w/b + Lk、b_KV 51 / 13；连续批处理 766 ms 但卡 376 ms；分块与块内配对；token 预算</td>
+<td>AII §8.2 L100–L227</td>
+<td><a href="../animations/45-batching.html">▶</a></td>
+<td>I157–I159</td>
+<td>🟡 正文已写，练习 0 / 3</td>
+</tr>
+<tr>
+<td><a href="../lessons/46-kv-cache.html">46</a></td>
+<td>KV 缓存的分配、复用与释放</td>
+<td>分页 64 → 52 → 44；引用计数与写时复制；16 条共享前缀 6048 MiB、35 条；前缀连续匹配与保留价值</td>
+<td>AII §8.3 L228–L381</td>
+<td><a href="../animations/46-kv-cache.html">▶</a></td>
+<td>I160–I162</td>
+<td>🟡 正文已写，练习 0 / 3</td>
+</tr>
+<tr>
+<td><a href="../lessons/47-compress-offload.html">47</a></td>
+<td>压缩与卸载</td>
+<td>Q2_K 2.625 bit；q8_0 / q4_0 与净节省；卸载九份 FFN 每轮 42.5 vs 6.0 ms；换格式要逐题对照</td>
+<td>AII §8.4 L382–L499</td>
+<td><a href="../animations/47-compress-offload.html">▶</a></td>
+<td>I163–I165</td>
+<td>🟡 正文已写，练习 0 / 3</td>
+</tr>
+<tr>
+<td><a href="../lessons/48-speculative.html">48</a></td>
+<td>推测解码</td>
+<td>min(1, p/q) 保持分布；E[N] 1.33 / 3.05 与 19.8 / 8.64 ms；串行 vs 并行草稿；草稿长度的边际条件</td>
+<td>AII §8.5 L500–L593</td>
+<td><a href="../animations/48-speculative.html">▶</a></td>
+<td>I166–I168</td>
+<td>🟡 正文已写，练习 0 / 3</td>
+</tr>
+<tr>
+<td><a href="../lessons/49-serving-choice.html">49</a></td>
+<td>请求负载下的性能与配置选择</td>
+<td>Little 定律；有效吞吐 155 / 336；MBU 33 → 65%；16 条长请求只有共享 + 推测可行（4.56 s）；任务级 Amdahl</td>
+<td>AII §8.6 L594–L793</td>
+<td><a href="../animations/49-serving-choice.html">▶</a></td>
+<td>I169–I171</td>
+<td>🟡 正文已写，练习 0 / 3</td>
+</tr>
 </tbody>
 </table>
 <p><strong>第 1 部分待补</strong>：AII §1.1.1 L9–L27（编程抽象上移：模型成了 LLM 时代的"操作系统"）还没讲，讲第 01 章时并进去，作为第零步；前言（<code>00-前言.md</code>）不单独成章，要点已写进本页"这本书讲什么"。</p>
@@ -689,43 +860,43 @@ footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-
 </thead>
 <tbody>
 <tr>
-<td>31</td>
+<td><a href="../lessons/31-multi-gpu.html">31</a> ✅</td>
 <td>从单卡到多卡</td>
 <td>§6.1 L9–L124</td>
 <td>八张卡独立部署与协作、Qwen3-235B-A22B 的容量与单步时间、prefill / decode / 训练的不同要求、并行方式一览</td>
 </tr>
 <tr>
-<td>32</td>
+<td><a href="../lessons/32-dp-tp-sp.html">32</a> ✅</td>
 <td>六种并行 ①：数据、张量、序列并行</td>
 <td>§6.2.1–§6.2.3 L129–L266</td>
 <td>DP 复制模型切样本、TP 切一层内的矩阵、SP 沿序列分片（并入补充资料的 TP 部分）</td>
 </tr>
 <tr>
-<td>33</td>
+<td><a href="../lessons/33-cp-pp-ep.html">33</a> ✅</td>
 <td>六种并行 ②：上下文、流水线、专家并行</td>
 <td>§6.2.4–§6.2.6 L267–L359</td>
 <td>CP 切同一序列的注意力、PP 按层分段与气泡、EP 切专家集合（并入补充资料的 PP、CP 部分）</td>
 </tr>
 <tr>
-<td>34</td>
+<td><a href="../lessons/34-combined-parallel.html">34</a> ✅</td>
 <td>组合并行与模型规模</td>
 <td>§6.3 L360–L463</td>
 <td>组合方案与设备坐标、批内复用与负载不均、从数千亿到万亿参数</td>
 </tr>
 <tr>
-<td>35</td>
+<td><a href="../lessons/35-collectives.html">35</a> ✅</td>
 <td>集合通信的实现与代价</td>
 <td>§6.4 L464–L608</td>
 <td>按切分方式定通信需求、环与树与通信轮次、通信库与计算的资源竞争、通信融合与卸载</td>
 </tr>
 <tr>
-<td>36</td>
+<td><a href="../lessons/36-topology-pool.html">36</a> ✅</td>
 <td>超节点的物理组织与内存池</td>
 <td>§6.5–§6.6 L609–L882</td>
 <td>直连、交换与分层拓扑；NVIDIA、TPU、UB / CloudMatrix（§6.5.5 略讲）；内存借用与共享 KV</td>
 </tr>
 <tr>
-<td>37</td>
+<td><a href="../lessons/37-scale-choice.html">37</a> ✅</td>
 <td>从并行方案到超节点规模</td>
 <td>§6.7 L883–L1183</td>
 <td>更大的协作组与更多实例、功率 / 成本 / 故障范围、给定模型和硬件怎么选切分；V4.1 Flash 综合（§6.7.4 略讲）</td>
@@ -745,37 +916,37 @@ footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-
 </thead>
 <tbody>
 <tr>
-<td>38</td>
+<td><a href="../lessons/38-cluster.html">38</a> ✅</td>
 <td>从超节点走向集群</td>
 <td>§7.1 L13–L115</td>
 <td>存储需求引出跨服务器协作、流量与资源模型、统一互联</td>
 </tr>
 <tr>
-<td>39</td>
+<td><a href="../lessons/39-cross-node.html">39</a> ✅</td>
 <td>跨节点流量与物理路径</td>
 <td>§7.2 L116–L314</td>
 <td>DP、TP、PP、EP 的跨服务器流量；多网卡与多轨拓扑</td>
 </tr>
 <tr>
-<td>40</td>
+<td><a href="../lessons/40-remote-access.html">40</a> ✅</td>
 <td>远程访问的路径与并发</td>
 <td>§7.3 L315–L519</td>
 <td>传输与完成通知、加速器直接发起通信、内存语义（§7.3.3 略讲）、并发与吞吐模型（第 06 章 SmartNIC / KV-Direct 的后续）</td>
 </tr>
 <tr>
-<td>41</td>
+<td><a href="../lessons/41-handoff-state.html">41</a> ✅</td>
 <td>数据交接、顺序与状态管理</td>
 <td>§7.4 L520–L663</td>
 <td>分片的生成、使用与缓冲区复用；事务层与传输层（Jetty §7.4.2 略讲）；操作依赖、故障隔离与背压</td>
 </tr>
 <tr>
-<td>42</td>
+<td><a href="../lessons/42-congestion.html">42</a> ✅</td>
 <td>共享网络中的拥塞与可靠性</td>
 <td>§7.5 L664–L829</td>
 <td>随时间变化的需求、反馈延迟与缓冲、多路径与重传、死锁</td>
 </tr>
 <tr>
-<td>43</td>
+<td><a href="../lessons/43-task-completion.html">43</a> ✅</td>
 <td>从通信改进到任务完成</td>
 <td>§7.6 L830–L1106</td>
 <td>关键路径从数据就绪开始、分层网络通信耗时、训练与推理的通信瓶颈、1024 卡里超节点变大后怎么重选</td>
@@ -795,37 +966,37 @@ footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-
 </thead>
 <tbody>
 <tr>
-<td>44</td>
+<td><a href="../lessons/44-inference-request.html">44</a> ✅</td>
 <td>推理请求的执行过程与资源需求</td>
 <td>§8.1 L20–L99</td>
 <td>执行资源与请求生命周期、权重 / KV / 运行时缓冲的容量需求、从单请求时间到服务目标</td>
 </tr>
 <tr>
-<td>45</td>
+<td><a href="../lessons/45-batching.html">45</a> ✅</td>
 <td>批处理与请求调度</td>
 <td>§8.2 L100–L227</td>
 <td>权重复用（第 05 章的展开）、连续批处理、长 prefill 的干扰与分块执行、token 预算与动态形状</td>
 </tr>
 <tr>
-<td>46</td>
+<td><a href="../lessons/46-kv-cache.html">46</a> ✅</td>
 <td>KV 缓存的分配、复用与释放</td>
 <td>§8.3 L228–L381</td>
 <td>预留、碎片与分页分配；分支共享与写时复制；前缀复用；准入、淘汰、换出与重计算</td>
 </tr>
 <tr>
-<td>47</td>
+<td><a href="../lessons/47-compress-offload.html">47</a> ✅</td>
 <td>压缩与卸载</td>
 <td>§8.4 L382–L499</td>
 <td>权重量化后的内存、KV 压缩与读取成本、权重卸载与预取、质量约束下的取舍</td>
 </tr>
 <tr>
-<td>48</td>
+<td><a href="../lessons/48-speculative.html">48</a> ✅</td>
 <td>推测解码</td>
 <td>§8.5 L500–L593</td>
 <td>草稿、验证、回退与正确性；每轮耗时与输出数；草稿来源；草稿长度与并发竞争</td>
 </tr>
 <tr>
-<td>49</td>
+<td><a href="../lessons/49-serving-choice.html">49</a> ✅</td>
 <td>请求负载下的性能与配置选择</td>
 <td>§8.6 L594–L710</td>
 <td>到达率、排队、准入与取消；SLO 约束下的有效吞吐；配置、加速器与完整任务成本</td>
@@ -1124,6 +1295,82 @@ footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-
 <tr>
 <td>30</td>
 <td>地铁再快，走路那段还得走；炖肉快了看煮饭，抢了燃气饭更晚；雨刷快两倍半，整趟只快千分之二；先数次数，再算每次，最后看谁在关键路径上。</td>
+</tr>
+<tr>
+<td>31</td>
+<td>装不下、跑得慢、接不过来，三种病三种药；一套书分八个架，目录每架一本；送快递花在路上，拉满车花在装卸；套娃从外到里：请求、层、专家、特征、位置。</td>
+</tr>
+<tr>
+<td>32</td>
+<td>分店各接各的客，训练才要汇意见；分科目并排抄，分单据小计相加；抬钢琴人少抬不动，人多喊口令；KV 头分完再加人就是复制；质检各检各的，要整箱时再收齐。</td>
+</tr>
+<tr>
+<td>33</td>
+<td>分读小说，后半本要知道前情；前少后多，首尾搭配才匀；各卡统计量合并，不能各算完再平均；洗烘叠包，第一筐要走四道，筐多机器才不闲；最慢那道定节拍；大厅挂号、科室看病、报告送回；同一科室只跑一趟。</td>
+</tr>
+<tr>
+<td>34</td>
+<td>工号写部门和小组，就知道和谁开会；小组先对账，部门再对账：一倍、一倍、一倍半；借同几本书取得少，都在一个柜台排长队；分到四个柜台两头都好；家具多了加房间，太大就拆，搬前先压缩。</td>
+</tr>
+<tr>
+<td>35</td>
+<td>收作业四种法：总分给每人、一科给一人、名单拼全、纸条各写；传话围一圈，转两圈人人都有；小数据时全在喊开始；淘汰赛轮少，但每轮传整份；六百八十 KiB 换手；快递车和叉车共一条路，各自单测的时间不能相减。</td>
+</tr>
+<tr>
+<td>36</td>
+<td>多叫外地同事，材料分得少，表决要等电话；大门通道分给住户多，通往大路就少；棋盘街去远处穿好几户，高速任意两家上下一次；规则的活棋盘不吃亏；电闸定空调数，门禁表随住户长；借邻居书柜，往返一趟能带几本决定查得多快。</td>
+</tr>
+<tr>
+<td>37</td>
+<td>八个厨师四桌客，两人一灶齐上菜，围一灶第一桌快、后面排队；包车按时长算，摊给准时到的人，抛锚车费照收；先列食材忌口，再按毛病选做法，写步骤比时间，最后试吃；仓库扩建多接单，单个快递不更快；权重固定后看每跳。</td>
+</tr>
+<tr>
+<td>38</td>
+<td>书包装不下才分装，分了就要来回翻；一座桥过货有上限，人再多也快不过桥；支路宽主干窄是超售，留在片区里就不堵；下单界面统一，外省快递还是走干线。</td>
+</tr>
+<tr>
+<td>39</td>
+<td>排一圈只走两扇门，交错走全门却运八倍，先楼内合并再八门各运一份；大箱看卡车，小螺丝全在开门签收；分拣中心多开口，后面共一条传送带还是卡；车道要通到外面，还要有车分过去；同号车道不上主干道。</td>
+</tr>
+<tr>
+<td>40</td>
+<td>包裹放柜再发短信，请人办事是 RPC；借盐路上那段省不掉，借条转物业是手续；看一遍去图书馆，看几遍复印带走；骑手数 = 速率 × 来回时间；调度员派单慢，骑手再多也白搭；读要等回信，写发出就算。</td>
+</tr>
+<tr>
+<td>41</td>
+<td>托盘送到、对方看到、对方用完，是三个时刻；工号各管各的，同城包裹共一条线；柜子先放再发短信，别家的货不用等；先读的旧值，晚点返回也还是旧的；桌子多容高峰，收桌快才接得多。</td>
+</tr>
+<tr>
+<td>42</td>
+<td>两家都九点上班，路平时空也会堵；错开二十分钟就不堵；站口举牌管一个路口、快，打电话管源头、慢；两人分送八页，绕远路的拖全书；随机分道最怕车道和车一样多；窄桥对开都等对方退，先后规矩或留一条退路。</td>
+</tr>
+<tr>
+<td>43</td>
+<td>四人约出发看最晚那个，车开快不如让他准时；装盘等菜和汤，汤早好了再快也没用；搬家换大车，寄信少跑邮局；部门大了跨部门会少，大到头就只剩出错时牵连的人多。</td>
+</tr>
+<tr>
+<td>44</td>
+<td>长桌各吃各的，厨房每轮做每人的下一道；第一道菜到手看排队加开火，之后看上菜间隔；插个别人的大单就超时；车会变长，按进场时的长度卖票就停不下。</td>
+</tr>
+<tr>
+<td>45</td>
+<td>班车开一趟摊油钱，行李各扛各的；八 K 上下文坐十三人就行李比车重；翻台谁吃完谁走，新客点大菜大家等；读书越往后越要回头对照，块长一样后块慢；电梯多带人门口少等，车里的人到下一层更晚。</td>
+</tr>
+<tr>
+<td>46</td>
+<td>活页册页码定顺序，纸夹哪都行；只有最后一页会空；合租的书记人数，最后一人走才还；要做笔记先复印；抄写接龙只能从头接，开头改一字后面全重抄；剩菜值不值得留：下顿吃的概率乘省下的工夫，再按冰箱格子算。</td>
+</tr>
+<tr>
+<td>47</td>
+<td>照片压缩每块还要记基准，位越低基准越显眼；包装压得小省车厢，拆包慢了白省；上下文越长越划算；借邻居冰箱，每轮都去取，路远就来不及；换速记法逐题对，错的题会换人。</td>
+</tr>
+<tr>
+<td>48</td>
+<td>学生写草稿老师一次改，错处后面全划掉，至少定一个；按 p 比 q 接受，拒了从差额重抽，分布不走样；一趟车多带几件，平均要总时间除总件数；猜得越远越难活，多猜一个要比原来便宜才猜。</td>
+</tr>
+<tr>
+<td>49</td>
+<td>候诊厅人数 = 来的速度 × 待的时间；快递考核只数准时没送错的；送得多都迟到等于白送；实测油耗才算得准，起步红灯是固定开销；先看装得下，再看到得了，最后挑最省；decode 快四倍，任务只快一点几。</td>
 </tr>
 </tbody>
 </table>

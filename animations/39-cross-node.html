@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>归约方案与网卡负载</title><link rel="stylesheet" href="anim.css">
+<style>svg text.cap{font-size:15px;font-weight:500}svg text.num{font-size:16px;font-weight:600}</style></head>
+<body><main>
+<h1>第 39 章 · 三种归约，过几扇门</h1>
+<p class="sub">配套讲义：<a href="../lessons/39-cross-node.html">第 39 章 · 跨节点流量与物理路径：同样的字节，走哪几张网卡</a>。两台 HGX H100、16 个参与者、192 MiB FP32 梯度；网卡每方向 50 GB/s，每轮启动 0.83 μs。</p>
+<div class="panel"><svg id="sv" viewBox="0 0 680 360"></svg></div>
+<div class="row"><button id="play">▶ 播放</button><button id="step">→ 单步</button><button id="reset">↺ 从头开始</button></div>
+<div class="row"><label for="s">方案</label><select id="s"><option value="0">连续环</option><option value="1">交错环</option><option value="2">分层</option></select><label for="bl">本地带宽</label><select id="bl"><option value="450">NVLink 450 GB/s</option><option value="32">只有 32 GB/s</option></select></div>
+<p class="note">看点：① 两排各 8 格是两台服务器的网卡，亮度是该网卡要传的字节；② 中间是跨服务器总字节；③ 右边是时间；④ 播放：连续环 → 交错环 → 分层 → 分层但本地只有 32 GB/s。</p>
+</main>
+<script src="anim.js"></script>
+<script>
+const sv=$('sv');
+function R(x,y,w,h,col,op){return el('rect',{x,y,width:Math.max(w,1),height:h,rx:4,fill:col,opacity:op??.7},sv)}
+function T(s,x,y,a,c){return txt(s,{x,y,'text-anchor':a||'start',class:c||'m'},sv)}
+function cap(s){T(s,340,26,'middle','cap')}
+const GET=ids=>ids.map(i=>{const e=$(i);return e.type==='checkbox'?+e.checked:+e.value});
+function SET(ids,v){ids.forEach((i,k)=>{const e=$(i);if(e.type==='checkbox')e.checked=!!v[k];else e.value=v[k];const o=$(i+'v');if(o)o.textContent=(+v[k]).toString()})}
+const IDS=['s','bl'],F=[[0,450],[1,450],[2,450],[2,32]];const MiB=2**20,A=0.83e-6;
+function render(s,bl){const BL=bl*1e9,BN=50e9;let nic=new Array(16).fill(0),cross,t;
+ if(s===0){nic[7]=nic[15]=360;cross=720;t=30*(A+Math.max(12*MiB/BN,12*MiB/BL))}
+ else if(s===1){nic=nic.map(()=>360);cross=5760;t=30*(A+12*MiB/BN)}
+ else{nic=nic.map(()=>24);cross=384;t=14*24*MiB/BL+2*12*MiB/BN+16*A}
+ cap(`${['连续环','交错环','分层'][s]}：跨服务器 ${cross} MiB，${(t*1e3).toFixed(1)} ms`);
+ for(let i=0;i<16;i++){const x=100+(i%8)*68,y=70+Math.floor(i/8)*80;R(x,y,58,50,'var(--accent)',0.12+0.85*nic[i]/360);T(`${nic[i]} MiB`,x+29,y+30,'middle')}
+ T('服务器 A',92,98,'end');T('服务器 B',92,178,'end');
+ T(`跨服务器 ${cross} MiB，用到 ${nic.filter(v=>v).length} 张网卡`,340,270,'middle','num');T(`时间 ${(t*1e3).toFixed(2)} ms`,340,300,'middle','num')}
+let k=0,custom=null;
+function draw(){clear(sv);const v=custom||F[k];SET(IDS,v);render(...v)}
+function reset(){k=0;custom=null;draw()}
+function next(){if(custom!==null){custom=null;draw();return true}if(k>=F.length-1)return false;k++;draw();return true}
+IDS.forEach(i=>{const e=$(i);const f=()=>{ANIM.stop();custom=GET(IDS);draw()};e.oninput=f;e.onchange=f});
+setupPlayer({captureSeed:1,reset,next},1500);
+</script><a href="https://wikieden.github.io/ai-books/" style="position:fixed;right:12px;bottom:12px;z-index:99;padding:4px 10px;border-radius:14px;background:rgba(127,127,127,.18);color:inherit;font:13px/1.6 system-ui,sans-serif;text-decoration:none">← 全部讲义书</a>
+</body></html>

@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>强扩展与割集</title><link rel="stylesheet" href="anim.css">
+<style>svg text.cap{font-size:15px;font-weight:500}svg text.num{font-size:16px;font-weight:600}</style></head>
+<body><main>
+<h1>第 38 章 · 多开几座桥，还是少运点货</h1>
+<p class="sub">配套讲义：<a href="../lessons/38-cluster.html">第 38 章 · 从超节点走向集群：出口、割集与 Clos 网络</a>。原计算 20 ms 按 1/x 缩短；跨服务器每方向 360 MiB（7.55 ms）× 流量倍数 ÷ 出口网卡数。</p>
+<div class="panel"><svg id="sv" viewBox="0 0 680 360"></svg></div>
+<div class="row"><button id="play">▶ 播放</button><button id="step">→ 单步</button><button id="reset">↺ 从头开始</button></div>
+<div class="row"><label for="x">卡数倍数</label><input type="range" id="x" min="1" max="8" step="0.1" value="1"><span id="xv">1</span><label for="t">跨服务器流量</label><select id="t"><option value="1">×1</option><option value="0.5">×0.5</option><option value="0.25">×0.25</option><option value="2">×2</option></select><label for="n">出口网卡数</label><input type="range" id="n" min="1" max="8" step="1" value="1"><span id="nv">1</span></div>
+<p class="note">看点：① 两根横条：计算（灰）和割集传输（蓝）；② 右边是串行和完全重叠的完成时间；③ 播放卡数 1 → 2 → 4（重叠停在 7.5 ms）→ 流量减半 → 出口 8 张网卡；④ 交点 x* 随之移动。</p>
+</main>
+<script src="anim.js"></script>
+<script>
+const sv=$('sv');
+function R(x,y,w,h,col,op){return el('rect',{x,y,width:Math.max(w,1),height:h,rx:4,fill:col,opacity:op??.7},sv)}
+function T(s,x,y,a,c){return txt(s,{x,y,'text-anchor':a||'start',class:c||'m'},sv)}
+function cap(s){T(s,340,26,'middle','cap')}
+const GET=ids=>ids.map(i=>{const e=$(i);return e.type==='checkbox'?+e.checked:+e.value});
+function SET(ids,v){ids.forEach((i,k)=>{const e=$(i);if(e.type==='checkbox')e.checked=!!v[k];else e.value=v[k];const o=$(i+'v');if(o)o.textContent=(+v[k]).toString()})}
+const IDS=['x','t','n'],F=[[1,1,1],[2,1,1],[4,1,1],[4,0.5,1],[4,1,8]];
+function render(x,t,n){const c=20/x,T0=7.55*t/n,ser=c+T0,ov=Math.max(c,T0),xs=20/T0,sc=v=>v/30*420;
+ cap(`卡数 ×${(+x).toFixed(1)}：串行 ${ser.toFixed(1)} ms，重叠 ${ov.toFixed(1)} ms`);
+ T('计算',100,104,'end');R(110,80,sc(c),36,'var(--muted)',.5);T(`${c.toFixed(1)} ms`,118+sc(c),104);
+ T('割集传输',100,174,'end');R(110,150,sc(T0),36,'var(--accent)');T(`${T0.toFixed(2)} ms`,118+sc(T0),174);
+ T(`交点 x* = ${xs.toFixed(2)}${x>xs?'（已越过，加卡不再变快）':''}`,340,260,'middle','num')}
+let k=0,custom=null;
+function draw(){clear(sv);const v=custom||F[k];SET(IDS,v);render(...v)}
+function reset(){k=0;custom=null;draw()}
+function next(){if(custom!==null){custom=null;draw();return true}if(k>=F.length-1)return false;k++;draw();return true}
+IDS.forEach(i=>{const e=$(i);const f=()=>{ANIM.stop();custom=GET(IDS);draw()};e.oninput=f;e.onchange=f});
+setupPlayer({captureSeed:1,reset,next},1500);
+</script><a href="https://wikieden.github.io/ai-books/" style="position:fixed;right:12px;bottom:12px;z-index:99;padding:4px 10px;border-radius:14px;background:rgba(127,127,127,.18);color:inherit;font:13px/1.6 system-ui,sans-serif;text-decoration:none">← 全部讲义书</a>
+</body></html>

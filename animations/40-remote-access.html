@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>在途槽位与发起间隔</title><link rel="stylesheet" href="anim.css">
+<style>svg text.cap{font-size:15px;font-weight:500}svg text.num{font-size:16px;font-weight:600}</style></head>
+<body><main>
+<h1>第 40 章 · 槽位和发起速率谁先卡住</h1>
+<p class="sub">配套讲义：<a href="../lessons/40-remote-access.html">第 40 章 · 远程访问的路径与并发：一次读多久、同时能读几个</a>。槽位占用 2 μs，路径 50 GB/s：有效带宽 = min(50, N·m/T, m/δ)。</p>
+<div class="panel"><svg id="sv" viewBox="0 0 680 360"></svg></div>
+<div class="row"><button id="play">▶ 播放</button><button id="step">→ 单步</button><button id="reset">↺ 从头开始</button></div>
+<div class="row"><label for="ln">log2(在途槽位)</label><input type="range" id="ln" min="0" max="10" step="0.1" value="7"><span id="lnv">7</span><label for="m">每事务字节</label><select id="m"><option value="256">256 B</option><option value="64">64 B</option><option value="1024">1 KiB</option><option value="4096">4 KiB</option><option value="16384">16 KiB</option></select><label for="dl">发起间隔 δ</label><select id="dl"><option value="18.6">18.6 ns</option><option value="6.2">6.2 ns</option></select></div>
+<p class="note">看点：① 三根横条：路径、槽位上限、发起上限，最短的标红；② 右边是有效带宽；③ 播放 256 B：128 槽 → 391 槽（被 δ 卡在 13.8）→ δ = 6.2 ns → 4 KiB、25 槽；④ 拖每事务字节看瓶颈换手。</p>
+</main>
+<script src="anim.js"></script>
+<script>
+const sv=$('sv');
+function R(x,y,w,h,col,op){return el('rect',{x,y,width:Math.max(w,1),height:h,rx:4,fill:col,opacity:op??.7},sv)}
+function T(s,x,y,a,c){return txt(s,{x,y,'text-anchor':a||'start',class:c||'m'},sv)}
+function cap(s){T(s,340,26,'middle','cap')}
+const GET=ids=>ids.map(i=>{const e=$(i);return e.type==='checkbox'?+e.checked:+e.value});
+function SET(ids,v){ids.forEach((i,k)=>{const e=$(i);if(e.type==='checkbox')e.checked=!!v[k];else e.value=v[k];const o=$(i+'v');if(o)o.textContent=(+v[k]).toString()})}
+const IDS=['ln','m','dl'],F=[[7,256,18.6],[8.61,256,18.6],[8.61,256,6.2],[4.64,4096,18.6]];
+function render(ln,m,dl){const N=Math.round(2**ln),a=50,b=N*m/2e-6/1e9,c=m/(dl*1e-9)/1e9,eff=Math.min(a,b,c),sc=v=>Math.min(v,120)/120*400;
+ cap(`${N} 个槽位、${m} B、δ = ${dl} ns：有效 ${eff.toFixed(1)} GB/s`);
+ [['路径',a],['槽位 Nm/T',b],['发起 m/δ',c]].forEach(([n,v],i)=>{const y=70+i*60;T(n,140,y+24,'end');R(150,y,sc(v),34,v===eff?'var(--bad)':'var(--accent)');T(`${v.toFixed(1)} GB/s${v>120?'（截断）':''}`,158+sc(v),y+24)});
+ T(`瓶颈：${eff===a?'路径':eff===b?'槽位':'发起速率'}`,340,290,'middle','num')}
+let k=0,custom=null;
+function draw(){clear(sv);const v=custom||F[k];SET(IDS,v);render(...v)}
+function reset(){k=0;custom=null;draw()}
+function next(){if(custom!==null){custom=null;draw();return true}if(k>=F.length-1)return false;k++;draw();return true}
+IDS.forEach(i=>{const e=$(i);const f=()=>{ANIM.stop();custom=GET(IDS);draw()};e.oninput=f;e.onchange=f});
+setupPlayer({captureSeed:1,reset,next},1500);
+</script><a href="https://wikieden.github.io/ai-books/" style="position:fixed;right:12px;bottom:12px;z-index:99;padding:4px 10px;border-radius:14px;background:rgba(127,127,127,.18);color:inherit;font:13px/1.6 system-ui,sans-serif;text-decoration:none">← 全部讲义书</a>
+</body></html>

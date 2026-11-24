@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="380" viewBox="0 0 720 380">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="16.0" y="26.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="17" fill="#1f2937" text-anchor="start" font-weight="bold">草稿查询时间与每 token 耗时：AAAA 8.7 ms、BBBB 53.9 ms 以内都比普通快</text>
+<text x="16.0" y="370.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">验证一轮 26.26 ms；AAAA 每轮期望 1.33 个，BBBB 3.05 个。普通 decode 26.26 ms/token（虚线）。</text>
+<line x1="100.0" y1="310.0" x2="620.0" y2="310.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="94.0" y="314.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">0</text>
+<line x1="100.0" y1="226.7" x2="620.0" y2="226.7" stroke="#e5e7eb" stroke-width="1"/>
+<text x="94.0" y="230.7" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">15</text>
+<line x1="100.0" y1="143.3" x2="620.0" y2="143.3" stroke="#e5e7eb" stroke-width="1"/>
+<text x="94.0" y="147.3" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">30</text>
+<line x1="100.0" y1="60.0" x2="620.0" y2="60.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="94.0" y="64.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">45</text>
+<line x1="100.0" y1="60.0" x2="100.0" y2="310.0" stroke="#f0f1f3" stroke-width="1"/>
+<text x="100.0" y="325.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">0</text>
+<line x1="273.3" y1="60.0" x2="273.3" y2="310.0" stroke="#f0f1f3" stroke-width="1"/>
+<text x="273.3" y="325.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">20</text>
+<line x1="446.7" y1="60.0" x2="446.7" y2="310.0" stroke="#f0f1f3" stroke-width="1"/>
+<text x="446.7" y="325.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">40</text>
+<line x1="620.0" y1="60.0" x2="620.0" y2="310.0" stroke="#f0f1f3" stroke-width="1"/>
+<text x="620.0" y="325.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">60</text>
+<line x1="100.0" y1="310.0" x2="620.0" y2="310.0" stroke="#1f2937" stroke-width="1.3"/>
+<line x1="100.0" y1="60.0" x2="100.0" y2="310.0" stroke="#1f2937" stroke-width="1.3"/>
+<text x="360.0" y="342.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#1f2937" text-anchor="middle" font-weight="normal">查询草稿的时间（ms）</text>
+<text transform="translate(60.0,185.0) rotate(-90)" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#1f2937" text-anchor="middle">每 token（ms）</text>
+<polyline points="100.0,200.5 391.9,60.0" fill="none" stroke="#ea580c" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<polyline points="100.0,262.2 620.0,152.9" fill="none" stroke="#16a34a" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<polyline points="100.0,164.1 620.0,164.1" fill="none" stroke="#6b7280" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="5 4" opacity="1"/>
+<circle cx="175.4" cy="164.1" r="5" fill="#ea580c" stroke="#ea580c" stroke-width="1.4"/>
+<circle cx="567.1" cy="164.1" r="5" fill="#16a34a" stroke="#16a34a" stroke-width="1.4"/>
+<line x1="380.0" y1="86.0" x2="402.0" y2="86.0" stroke="#ea580c" stroke-width="2.5"/>
+<text x="408.0" y="90.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#1f2937" text-anchor="start" font-weight="normal">AAAA（a = 1/4）</text>
+<line x1="380.0" y1="104.0" x2="402.0" y2="104.0" stroke="#16a34a" stroke-width="2.5"/>
+<text x="408.0" y="108.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#1f2937" text-anchor="start" font-weight="normal">BBBB（a = 3/4）</text>
+</svg>
