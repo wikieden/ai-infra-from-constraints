@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="820" height="300" viewBox="0 0 820 300">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="16.0" y="26.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="17" fill="#1f2937" text-anchor="start" font-weight="bold">四块：串行 6.28 μs，双缓冲 5.44 μs，搬移首尾相接</text>
+<text x="16.0" y="290.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">每块搬移 1.29 μs、计算 0.28 μs（H100 一个 SM）。双缓冲只藏住了计算；第三个槽不能让搬移更快。</text>
+<text x="120.0" y="80.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="end" font-weight="normal">串行</text>
+<rect x="130.0" y="60.0" width="122.5" height="30.0" rx="3" fill="#ccfbf1" stroke="#0d9488" stroke-width="1.4" opacity="1"/>
+<text x="191.3" y="80.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#0d9488" text-anchor="middle" font-weight="bold">搬 0</text>
+<rect x="252.6" y="60.0" width="26.6" height="30.0" rx="3" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<rect x="279.1" y="60.0" width="122.6" height="30.0" rx="3" fill="#ccfbf1" stroke="#0d9488" stroke-width="1.4" opacity="1"/>
+<text x="340.4" y="80.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#0d9488" text-anchor="middle" font-weight="bold">搬 1</text>
+<rect x="401.7" y="60.0" width="26.6" height="30.0" rx="3" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<rect x="428.3" y="60.0" width="122.5" height="30.0" rx="3" fill="#ccfbf1" stroke="#0d9488" stroke-width="1.4" opacity="1"/>
+<text x="489.6" y="80.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#0d9488" text-anchor="middle" font-weight="bold">搬 2</text>
+<rect x="550.8" y="60.0" width="26.6" height="30.0" rx="3" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<rect x="577.5" y="60.0" width="122.5" height="30.0" rx="3" fill="#ccfbf1" stroke="#0d9488" stroke-width="1.4" opacity="1"/>
+<text x="638.7" y="80.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#0d9488" text-anchor="middle" font-weight="bold">搬 3</text>
+<rect x="700.0" y="60.0" width="26.6" height="30.0" rx="3" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<text x="120.0" y="132.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="end" font-weight="normal">双缓冲 · 搬移</text>
+<rect x="130.0" y="112.0" width="122.5" height="30.0" rx="3" fill="#ccfbf1" stroke="#0d9488" stroke-width="1.4" opacity="1"/>
+<text x="191.3" y="132.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#0d9488" text-anchor="middle" font-weight="bold">搬 0</text>
+<rect x="252.6" y="112.0" width="122.5" height="30.0" rx="3" fill="#ccfbf1" stroke="#0d9488" stroke-width="1.4" opacity="1"/>
+<text x="313.8" y="132.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#0d9488" text-anchor="middle" font-weight="bold">搬 1</text>
+<rect x="375.1" y="112.0" width="122.5" height="30.0" rx="3" fill="#ccfbf1" stroke="#0d9488" stroke-width="1.4" opacity="1"/>
+<text x="436.4" y="132.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#0d9488" text-anchor="middle" font-weight="bold">搬 2</text>
+<rect x="497.7" y="112.0" width="122.5" height="30.0" rx="3" fill="#ccfbf1" stroke="#0d9488" stroke-width="1.4" opacity="1"/>
+<text x="558.9" y="132.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#0d9488" text-anchor="middle" font-weight="bold">搬 3</text>
+<text x="120.0" y="184.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="end" font-weight="normal">双缓冲 · 计算</text>
+<rect x="252.6" y="164.0" width="26.6" height="30.0" rx="3" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<rect x="375.1" y="164.0" width="26.6" height="30.0" rx="3" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<rect x="497.7" y="164.0" width="26.6" height="30.0" rx="3" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<rect x="620.2" y="164.0" width="26.6" height="30.0" rx="3" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<line x1="726.6" y1="60.0" x2="726.6" y2="90.0" stroke="#dc2626" stroke-width="2"/>
+<text x="730.6" y="54.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#dc2626" text-anchor="start" font-weight="bold">6.28 μs</text>
+<line x1="646.8" y1="112.0" x2="646.8" y2="142.0" stroke="#16a34a" stroke-width="2"/>
+<text x="650.8" y="162.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#16a34a" text-anchor="start" font-weight="bold">5.44 μs</text>
+</svg>

@@ -2,7 +2,7 @@
 
 **在线阅读：<https://wikieden.github.io/ai-infra-from-constraints/>** · [讲义目录](https://wikieden.github.io/ai-infra-from-constraints/lessons/index.html) · [全部动画](https://wikieden.github.io/ai-infra-from-constraints/animations/index.html) · [复习卡片](https://wikieden.github.io/ai-infra-from-constraints/review.html) · [全部讲义书](https://wikieden.github.io/ai-books/)
 
-> 24 / 67 章已写（覆盖 AII 第 1–4 章）· 25 个动画（GIF + 可交互页面）· 84 张静态图 · 96 张复习卡片 · 主线《深入理解 AI Infra》（AII）12 章，AISPE 配读
+> 30 / 67 章已写（覆盖 AII 第 1–5 章）· 31 个动画（GIF + 可交互页面）· 104 张静态图 · 118 张复习卡片 · 主线《深入理解 AI Infra》（AII）12 章，AISPE 配读
 
 ## 这本书讲什么
 
@@ -63,6 +63,12 @@
 | [22](https://wikieden.github.io/ai-infra-from-constraints/lessons/22-package-interconnect.html) | 多芯片封装与互联 | 链路 / 本地带宽比决定计算放哪；H2D 要复用 32 次以上；卡间 α + V/R，转折点 αR | AII §4.5 L650–L730 | [▶](https://wikieden.github.io/ai-infra-from-constraints/animations/22-package-interconnect.html) | I83–I85 | 🟡 正文已写，练习 0 / 3 |
 | [23](https://wikieden.github.io/ai-infra-from-constraints/lessons/23-architecture-evolution.html) | 架构演进与专用架构 | Tensor Core 只帮计算主导；精度省字节 × 带宽省时间；统一内存容量 vs 带宽；片上 SRAM 与固定权重 ROM 的账 | AII §4.6–§4.7 L731–L959 | [▶](https://wikieden.github.io/ai-infra-from-constraints/animations/23-architecture-evolution.html) | I86–I91 | 🟡 正文已写，练习 0 / 4 |
 | [24](https://wikieden.github.io/ai-infra-from-constraints/lessons/24-choose-accelerator.html) | 根据架构选择加速器 | 同资源相加、异资源取最大、阶段串联；decode 看带宽、prefill 看矩阵；实测先修口径再去开销；成本与回本 | AII §4.8 L960–L1259 | [▶](https://wikieden.github.io/ai-infra-from-constraints/animations/24-choose-accelerator.html) | I92–I96 | 🟡 正文已写，练习 0 / 4 |
+| [25](https://wikieden.github.io/ai-infra-from-constraints/lessons/25-submit-sync.html) | 提交、搬移与同步 | launch 异步，返回不等于算完；stream 内按序、跨流靠 event；kernel 快 4 倍整体只快 1.75 倍；驻留块数由最紧的资源定，在途字节要够带宽 × 延迟 | AII §5.1 L1–L175 | [▶](https://wikieden.github.io/ai-infra-from-constraints/animations/25-submit-sync.html) | I97–I100 | 🟡 正文已写，练习 0 / 3 |
+| [26](https://wikieden.github.io/ai-infra-from-constraints/lessons/26-tiling-layout.html) | 单个算子：分块、布局与切分 | 128 MiB 的矩阵乘能读出 3 GiB；输出块越大读得越少但驻留越少；padding / swizzle 分散 bank；拆归约维换并行，代价是重读和浮点次序 | AII §5.2 L176–L338 | [▶](https://wikieden.github.io/ai-infra-from-constraints/animations/26-tiling-layout.html) | I101–I104 | 🟡 正文已写，练习 0 / 3 |
+| [27](https://wikieden.github.io/ai-infra-from-constraints/lessons/27-fusion-flash.html) | 算子融合与 FlashAttention | 融合省中间量的一写一读；双缓冲只藏住较短的一段；在线 Softmax 带 m、ℓ、u 逐块更新；K/V 块越小读得越少但更新越多 | AII §5.3 L339–L480 | [▶](https://wikieden.github.io/ai-infra-from-constraints/animations/27-fusion-flash.html) | I105–I108 | 🟡 正文已写，练习 0 / 3 |
+| [28](https://wikieden.github.io/ai-infra-from-constraints/lessons/28-compiler.html) | 编译器：表达、变换与选择（部分跳过） | split / reorder / compute_at 定生命周期；归约合并与舍入位置不能动；先排除、再估计、按调用分布实测 | AII §5.4 L481–L767（跳过 AKG、TileLang-Ascend） | [▶](https://wikieden.github.io/ai-infra-from-constraints/animations/28-compiler.html) | I109–I111 | 🟡 正文已写，练习 0 / 3 |
+| [29](https://wikieden.github.io/ai-infra-from-constraints/lessons/29-runtime.html) | 运行时：重叠、CUDA Graph、动态形状与 persistent kernel | 加速器快过主机后节拍由主机定；图重放省提交但要付输入复制；通用 / 分桶 / 特化按 P + rT 换手；persistent kernel 按块交接 | AII §5.5 L768–L905 | [▶](https://wikieden.github.io/ai-infra-from-constraints/animations/29-runtime.html) | I112–I115 | 🟡 正文已写，练习 0 / 3 |
+| [30](https://wikieden.github.io/ai-infra-from-constraints/lessons/30-request-view.html) | 从局部优化到完整请求 | Amdahl 封顶 1/(1−f)；并行分支的关键路径会换人；SwiGLU 快 2.6 倍，请求只快 0.16% | AII §5.6 L906–L1118 | [▶](https://wikieden.github.io/ai-infra-from-constraints/animations/30-request-view.html) | I116–I118 | 🟡 正文已写，练习 0 / 3 |
 
 **第 1 部分待补**：AII §1.1.1 L9–L27（编程抽象上移：模型成了 LLM 时代的"操作系统"）还没讲，讲第 01 章时并进去，作为第零步；前言（`00-前言.md`）不单独成章，要点已写进本页"这本书讲什么"。
 

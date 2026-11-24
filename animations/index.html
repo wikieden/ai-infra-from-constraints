@@ -226,6 +226,42 @@ footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-
 <td><a href="24-choose-accelerator.html">html</a></td>
 </tr>
 <tr>
+<td>25</td>
+<td>H100 一个 SM 能放几个线程块：寄存器、共享内存、线程槽谁最紧，在途字节够不够（滑块改寄存器、共享内存、延迟）</td>
+<td><a href="25-submit-sync.gif">25-submit-sync.gif</a></td>
+<td><a href="25-submit-sync.html">html</a></td>
+</tr>
+<tr>
+<td>26</td>
+<td>输出块 32 / 64 / 128 的读写量、驻留份数和相对时间（切换块大小、滑块改大块拿到的带宽）</td>
+<td><a href="26-tiling-layout.gif">26-tiling-layout.gif</a></td>
+<td><a href="26-tiling-layout.html">html</a></td>
+</tr>
+<tr>
+<td>27</td>
+<td>在线 Softmax 逐块更新 m、ℓ、u，读完最后一块与整行结果相等（切换每块元素数）</td>
+<td><a href="27-fusion-flash.gif">27-fusion-flash.gif</a></td>
+<td><a href="27-fusion-flash.html">html</a></td>
+</tr>
+<tr>
+<td>28</td>
+<td>形状 A 的调用占比 p 超过 2/3 新实现才更快，按形状分别选永不更差（滑块改 p）</td>
+<td><a href="28-compiler.gif">28-compiler.gif</a></td>
+<td><a href="28-compiler.html">html</a></td>
+</tr>
+<tr>
+<td>29</td>
+<td>通用、分桶、特化的总时间随组数变化，65、90 组换手（滑块改组数、开关改是否已缓存）</td>
+<td><a href="29-runtime.gif">29-runtime.gif</a></td>
+<td><a href="29-runtime.html">html</a></td>
+</tr>
+<tr>
+<td>30</td>
+<td>两条并行分支：缩短 A 后关键路径换成 B，A 抢带宽让请求更慢（滑块改 A、B 的耗时）</td>
+<td><a href="30-request-view.gif">30-request-view.gif</a></td>
+<td><a href="30-request-view.html">html</a></td>
+</tr>
+<tr>
 <td>补充</td>
 <td>TP、PP、CP 三种切法：PP 按层分段与 bubble（滑块改 micro-batch 数）；TP 切矩阵、部分和 AllReduce；CP 切序列、因果三角形的跨卡依赖和前后搭配；组合 TP=8 × PP=3 × DP=2</td>
 <td><a href="appendix-tp-pp-cp.gif">appendix-tp-pp-cp.gif</a></td>

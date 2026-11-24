@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>关键路径切换</title><link rel="stylesheet" href="anim.css">
+<style>svg text.cap{font-size:15px;font-weight:500}svg text.num{font-size:17px;font-weight:600}</style></head>
+<body><main>
+<h1>第 30 章 · 优化 A，请求快多少</h1>
+<p class="sub">配套讲义：<a href="../lessons/30-request-view.html">第 30 章 · 从局部优化到完整请求</a>。准备 10 μs，然后 A、B 两条分支并行，收尾 10 μs 要等两条都完成。</p>
+<div class="panel"><svg id="sv" viewBox="0 0 680 360"></svg></div>
+<div class="row"><button id="play">▶ 播放</button><button id="step">→ 单步</button><button id="reset">↺ 从头开始</button></div>
+<div class="row"><label for="a">A 的耗时 μs</label><input type="range" id="a" min="5" max="80" step="1" value="60"><span id="av">60</span><label for="b">B 的耗时 μs</label><input type="range" id="b" min="20" max="100" step="1" value="40"><span id="bv">40</span></div>
+<p class="note">看点：① 甘特图：准备、A、B、收尾，较长的分支标红（关键路径）；② 右边是请求总时间、A 省了多少、请求省了多少；③ 播放 A = 60 → 40 → 15（B 40）：请求 80 → 60 → 60；④ 最后 A = 15、B 被抢带宽变 90：请求 110 μs。</p>
+</main>
+<script src="anim.js"></script>
+<script>
+const sv=$('sv');
+const F=[[60,40],[40,40],[15,40],[15,90]];let k=0,custom=null;
+function draw(){clear(sv);const [a,b]=custom||F[k];$('a').value=a;$('av').textContent=a;$('b').value=b;$('bv').textContent=b;const T=10+Math.max(a,b)+10;
+ txt(`A = ${a}、B = ${b}：请求 ${T} μs（原 80）`,{x:340,y:26,'text-anchor':'middle',class:'cap'},sv);const X=t=>70+t*3.7;
+ const bar=(y,t0,t1,col,lab,crit)=>{el('rect',{x:X(t0),y,width:X(t1)-X(t0),height:36,rx:4,fill:col,opacity:.65,stroke:crit?'var(--bad)':'none','stroke-width':3},sv);txt(lab,{x:(X(t0)+X(t1))/2,y:y+23,'text-anchor':'middle',class:'m'},sv)};
+ bar(70,0,10,'var(--muted)','备');bar(120,10,10+a,'var(--warm)',`A ${a}`,a>=b);bar(170,10,10+b,'var(--accent)',`B ${b}`,b>=a);bar(70,10+Math.max(a,b),T,'var(--muted)','收');
+ el('line',{x1:X(T),y1:60,x2:X(T),y2:220,stroke:'var(--bad)','stroke-dasharray':'4 4'},sv);
+ [0,40,80,120].forEach(t=>txt(String(t),{x:X(t),y:236,'text-anchor':'middle',class:'m'},sv));
+ txt(`A 省了 ${60-a} μs，请求${T<=80?`省了 ${80-T}`:`反而慢了 ${T-80}`} μs`,{x:340,y:280,'text-anchor':'middle',class:'num'},sv);
+ txt(a>b?'关键路径：A':(a<b?'关键路径：B（再优化 A 没用）':'A、B 同时结束'),{x:340,y:316,'text-anchor':'middle',class:'m'},sv)}
+function reset(){k=0;custom=null;draw()}
+function next(){if(custom!==null){custom=null;draw();return true}if(k>=F.length-1)return false;k++;draw();return true}
+const f=()=>{ANIM.stop();custom=[+$('a').value,+$('b').value];draw()};$('a').oninput=f;$('b').oninput=f;
+setupPlayer({captureSeed:1,reset,next},1500);
+</script><a href="https://wikieden.github.io/ai-books/" style="position:fixed;right:12px;bottom:12px;z-index:99;padding:4px 10px;border-radius:14px;background:rgba(127,127,127,.18);color:inherit;font:13px/1.6 system-ui,sans-serif;text-decoration:none">← 全部讲义书</a>
+</body></html>

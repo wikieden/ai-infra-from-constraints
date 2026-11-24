@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>调用比例与平均时间</title><link rel="stylesheet" href="anim.css">
+<style>svg text.cap{font-size:15px;font-weight:500}svg text.num{font-size:17px;font-weight:600}</style></head>
+<body><main>
+<h1>第 28 章 · 按调用比例选实现</h1>
+<p class="sub">配套讲义：<a href="../lessons/28-compiler.html">第 28 章 · 编译器：表达、变换与选择</a>。例 5-9：原实现处理形状 A、B 都是 10 μs；新实现 A 5 μs、B 20 μs。</p>
+<div class="panel"><svg id="sv" viewBox="0 0 680 360"></svg></div>
+<div class="row"><button id="play">▶ 播放</button><button id="step">→ 单步</button><button id="reset">↺ 从头开始</button></div>
+<div class="row"><label for="p">形状 A 的占比 p</label><input type="range" id="p" min="0" max="1" step="0.01" value="0.5"><span id="pv">0.50</span><label><input type="checkbox" id="sel"> 按形状分别选</label></div>
+<p class="note">看点：① 灰线是原实现 10 μs，橙线是新实现 20 − 15p；② 红点是当前 p；③ 打开按形状选：A 用新、B 用原，平均 5p + 10(1 − p)，任何 p 都不比原来差；④ 播放 p = 0.5 → 2/3 → 0.99，最后打开按形状选。</p>
+</main>
+<script src="anim.js"></script>
+<script>
+const sv=$('sv');
+const F=[[0.5,0],[2/3,0],[0.99,0],[0.5,1]];let k=0,custom=null;
+function draw(){clear(sv);const [p,sel]=custom||F[k];$('p').value=p;$('pv').textContent=(+p).toFixed(2);$('sel').checked=!!sel;
+ const nw=20-15*p,sw=5*p+10*(1-p);const X=v=>80+v*540,Y=v=>300-v/22*240;
+ txt(`p = ${(+p).toFixed(2)}：原 10 μs，新 ${nw.toFixed(2)} μs${sel?`，按形状选 ${sw.toFixed(2)} μs`:''}`,{x:340,y:26,'text-anchor':'middle',class:'cap'},sv);
+ el('line',{x1:80,y1:300,x2:620,y2:300,stroke:'var(--line)'},sv);el('line',{x1:80,y1:60,x2:80,y2:300,stroke:'var(--line)'},sv);
+ [0,0.25,0.5,0.75,1].forEach(v=>txt(String(v),{x:X(v),y:318,'text-anchor':'middle',class:'m'},sv));[0,5,10,15,20].forEach(v=>txt(String(v),{x:72,y:Y(v)+4,'text-anchor':'end',class:'m'},sv));
+ el('line',{x1:X(0),y1:Y(10),x2:X(1),y2:Y(10),stroke:'var(--muted)','stroke-width':2.5},sv);
+ el('line',{x1:X(0),y1:Y(20),x2:X(1),y2:Y(5),stroke:'var(--warm)','stroke-width':2.5},sv);
+ if(sel)el('line',{x1:X(0),y1:Y(10),x2:X(1),y2:Y(5),stroke:'var(--good)','stroke-width':2.5,'stroke-dasharray':'6 4'},sv);
+ el('line',{x1:X(2/3),y1:60,x2:X(2/3),y2:300,stroke:'var(--line)','stroke-dasharray':'4 4'},sv);txt('2/3',{x:X(2/3),y:56,'text-anchor':'middle',class:'m'},sv);
+ el('circle',{cx:X(p),cy:Y(nw),r:7,fill:'var(--bad)'},sv);if(sel)el('circle',{cx:X(p),cy:Y(sw),r:7,fill:'var(--good)'},sv);
+ txt(nw<10?'新实现更快':(Math.abs(nw-10)<0.01?'恰好相等':'原实现更快'),{x:600,y:90,'text-anchor':'end',class:'num'},sv);txt('x 轴：形状 A 的调用占比',{x:350,y:344,'text-anchor':'middle',class:'m'},sv)}
+function reset(){k=0;custom=null;draw()}
+function next(){if(custom!==null){custom=null;draw();return true}if(k>=F.length-1)return false;k++;draw();return true}
+const f=()=>{ANIM.stop();custom=[+$('p').value,+$('sel').checked];draw()};$('p').oninput=f;$('sel').onchange=f;
+setupPlayer({captureSeed:1,reset,next},1500);
+</script><a href="https://wikieden.github.io/ai-books/" style="position:fixed;right:12px;bottom:12px;z-index:99;padding:4px 10px;border-radius:14px;background:rgba(127,127,127,.18);color:inherit;font:13px/1.6 system-ui,sans-serif;text-decoration:none">← 全部讲义书</a>
+</body></html>

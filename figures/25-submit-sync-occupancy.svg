@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="300" viewBox="0 0 800 300">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="16.0" y="26.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="17" fill="#1f2937" text-anchor="start" font-weight="bold">H100 一个 SM：寄存器、共享内存同时只允许 2 块，线程槽只用四分之一</text>
+<text x="16.0" y="290.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">每块 256 线程、每线程 128 个寄存器、96 KiB 工作集 + 1 KiB 预留。占用率 = 16 个 warp / 64 = 25%。</text>
+<text x="170.0" y="90.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="end" font-weight="normal">寄存器 64K</text>
+<rect x="180.0" y="70.0" width="520.0" height="30.0" rx="3" fill="#f3f4f6" stroke="#d1d5db" stroke-width="1.4" opacity="1"/>
+<rect x="180.0" y="70.0" width="260.0" height="30.0" rx="3" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<rect x="440.0" y="70.0" width="260.0" height="30.0" rx="3" fill="#dcfce7" stroke="#16a34a" stroke-width="1.4" opacity="1"/>
+<text x="710.0" y="90.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">满</text>
+<text x="170.0" y="150.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="end" font-weight="normal">共享内存 228 KB</text>
+<rect x="180.0" y="130.0" width="520.0" height="30.0" rx="3" fill="#f3f4f6" stroke="#d1d5db" stroke-width="1.4" opacity="1"/>
+<rect x="180.0" y="130.0" width="221.2" height="30.0" rx="3" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<rect x="401.2" y="130.0" width="221.2" height="30.0" rx="3" fill="#dcfce7" stroke="#16a34a" stroke-width="1.4" opacity="1"/>
+<text x="710.0" y="150.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">剩 34 KiB</text>
+<text x="170.0" y="210.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="end" font-weight="normal">线程槽 2048</text>
+<rect x="180.0" y="190.0" width="520.0" height="30.0" rx="3" fill="#f3f4f6" stroke="#d1d5db" stroke-width="1.4" opacity="1"/>
+<rect x="180.0" y="190.0" width="65.0" height="30.0" rx="3" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<rect x="245.0" y="190.0" width="65.0" height="30.0" rx="3" fill="#dcfce7" stroke="#16a34a" stroke-width="1.4" opacity="1"/>
+<text x="710.0" y="210.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">剩 1536</text>
+</svg>

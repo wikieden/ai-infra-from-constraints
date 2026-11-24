@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>第 30 章 · 从局部优化到完整请求 · 从约束推导 AI Infra</title>
+<script>(function(){try{var d=document.documentElement,t=localStorage.getItem("ab-theme"),f=localStorage.getItem("ab-fs");if(t)d.dataset.theme=t;if(f)d.dataset.fs=f}catch(e){}})();</script>
+<style>:root{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa;--fs:16px}
+@media (prefers-color-scheme:dark){:root:not([data-theme]){--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}}
+:root[data-theme="light"]{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa}
+:root[data-theme="dark"]{--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}
+:root[data-theme="sepia"]{--bg:#f6efe1;--fg:#3b3127;--mute:#7a6a58;--line:#e2d6bf;--card:#fbf6ec;--acc:#a0522d;--code:#ece2cd;--quote:#efe5d2}
+:root[data-theme="green"]{--bg:#e3eddf;--fg:#22301f;--mute:#566650;--line:#c9d8c3;--card:#eef5eb;--acc:#2e7d4f;--code:#d6e4d0;--quote:#dae7d5}
+:root[data-theme="navy"]{--bg:#0f1a2b;--fg:#dde6f3;--mute:#93a4bd;--line:#23324a;--card:#15233a;--acc:#6cc4ff;--code:#1a2a44;--quote:#16243b}
+:root[data-fs="s"]{--fs:15px}
+:root[data-fs="m"]{--fs:16px}
+:root[data-fs="l"]{--fs:18px}
+:root[data-fs="xl"]{--fs:20px}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:var(--fs)/1.75 -apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Helvetica Neue",sans-serif}
+a{color:var(--acc)}
+header.top{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+header.top .in{max-width:860px;margin:0 auto;padding:10px 16px;display:flex;gap:6px 16px;align-items:center;flex-wrap:wrap;font-size:14px}
+header.top .brand{font-weight:600;color:var(--fg);text-decoration:none;margin-right:auto}
+header.top a{text-decoration:none}
+.prefs{display:inline-flex;gap:4px;align-items:center}
+.prefs button,.prefs select,#nav-toggle{font:inherit;font-size:13px;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:2px 8px;cursor:pointer}
+main{max-width:860px;margin:0 auto;padding:24px 16px 72px;overflow-wrap:anywhere}
+h1{font-size:1.75em;line-height:1.35;margin:8px 0 16px} h2{font-size:1.375em;margin:40px 0 12px;padding-top:8px;border-top:1px solid var(--line)} h3{font-size:1.125em;margin:28px 0 8px}
+.layout{display:grid;grid-template-columns:260px minmax(0,1fr);max-width:1180px;margin:0 auto}
+.layout main{margin:0;max-width:880px}
+nav.side{position:sticky;top:49px;align-self:start;max-height:calc(100vh - 49px);overflow-y:auto;padding:20px 8px 40px 16px;border-right:1px solid var(--line);font-size:14px;line-height:1.5}
+nav.side .h{font-weight:600;color:var(--mute);margin:4px 8px 8px;font-size:13px}
+nav.side a{display:block;padding:5px 8px;border-radius:6px;color:var(--fg);text-decoration:none}
+nav.side a:hover{background:var(--code)} nav.side a.cur{background:var(--quote);color:var(--acc);font-weight:600}
+nav.side a .n{color:var(--mute);margin-right:6px;font-variant-numeric:tabular-nums}
+#nav-toggle{display:none}
+@media (max-width:960px){.layout{display:block} nav.side{display:none;position:fixed;z-index:6;top:49px;left:0;bottom:0;width:min(300px,85vw);max-height:none;background:var(--bg);box-shadow:2px 0 12px rgba(0,0,0,.2)} nav.side.open{display:block} #nav-toggle{display:inline-block}}
+.run{display:flex;flex-wrap:wrap;align-items:center;gap:4px 0;margin:4px 0 12px}
+.run details{flex-basis:100%;margin:6px 0 0;font-size:.94em}
+img{max-width:100%;height:auto;border-radius:8px;border:1px solid var(--line);background:#fff}
+blockquote{margin:16px 0;padding:10px 16px;background:var(--quote);border-left:3px solid var(--acc);border-radius:4px;color:var(--mute)}
+blockquote p{margin:4px 0}
+code{background:var(--code);padding:1px 5px;border-radius:4px;font-size:.9em}
+pre{background:var(--code);padding:12px 14px;border-radius:8px;overflow-x:auto} pre code{padding:0;background:none}
+table{border-collapse:collapse;display:block;overflow-x:auto;max-width:100%;margin:12px 0;font-size:.94em}
+th,td{border:1px solid var(--line);padding:6px 10px;vertical-align:top} th{background:var(--code)}
+details{border:1px solid var(--line);border-radius:8px;padding:6px 12px;margin:8px 0;background:var(--card)}
+details[open]{padding-bottom:10px} summary{cursor:pointer;color:var(--acc);font-weight:500}
+mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%}
+.btn{display:inline-block;margin:4px 8px 4px 0;padding:6px 14px;border:1px solid var(--acc);border-radius:999px;text-decoration:none;font-size:14px}
+.pager{display:flex;justify-content:space-between;gap:12px;margin-top:48px;padding-top:16px;border-top:1px solid var(--line);font-size:15px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin:16px 0}
+.card{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;color:inherit;text-decoration:none}
+.card:hover{border-color:var(--acc)} .card img{border:0;border-bottom:1px solid var(--line);border-radius:0;aspect-ratio:16/10;object-fit:contain;width:100%}
+.card .no{color:var(--mute);font-size:13px;padding:8px 12px 0} .card .t{padding:0 12px 12px;font-weight:500;line-height:1.5}
+.lead{font-size:1.06em;color:var(--mute)}
+footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-size:13px}
+</style>
+<script>window.MathJax={tex:{inlineMath:[["\\(","\\)"]],displayMath:[["\\[","\\]"],["$$","$$"]],processEscapes:true,processEnvironments:true}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"></script>
+</head><body>
+<header class="top"><div class="in">
+<button type="button" id="nav-toggle" aria-label="打开章节列表">☰ 章节</button><a class="brand" href="../index.html">从约束推导 AI Infra</a>
+<a href="../lessons/index.html">讲义目录</a>
+<a href="../animations/index.html">动画</a>
+<a href="../review.html">复习卡片</a>
+<a href="../lessons/appendix-glossary.html">缩写表</a>
+<a href="https://wikieden.github.io/ai-books/glossary.html">全局词汇</a>
+<a href="https://wikieden.github.io/ai-books/">← 全部讲义书</a>
+<span class="prefs" title="字号与主题"><button type="button" data-fs-step="-1" aria-label="字号变小">A−</button><button type="button" data-fs-step="1" aria-label="字号变大">A+</button><select id="ab-theme" aria-label="主题色"><option value="">跟随系统</option><option value="light">浅色</option><option value="dark">深色</option><option value="sepia">米黄护眼</option><option value="green">豆沙绿护眼</option><option value="navy">夜蓝</option></select></span>
+</div></header>
+<div class="layout"><nav class="side" aria-label="章节"><div class="h">从约束推导 AI Infra</div><a href="index.html">讲义目录</a><a href="01-six-layers.html"><span class="n">1</span>一次请求走过的六层（进行中）</a><a href="02-request-lifecycle.html"><span class="n">2</span>一次生成请求的处理过程：权重加载一次，每个 token 都要再读一遍</a><a href="03-dataflow-hierarchy.html"><span class="n">3</span>从存储程序到数据流执行：存储层次就像大楼里的厕所</a><a href="04-key-numbers.html"><span class="n">4</span>系统设计的关键数字：容量、算力、带宽、延迟</a><a href="05-estimate.html"><span class="n">5</span>用几个数字估算一次模型执行：算和读各要多久，实测为什么达不到</a><a href="06-architecture.html"><span class="n">6</span>需求如何推动架构：TPU、SmartNIC、Unified Bus</a><a href="07-compute-graph.html"><span class="n">7</span>计算图与张量结构：一个 token 经过一层要算多少</a><a href="08-generation-budget.html"><span class="n">8</span>自回归生成的资源账：存一次的、每步读的、用完就扔的</a><a href="09-kv-sharing.html"><span class="n">9</span>KV 怎么变小 ①：头共享与潜变量压缩</a><a href="10-kv-sparse-linear.html"><span class="n">10</span>KV 怎么变小 ②：窗口、稀疏、线性与混合注意力</a><a href="11-moe.html"><span class="n">11</span>MoE：专家路由与批内权重复用</a><a href="12-network-shape.html"><span class="n">12</span>网络形状：深宽、专家粒度、残差与多 token 预测</a><a href="13-model-comparison.html"><span class="n">13</span>整个模型的资源需求与比较：存多少、算多少、能放几条请求</a><a href="14-workload-arrival.html"><span class="n">14</span>从单次请求到持续到达的负载：什么时候来，比来多少更要紧</a><a href="15-agent-tasks.html"><span class="n">15</span>多轮交互与 Agent 任务：前缀、成功成本、关键路径</a><a href="16-multimodal-realtime.html"><span class="n">16</span>多模态与实时交互：数据换形状，时间有死线（略讲）</a><a href="17-training-rl.html"><span class="n">17</span>训练与强化学习的计算和状态：为什么训练要 6ND、要存 18 字节</a><a href="18-scaling-lifecycle.html"><span class="n">18</span>Scaling law 与全生命周期成本：训练多大、训练多久、服务多少次</a><a href="19-accelerator-basics.html"><span class="n">19</span>从矩阵乘法认识加速器：算多少、搬多少、耗多少电</a><a href="20-compute-units.html"><span class="n">20</span>计算单元：矩阵、向量、流水与低精度</a><a href="21-memory-movement.html"><span class="n">21</span>存储层次与数据搬移：放得下、取得到、来得及</a><a href="22-package-interconnect.html"><span class="n">22</span>多芯片封装与互联：计算放在哪，数据走哪条路</a><a href="23-architecture-evolution.html"><span class="n">23</span>架构演进与专用架构：每一代新增的东西，省掉了哪一笔</a><a href="24-choose-accelerator.html"><span class="n">24</span>根据架构选择加速器：先估下界，再找差距，最后算账</a><a href="25-submit-sync.html"><span class="n">25</span>提交、搬移与同步：从调用返回到结果可用</a><a href="26-tiling-layout.html"><span class="n">26</span>单个算子：分块、布局与切分</a><a href="27-fusion-flash.html"><span class="n">27</span>算子融合与 FlashAttention：中间结果不落地</a><a href="28-compiler.html"><span class="n">28</span>编译器：表达、变换与选择</a><a href="29-runtime.html"><span class="n">29</span>运行时：重叠、CUDA Graph、动态形状与 persistent kernel</a><a href="30-request-view.html" class="cur"><span class="n">30</span>从局部优化到完整请求</a><a href="appendix-glossary.html">附录 · 缩写与术语表</a><a href="appendix-tp-pp-cp.html">附录 · 补充资料：TP、PP、CP，一个模型沿三个方向切给多张卡</a></nav><main>
+<h1 id="30">第 30 章 · 从局部优化到完整请求</h1><div class="run"><a class="btn" href="../animations/30-request-view.html">▶ 打开本章可交互动画</a><a class="btn" href="https://colab.research.google.com/github/wikieden/ai-infra-from-constraints/blob/main/code/notebooks/ch30_request_view.ipynb" target="_blank" rel="noopener">在 Colab 运行本章代码</a><a class="btn" href="../code/notebooks/ch30_request_view.ipynb" download>下载 notebook</a><details><summary>本地运行</summary><pre><code>git clone https://github.com/wikieden/ai-infra-from-constraints
+cd ai-infra-from-constraints/code/notebooks
+pip install jupyterlab torch numpy
+jupyter lab ch30_request_view.ipynb</code></pre><p>也可以下载后直接用 VS Code 打开 .ipynb 运行。需要 GPU 的章节在 Colab 里选「代码执行程序 → 更改运行时类型 → GPU」。</p></details></div>
+<blockquote>
+<p>本章回答：一个 kernel 快了 2.6 倍，用户等的时间少了多少？两条分支并行时，优化其中一条为什么会突然不再有用，甚至让请求变慢？第 5 部分讲的分块、融合、图重放，放回一次真实的 Qwen3 请求里各值多少？<br />
+讲解日期：2026-11-24 · 上一章：<a href="../lessons/29-runtime.html">第 29 章 运行时</a> · 下一章：第 31 章（待写，第六部分 超节点）<br />
+对应原文：<code>materials/ai-infra-book/manuscripts/05-算子与运行时.md</code> §5.6 L906–L974（图 5-38 到 5-40）、常见误区 L975–L984、本章小结<br />
+本章缩写：SwiGLU = Swish-Gated Linear Unit（Swish 门控 / 线性 / 单元，<span class="arithmatex">\(\operatorname{SiLU}(G) \odot U\)</span>）· eager = 主机按程序顺序逐项提交加速器工作。全部缩写见 <a href="../lessons/appendix-glossary.html">缩写与术语表</a></p>
+</blockquote>
+<p>第 25–29 章每项优化都有明确的作用对象：分块减重读，融合减中间读写，运行时减准备和等待。但一次请求里还有别的工作。本章把局部节省放回整个请求。</p>
+<h2 id="_1">讲解</h2>
+<h3 id="2026-11-24">第一步：热点占多少，决定能快多少（2026-11-24）</h3>
+<p><strong>类比：上班通勤。</strong> 地铁 20 分钟、走路 80 分钟。地铁再快，一路上最多省 20 分钟。</p>
+<p>原文 L912–L920（Amdahl 定律，第 4 章）：串行阶段、热点占原时间 <span class="arithmatex">\(f\)</span>、热点加速 <span class="arithmatex">\(s\)</span> 倍：</p>
+<div class="arithmatex">\[S_{\mathrm{request}} = \frac{1}{(1 - f) + f/s}\]</div>
+<table>
+<thead>
+<tr>
+<th>热点占 20%，加速</th>
+<th style="text-align: right;">新时间</th>
+<th style="text-align: right;">整体加速</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2 倍</td>
+<td style="text-align: right;">0.90</td>
+<td style="text-align: right;">1.11</td>
+</tr>
+<tr>
+<td>10 倍</td>
+<td style="text-align: right;">0.82</td>
+<td style="text-align: right;">1.22</td>
+</tr>
+<tr>
+<td>无穷（耗时为 0）</td>
+<td style="text-align: right;">0.80</td>
+<td style="text-align: right;">1.25（上限）</td>
+</tr>
+</tbody>
+</table>
+<p><img alt="整体加速随热点加速比上升，被 1/(1 − f) 封顶" src="../figures/30-request-view-amdahl.png" /></p>
+<p><em>图 30-1 · 三条线是 f = 0.2、0.5、0.9。热点越快，其他阶段在总时间里占比越高。</em></p>
+<p><strong>一句话</strong>：局部加速的上限是 <span class="arithmatex">\(1/(1 - f)\)</span>；先量热点占比，再决定值不值得优化。</p>
+<h3 id="2026-11-24_1">第二步：并行分支：关键路径会换人（2026-11-24）</h3>
+<p><strong>类比：做饭等两个锅。</strong> 炖肉 60 分钟、煮饭 40 分钟，同时开火，开饭时间看炖肉。把炖肉改成高压锅 15 分钟，开饭就看煮饭了；高压锅再快也没用。要是高压锅还把燃气抢走、煮饭变成 90 分钟，开饭反而更晚。</p>
+<p>原文 L924–L938：准备 10 μs，然后 A、B 并行，收尾 10 μs 要等两条都完成：</p>
+<div class="arithmatex">\[T = 10 + \max(A, B) + 10\]</div>
+<table>
+<thead>
+<tr>
+<th>情况</th>
+<th style="text-align: right;">A</th>
+<th style="text-align: right;">B</th>
+<th style="text-align: right;">请求</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>原来</td>
+<td style="text-align: right;">60</td>
+<td style="text-align: right;">40</td>
+<td style="text-align: right;">80 μs</td>
+</tr>
+<tr>
+<td>A 快 4 倍</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">40</td>
+<td style="text-align: right;">60 μs（A 省 45，请求只省 20）</td>
+</tr>
+<tr>
+<td>A 再快</td>
+<td style="text-align: right;">→ 0</td>
+<td style="text-align: right;">40</td>
+<td style="text-align: right;">停在 60 μs（A = 40 是交点）</td>
+</tr>
+<tr>
+<td>A 抢带宽，B 变慢</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">90</td>
+<td style="text-align: right;">110 μs（更慢）</td>
+</tr>
+</tbody>
+</table>
+<p><img alt="A 从 60 缩到 15 后，关键路径从 A 换到 B" src="../figures/30-request-view-critical.png" /></p>
+<p><em>图 30-2 · 再往下缩只能优化 B，或者减准备和收尾。共享带宽的优化要连同邻居一起测。</em></p>
+<p><strong>存储上的节省也要放回整个执行</strong>（原文 L940–L944）：<a href="../lessons/10-kv-sparse-linear.html">第 10 章</a>讲过的 V4.1 让 38 个全局注意力层共用 4 份全局 KV，驻留降到 V4-Flash 的约四分之一，逐层读取却只少约 9%：共享状态不必每层存一份，但每一层仍要读它。<strong>少占的容量不等于少读的字节。</strong> 同样，候选池的参考实现先算完整索引再屏蔽池外，生产实现在发起计算时就跳过，同一规则两种成本。</p>
+<p><strong>一句话</strong>：优化一个分支，节省要放回依赖图；关键路径换人后再优化它就没用了，共享资源还可能让别的分支变慢。</p>
+<h3 id="qwen3-8b-2026-11-24">第三步：一次 Qwen3-8B 请求的账（2026-11-24）</h3>
+<p><strong>类比：给一辆车换更快的雨刷。</strong> 下雨天每分钟刷很多次，雨刷快了确实省时间；但整趟路程里刷雨刷只占一点点。</p>
+<p>原文 L952–L971：RTX PRO 6000，Qwen3-8B，输入 7239 个 token，生成 32 个，并发 1，BF16、eager，36 层。每层每步一次 SwiGLU 激活（第 27 章的 <span class="arithmatex">\(Z = \operatorname{SiLU}(G) \odot U\)</span>），共 <span class="arithmatex">\(36 \times 32 = 1152\)</span> 次调用：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th style="text-align: right;">调用</th>
+<th>形状</th>
+<th style="text-align: right;">原 kernel</th>
+<th style="text-align: right;">换调度后的 kernel</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Prefill</td>
+<td style="text-align: right;">36 次</td>
+<td>7239 行（共 260,604 行）</td>
+<td style="text-align: right;">约 11.2 ms</td>
+<td style="text-align: right;">约 11.2 ms</td>
+</tr>
+<tr>
+<td>Decode</td>
+<td style="text-align: right;">1116 次</td>
+<td>1 行</td>
+<td style="text-align: right;">约 2.4 ms</td>
+<td style="text-align: right;">约 0.92 ms（2.6 倍）</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>decode 的调用是 prefill 的 31 倍，行数却小得多：小矩阵算得快，launch 和任务分配的开销更显眼（第 25、29 章）。</li>
+<li>全部激活约 13.6 ms，占约 851 ms 采集区间的 <strong>1.6%</strong>：就算激活耗时归零，最多省 13.6 ms。</li>
+<li>只 decode 部分变快，预计请求省约 1.4 ms。</li>
+<li>实测 11 对交错计时：首 token 都约 436 ms，完整请求中位数 817 / 815 ms；<strong>配对差的中位数约 1.3 ms</strong>（0.16%），和预期相符；9 对变快、2 对变慢。</li>
+</ul>
+<p><img alt="11 对请求的配对时间差，中位数约 1.3 ms" src="../figures/30-request-view-paired.png" /></p>
+<p><em>图 30-3 · 正值表示替换后更快。用配对差的中位数，而不是两组中位数相减：配对能抵消同一时段的背景波动。</em></p>
+<p>decode 的改进发生在首 token 之后，所以首 token 时间仍由 prefill 决定；输出越长，单步省的时间累积越多。</p>
+<p><strong>方法</strong>：先数每种形状调用几次 → 算每次省多少 → 按依赖关系判断这些节省能不能缩短整个请求。</p>
+<p><strong>本部分的四个常见误区</strong>（原文 L975–L984）：</p>
+<table>
+<thead>
+<tr>
+<th>误区</th>
+<th>反例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>看 kernel 数量判断成本</td>
+<td>图重放把主机提交 18 → 3 次，加速器仍执行 18 个 kernel；融合才把 kernel 减到 15</td>
+</tr>
+<tr>
+<td>访问量最小的一定最快</td>
+<td>注意力 K/V 块 64 → 1 行，少读 144 MiB，状态更新多约 41 倍</td>
+</tr>
+<tr>
+<td>加缓冲就能提吞吐</td>
+<td>两个槽已让搬移连续工作，第三个槽不能让搬移变快</td>
+</tr>
+<tr>
+<td>稳态最快，总耗时就最短</td>
+<td>跑 70 组：分桶 1.27 s，特化 1.38 s</td>
+</tr>
+</tbody>
+</table>
+<p><strong>场景代码</strong>：配对测量请求耗时，交错顺序、取配对差的中位数（真实写法）：</p>
+<pre><code class="language-python">import random, statistics, time
+import requests
+
+def one(url, payload):
+    t = time.perf_counter(); requests.post(url, json=payload).raise_for_status()
+    return time.perf_counter() - t
+
+diffs = []
+for _ in range(11):
+    order = [(&quot;old&quot;, OLD_URL), (&quot;new&quot;, NEW_URL)]
+    random.shuffle(order)                              # 轮内顺序随机
+    t = {name: one(url, PAYLOAD) for name, url in order}
+    diffs.append(t[&quot;old&quot;] - t[&quot;new&quot;])                  # 正值 = 新的更快
+print(f&quot;配对差中位数 {1e3 * statistics.median(diffs):.1f} ms&quot;)
+</code></pre>
+<p><strong>一句话</strong>：kernel 快 2.6 倍，请求只快 0.16%；先数调用、再算每次省多少、最后看关键路径，才知道用户少等多久。</p>
+<h2 id="a">动画演示：优化 A，请求快多少</h2>
+<p><img alt="关键路径切换" src="../animations/30-request-view.gif" /></p>
+<p>可交互版：<a href="../animations/30-request-view.html">animations/30-request-view.html</a>（滑块：A 的耗时 5–80 μs、B 的耗时 20–100 μs）。</p>
+<p><strong>怎么看</strong>：</p>
+<ol>
+<li>准备、A 和 B 两条并行分支、收尾画成甘特图，较长的分支标红，就是关键路径（第二步）；</li>
+<li>右边显示请求总时间、A 省了多少、请求省了多少；</li>
+<li>播放时 A = 60 → 40 → 15，B 保持 40：请求 80 → 60 → 60；</li>
+<li>最后一帧 A = 15、B 被抢带宽变成 90：请求 110 μs。</li>
+</ol>
+<h2 id="_2">练习与作答记录</h2>
+<p><strong>题 1</strong>（第一步）：热点占 35%，加速 3 倍，整体快几倍？热点耗时降到 0 时的上限是多少？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p><strong>题 2</strong>（第二步）：准备 5 μs，A、B、C 三条分支并行，分别 50、35、45 μs，收尾 8 μs。请求多久？把 A 缩到 20 μs 后呢？要让请求再短，下一个该优化谁？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p><strong>题 3</strong>（第三步）：沿用 Qwen3 的例子，decode 从 31 步增到 255 步，每步省的时间不变。激活一共能省多少 ms？（每步 36 层，每层省 <span class="arithmatex">\((2.4 - 0.92)/1116\)</span> ms。）</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p>原书实验 5-9（L1021：127 步与图 5-38 的交点）。想多练可以做。</p>
+<h2 id="_3">口诀</h2>
+<blockquote>
+<p>地铁再快，走路那段还得走；<br />
+炖肉快了看煮饭，抢了燃气饭更晚；<br />
+雨刷快两倍半，整趟只快千分之二；<br />
+先数次数，再算每次，最后看谁在关键路径上。</p>
+</blockquote>
+<h2 id="_4">本章复习卡片</h2>
+<p><a href="../review.html">I116</a>（Amdahl：热点 20% 的 1.11 / 1.22 / 1.25）、<a href="../review.html">I117</a>（两分支的关键路径 80 → 60 → 110 μs）、<a href="../review.html">I118</a>（Qwen3 请求：kernel 2.6 倍，请求 0.16%，配对中位数与四个误区）。练习做完后，按答错、卡住的地方再补。</p>
+<h2 id="_5">附录 · 延伸阅读</h2>
+<blockquote>
+<p>留给以后深入学习用，不影响本章主线。★ 是建议先读的。</p>
+</blockquote>
+<h3 id="_6">推荐阅读</h3>
+<table>
+<thead>
+<tr>
+<th>读什么</th>
+<th>读哪里</th>
+<th>读它为了什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>★ AII 第 5 章</td>
+<td>§5.6 L906–L974、常见误区、本章小结</td>
+<td>本章原文</td>
+</tr>
+<tr>
+<td>AII 第 5 章</td>
+<td>历史与进一步阅读 L1025–L1107</td>
+<td>编译器、运行时的来龙去脉</td>
+</tr>
+<tr>
+<td><a href="../lessons/04-key-numbers.html">第 4 章 关键数字</a></td>
+<td>Amdahl</td>
+<td>第一步的前置</td>
+</tr>
+<tr>
+<td><a href="../lessons/10-kv-sparse-linear.html">第 10 章 KV 怎么变小 ②</a></td>
+<td>V4.1 共享全局 KV</td>
+<td>容量 vs 读取</td>
+</tr>
+<tr>
+<td><a href="https://wikieden.github.io/pytorch-inside-out/lessons/23-perf-method.html">《PyTorch 从里到外》第 23、24 章</a></td>
+<td>性能方法、profiler</td>
+<td>怎么量热点</td>
+</tr>
+<tr>
+<td><a href="https://wikieden.github.io/cuda-to-tensor-core/lessons/27-methodology-wrap-up.html">《CUDA 从线程到 Tensor Core》第 27 章</a></td>
+<td>方法论</td>
+<td>kernel 优化放回系统</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_7">数学原理</h3>
+<ul>
+<li><strong>Amdahl</strong>：<span class="arithmatex">\(1/((1-f) + f/s) \le 1/(1-f)\)</span>。</li>
+<li><strong>关键路径</strong>：DAG 上的最长路径；并行段取 max。</li>
+<li><strong>配对差</strong>：<span class="arithmatex">\(\operatorname{median}(a_i - b_i) \ne \operatorname{median}(a) - \operatorname{median}(b)\)</span>，前者消掉同一轮的公共波动。</li>
+</ul>
+<h3 id="_8">公式清单</h3>
+<table>
+<thead>
+<tr>
+<th>公式</th>
+<th>意思</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\(S = 1/((1 - f) + f/s)\)</span></td>
+<td>串行阶段的整体加速</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(T = t_{\mathrm{prep}} + \max(A, B) + t_{\mathrm{tail}}\)</span></td>
+<td>两分支并行</td>
+</tr>
+<tr>
+<td>节省 = 调用次数 × 每次节省（只算关键路径上的）</td>
+<td>请求级收益</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_9">代码对照：把本章的数字用代码算一遍</h3>
+<blockquote>
+<p>纯 Python，不需要 GPU。代码在仓库本地 <code>ai-infra/solutions/chapter-code/ch30_request_view.py</code>，配套测试 <code>tests/test_ch30.py</code>：</p>
+<p><code>bash  
+cd ai-infra/solutions/chapter-code  
+uv run python ch30_request_view.py   # 一步一步打印  
+uv run pytest tests/test_ch30.py</code></p>
+</blockquote>
+<p><strong>讲义 ↔ 代码</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>讲义</th>
+<th>公式</th>
+<th>写法</th>
+<th>跑出来</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第一步 Amdahl</td>
+<td><span class="arithmatex">\(1/((1-f) + f/s)\)</span></td>
+<td><code>amdahl(0.2, s)</code></td>
+<td>1.11 / 1.22 / 1.25</td>
+</tr>
+<tr>
+<td>第二步 关键路径</td>
+<td><span class="arithmatex">\(\max\)</span></td>
+<td><code>dag_time(10, a, b, 10)</code></td>
+<td>80 / 60 / 110 μs</td>
+</tr>
+<tr>
+<td>第三步 请求</td>
+<td>计数</td>
+<td><code>36 * 32</code>、<code>13.6 / 851</code></td>
+<td>1152 次、1.6%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>关键几行</strong>：</p>
+<pre><code class="language-python">def amdahl(f, s):
+    return 1 / ((1 - f) + f / s)
+
+def dag_time(prep, a, b, tail):
+    return prep + max(a, b) + tail        # 收尾等两条分支都完成
+</code></pre>
+<p><strong>代码里才看得到的 3 件事</strong>：</p>
+<ol>
+<li><code>amdahl(0.2, float("inf"))</code> 直接得 1.25：Python 里 <code>f / inf</code> 是 0。</li>
+<li><code>dag_time(10, 40, 40, 10)</code> 和 <code>dag_time(10, 1, 40, 10)</code> 都是 60：A 低于 40 以后再缩毫无作用。</li>
+<li>原文"decode 合计节省约 1.45 ms"用的是未取整的阶段时间；拿表里取整的 2.4 和 0.92 相减是 1.48。</li>
+</ol>
+<p><strong>自己改一改</strong>（不影响练习答案）：</p>
+<ul>
+<li>把 <code>dag_time</code> 推广成任意多条分支，再加一条"A 每快 1 μs，B 慢 0.5 μs"的共享带宽规则，求最优的 A。</li>
+<li>用 <code>amdahl</code> 画 <span class="arithmatex">\(f\)</span> = 0.016（Qwen3 的激活占比）时 <span class="arithmatex">\(s\)</span> 从 1 到 100 的曲线。</li>
+<li>把第三步改成生成 1024 个 token，激活节省占请求的比例会变成多少（假设每步其他工作不变）？</li>
+</ul><nav class="pager"><a href="29-runtime.html">← 第 29 章 · 运行时：重叠、CUDA Graph、动态形状与 persistent kernel</a><span></span></nav>
+</main></div>
+<footer>来自个人学习仓库的对话讲义，含练习作答记录。源码：<a href="https://github.com/wikieden/ai-infra-from-constraints">github.com/wikieden/ai-infra-from-constraints</a>。更多讲义书：<a href="https://wikieden.github.io/ai-books/">Physical AI 0-1-♾️（合集）</a></footer>
+<script>(function(){var d=document.documentElement,K=["s","m","l","xl"];
+function save(k,v){try{v?localStorage.setItem(k,v):localStorage.removeItem(k)}catch(e){}}
+var s=document.getElementById("ab-theme");if(s){s.value=d.dataset.theme||"";s.onchange=function(){if(s.value)d.dataset.theme=s.value;else delete d.dataset.theme;save("ab-theme",s.value)}}
+document.querySelectorAll("[data-fs-step]").forEach(function(b){b.onclick=function(){var i=K.indexOf(d.dataset.fs||"m")+(+b.dataset.fsStep);i=Math.max(0,Math.min(K.length-1,i));d.dataset.fs=K[i];save("ab-fs",K[i])}});
+var nb=document.getElementById("nav-toggle"),side=document.querySelector("nav.side");if(nb&&side){nb.onclick=function(){side.classList.toggle("open")}}
+var cur=side&&side.querySelector(".cur");if(cur)cur.scrollIntoView({block:"center"});
+})();</script>
+</body></html>

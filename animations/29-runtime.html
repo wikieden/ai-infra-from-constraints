@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>通用、分桶与特化</title><link rel="stylesheet" href="anim.css">
+<style>svg text.cap{font-size:15px;font-weight:500}svg text.num{font-size:17px;font-weight:600}</style></head>
+<body><main>
+<h1>第 29 章 · 通用、分桶、特化，跑多少组换手</h1>
+<p class="sub">配套讲义：<a href="../lessons/29-runtime.html">第 29 章 · 运行时：重叠、CUDA Graph、动态形状与 persistent kernel</a>。例 5-12：通用 100 ms 准备 + 17.0 ms/组；分桶 400 + 12.4；逐形状特化 900 + 6.8。</p>
+<div class="panel"><svg id="sv" viewBox="0 0 680 360"></svg></div>
+<div class="row"><button id="play">▶ 播放</button><button id="step">→ 单步</button><button id="reset">↺ 从头开始</button></div>
+<div class="row"><label for="r">组数 r</label><input type="range" id="r" min="1" max="150" step="1" value="10"><span id="rv">10</span><label><input type="checkbox" id="c"> 程序已缓存（准备为 0）</label></div>
+<p class="note">看点：① 三条线是 P + rT：截距是准备，斜率是每组执行；② 竖线是当前组数，右边列出三种总时间，最省的高亮；③ 播放 10 → 65 → 70 → 90 → 150：最省的从通用换到分桶、再换到特化；④ 打开已缓存，特化从第一组起最省。</p>
+</main>
+<script src="anim.js"></script>
+<script>
+const sv=$('sv');
+const G=5632*6*4096*12288,ST=[['通用',100,G/100e12*1e3,'var(--muted)'],['分桶',400,8192*6*4096*12288/200e12*1e3,'var(--accent)'],['特化',900,G/250e12*1e3,'var(--warm)']];
+const F=[[10,0],[65,0],[70,0],[90,0],[150,0],[150,1]];let k=0,custom=null;
+function draw(){clear(sv);const [r,c]=custom||F[k];$('r').value=r;$('rv').textContent=r;$('c').checked=!!c;
+ const tot=ST.map(([n,p,t])=>(c?0:p)+r*t);const bi=tot.indexOf(Math.min(...tot));
+ txt(`${r} 组${c?'（已缓存）':''}：最省的是 ${ST[bi][0]}`,{x:340,y:26,'text-anchor':'middle',class:'cap'},sv);
+ const X=v=>70+v/150*380,Y=v=>300-v/2800*240;el('line',{x1:70,y1:300,x2:450,y2:300,stroke:'var(--line)'},sv);el('line',{x1:70,y1:60,x2:70,y2:300,stroke:'var(--line)'},sv);
+ [0,50,100,150].forEach(v=>txt(String(v),{x:X(v),y:318,'text-anchor':'middle',class:'m'},sv));[0,1000,2000].forEach(v=>txt(String(v),{x:64,y:Y(v)+4,'text-anchor':'end',class:'m'},sv));
+ ST.forEach(([n,p,t,col])=>{const p0=c?0:p;el('line',{x1:X(0),y1:Y(p0),x2:X(150),y2:Y(p0+150*t),stroke:col,'stroke-width':2.5},sv)});
+ el('line',{x1:X(r),y1:60,x2:X(r),y2:300,stroke:'var(--bad)','stroke-dasharray':'4 4'},sv);
+ ST.forEach(([n,p,t,col],i)=>{const y=80+i*60;el('rect',{x:480,y,width:180,height:44,rx:6,fill:i===bi?col:'none',opacity:i===bi?.25:1,stroke:col},sv);txt(n,{x:494,y:y+18,class:'m'},sv);txt(`${(tot[i]/1000).toFixed(2)} s`,{x:494,y:y+38,class:'num'},sv)});
+ txt('总时间（ms）随组数',{x:260,y:344,'text-anchor':'middle',class:'m'},sv)}
+function reset(){k=0;custom=null;draw()}
+function next(){if(custom!==null){custom=null;draw();return true}if(k>=F.length-1)return false;k++;draw();return true}
+const f=()=>{ANIM.stop();custom=[+$('r').value,+$('c').checked];draw()};$('r').oninput=f;$('c').onchange=f;
+setupPlayer({captureSeed:1,reset,next},1500);
+</script><a href="https://wikieden.github.io/ai-books/" style="position:fixed;right:12px;bottom:12px;z-index:99;padding:4px 10px;border-radius:14px;background:rgba(127,127,127,.18);color:inherit;font:13px/1.6 system-ui,sans-serif;text-decoration:none">← 全部讲义书</a>
+</body></html>

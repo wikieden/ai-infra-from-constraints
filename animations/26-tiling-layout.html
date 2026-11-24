@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>输出块大小与读写</title><link rel="stylesheet" href="anim.css">
+<style>svg text.cap{font-size:15px;font-weight:500}svg text.num{font-size:17px;font-weight:600}</style></head>
+<body><main>
+<h1>第 26 章 · 输出块开多大</h1>
+<p class="sub">配套讲义：<a href="../lessons/26-tiling-layout.html">第 26 章 · 单个算子：分块、布局与切分</a>。[1024,4096]×[4096,12288] BF16，k = 32，各输出块独立读输入。RTX PRO 6000 每 SM 100 KB 共享内存，每块另留 1 KiB。</p>
+<div class="panel"><svg id="sv" viewBox="0 0 680 360"></svg></div>
+<div class="row"><button id="play">▶ 播放</button><button id="step">→ 单步</button><button id="reset">↺ 从头开始</button></div>
+<div class="row"><label for="t">输出块</label><select id="t"><option value="32">32×32</option><option value="64">64×64</option><option value="128">128×128</option></select><label for="b">大块拿到的带宽（相对 64×64）</label><input type="range" id="b" min="0.2" max="1" step="0.05" value="1"><span id="bv">1.00</span></div>
+<p class="note">看点：① 左边三段是 A 重读、W 重读、C 写出，虚线是 128 MiB 基准；② 中间是 100 KB 里能放几份工作集；③ 右边按读写量 ÷ 有效带宽，相对 64×64 的时间；④ 播放 32 → 64 → 128（带宽相同）→ 128 只拿到四成带宽：比 64×64 慢 26%。</p>
+</main>
+<script src="anim.js"></script>
+<script>
+const sv=$('sv');
+const F=[[32,1],[64,1],[128,1],[128,0.4]];let k=0,custom=null;
+function draw(){clear(sv);const [t,b]=custom||F[k];$('t').value=t;$('b').value=b;$('bv').textContent=(+b).toFixed(2);
+ const M=1024,K=4096,N=12288,MiB=2**20;const a=2*M*K*N/t/MiB,w=2*K*N*M/t/MiB,c=2*M*N/MiB,tot=a+w+c,loc=(2*t*32*2+4*t*t)/1024,res=Math.floor(102400/(loc*1024+1024));
+ const bw=t===128?b:1;const rel=(tot/3096)/bw;
+ txt(`${t}×${t}：读写 ${tot.toFixed(0)} MiB，局部存储 ${loc} KiB，驻留 ${res} 份；相对 64×64 时间 ${rel.toFixed(2)}`,{x:340,y:26,'text-anchor':'middle',class:'cap'},sv);
+ const Y=v=>300-v/6400*240;txt('读写（MiB）',{x:110,y:52,'text-anchor':'middle',class:'m'},sv);
+ [[a,'var(--accent)','A'],[w,'var(--purple)','W'],[c,'var(--good)','C']].reduce((base,[v,col,lab])=>{el('rect',{x:80,y:Y(base+v),width:60,height:Math.max(Y(base)-Y(base+v),1),fill:col,opacity:.7},sv);if(v>200)txt(`${lab} ${v.toFixed(0)}`,{x:146,y:(Y(base)+Y(base+v))/2+5,class:'m'},sv);return base+v},0);
+ el('line',{x1:70,y1:Y(128),x2:200,y2:Y(128),stroke:'var(--bad)','stroke-dasharray':'5 4'},sv);txt('128',{x:204,y:Y(128)+4,class:'m'},sv);
+ txt('100 KB 共享内存',{x:340,y:52,'text-anchor':'middle',class:'m'},sv);el('rect',{x:300,y:70,width:80,height:230,fill:'none',stroke:'var(--line)'},sv);
+ for(let i=0;i<res;i++){const h=(loc+1)/100*230;el('rect',{x:302,y:298-(i+1)*h,width:76,height:h-2,fill:'var(--teal)',opacity:.6},sv)}
+ txt(`${res} 份`,{x:340,y:318,'text-anchor':'middle',class:'num'},sv);
+ txt('相对时间',{x:560,y:52,'text-anchor':'middle',class:'m'},sv);const H=v=>v/2.2*230;
+ el('rect',{x:500,y:300-H(1),width:50,height:H(1),fill:'var(--muted)',opacity:.4},sv);txt('64×64',{x:525,y:318,'text-anchor':'middle',class:'m'},sv);
+ el('rect',{x:570,y:300-H(rel),width:50,height:H(rel),fill:rel>1?'var(--bad)':'var(--good)',opacity:.7},sv);txt(rel.toFixed(2),{x:595,y:300-H(rel)-6,'text-anchor':'middle',class:'num'},sv);txt('当前',{x:595,y:318,'text-anchor':'middle',class:'m'},sv)}
+function reset(){k=0;custom=null;draw()}
+function next(){if(custom!==null){custom=null;draw();return true}if(k>=F.length-1)return false;k++;draw();return true}
+const f=()=>{ANIM.stop();custom=[+$('t').value,+$('b').value];draw()};$('t').onchange=f;$('b').oninput=f;
+setupPlayer({captureSeed:1,reset,next},1600);
+</script><a href="https://wikieden.github.io/ai-books/" style="position:fixed;right:12px;bottom:12px;z-index:99;padding:4px 10px;border-radius:14px;background:rgba(127,127,127,.18);color:inherit;font:13px/1.6 system-ui,sans-serif;text-decoration:none">← 全部讲义书</a>
+</body></html>

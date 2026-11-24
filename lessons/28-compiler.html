@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>第 28 章 · 编译器：表达、变换与选择 · 从约束推导 AI Infra</title>
+<script>(function(){try{var d=document.documentElement,t=localStorage.getItem("ab-theme"),f=localStorage.getItem("ab-fs");if(t)d.dataset.theme=t;if(f)d.dataset.fs=f}catch(e){}})();</script>
+<style>:root{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa;--fs:16px}
+@media (prefers-color-scheme:dark){:root:not([data-theme]){--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}}
+:root[data-theme="light"]{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa}
+:root[data-theme="dark"]{--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}
+:root[data-theme="sepia"]{--bg:#f6efe1;--fg:#3b3127;--mute:#7a6a58;--line:#e2d6bf;--card:#fbf6ec;--acc:#a0522d;--code:#ece2cd;--quote:#efe5d2}
+:root[data-theme="green"]{--bg:#e3eddf;--fg:#22301f;--mute:#566650;--line:#c9d8c3;--card:#eef5eb;--acc:#2e7d4f;--code:#d6e4d0;--quote:#dae7d5}
+:root[data-theme="navy"]{--bg:#0f1a2b;--fg:#dde6f3;--mute:#93a4bd;--line:#23324a;--card:#15233a;--acc:#6cc4ff;--code:#1a2a44;--quote:#16243b}
+:root[data-fs="s"]{--fs:15px}
+:root[data-fs="m"]{--fs:16px}
+:root[data-fs="l"]{--fs:18px}
+:root[data-fs="xl"]{--fs:20px}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:var(--fs)/1.75 -apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Helvetica Neue",sans-serif}
+a{color:var(--acc)}
+header.top{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+header.top .in{max-width:860px;margin:0 auto;padding:10px 16px;display:flex;gap:6px 16px;align-items:center;flex-wrap:wrap;font-size:14px}
+header.top .brand{font-weight:600;color:var(--fg);text-decoration:none;margin-right:auto}
+header.top a{text-decoration:none}
+.prefs{display:inline-flex;gap:4px;align-items:center}
+.prefs button,.prefs select,#nav-toggle{font:inherit;font-size:13px;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:2px 8px;cursor:pointer}
+main{max-width:860px;margin:0 auto;padding:24px 16px 72px;overflow-wrap:anywhere}
+h1{font-size:1.75em;line-height:1.35;margin:8px 0 16px} h2{font-size:1.375em;margin:40px 0 12px;padding-top:8px;border-top:1px solid var(--line)} h3{font-size:1.125em;margin:28px 0 8px}
+.layout{display:grid;grid-template-columns:260px minmax(0,1fr);max-width:1180px;margin:0 auto}
+.layout main{margin:0;max-width:880px}
+nav.side{position:sticky;top:49px;align-self:start;max-height:calc(100vh - 49px);overflow-y:auto;padding:20px 8px 40px 16px;border-right:1px solid var(--line);font-size:14px;line-height:1.5}
+nav.side .h{font-weight:600;color:var(--mute);margin:4px 8px 8px;font-size:13px}
+nav.side a{display:block;padding:5px 8px;border-radius:6px;color:var(--fg);text-decoration:none}
+nav.side a:hover{background:var(--code)} nav.side a.cur{background:var(--quote);color:var(--acc);font-weight:600}
+nav.side a .n{color:var(--mute);margin-right:6px;font-variant-numeric:tabular-nums}
+#nav-toggle{display:none}
+@media (max-width:960px){.layout{display:block} nav.side{display:none;position:fixed;z-index:6;top:49px;left:0;bottom:0;width:min(300px,85vw);max-height:none;background:var(--bg);box-shadow:2px 0 12px rgba(0,0,0,.2)} nav.side.open{display:block} #nav-toggle{display:inline-block}}
+.run{display:flex;flex-wrap:wrap;align-items:center;gap:4px 0;margin:4px 0 12px}
+.run details{flex-basis:100%;margin:6px 0 0;font-size:.94em}
+img{max-width:100%;height:auto;border-radius:8px;border:1px solid var(--line);background:#fff}
+blockquote{margin:16px 0;padding:10px 16px;background:var(--quote);border-left:3px solid var(--acc);border-radius:4px;color:var(--mute)}
+blockquote p{margin:4px 0}
+code{background:var(--code);padding:1px 5px;border-radius:4px;font-size:.9em}
+pre{background:var(--code);padding:12px 14px;border-radius:8px;overflow-x:auto} pre code{padding:0;background:none}
+table{border-collapse:collapse;display:block;overflow-x:auto;max-width:100%;margin:12px 0;font-size:.94em}
+th,td{border:1px solid var(--line);padding:6px 10px;vertical-align:top} th{background:var(--code)}
+details{border:1px solid var(--line);border-radius:8px;padding:6px 12px;margin:8px 0;background:var(--card)}
+details[open]{padding-bottom:10px} summary{cursor:pointer;color:var(--acc);font-weight:500}
+mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%}
+.btn{display:inline-block;margin:4px 8px 4px 0;padding:6px 14px;border:1px solid var(--acc);border-radius:999px;text-decoration:none;font-size:14px}
+.pager{display:flex;justify-content:space-between;gap:12px;margin-top:48px;padding-top:16px;border-top:1px solid var(--line);font-size:15px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin:16px 0}
+.card{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;color:inherit;text-decoration:none}
+.card:hover{border-color:var(--acc)} .card img{border:0;border-bottom:1px solid var(--line);border-radius:0;aspect-ratio:16/10;object-fit:contain;width:100%}
+.card .no{color:var(--mute);font-size:13px;padding:8px 12px 0} .card .t{padding:0 12px 12px;font-weight:500;line-height:1.5}
+.lead{font-size:1.06em;color:var(--mute)}
+footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-size:13px}
+</style>
+<script>window.MathJax={tex:{inlineMath:[["\\(","\\)"]],displayMath:[["\\[","\\]"],["$$","$$"]],processEscapes:true,processEnvironments:true}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"></script>
+</head><body>
+<header class="top"><div class="in">
+<button type="button" id="nav-toggle" aria-label="打开章节列表">☰ 章节</button><a class="brand" href="../index.html">从约束推导 AI Infra</a>
+<a href="../lessons/index.html">讲义目录</a>
+<a href="../animations/index.html">动画</a>
+<a href="../review.html">复习卡片</a>
+<a href="../lessons/appendix-glossary.html">缩写表</a>
+<a href="https://wikieden.github.io/ai-books/glossary.html">全局词汇</a>
+<a href="https://wikieden.github.io/ai-books/">← 全部讲义书</a>
+<span class="prefs" title="字号与主题"><button type="button" data-fs-step="-1" aria-label="字号变小">A−</button><button type="button" data-fs-step="1" aria-label="字号变大">A+</button><select id="ab-theme" aria-label="主题色"><option value="">跟随系统</option><option value="light">浅色</option><option value="dark">深色</option><option value="sepia">米黄护眼</option><option value="green">豆沙绿护眼</option><option value="navy">夜蓝</option></select></span>
+</div></header>
+<div class="layout"><nav class="side" aria-label="章节"><div class="h">从约束推导 AI Infra</div><a href="index.html">讲义目录</a><a href="01-six-layers.html"><span class="n">1</span>一次请求走过的六层（进行中）</a><a href="02-request-lifecycle.html"><span class="n">2</span>一次生成请求的处理过程：权重加载一次，每个 token 都要再读一遍</a><a href="03-dataflow-hierarchy.html"><span class="n">3</span>从存储程序到数据流执行：存储层次就像大楼里的厕所</a><a href="04-key-numbers.html"><span class="n">4</span>系统设计的关键数字：容量、算力、带宽、延迟</a><a href="05-estimate.html"><span class="n">5</span>用几个数字估算一次模型执行：算和读各要多久，实测为什么达不到</a><a href="06-architecture.html"><span class="n">6</span>需求如何推动架构：TPU、SmartNIC、Unified Bus</a><a href="07-compute-graph.html"><span class="n">7</span>计算图与张量结构：一个 token 经过一层要算多少</a><a href="08-generation-budget.html"><span class="n">8</span>自回归生成的资源账：存一次的、每步读的、用完就扔的</a><a href="09-kv-sharing.html"><span class="n">9</span>KV 怎么变小 ①：头共享与潜变量压缩</a><a href="10-kv-sparse-linear.html"><span class="n">10</span>KV 怎么变小 ②：窗口、稀疏、线性与混合注意力</a><a href="11-moe.html"><span class="n">11</span>MoE：专家路由与批内权重复用</a><a href="12-network-shape.html"><span class="n">12</span>网络形状：深宽、专家粒度、残差与多 token 预测</a><a href="13-model-comparison.html"><span class="n">13</span>整个模型的资源需求与比较：存多少、算多少、能放几条请求</a><a href="14-workload-arrival.html"><span class="n">14</span>从单次请求到持续到达的负载：什么时候来，比来多少更要紧</a><a href="15-agent-tasks.html"><span class="n">15</span>多轮交互与 Agent 任务：前缀、成功成本、关键路径</a><a href="16-multimodal-realtime.html"><span class="n">16</span>多模态与实时交互：数据换形状，时间有死线（略讲）</a><a href="17-training-rl.html"><span class="n">17</span>训练与强化学习的计算和状态：为什么训练要 6ND、要存 18 字节</a><a href="18-scaling-lifecycle.html"><span class="n">18</span>Scaling law 与全生命周期成本：训练多大、训练多久、服务多少次</a><a href="19-accelerator-basics.html"><span class="n">19</span>从矩阵乘法认识加速器：算多少、搬多少、耗多少电</a><a href="20-compute-units.html"><span class="n">20</span>计算单元：矩阵、向量、流水与低精度</a><a href="21-memory-movement.html"><span class="n">21</span>存储层次与数据搬移：放得下、取得到、来得及</a><a href="22-package-interconnect.html"><span class="n">22</span>多芯片封装与互联：计算放在哪，数据走哪条路</a><a href="23-architecture-evolution.html"><span class="n">23</span>架构演进与专用架构：每一代新增的东西，省掉了哪一笔</a><a href="24-choose-accelerator.html"><span class="n">24</span>根据架构选择加速器：先估下界，再找差距，最后算账</a><a href="25-submit-sync.html"><span class="n">25</span>提交、搬移与同步：从调用返回到结果可用</a><a href="26-tiling-layout.html"><span class="n">26</span>单个算子：分块、布局与切分</a><a href="27-fusion-flash.html"><span class="n">27</span>算子融合与 FlashAttention：中间结果不落地</a><a href="28-compiler.html" class="cur"><span class="n">28</span>编译器：表达、变换与选择</a><a href="29-runtime.html"><span class="n">29</span>运行时：重叠、CUDA Graph、动态形状与 persistent kernel</a><a href="30-request-view.html"><span class="n">30</span>从局部优化到完整请求</a><a href="appendix-glossary.html">附录 · 缩写与术语表</a><a href="appendix-tp-pp-cp.html">附录 · 补充资料：TP、PP、CP，一个模型沿三个方向切给多张卡</a></nav><main>
+<h1 id="28">第 28 章 · 编译器：表达、变换与选择</h1><div class="run"><a class="btn" href="../animations/28-compiler.html">▶ 打开本章可交互动画</a><a class="btn" href="https://colab.research.google.com/github/wikieden/ai-infra-from-constraints/blob/main/code/notebooks/ch28_compiler.ipynb" target="_blank" rel="noopener">在 Colab 运行本章代码</a><a class="btn" href="../code/notebooks/ch28_compiler.ipynb" download>下载 notebook</a><details><summary>本地运行</summary><pre><code>git clone https://github.com/wikieden/ai-infra-from-constraints
+cd ai-infra-from-constraints/code/notebooks
+pip install jupyterlab torch numpy
+jupyter lab ch28_compiler.ipynb</code></pre><p>也可以下载后直接用 VS Code 打开 .ipynb 运行。需要 GPU 的章节在 Colab 里选「代码执行程序 → 更改运行时类型 → GPU」。</p></details></div>
+<blockquote>
+<p>本章回答：融合和分块的选择为什么多到要交给编译器？split、reorder、compute_at 分别在改什么？哪些变换看起来省事却会改变结果？候选那么多，编译器怎么挑，又该按什么负载挑？<br />
+讲解日期：2026-11-24 · 上一章：<a href="../lessons/27-fusion-flash.html">第 27 章 算子融合与 FlashAttention</a> · 下一章：<a href="../lessons/29-runtime.html">第 29 章 运行时：重叠、CUDA Graph 与动态形状</a><br />
+对应原文：<code>materials/ai-infra-book/manuscripts/05-算子与运行时.md</code> §5.4 L481–L569、L732–L767（例 5-7、5-9，图 5-21 到 5-25）；§5.4.4 AKG（L570–L691）、§5.4.5 TileLang-Ascend（L692–L731）本章跳过<br />
+本章缩写：E4M3FN = 4 位指数、3 位尾数的 8 位浮点（FN = finite，无无穷大，最大 448）· TVM = Tensor Virtual Machine（张量 / 虚拟 / 机器，开源张量编译器）· AKG = Auto Kernel Generator（自动 / kernel / 生成器，华为）· isl = Integer Set Library（整数 / 集合 / 库，多面体编译的基础库）。全部缩写见 <a href="../lessons/appendix-glossary.html">缩写与术语表</a></p>
+</blockquote>
+<p>第 26、27 章是手工选：块多大、循环怎么排、哪几个算子合成一个 kernel。本章看编译器怎么把同样的选择<strong>写成程序、检查合法、比较成本</strong>。</p>
+<h2 id="_1">讲解</h2>
+<h3 id="2026-11-24">第一步：候选为什么多到要比较（2026-11-24）</h3>
+<p><strong>类比：搬家装车。</strong> 箱子怎么分组、哪几箱一起搬、装车顺序怎么排，组合多得数不过来；而且一组装得多，车里能放别的东西就少了。</p>
+<p>原文 L487–L491：SiLU → 乘 → 量化三步，两条相邻边界可切可不切，<span class="arithmatex">\(2^2 = 4\)</span> 种划分；一条 10 个算子的链有 <span class="arithmatex">\(2^9 = 512\)</span> 种。每种还能再选块大小、局部布局、流水深度。选择之间互相影响：合并两步省掉写回，但同时要保存的值变多，可用的块大小就变了。</p>
+<p>编译器分三步做：</p>
+<ol>
+<li>把运算写成循环和数组访问（谁读谁写一清二楚）；</li>
+<li>按读写依赖和数值规则检查哪些变换合法；</li>
+<li>结合容量和实测时间比较成本。</li>
+</ol>
+<p><strong>一句话</strong>：只记一个算子名推不出代价；要同时表达算什么、按什么顺序、数据放哪。</p>
+<h3 id="2026-11-24_1">第二步：用循环变换写出分块和融合（2026-11-24）</h3>
+<p><strong>类比：改作业顺序。</strong> 同样一摞卷子，先按班级分堆（split），再把"一个班批完再换下一班"排到外层（reorder），最后决定"批完一个班就登分"还是"全部批完再登"（compute_at）。</p>
+<p>原文 L497–L542，<span class="arithmatex">\(Y = \operatorname{SiLU}(AW)\)</span>，FP32 累加，舍入成 BF16 后再激活：</p>
+<ul>
+<li><strong>split</strong>：<span class="arithmatex">\(i = 64 i_o + i_i\)</span>，1024 行成 16 块；j 同样成 192 块；K 按 32 拆成 128 个归约块。</li>
+<li><strong>reorder</strong>：外层遍历输出块，内层遍历块内元素，选定一个 tile 后沿 ko 逐块累加。</li>
+<li><strong>生命周期</strong>：A、W 当前块各 4 KiB，每个 ko 后就能换；4096 个 FP32 累加器 16 KiB，要留到 128 次归约都做完。两类缓冲在不同循环层分配和释放。</li>
+<li><strong>compute_at</strong>：一个输出 tile 归约完，它的 C 就全算好了，立刻做 SiLU 写出 Y，不需要完整的 24 MiB C，省掉 48 MiB 写读。</li>
+</ul>
+<pre><code class="language-python">for io in range(ceil_div(M, BM)):
+    for jo in range(ceil_div(N, BN)):
+        acc = zeros_fp32(BM, BN)                  # 活到整个 ko 循环结束
+        for ko in range(ceil_div(K, BK)):
+            a = load_tile(A, io, ko, BM, BK)       # 每个 ko 换一次
+            w = load_tile(W, ko, jo, BK, BN)
+            matmul_accumulate(acc, a, w)
+        c = round_to_bf16(acc)                     # 舍入保留
+        store_tile(Y, io, jo, silu(c))             # 激活放在归约之后
+</code></pre>
+<p><img alt="循环层级决定临时数据活多久：累加器在 jo 层，A、W 块在 ko 层" src="../figures/28-compiler-loops.png" /></p>
+<p><em>图 28-1 · 缩进就是生命周期。</em></p>
+<p>Halide 和 TVM 把"算什么"（compute）和"怎么算"（schedule）分开写，<code>compute_at</code> 指定生产者在消费者的哪一层循环里执行。计算位置同时决定<strong>复用还是重算</strong>：放外层先算完整结果供大家读；放进消费者的分块循环只算当前要的，但多个块要同一部分时就重复算。<code>fuse</code> 把多个循环维合成一维，比如 16×192 个输出块编号成 0–3071 分给工作组。</p>
+<p><strong>补基础</strong>：tile 级 DSL 见<a href="https://wikieden.github.io/cuda-to-tensor-core/lessons/24-tile-dsl.html">《CUDA 从线程到 Tensor Core》第 24 章</a>；Inductor 生成的代码见<a href="https://wikieden.github.io/pytorch-inside-out/lessons/31-read-inductor.html">《PyTorch 从里到外》第 31 章</a>。</p>
+<p><strong>一句话</strong>：split 切块、reorder 定先后、compute_at 定中间结果在哪层生成和释放；循环结构就是数据的生命周期。</p>
+<h3 id="2026-11-24_2">第三步：哪些变换会改结果（2026-11-24）</h3>
+<p><strong>类比：先汇总再打折 vs 先打折再汇总。</strong> 满 100 减 20 的优惠，按总价算和按每件算，结果不一样；顺序本身就是规则的一部分。</p>
+<p><strong>激活不能挪到归约前面</strong>（原文 L546–L552）：两个部分和 1、−1，完整和 0，<span class="arithmatex">\(\operatorname{SiLU}(0) = 0\)</span>；先激活再相加 <span class="arithmatex">\(\operatorname{SiLU}(1) + \operatorname{SiLU}(-1) \approx 0.4621\)</span>。不同输出可以并行；同一输出的归约和它的后续运算必须按依赖顺序。</p>
+<p><strong>分块归约要带够统计量</strong>（原文 L554）：FlashAttention 能逐块算，是因为带着 <span class="arithmatex">\(m\)</span>、<span class="arithmatex">\(\ell\)</span>、<span class="arithmatex">\(u\)</span>（第 27 章）。只保留每块归一化后的输出（比如 1 和 3），就判断不出整行该给它们 1 : 2 还是 2 : 1 的权重。</p>
+<p><strong>舍入位置要保留</strong>（原文 L556）：原程序先舍入到 BF16 再激活，融合后也要在激活前 <code>round_to_bf16</code>。存放位置（寄存器还是显存）和数值格式是两件独立的事。</p>
+<p><strong>例 5-7：整行 scale 决定能不能边读边量化</strong>（原文 L558–L566）：一行 256 个元素分两块，两块首元素分别是 1 和 10，其余为 0；E4M3FN，最大 448，scale 由整行最大绝对值定。</p>
+<table>
+<thead>
+<tr>
+<th>做法</th>
+<th>第一项映射</th>
+<th>舍入</th>
+<th>反量化</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>读完整行（max = 10）</td>
+<td><span class="arithmatex">\(1 \times 448/10 = 44.8\)</span></td>
+<td>44</td>
+<td><span class="arithmatex">\(44 \times 10/448 = 55/56\)</span></td>
+</tr>
+<tr>
+<td>读完第一块就量化（max = 1）</td>
+<td>448</td>
+<td>448</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+<p><img alt="后一块里的 10 决定整行 scale；第一项已经舍入过就回不去了" src="../figures/28-compiler-quant.png" /></p>
+<p><em>图 28-2 · 差 <span class="arithmatex">\(1/56 \approx 1.8\%\)</span>。按整行最大值定 scale 时，必须先读完一行再量化。</em></p>
+<p><strong>一句话</strong>：输出之间可以换顺序、输入可以分块缓存；归约怎么合并、在哪里舍入，属于运算的定义，变换不能动。</p>
+<h3 id="2026-11-24_3">第四步：先排除，再估计，最后实测（2026-11-24）</h3>
+<p><strong>类比：招聘。</strong> 先按硬条件筛简历（放不放得下），再看笔试分数排面试顺序（估算），最后面试决定（实测）；而且要按岗位实际要做的活来面试（负载分布）。</p>
+<p><strong>选择流程</strong>（原文 L734–L746）：</p>
+<table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>要填的</th>
+<th>依据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>固定目标</td>
+<td>形状、精度、误差、调用频数</td>
+<td>比较同一项工作、同一负载</td>
+</tr>
+<tr>
+<td>列候选</td>
+<td>tile、循环次序、缓冲数、融合范围</td>
+<td>编译器和硬件支持什么</td>
+</tr>
+<tr>
+<td>查可行</td>
+<td>共享内存、寄存器、线程、对齐、依赖</td>
+<td>资源报告、正确性检查</td>
+</tr>
+<tr>
+<td>估时间</td>
+<td>计算量、实际读写、启动、布局转换</td>
+<td>各资源时间与关键路径</td>
+</tr>
+<tr>
+<td>实测选择</td>
+<td>代表形状的时间、波动、完整算子链</td>
+<td>负载总成本最低，保留相近候选</td>
+</tr>
+</tbody>
+</table>
+<p>例：第 26 章的 24 KiB / 80 KiB 两个候选改成双缓冲后是 32 / 96 KiB，RTX PRO 6000 每 SM 驻留从 4 / 1 块变成 3 / 1 块。共享内存和寄存器是两类容量，不能互借。实测例子：同一个转置程序 16×16 块约 7.9 μs，32×32 块约 2.9 μs（约 2.7 倍）。TVM 自动调优按实测搜索调度；能调编译和测试工具的 Agent 还能尝试模板之外的写法。都要先过数值检查，再比时间，而且评的是编译后的程序（编译器可能已经把源码里分开写的算子融合了）。</p>
+<p><strong>例 5-9：按什么负载评</strong>（原文 L752–L760）：某算子有 A、B 两种输入形状，原实现都是 10 μs；新实现 A 5 μs、B 20 μs。</p>
+<ul>
+<li>各调一次：20 → 25 μs，变慢 25%；</li>
+<li>A 100 次、B 1 次：1010 → 520 μs，快约 1.9 倍。</li>
+</ul>
+<p>A 的调用占比为 <span class="arithmatex">\(p\)</span>：</p>
+<div class="arithmatex">\[\overline{T}_{\mathrm{new}} = 5p + 20(1 - p) = 20 - 15p &lt; 10 \iff p &gt; \tfrac{2}{3}\]</div>
+<p><img alt="新实现的平均时间随形状 A 的占比下降，2/3 处与原实现相交" src="../figures/28-compiler-mix.png" /></p>
+<p><em>图 28-3 · 也可以按形状分别选实现；搜索本身花的编译和测量时间是准备成本（第 29 章算回本）。</em></p>
+<p><strong>场景代码</strong>：Triton 的 <code>autotune</code> 按实测从候选配置里挑，<code>key</code> 指定按哪些形状参数分别挑（真实 API）：</p>
+<pre><code class="language-python">import triton
+import triton.language as tl
+
+@triton.autotune(
+    configs=[triton.Config({&quot;BM&quot;: 64, &quot;BN&quot;: 64}, num_stages=3),
+             triton.Config({&quot;BM&quot;: 128, &quot;BN&quot;: 128}, num_stages=2)],
+    key=[&quot;M&quot;, &quot;N&quot;, &quot;K&quot;],          # 形状变了才重新测
+)
+@triton.jit
+def matmul_kernel(a, b, c, M, N, K, BM: tl.constexpr, BN: tl.constexpr):
+    ...
+</code></pre>
+<p><strong>一句话</strong>：编译器先用依赖和容量排除，再用估算排顺序，最后按真实调用分布实测选；一个形状上的加速可能是另一个形状上的减速。</p>
+<h2 id="_2">动画演示：按调用比例选实现</h2>
+<p><img alt="调用比例与平均时间" src="../animations/28-compiler.gif" /></p>
+<p>可交互版：<a href="../animations/28-compiler.html">animations/28-compiler.html</a>（滑块：形状 A 的调用占比 0–1；按形状分别选择的开关）。</p>
+<p><strong>怎么看</strong>：</p>
+<ol>
+<li>横轴是形状 A 的调用占比 <span class="arithmatex">\(p\)</span>，两条线是原实现（10 μs 水平线）和新实现 <span class="arithmatex">\(20 - 15p\)</span>（第四步）；</li>
+<li>红点是当前 <span class="arithmatex">\(p\)</span>，右边显示两种实现的平均时间和哪个更快；</li>
+<li>打开"按形状选"，A 用新实现、B 用原实现：平均时间 <span class="arithmatex">\(5p + 10(1-p)\)</span>，任何 <span class="arithmatex">\(p\)</span> 都不比原来差；</li>
+<li>播放时 <span class="arithmatex">\(p\)</span> = 0.5 → 2/3 → 0.99，最后打开按形状选。</li>
+</ol>
+<h2 id="_3">练习与作答记录</h2>
+<p><strong>题 1</strong>（第一步）：一条 6 个算子的链，每条相邻边界可切可不切，有多少种划分？如果第 3、4 个算子之间有一次整行归约、必须切开，还剩多少种？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p><strong>题 2</strong>（第三步）：E4M3FN（最大 448）。一行两块，首元素分别是 3 和 12，其余为 0。读完整行再量化，第一项反量化后是多少？读完第一块就量化又是多少？（提示：64–128 之间步长 8。）</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p><strong>题 3</strong>（第四步）：原实现 A、B 都是 12 μs；新实现 A 4 μs、B 30 μs。A 占比至少多少新实现才更快？若按形状分别选择要多花 1 μs 判断，A 占比 0.5 时三种做法各平均多少？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p>原书实验 5-4、5-5、5-6（L1001、L1005、L1009）。想多练可以做。</p>
+<h2 id="_4">口诀</h2>
+<blockquote>
+<p>箱子怎么分组怎么装，组合多到只能比；<br />
+切块、换序、定在哪层算，缩进就是寿命；<br />
+先汇总再打折，顺序是规则的一部分；整行最大值没读到，量化别动手；<br />
+先筛硬条件，再估分，最后按真实活计面试。</p>
+</blockquote>
+<h2 id="_5">本章复习卡片</h2>
+<p><a href="../review.html">I109</a>（split / reorder / compute_at 与临时数据的生命周期）、<a href="../review.html">I110</a>（不能动的：归约合并、舍入位置、例 5-7 的整行 scale）、<a href="../review.html">I111</a>（选择流程与例 5-9 的 <span class="arithmatex">\(p &gt; 2/3\)</span>）。练习做完后，按答错、卡住的地方再补。</p>
+<h2 id="_6">附录 · 延伸阅读</h2>
+<blockquote>
+<p>留给以后深入学习用，不影响本章主线。★ 是建议先读的。</p>
+</blockquote>
+<h3 id="_7">推荐阅读</h3>
+<table>
+<thead>
+<tr>
+<th>读什么</th>
+<th>读哪里</th>
+<th>读它为了什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>★ AII 第 5 章</td>
+<td>§5.4 L481–L569、L732–L767</td>
+<td>本章原文</td>
+</tr>
+<tr>
+<td>AII 第 5 章</td>
+<td>§5.4.4–§5.4.5 L570–L731</td>
+<td>本章跳过的 AKG 多面体调度、TileLang-Ascend</td>
+</tr>
+<tr>
+<td>Ragan-Kelley 等，Halide（PLDI 2013）</td>
+<td>§3–§4</td>
+<td>compute / schedule 分离</td>
+</tr>
+<tr>
+<td>Chen 等，TVM（OSDI 2018）</td>
+<td>§4–§5</td>
+<td>调度原语与自动调优</td>
+</tr>
+<tr>
+<td><a href="https://wikieden.github.io/cuda-to-tensor-core/lessons/24-tile-dsl.html">《CUDA 从线程到 Tensor Core》第 24、25 章</a></td>
+<td>tile DSL、编译部署</td>
+<td>Triton / TileLang 一侧</td>
+</tr>
+<tr>
+<td><a href="https://wikieden.github.io/pytorch-inside-out/lessons/06-compile-stack.html">《PyTorch 从里到外》第 6、31、32 章</a></td>
+<td>编译栈、Inductor、Triton 模型</td>
+<td>框架里的编译器</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_8">数学原理</h3>
+<ul>
+<li><strong>组合计数</strong>：<span class="arithmatex">\(n\)</span> 个算子、<span class="arithmatex">\(n - 1\)</span> 条边界，<span class="arithmatex">\(2^{n-1}\)</span> 种划分。</li>
+<li><strong>非线性不交换</strong>：<span class="arithmatex">\(f(a + b) \ne f(a) + f(b)\)</span>。</li>
+<li><strong>舍入不可逆</strong>：舍入后的值丢了信息，后面再换 scale 也补不回来。</li>
+<li><strong>期望成本</strong>：按调用占比加权平均；两条直线交点给阈值。</li>
+</ul>
+<h3 id="_9">公式清单</h3>
+<table>
+<thead>
+<tr>
+<th>公式</th>
+<th>意思</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>划分数 <span class="arithmatex">\(= 2^{n-1}\)</span></td>
+<td>融合边界的组合</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\operatorname{SiLU}(1) + \operatorname{SiLU}(-1) \approx 0.4621 \ne \operatorname{SiLU}(0)\)</span></td>
+<td>激活不能挪到归约前</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(q = \operatorname{round}(x \cdot 448/\max\lvert x \rvert)\)</span></td>
+<td>整行 scale 量化</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\overline{T}_{\mathrm{new}} = 5p + 20(1-p)\)</span>，<span class="arithmatex">\(p &gt; 2/3\)</span></td>
+<td>例 5-9</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_10">代码对照：把本章的数字用代码算一遍</h3>
+<blockquote>
+<p>纯 Python，不需要 GPU。代码在仓库本地 <code>ai-infra/solutions/chapter-code/ch28_compiler.py</code>，配套测试 <code>tests/test_ch28.py</code>：</p>
+<p><code>bash  
+cd ai-infra/solutions/chapter-code  
+uv run python ch28_compiler.py   # 一步一步打印  
+uv run pytest tests/test_ch28.py</code></p>
+</blockquote>
+<p><strong>讲义 ↔ 代码</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>讲义</th>
+<th>公式</th>
+<th>写法</th>
+<th>跑出来</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第一步 划分</td>
+<td><span class="arithmatex">\(2^{n-1}\)</span></td>
+<td><code>partitions(10)</code></td>
+<td>512</td>
+</tr>
+<tr>
+<td>第三步 次序</td>
+<td></td>
+<td><code>silu(1) + silu(-1)</code></td>
+<td>0.4621</td>
+</tr>
+<tr>
+<td>第三步 例 5-7</td>
+<td>E4M3 舍入</td>
+<td><code>quantize_first(1, 10)</code>、<code>quantize_first(1, 1)</code></td>
+<td>55/56、1</td>
+</tr>
+<tr>
+<td>第四步 驻留</td>
+<td>100 KB ÷（工作集 + 1 KiB）</td>
+<td><code>resident(32)</code>、<code>resident(96)</code></td>
+<td>3 / 1</td>
+</tr>
+<tr>
+<td>第四步 例 5-9</td>
+<td><span class="arithmatex">\(20 - 15p\)</span></td>
+<td><code>mix_time(p)</code></td>
+<td><span class="arithmatex">\(p &gt; 2/3\)</span></td>
+</tr>
+</tbody>
+</table>
+<p><strong>关键几行</strong>：</p>
+<pre><code class="language-python">def e4m3_round(x):
+    e = max(math.floor(math.log2(x)), -6)    # 所在的二进制区间
+    step = 2.0 ** (e - 3)                    # 3 位尾数：每个区间 8 个刻度
+    ...                                      # 就近取偶
+</code></pre>
+<p><strong>代码里才看得到的 3 件事</strong>：</p>
+<ol>
+<li>E4M3 在 32–64 之间步长是 4，所以 44.8 落在 44 和 48 之间、舍入到 44。</li>
+<li>指数下限 −6 对应次正规数区间；这里的例子用不到，但 <code>e4m3_round(0.3)</code> 能看到步长变成 1/32。</li>
+<li><code>mix_time(2/3)</code> 正好等于 10：交点在浮点里也是精确的（<span class="arithmatex">\(20 - 15 \times 2/3 = 10\)</span>）。</li>
+</ol>
+<p><strong>自己改一改</strong>（不影响练习答案）：</p>
+<ul>
+<li>给 <code>quantize_first</code> 加"每 32 个元素一组 scale"的版本，例 5-7 的两块各自定 scale，误差还有吗？</li>
+<li>把例 5-9 推广成三种形状，写出新实现更快的条件。</li>
+<li>用 <code>partitions</code> 加约束：哪些边界必须切（归约、整行 scale），数一数剩下多少种。</li>
+</ul><nav class="pager"><a href="27-fusion-flash.html">← 第 27 章 · 算子融合与 FlashAttention：中间结果不落地</a><a href="29-runtime.html">第 29 章 · 运行时：重叠、CUDA Graph、动态形状与 persistent kernel →</a></nav>
+</main></div>
+<footer>来自个人学习仓库的对话讲义，含练习作答记录。源码：<a href="https://github.com/wikieden/ai-infra-from-constraints">github.com/wikieden/ai-infra-from-constraints</a>。更多讲义书：<a href="https://wikieden.github.io/ai-books/">Physical AI 0-1-♾️（合集）</a></footer>
+<script>(function(){var d=document.documentElement,K=["s","m","l","xl"];
+function save(k,v){try{v?localStorage.setItem(k,v):localStorage.removeItem(k)}catch(e){}}
+var s=document.getElementById("ab-theme");if(s){s.value=d.dataset.theme||"";s.onchange=function(){if(s.value)d.dataset.theme=s.value;else delete d.dataset.theme;save("ab-theme",s.value)}}
+document.querySelectorAll("[data-fs-step]").forEach(function(b){b.onclick=function(){var i=K.indexOf(d.dataset.fs||"m")+(+b.dataset.fsStep);i=Math.max(0,Math.min(K.length-1,i));d.dataset.fs=K[i];save("ab-fs",K[i])}});
+var nb=document.getElementById("nav-toggle"),side=document.querySelector("nav.side");if(nb&&side){nb.onclick=function(){side.classList.toggle("open")}}
+var cur=side&&side.querySelector(".cur");if(cur)cur.scrollIntoView({block:"center"});
+})();</script>
+</body></html>

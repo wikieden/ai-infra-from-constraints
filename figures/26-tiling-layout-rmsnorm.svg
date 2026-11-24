@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="780" height="290" viewBox="0 0 780 290">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="16.0" y="26.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="17" fill="#1f2937" text-anchor="start" font-weight="bold">RMSNorm 拆成 8 段：并行任务 ×8，读写 24 → 32.1 MiB</text>
+<text x="16.0" y="280.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">[1024, 4096] BF16。一组一行：读输入、读 gamma、写输出各 8 MiB；拆分后重读一遍输入，局部和与缩放因子约 0.1 MiB；launch 1 → 3 次。</text>
+<text x="218.0" y="113.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="end" font-weight="normal">一组一行（1024 任务）</text>
+<rect x="230.0" y="90.0" width="222.0" height="36.0" rx="4" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<text x="460.0" y="113.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#2563eb" text-anchor="start" font-weight="bold">24 MiB · 1 次 launch</text>
+<text x="218.0" y="183.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="end" font-weight="normal">拆成 8 段（8192 任务）</text>
+<rect x="230.0" y="160.0" width="296.9" height="36.0" rx="4" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<text x="534.9" y="183.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#ea580c" text-anchor="start" font-weight="bold">32.1 MiB · 3 次 launch，多读一遍输入</text>
+</svg>

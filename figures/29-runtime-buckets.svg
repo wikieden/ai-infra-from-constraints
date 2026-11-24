@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="400" viewBox="0 0 760 400">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="16.0" y="26.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="17" fill="#1f2937" text-anchor="start" font-weight="bold">例 5-12：截距是准备，斜率是每组执行，最省的策略随组数换手</text>
+<text x="16.0" y="390.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">10 次 FFN 一组（8×256、1536、2048 行）。通用 100 ms + 17.0 ms/组；分桶 400 + 12.4；特化 900 + 6.8。65 组、90 组换手。</text>
+<line x1="100.0" y1="330.0" x2="660.0" y2="330.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="94.0" y="334.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">0</text>
+<line x1="100.0" y1="262.5" x2="660.0" y2="262.5" stroke="#e5e7eb" stroke-width="1"/>
+<text x="94.0" y="266.5" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">700</text>
+<line x1="100.0" y1="195.0" x2="660.0" y2="195.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="94.0" y="199.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">1,400</text>
+<line x1="100.0" y1="127.5" x2="660.0" y2="127.5" stroke="#e5e7eb" stroke-width="1"/>
+<text x="94.0" y="131.5" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">2,100</text>
+<line x1="100.0" y1="60.0" x2="660.0" y2="60.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="94.0" y="64.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">2,800</text>
+<line x1="100.0" y1="60.0" x2="100.0" y2="330.0" stroke="#f0f1f3" stroke-width="1"/>
+<text x="100.0" y="345.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">0</text>
+<line x1="212.0" y1="60.0" x2="212.0" y2="330.0" stroke="#f0f1f3" stroke-width="1"/>
+<text x="212.0" y="345.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">30</text>
+<line x1="324.0" y1="60.0" x2="324.0" y2="330.0" stroke="#f0f1f3" stroke-width="1"/>
+<text x="324.0" y="345.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">60</text>
+<line x1="436.0" y1="60.0" x2="436.0" y2="330.0" stroke="#f0f1f3" stroke-width="1"/>
+<text x="436.0" y="345.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">90</text>
+<line x1="548.0" y1="60.0" x2="548.0" y2="330.0" stroke="#f0f1f3" stroke-width="1"/>
+<text x="548.0" y="345.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">120</text>
+<line x1="660.0" y1="60.0" x2="660.0" y2="330.0" stroke="#f0f1f3" stroke-width="1"/>
+<text x="660.0" y="345.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">150</text>
+<line x1="100.0" y1="330.0" x2="660.0" y2="330.0" stroke="#1f2937" stroke-width="1.3"/>
+<line x1="100.0" y1="60.0" x2="100.0" y2="330.0" stroke="#1f2937" stroke-width="1.3"/>
+<text x="380.0" y="362.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#1f2937" text-anchor="middle" font-weight="normal">组数 r</text>
+<text transform="translate(60.0,195.0) rotate(-90)" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#1f2937" text-anchor="middle">总时间（ms）</text>
+<polyline points="100.0,320.4 660.0,74.3" fill="none" stroke="#6b7280" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<polyline points="100.0,291.4 660.0,112.5" fill="none" stroke="#2563eb" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<polyline points="100.0,243.2 660.0,144.8" fill="none" stroke="#ea580c" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<line x1="342.7" y1="60.0" x2="342.7" y2="330.0" stroke="#dc2626" stroke-width="1.2" stroke-dasharray="4 4"/>
+<rect x="323.6" y="64.0" width="38.1" height="16.0" rx="3" fill="#ffffff" stroke="none" stroke-width="1.4" opacity="0.9"/>
+<text x="342.7" y="75.5" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#dc2626" text-anchor="middle" font-weight="normal">65 组</text>
+<line x1="436.0" y1="60.0" x2="436.0" y2="330.0" stroke="#dc2626" stroke-width="1.2" stroke-dasharray="4 4"/>
+<rect x="416.9" y="64.0" width="38.1" height="16.0" rx="3" fill="#ffffff" stroke="none" stroke-width="1.4" opacity="0.9"/>
+<text x="436.0" y="75.5" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#dc2626" text-anchor="middle" font-weight="normal">90 组</text>
+<line x1="130.0" y1="96.0" x2="152.0" y2="96.0" stroke="#6b7280" stroke-width="2.5"/>
+<text x="158.0" y="100.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#1f2937" text-anchor="start" font-weight="normal">通用</text>
+<line x1="130.0" y1="114.0" x2="152.0" y2="114.0" stroke="#2563eb" stroke-width="2.5"/>
+<text x="158.0" y="118.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#1f2937" text-anchor="start" font-weight="normal">分桶</text>
+<line x1="130.0" y1="132.0" x2="152.0" y2="132.0" stroke="#ea580c" stroke-width="2.5"/>
+<text x="158.0" y="136.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#1f2937" text-anchor="start" font-weight="normal">特化</text>
+</svg>

@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>第 26 章 · 单个算子：分块、布局与切分 · 从约束推导 AI Infra</title>
+<script>(function(){try{var d=document.documentElement,t=localStorage.getItem("ab-theme"),f=localStorage.getItem("ab-fs");if(t)d.dataset.theme=t;if(f)d.dataset.fs=f}catch(e){}})();</script>
+<style>:root{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa;--fs:16px}
+@media (prefers-color-scheme:dark){:root:not([data-theme]){--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}}
+:root[data-theme="light"]{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa}
+:root[data-theme="dark"]{--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}
+:root[data-theme="sepia"]{--bg:#f6efe1;--fg:#3b3127;--mute:#7a6a58;--line:#e2d6bf;--card:#fbf6ec;--acc:#a0522d;--code:#ece2cd;--quote:#efe5d2}
+:root[data-theme="green"]{--bg:#e3eddf;--fg:#22301f;--mute:#566650;--line:#c9d8c3;--card:#eef5eb;--acc:#2e7d4f;--code:#d6e4d0;--quote:#dae7d5}
+:root[data-theme="navy"]{--bg:#0f1a2b;--fg:#dde6f3;--mute:#93a4bd;--line:#23324a;--card:#15233a;--acc:#6cc4ff;--code:#1a2a44;--quote:#16243b}
+:root[data-fs="s"]{--fs:15px}
+:root[data-fs="m"]{--fs:16px}
+:root[data-fs="l"]{--fs:18px}
+:root[data-fs="xl"]{--fs:20px}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:var(--fs)/1.75 -apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Helvetica Neue",sans-serif}
+a{color:var(--acc)}
+header.top{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+header.top .in{max-width:860px;margin:0 auto;padding:10px 16px;display:flex;gap:6px 16px;align-items:center;flex-wrap:wrap;font-size:14px}
+header.top .brand{font-weight:600;color:var(--fg);text-decoration:none;margin-right:auto}
+header.top a{text-decoration:none}
+.prefs{display:inline-flex;gap:4px;align-items:center}
+.prefs button,.prefs select,#nav-toggle{font:inherit;font-size:13px;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:2px 8px;cursor:pointer}
+main{max-width:860px;margin:0 auto;padding:24px 16px 72px;overflow-wrap:anywhere}
+h1{font-size:1.75em;line-height:1.35;margin:8px 0 16px} h2{font-size:1.375em;margin:40px 0 12px;padding-top:8px;border-top:1px solid var(--line)} h3{font-size:1.125em;margin:28px 0 8px}
+.layout{display:grid;grid-template-columns:260px minmax(0,1fr);max-width:1180px;margin:0 auto}
+.layout main{margin:0;max-width:880px}
+nav.side{position:sticky;top:49px;align-self:start;max-height:calc(100vh - 49px);overflow-y:auto;padding:20px 8px 40px 16px;border-right:1px solid var(--line);font-size:14px;line-height:1.5}
+nav.side .h{font-weight:600;color:var(--mute);margin:4px 8px 8px;font-size:13px}
+nav.side a{display:block;padding:5px 8px;border-radius:6px;color:var(--fg);text-decoration:none}
+nav.side a:hover{background:var(--code)} nav.side a.cur{background:var(--quote);color:var(--acc);font-weight:600}
+nav.side a .n{color:var(--mute);margin-right:6px;font-variant-numeric:tabular-nums}
+#nav-toggle{display:none}
+@media (max-width:960px){.layout{display:block} nav.side{display:none;position:fixed;z-index:6;top:49px;left:0;bottom:0;width:min(300px,85vw);max-height:none;background:var(--bg);box-shadow:2px 0 12px rgba(0,0,0,.2)} nav.side.open{display:block} #nav-toggle{display:inline-block}}
+.run{display:flex;flex-wrap:wrap;align-items:center;gap:4px 0;margin:4px 0 12px}
+.run details{flex-basis:100%;margin:6px 0 0;font-size:.94em}
+img{max-width:100%;height:auto;border-radius:8px;border:1px solid var(--line);background:#fff}
+blockquote{margin:16px 0;padding:10px 16px;background:var(--quote);border-left:3px solid var(--acc);border-radius:4px;color:var(--mute)}
+blockquote p{margin:4px 0}
+code{background:var(--code);padding:1px 5px;border-radius:4px;font-size:.9em}
+pre{background:var(--code);padding:12px 14px;border-radius:8px;overflow-x:auto} pre code{padding:0;background:none}
+table{border-collapse:collapse;display:block;overflow-x:auto;max-width:100%;margin:12px 0;font-size:.94em}
+th,td{border:1px solid var(--line);padding:6px 10px;vertical-align:top} th{background:var(--code)}
+details{border:1px solid var(--line);border-radius:8px;padding:6px 12px;margin:8px 0;background:var(--card)}
+details[open]{padding-bottom:10px} summary{cursor:pointer;color:var(--acc);font-weight:500}
+mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%}
+.btn{display:inline-block;margin:4px 8px 4px 0;padding:6px 14px;border:1px solid var(--acc);border-radius:999px;text-decoration:none;font-size:14px}
+.pager{display:flex;justify-content:space-between;gap:12px;margin-top:48px;padding-top:16px;border-top:1px solid var(--line);font-size:15px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin:16px 0}
+.card{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;color:inherit;text-decoration:none}
+.card:hover{border-color:var(--acc)} .card img{border:0;border-bottom:1px solid var(--line);border-radius:0;aspect-ratio:16/10;object-fit:contain;width:100%}
+.card .no{color:var(--mute);font-size:13px;padding:8px 12px 0} .card .t{padding:0 12px 12px;font-weight:500;line-height:1.5}
+.lead{font-size:1.06em;color:var(--mute)}
+footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-size:13px}
+</style>
+<script>window.MathJax={tex:{inlineMath:[["\\(","\\)"]],displayMath:[["\\[","\\]"],["$$","$$"]],processEscapes:true,processEnvironments:true}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"></script>
+</head><body>
+<header class="top"><div class="in">
+<button type="button" id="nav-toggle" aria-label="打开章节列表">☰ 章节</button><a class="brand" href="../index.html">从约束推导 AI Infra</a>
+<a href="../lessons/index.html">讲义目录</a>
+<a href="../animations/index.html">动画</a>
+<a href="../review.html">复习卡片</a>
+<a href="../lessons/appendix-glossary.html">缩写表</a>
+<a href="https://wikieden.github.io/ai-books/glossary.html">全局词汇</a>
+<a href="https://wikieden.github.io/ai-books/">← 全部讲义书</a>
+<span class="prefs" title="字号与主题"><button type="button" data-fs-step="-1" aria-label="字号变小">A−</button><button type="button" data-fs-step="1" aria-label="字号变大">A+</button><select id="ab-theme" aria-label="主题色"><option value="">跟随系统</option><option value="light">浅色</option><option value="dark">深色</option><option value="sepia">米黄护眼</option><option value="green">豆沙绿护眼</option><option value="navy">夜蓝</option></select></span>
+</div></header>
+<div class="layout"><nav class="side" aria-label="章节"><div class="h">从约束推导 AI Infra</div><a href="index.html">讲义目录</a><a href="01-six-layers.html"><span class="n">1</span>一次请求走过的六层（进行中）</a><a href="02-request-lifecycle.html"><span class="n">2</span>一次生成请求的处理过程：权重加载一次，每个 token 都要再读一遍</a><a href="03-dataflow-hierarchy.html"><span class="n">3</span>从存储程序到数据流执行：存储层次就像大楼里的厕所</a><a href="04-key-numbers.html"><span class="n">4</span>系统设计的关键数字：容量、算力、带宽、延迟</a><a href="05-estimate.html"><span class="n">5</span>用几个数字估算一次模型执行：算和读各要多久，实测为什么达不到</a><a href="06-architecture.html"><span class="n">6</span>需求如何推动架构：TPU、SmartNIC、Unified Bus</a><a href="07-compute-graph.html"><span class="n">7</span>计算图与张量结构：一个 token 经过一层要算多少</a><a href="08-generation-budget.html"><span class="n">8</span>自回归生成的资源账：存一次的、每步读的、用完就扔的</a><a href="09-kv-sharing.html"><span class="n">9</span>KV 怎么变小 ①：头共享与潜变量压缩</a><a href="10-kv-sparse-linear.html"><span class="n">10</span>KV 怎么变小 ②：窗口、稀疏、线性与混合注意力</a><a href="11-moe.html"><span class="n">11</span>MoE：专家路由与批内权重复用</a><a href="12-network-shape.html"><span class="n">12</span>网络形状：深宽、专家粒度、残差与多 token 预测</a><a href="13-model-comparison.html"><span class="n">13</span>整个模型的资源需求与比较：存多少、算多少、能放几条请求</a><a href="14-workload-arrival.html"><span class="n">14</span>从单次请求到持续到达的负载：什么时候来，比来多少更要紧</a><a href="15-agent-tasks.html"><span class="n">15</span>多轮交互与 Agent 任务：前缀、成功成本、关键路径</a><a href="16-multimodal-realtime.html"><span class="n">16</span>多模态与实时交互：数据换形状，时间有死线（略讲）</a><a href="17-training-rl.html"><span class="n">17</span>训练与强化学习的计算和状态：为什么训练要 6ND、要存 18 字节</a><a href="18-scaling-lifecycle.html"><span class="n">18</span>Scaling law 与全生命周期成本：训练多大、训练多久、服务多少次</a><a href="19-accelerator-basics.html"><span class="n">19</span>从矩阵乘法认识加速器：算多少、搬多少、耗多少电</a><a href="20-compute-units.html"><span class="n">20</span>计算单元：矩阵、向量、流水与低精度</a><a href="21-memory-movement.html"><span class="n">21</span>存储层次与数据搬移：放得下、取得到、来得及</a><a href="22-package-interconnect.html"><span class="n">22</span>多芯片封装与互联：计算放在哪，数据走哪条路</a><a href="23-architecture-evolution.html"><span class="n">23</span>架构演进与专用架构：每一代新增的东西，省掉了哪一笔</a><a href="24-choose-accelerator.html"><span class="n">24</span>根据架构选择加速器：先估下界，再找差距，最后算账</a><a href="25-submit-sync.html"><span class="n">25</span>提交、搬移与同步：从调用返回到结果可用</a><a href="26-tiling-layout.html" class="cur"><span class="n">26</span>单个算子：分块、布局与切分</a><a href="27-fusion-flash.html"><span class="n">27</span>算子融合与 FlashAttention：中间结果不落地</a><a href="28-compiler.html"><span class="n">28</span>编译器：表达、变换与选择</a><a href="29-runtime.html"><span class="n">29</span>运行时：重叠、CUDA Graph、动态形状与 persistent kernel</a><a href="30-request-view.html"><span class="n">30</span>从局部优化到完整请求</a><a href="appendix-glossary.html">附录 · 缩写与术语表</a><a href="appendix-tp-pp-cp.html">附录 · 补充资料：TP、PP、CP，一个模型沿三个方向切给多张卡</a></nav><main>
+<h1 id="26">第 26 章 · 单个算子：分块、布局与切分</h1><div class="run"><a class="btn" href="../animations/26-tiling-layout.html">▶ 打开本章可交互动画</a><a class="btn" href="https://colab.research.google.com/github/wikieden/ai-infra-from-constraints/blob/main/code/notebooks/ch26_tiling_layout.ipynb" target="_blank" rel="noopener">在 Colab 运行本章代码</a><a class="btn" href="../code/notebooks/ch26_tiling_layout.ipynb" download>下载 notebook</a><details><summary>本地运行</summary><pre><code>git clone https://github.com/wikieden/ai-infra-from-constraints
+cd ai-infra-from-constraints/code/notebooks
+pip install jupyterlab torch numpy
+jupyter lab ch26_tiling_layout.ipynb</code></pre><p>也可以下载后直接用 VS Code 打开 .ipynb 运行。需要 GPU 的章节在 Colab 里选「代码执行程序 → 更改运行时类型 → GPU」。</p></details></div>
+<blockquote>
+<p>本章回答：一个只需要 128 MiB 读写的矩阵乘，为什么能读出 3 GiB？输出块开大一倍读写就减半，为什么有时反而更慢？同一列 32 个数，为什么补一个字就快 32 倍？把一行归约拆成 8 段，换来了什么、又付出了什么？<br />
+讲解日期：2026-11-24 · 上一章：<a href="../lessons/25-submit-sync.html">第 25 章 提交、搬移与同步</a> · 下一章：<a href="../lessons/27-fusion-flash.html">第 27 章 算子融合与 FlashAttention</a><br />
+对应原文：<code>materials/ai-infra-book/manuscripts/05-算子与运行时.md</code> §5.2 L176–L338（例 5-3，图 5-6 到 5-13）<br />
+本章缩写：RMSNorm = Root Mean Square Normalization（均方根 / 归一化）· ULP = Unit in the Last Place（最后一位的单位，同一指数下相邻两个浮点数的间距）· bank = 共享内存中能独立服务请求的分区（存储体）· lane = 一个 warp 里的一个线程。全部缩写见 <a href="../lessons/appendix-glossary.html">缩写与术语表</a></p>
+</blockquote>
+<p>还是第 25 章的投影 <span class="arithmatex">\(C = AW\)</span>：<span class="arithmatex">\(M = 1024\)</span>、<span class="arithmatex">\(K = 4096\)</span>、<span class="arithmatex">\(N = 12288\)</span>，BF16。本章计数的位置固定在<strong>工作缓冲和下一级存储之间的接口</strong>。</p>
+<h2 id="_1">讲解</h2>
+<h3 id="2026-11-24">第一步：一个输出要哪些数据，相邻输出用什么（2026-11-24）</h3>
+<p><strong>类比：拼图。</strong> 算 C[i, j] 要拿 A 的第 i 行和 W 的第 j 列；算旁边的 C[i, j+1]，A 还是那一行。手里的这行如果还没放回去，就不用再去取。</p>
+<p>原文 L184–L223：</p>
+<div class="arithmatex">\[F_{\mathrm{gemm}} = 2MKN \approx 103\ \text{GFLOPs}, \qquad V_{\mathrm{once}} = 2(MK + KN + MN) = 8 + 96 + 24 = 128\ \text{MiB}\]</div>
+<p>128 MiB 是三份矩阵各经过接口一次的<strong>基准</strong>。程序怎么排循环，决定同一份数据实际要经过接口几次。</p>
+<ul>
+<li>i-j-k 顺序：内层沿 k 读 W[k, j]，相邻两次地址差 N 个元素，跳着读。</li>
+<li>i-k-j 顺序：内层读 W[k, j]、W[k, j+1]，连续；A[i, k] 用于一整段输出。代价是要同时保存一段输出的累加值，存不下就多读写。</li>
+</ul>
+<p><strong>一句话</strong>：数学上的复用是固定的，能不能兑现，看两次使用之间数据还在不在手边。</p>
+<h3 id="vs-2026-11-24">第二步：输出块开多大：少读数据 vs 同时驻留（2026-11-24）</h3>
+<p><strong>类比：工作台。</strong> 台面越大，一次摊开的料越多，跑仓库的次数越少；但台面大了，车间里能同时开工的工作台就少了。</p>
+<p><strong>局部存储</strong>（原文 L235–L241，例 5-3）：<span class="arithmatex">\(m \times n\)</span> 输出块、沿 K 每步 <span class="arithmatex">\(k\)</span>：</p>
+<div class="arithmatex">\[S = \underbrace{2mk}_{A\text{ 块}} + \underbrace{2kn}_{W\text{ 块}} + \underbrace{4mn}_{\text{FP32 累加器}}\]</div>
+<p><strong>全矩阵读写</strong>（原文 L243–L251）：每个输出块独立读输入，<span class="arithmatex">\(N/n\)</span> 个列块各读一遍 A，<span class="arithmatex">\(M/m\)</span> 个行块各读一遍 W：</p>
+<div class="arithmatex">\[V = 2MK\frac{N}{n} + 2KN\frac{M}{m} + 2MN\]</div>
+<table>
+<thead>
+<tr>
+<th>输出块（<span class="arithmatex">\(k = 32\)</span>）</th>
+<th style="text-align: right;">局部存储</th>
+<th style="text-align: right;">读写 A + W + C</th>
+<th style="text-align: right;">算术强度</th>
+<th style="text-align: right;">RTX PRO 6000 一个 SM 驻留</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>32×32</td>
+<td style="text-align: right;">8 KiB</td>
+<td style="text-align: right;">3072 + 3072 + 24 = 6168 MiB</td>
+<td style="text-align: right;">15.9</td>
+<td style="text-align: right;">11 块</td>
+</tr>
+<tr>
+<td>64×64</td>
+<td style="text-align: right;">24 KiB</td>
+<td style="text-align: right;">1536 + 1536 + 24 = 3096 MiB</td>
+<td style="text-align: right;">31.7</td>
+<td style="text-align: right;">4 块</td>
+</tr>
+<tr>
+<td>128×128</td>
+<td style="text-align: right;">80 KiB</td>
+<td style="text-align: right;">768 + 768 + 24 = 1560 MiB</td>
+<td style="text-align: right;">63.0</td>
+<td style="text-align: right;">1 块</td>
+</tr>
+</tbody>
+</table>
+<p><img alt="输出块越大读写越少，但占的局部存储越多；虚线是 128 MiB 基准" src="../figures/26-tiling-layout-tiles.png" /></p>
+<p><em>图 26-1 · 三种都远低于 H100 的 295 FLOPs/B：只靠这一级分块，MFU 上限 5% / 11% / 21%，剩下的复用要靠更近的存储层次。</em></p>
+<p><strong>少读不一定快</strong>（原文 L267–L281）：RTX PRO 6000 每 SM 共享内存 100 KB（102,400 B），每块另留 1 KiB：24 KiB 的工作集放得下 4 份，80 KiB 只放 1 份。驻留少了，在途请求少了（第 25 章），有效带宽可能下降：</p>
+<div class="arithmatex">\[\frac{T_{128}}{T_{64}} = \frac{1560}{3096} \cdot \frac{B_{64}}{B_{128}}\]</div>
+<p>带宽一样时快一倍；大块只拿到四成带宽时 <span class="arithmatex">\(0.504 / 0.4 = 1.26\)</span>，反而慢 26%。所以顺序是：先按容量排除放不下的，再按读写量缩小范围，最后实测。</p>
+<p><strong>补基础</strong>：分块 GEMM 的写法见<a href="https://wikieden.github.io/cuda-to-tensor-core/lessons/13-sgemm-tiling.html">《CUDA 从线程到 Tensor Core》第 13、14 章</a>。</p>
+<p><strong>一句话</strong>：输出块越大，每个输入字节参与的乘加越多；但工作集越大，同时驻留的块越少，可能拿不到原来的带宽。</p>
+<h3 id="32-bank2026-11-24">第三步：布局：32 个请求落到几个 bank（2026-11-24）</h3>
+<p><strong>类比：32 个窗口的银行。</strong> 32 个人同时来办事，如果都排到 7 号窗口，就要办 32 轮；分散到 32 个窗口，一轮办完。</p>
+<p>原文 L285–L295：共享内存分 32 个 bank，每个 bank 每轮供一个 32 位字，bank 号 = 字地址 mod 32。32×32 的 FP32 暂存块：</p>
+<table>
+<thead>
+<tr>
+<th>布局</th>
+<th>32 个 lane 读同一列</th>
+<th>代价</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>行跨度 32 字</td>
+<td>全落到同一 bank，<strong>32 轮</strong></td>
+<td></td>
+</tr>
+<tr>
+<td>行末补 1 个字（padding），跨度 33</td>
+<td>依次落到 32 个 bank，<strong>1 轮</strong></td>
+<td>4096 → 4224 B，多 3.1%</td>
+</tr>
+<tr>
+<td>swizzle：第 r 行第 c 列放到 <span class="arithmatex">\(c \oplus r\)</span> 列</td>
+<td>32 个不同 bank，<strong>1 轮</strong></td>
+<td>不多占空间，每次访问先算一次列号</td>
+</tr>
+</tbody>
+</table>
+<p><img alt="行跨度 32 时一列全在同一 bank；补成 33 后分散到 32 个 bank" src="../figures/26-tiling-layout-banks.png" /></p>
+<p><em>图 26-2 · 有效数据和读取次数都没变，变的是请求能不能同时被服务。异步批量复制不能在行间补字，所以 CUTLASS / TMA 用 swizzle。</em></p>
+<p><strong>补基础</strong>：bank 冲突见<a href="https://wikieden.github.io/cuda-to-tensor-core/lessons/07-shared-memory-banks.html">《CUDA 从线程到 Tensor Core》第 7 章</a>。</p>
+<p><strong>一句话</strong>：padding 多占一点空间换分散，swizzle 不占空间换一次地址计算；都不改计算本身。</p>
+<h3 id="2026-11-24_1">第四步：沿哪一维切：并行任务、部分和与浮点次序（2026-11-24）</h3>
+<p><strong>类比：数一大堆硬币。</strong> 一个人数要很久；分给 8 个人各数一份，快了，但最后要把 8 个小计加起来，而且每个人得把自己那堆再过一遍手（重读输入）。</p>
+<p><strong>RMSNorm 拆分</strong>（原文 L299–L309）：一行 4096 个元素先求平方和得缩放因子，再缩放整行。<span class="arithmatex">\([1024, 4096]\)</span> 时一组一行有 1024 组；decode 单请求只有 1 行，大部分执行资源空闲。把每行拆成 8 段：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th style="text-align: right;">一组一行</th>
+<th style="text-align: right;">拆成 8 段</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第一阶段并行任务</td>
+<td style="text-align: right;">1024</td>
+<td style="text-align: right;">8192</td>
+</tr>
+<tr>
+<td>读写</td>
+<td style="text-align: right;">读 8 + gamma 8 + 写 8 = 24 MiB</td>
+<td style="text-align: right;">再重读 8 MiB 输入 + 局部和、缩放因子约 0.1 MiB = 32.1 MiB</td>
+</tr>
+<tr>
+<td>kernel launch</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr>
+<td>每组临时数据（FP32）</td>
+<td style="text-align: right;">16 KiB</td>
+<td style="text-align: right;">2 KiB，能留在寄存器</td>
+</tr>
+</tbody>
+</table>
+<p><img alt="一组处理整行 vs 拆成八段：先局部和，再合并，最后重读输入归一化" src="../figures/26-tiling-layout-rmsnorm.png" /></p>
+<p><em>图 26-3 · 拆分换来并行和更少的临时数据，代价是多读一遍输入和阶段之间的传递。</em></p>
+<p><strong>矩阵乘的三种切法</strong>（原文 L311–L317）：切 <span class="arithmatex">\(M\)</span> 或 <span class="arithmatex">\(N\)</span>，各自得到完整的输出片，需要时再拼；切 <span class="arithmatex">\(K\)</span>，得到同一输出的部分和，必须再相加。第二步的输出块是同时切 <span class="arithmatex">\(M\)</span>、<span class="arithmatex">\(N\)</span>，沿 <span class="arithmatex">\(K\)</span> 在块内累加，不需要跨块汇合。</p>
+<p><strong>次序改变结果</strong>（原文 L319–L331）：浮点加法不满足结合律。FP32 里</p>
+<div class="arithmatex">\[(1 + 2^{-24}) + 2^{-24} = 1, \qquad 1 + (2^{-24} + 2^{-24}) = 1 + 2^{-23}\]</div>
+<p>差 1 个 ULP。原文对一行 4096 个 BF16 元素算平方和：一组一行的结果比精确值小 175.2 ULP，分 8 段后只差 9.2 ULP；八个局部和的 40,320 种合并次序给出 3 个不同结果；缩放因子最后差 59 ULP。</p>
+<ul>
+<li>原子加按到达先后累加：同一输入两次运行可能不同。</li>
+<li>写入缓冲、等全部到齐、按固定次序加：每次一样，但多一次写读、要等最慢的那段。</li>
+<li><strong>段数随 batch 变</strong>（小 batch 才拆）→ 同一行输入在不同 batch 下结果不同。要"输出只由输入决定"，段数和次序都不能随 batch 变（原书第 10 章 §10.5.3 用它解释生成端和训练端的 logprob 差异）。</li>
+</ul>
+<p><strong>场景代码</strong>：PyTorch 里打开确定性算法，避免用原子加的实现（真实 API）：</p>
+<pre><code class="language-python">import torch
+
+torch.use_deterministic_algorithms(True)     # 有不确定实现的算子会报错或换实现
+x = torch.randn(1, 4096, device=&quot;cuda&quot;)
+print((x.float() ** 2).sum(-1))              # 同一输入，两次运行结果一致
+</code></pre>
+<p><strong>一句话</strong>：拆归约维能增加并行任务、减少临时数据，代价是重读输入、多一次汇合，还会改变浮点结果。</p>
+<h2 id="_2">动画演示：输出块开多大</h2>
+<p><img alt="输出块大小、读写量与驻留" src="../animations/26-tiling-layout.gif" /></p>
+<p>可交互版：<a href="../animations/26-tiling-layout.html">animations/26-tiling-layout.html</a>（切换：输出块 32 / 64 / 128；滑块：大块拿到的带宽比例）。</p>
+<p><strong>怎么看</strong>：</p>
+<ol>
+<li>左边三段横条是 A 重读、W 重读、C 写出的 MiB（第二步），虚线是 128 MiB 基准；</li>
+<li>中间是 100 KB 共享内存里能放下几份工作集；</li>
+<li>右边按"读写量 ÷ 有效带宽"比较相对 64×64 的时间；</li>
+<li>播放时 32 → 64 → 128（带宽相同）→ 128（只拿到四成带宽，比 64×64 慢 26%）。</li>
+</ol>
+<h2 id="_3">练习与作答记录</h2>
+<p><strong>题 1</strong>（第二步）：同一个投影，输出块 256×64、<span class="arithmatex">\(k = 32\)</span>。局部存储多少 KiB？A、W 各重读多少 MiB，总读写多少？RTX PRO 6000 一个 SM 能放几份？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p><strong>题 2</strong>（第三步）：16×16 的 FP32 暂存块，共享内存 32 个 bank，16 个 lane 同时读同一列。行跨度 16 字时要几轮？补到 17 呢？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p><strong>题 3</strong>（第四步）：RMSNorm 输入 <span class="arithmatex">\([256, 8192]\)</span> BF16，拆成 16 段。第一阶段有多少个并行任务？总读写比一组一行多多少 MiB（局部和、缩放因子用 FP32）？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p>原书实验 5-1（L989：输出块 64×128）。想多练可以做。</p>
+<h2 id="_4">口诀</h2>
+<blockquote>
+<p>手里这行还没放回，下一个输出就不用再取；<br />
+台面越大跑得越少，台子多了才能轮着等料；<br />
+都排一个窗口办三十二轮，补一格就一轮；<br />
+八个人分着数快，最后要加小计，还得再过一遍手，次序一换尾数就变。</p>
+</blockquote>
+<h2 id="_5">本章复习卡片</h2>
+<p><a href="../review.html">I101</a>（128 MiB 基准与分块读写公式 6168 / 3096 / 1560）、<a href="../review.html">I102</a>（大块少读却可能变慢：驻留与 1.26 倍）、<a href="../review.html">I103</a>（bank 冲突、padding 与 swizzle）、<a href="../review.html">I104</a>（拆归约维：并行、重读与浮点次序）。练习做完后，按答错、卡住的地方再补。</p>
+<h2 id="_6">附录 · 延伸阅读</h2>
+<blockquote>
+<p>留给以后深入学习用，不影响本章主线。★ 是建议先读的。</p>
+</blockquote>
+<h3 id="_7">推荐阅读</h3>
+<table>
+<thead>
+<tr>
+<th>读什么</th>
+<th>读哪里</th>
+<th>读它为了什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>★ AII 第 5 章</td>
+<td>§5.2 L176–L338</td>
+<td>本章原文，例 5-3</td>
+</tr>
+<tr>
+<td><a href="https://wikieden.github.io/cuda-to-tensor-core/lessons/index.html">《CUDA 从线程到 Tensor Core》第 7、13、14、19 章</a></td>
+<td>bank、SGEMM 分块、寄存器分块、CuTe 布局</td>
+<td>本章每步的 CUDA 写法</td>
+</tr>
+<tr>
+<td>CUTLASS 文档</td>
+<td>GEMM 分层、swizzle</td>
+<td>工业实现怎么切块和换地址</td>
+</tr>
+<tr>
+<td>Goldberg，What Every Computer Scientist Should Know About Floating-Point Arithmetic</td>
+<td>舍入与结合律</td>
+<td>第四步的数值基础</td>
+</tr>
+<tr>
+<td>AII 第 10 章 §10.5.3</td>
+<td>生成端与训练端的 logprob 差异</td>
+<td>次序变化的后果</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_8">数学原理</h3>
+<ul>
+<li><strong>重复读取计数</strong>：每个列块读一遍 A、每个行块读一遍 W；块边长翻倍，读取减半。</li>
+<li><strong>取模映射</strong>：bank <span class="arithmatex">\(= (r \cdot s + c) \bmod 32\)</span>；<span class="arithmatex">\(s = 32\)</span> 时与 <span class="arithmatex">\(r\)</span> 无关，<span class="arithmatex">\(s = 33\)</span> 时随 <span class="arithmatex">\(r\)</span> 递增。</li>
+<li><strong>异或置换</strong>：<span class="arithmatex">\(c \oplus r\)</span> 对固定 <span class="arithmatex">\(c\)</span> 是 <span class="arithmatex">\(r\)</span> 的双射。</li>
+<li><strong>浮点非结合</strong>：每次加法都舍入，丢掉的位不可恢复。</li>
+</ul>
+<h3 id="_9">公式清单</h3>
+<table>
+<thead>
+<tr>
+<th>公式</th>
+<th>意思</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\(V_{\mathrm{once}} = 2(MK + KN + MN)\)</span></td>
+<td>三份矩阵各一次</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(S = 2mk + 2kn + 4mn\)</span></td>
+<td>输出块的局部存储</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(V = 2MK \cdot N/n + 2KN \cdot M/m + 2MN\)</span></td>
+<td>各块独立读输入的总读写</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(T_{128}/T_{64} = (V_{128}/V_{64})(B_{64}/B_{128})\)</span></td>
+<td>读写和有效带宽一起比较</td>
+</tr>
+<tr>
+<td>bank <span class="arithmatex">\(= \text{字地址} \bmod 32\)</span></td>
+<td>共享内存分区</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_10">代码对照：把本章的数字用代码算一遍</h3>
+<blockquote>
+<p>纯 Python，不需要 GPU。代码在仓库本地 <code>ai-infra/solutions/chapter-code/ch26_tiling_layout.py</code>，配套测试 <code>tests/test_ch26.py</code>：</p>
+<p><code>bash  
+cd ai-infra/solutions/chapter-code  
+uv run python ch26_tiling_layout.py   # 一步一步打印  
+uv run pytest tests/test_ch26.py</code></p>
+</blockquote>
+<p><strong>讲义 ↔ 代码</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>讲义</th>
+<th>公式</th>
+<th>写法</th>
+<th>跑出来</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第二步 局部存储</td>
+<td><span class="arithmatex">\(2mk + 2kn + 4mn\)</span></td>
+<td><code>tile_local_kib(m, n)</code></td>
+<td>8 / 24 / 80 KiB</td>
+</tr>
+<tr>
+<td>第二步 读写</td>
+<td>重复读取</td>
+<td><code>tile_traffic_mib(m, n)</code></td>
+<td>6168 / 3096 / 1560 MiB</td>
+</tr>
+<tr>
+<td>第二步 驻留</td>
+<td>100 KB ÷（工作集 + 1 KiB）</td>
+<td><code>resident(kib)</code></td>
+<td>11 / 4 / 1</td>
+</tr>
+<tr>
+<td>第三步 bank</td>
+<td>取模计数</td>
+<td><code>bank_rounds(32)</code>、<code>bank_rounds(33)</code></td>
+<td>32 / 1 轮</td>
+</tr>
+<tr>
+<td>第四步 RMSNorm</td>
+<td></td>
+<td><code>rmsnorm_traffic_mib()</code></td>
+<td>24 → 32.1 MiB</td>
+</tr>
+<tr>
+<td>第四步 次序</td>
+<td>FP32 舍入</td>
+<td><code>f32(...)</code></td>
+<td>差 1 ULP</td>
+</tr>
+</tbody>
+</table>
+<p><strong>关键几行</strong>：</p>
+<pre><code class="language-python">def bank_rounds(stride_words, lanes=32, banks=32, swizzle=False):
+    hits = {}
+    for r in range(lanes):                    # 第 r 个 lane 读第 r 行、第 0 列
+        col = (0 ^ r) if swizzle else 0
+        b = (r * stride_words + col) % banks
+        hits[b] = hits.get(b, 0) + 1
+    return max(hits.values())                 # 最挤的 bank 要服务几次 = 几轮
+</code></pre>
+<p><strong>代码里才看得到的 3 件事</strong>：</p>
+<ol>
+<li>64×64 的算术强度代码得 31.75，原文写 31.7（截断而非四舍五入）。</li>
+<li><code>f32</code> 用 <code>struct.pack("f")</code> 把 Python 的双精度数舍入到 FP32，不依赖 numpy。</li>
+<li>swizzle 那行 <code>col = 0 ^ r</code> 看起来多余，换成读第 c 列时就是 <code>c ^ r</code>，读哪一列都是 1 轮。</li>
+</ol>
+<p><strong>自己改一改</strong>（不影响练习答案）：</p>
+<ul>
+<li>给 <code>tile_traffic_mib</code> 加 L2 复用：相邻 4 个列块共享一次 A 读取，总量变成多少？</li>
+<li>用 <code>bank_rounds</code> 试行跨度 34、48、64，哪些跨度不冲突？规律是什么？</li>
+<li>用 <code>f32</code> 做 4096 个随机数的平方和，比较 1 段、8 段、32 段的结果差几个 ULP。</li>
+</ul><nav class="pager"><a href="25-submit-sync.html">← 第 25 章 · 提交、搬移与同步：从调用返回到结果可用</a><a href="27-fusion-flash.html">第 27 章 · 算子融合与 FlashAttention：中间结果不落地 →</a></nav>
+</main></div>
+<footer>来自个人学习仓库的对话讲义，含练习作答记录。源码：<a href="https://github.com/wikieden/ai-infra-from-constraints">github.com/wikieden/ai-infra-from-constraints</a>。更多讲义书：<a href="https://wikieden.github.io/ai-books/">Physical AI 0-1-♾️（合集）</a></footer>
+<script>(function(){var d=document.documentElement,K=["s","m","l","xl"];
+function save(k,v){try{v?localStorage.setItem(k,v):localStorage.removeItem(k)}catch(e){}}
+var s=document.getElementById("ab-theme");if(s){s.value=d.dataset.theme||"";s.onchange=function(){if(s.value)d.dataset.theme=s.value;else delete d.dataset.theme;save("ab-theme",s.value)}}
+document.querySelectorAll("[data-fs-step]").forEach(function(b){b.onclick=function(){var i=K.indexOf(d.dataset.fs||"m")+(+b.dataset.fsStep);i=Math.max(0,Math.min(K.length-1,i));d.dataset.fs=K[i];save("ab-fs",K[i])}});
+var nb=document.getElementById("nav-toggle"),side=document.querySelector("nav.side");if(nb&&side){nb.onclick=function(){side.classList.toggle("open")}}
+var cur=side&&side.querySelector(".cur");if(cur)cur.scrollIntoView({block:"center"});
+})();</script>
+</body></html>

@@ -956,6 +956,184 @@ footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-
 <p><span class="arithmatex">\(V^* = F_0/\Delta c\)</span> = 2,000 万 ÷ 0.5 美元/百万 = 40 万亿 token；100 台一年产出 15.8 万亿（39%），至少 254 台；寿命减半或利用率减半要 508 台。</p>
 <p>口诀：贵车快一倍就不贵，专车要跑够趟数。</p>
 </details>
+<h2 id="_17">算子与运行时 · 提交、分块与融合</h2>
+<h3 id="i97-kernellaunch-pytorch-gpu">I97 · 算子、kernel、launch 各是什么？PyTorch 里一行矩阵乘返回了，GPU 算完了吗？</h3>
+<p>来源：<a href="lessons/25-submit-sync.html">第 25 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>算子是数学工作；kernel 是加速器上执行的程序（一个算子可拆成多个 kernel，几个逐元素算子也可合成一个）；launch 是 CPU 发起一次 kernel 执行。</p>
+<p>launch 是异步的：返回时只是提交完了。CPU 只有要用结果、或要覆盖 GPU 还在读的数据时才需要等。大 kernel 给 CPU 留出准备下一项的时间；小 kernel 很快跑完，GPU 就在等 CPU。</p>
+<p>口诀：服务员递单就转身，炒没炒好要另问。</p>
+</details>
+<h3 id="i98-stream-event">I98 · stream 和 event 怎么保证复制和计算的先后？程序"停住不动"一般是什么原因？</h3>
+<p>来源：<a href="lessons/25-submit-sync.html">第 25 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>同一 stream 内按序；跨 stream 用 event：复制流记"已传完"、计算流等它；计算流记"已用完"、复制流等它再覆盖。四块缓冲（主机源、GPU 输入、D2H 两端）各在最后一次使用后记事件。</p>
+<p>停住不动 = 在等一个永远不会被记录的事件：漏记"已用完"、两条流互等、多卡集合通信有一张卡少发一次。先看被等的一侧是否还在出结果。</p>
+<p>口诀：原料带等"到了"，加工带等"用完"，漏一块牌子就死等。</p>
+</details>
+<h3 id="i99-5-2-3h2d-8kernel-20d2h-4-skernel-4">I99 · 例 5-2：提交 3、H2D 8、kernel 20、D2H 4 μs，结果何时可用？kernel 快 4 倍呢？三种计时各测到什么？</h3>
+<p>来源：<a href="lessons/25-submit-sync.html">第 25 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>35 μs；kernel 5 μs 时 20 μs，整体只快 1.75 倍（剩 15 μs 是提交和复制）。</p>
+<p>异步调用前后读 CPU 时钟 = 提交时间；先同步再停表 = 结果可用时间；CUDA event = 加速器执行时间；profiler 把三者画在同一条时间线。首次编译 100 ms + 每次 1 ms：100 次平均 2 ms。</p>
+<p>口诀：填单三分钟，到手三十五。</p>
+</details>
+<h3 id="i100-h100-sm256-128-96-kib-kernel">I100 · H100 一个 SM：256 线程、128 寄存器、96 KiB 工作集的 kernel 驻留几块？在途字节够不够？</h3>
+<p>来源：<a href="lessons/25-submit-sync.html">第 25 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>线程槽 8、寄存器 2、共享内存 2（每块 97 KiB）、块上限 32 → 2 块，16 warp，占用率 25%。</p>
+<p>需要 3.35 TB/s × 600 ns ÷ 132 ≈ 15.2 KB；16 warp × 4 条 × 512 B = 32 KiB，覆盖 2.15 倍。延迟 1000 ns、每 warp 2 条时只有 0.65，要 25 个 warp。每块复制 1.29 μs、计算 0.28 μs（生产者 / 消费者 warp）。</p>
+<p>口诀：座位、抽屉、书架，最先用完的定班级数。</p>
+</details>
+<h3 id="i101-10244096409612288-32-64-128">I101 · [1024,4096]×[4096,12288] 最少读写多少？32 / 64 / 128 的输出块实际读写多少？</h3>
+<p>来源：<a href="lessons/26-tiling-layout.html">第 26 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>三份矩阵各一次 8 + 96 + 24 = 128 MiB，运算 103 GFLOPs。</p>
+<p><span class="arithmatex">\(V = 2MK \cdot N/n + 2KN \cdot M/m + 2MN\)</span>（<span class="arithmatex">\(k = 32\)</span>、各块独立读输入）：6168 / 3096 / 1560 MiB，局部存储 8 / 24 / 80 KiB，强度 15.9 / 31.7 / 63.0，都远低于 H100 的 295。</p>
+<p>口诀：手里这行还没放回，下一个输出就不用再取。</p>
+</details>
+<h3 id="i102-128128-6464">I102 · 128×128 输出块读写只有 64×64 的一半，为什么可能更慢？</h3>
+<p>来源：<a href="lessons/26-tiling-layout.html">第 26 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>RTX PRO 6000 每 SM 100 KB：24 KiB 工作集驻留 4 份，80 KiB 只能 1 份；驻留少 → 在途请求少 → 有效带宽降。</p>
+<p><span class="arithmatex">\(T_{128}/T_{64} = (1560/3096)(B_{64}/B_{128})\)</span>：只拿到四成带宽时 1.26，慢 26%。顺序：先按容量排除，再按读写量缩小，最后实测。</p>
+<p>口诀：台面越大跑得越少，台子多了才能轮着等料。</p>
+</details>
+<h3 id="i103-32-lane-3232-fp32-32-padding-swizzle">I103 · 32 个 lane 读 32×32 FP32 暂存块的同一列，为什么要 32 轮？padding 和 swizzle 怎么解决？</h3>
+<p>来源：<a href="lessons/26-tiling-layout.html">第 26 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>bank = 字地址 mod 32，行跨度 32 时同一列全落在一个 bank。</p>
+<p>padding：每行补 1 字，跨度 33，bank 依次 +1，1 轮完成，空间 +3.1%。swizzle：第 r 行第 c 列放到 <span class="arithmatex">\(c \oplus r\)</span> 列，不多占空间，每次访问多算一次列号；TMA 整块搬移不能补字，所以用 swizzle。</p>
+<p>口诀：都排一个窗口办三十二轮，补一格就一轮。</p>
+</details>
+<h3 id="i104-rmsnorm-8">I104 · RMSNorm 拆成 8 段换来什么、付出什么？为什么拆分会改变结果？</h3>
+<p>来源：<a href="lessons/26-tiling-layout.html">第 26 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>[1024, 4096]：第一阶段任务 1024 → 8192，每组临时数据 16 → 2 KiB；读写 24 → 32.1 MiB（多读一遍输入），launch 1 → 3 次。</p>
+<p>浮点加法不结合：FP32 <span class="arithmatex">\((1 + 2^{-24}) + 2^{-24} = 1\)</span>，<span class="arithmatex">\(1 + (2^{-24} + 2^{-24}) = 1 + 2^{-23}\)</span>。原文一行平方和：1 段差 175.2 ULP，8 段差 9.2 ULP。原子加顺序不定；段数随 batch 变 → 同一输入不同 batch 结果不同。</p>
+<p>口诀：八个人分着数快，次序一换尾数就变。</p>
+</details>
+<h3 id="i105-5-4silu">I105 · 例 5-4：SiLU 和乘法融合省多少读写？再加量化呢？显存峰值省多少？</h3>
+<p>来源：<a href="lessons/27-fusion-flash.html">第 27 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>G、U 各 24 MiB：分开 120 MiB，融合 72 MiB（省 T 的一写一读 48），时间比 0.6，实测 14.2 → 7.7 μs。</p>
+<p>加 1 字节量化：全分开 156，融合前两步 108，三步融合 60 MiB。峰值 72 → 60 MiB：读写省 96，峰值只省 12，容量和访问量是两回事。融合后舍入规则不变。</p>
+<p>口诀：零件直接递下一道，读写省一半，峰值省一点。</p>
+</details>
+<h3 id="i106-129-s-028-s">I106 · 每块搬 1.29 μs、算 0.28 μs，四块串行和双缓冲各多久？加第三个槽有用吗？什么是背压？</h3>
+<p>来源：<a href="lessons/27-fusion-flash.html">第 27 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p><span class="arithmatex">\(T_{\mathrm{pipe}} = t_m + (n-1)\max(t_m, t_c) + t_c\)</span>：串行 6.28 μs，双缓冲 5.44 μs（只少 13%，计算单元忙两成）。</p>
+<p>第三个槽（stage）没用：搬移已连续。只能减每块字节或提带宽。背压：缓冲不够，下游没释放槽，上游被迫暂停（两块同驻 RTX PRO 6000 时每块最多 49 KiB）。</p>
+<p>口诀：洗菜慢炒菜快，两个盆够了，第三个白搭。</p>
+</details>
+<h3 id="i107-softmax-5-6">I107 · 在线 Softmax 保存哪三个量？新块到来怎么更新？例 5-6 的结果是多少？</h3>
+<p>来源：<a href="lessons/27-fusion-flash.html">第 27 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p><span class="arithmatex">\(m\)</span>（最大分数）、<span class="arithmatex">\(\ell = \sum e^{s-m}\)</span>、<span class="arithmatex">\(u = \sum e^{s-m}V\)</span>。</p>
+<p><span class="arithmatex">\(m' = \max(m, \max s)\)</span>，<span class="arithmatex">\(r = e^{m - m'}\)</span>，<span class="arithmatex">\(\ell' = r\ell + \sum e^{s - m'}\)</span>，<span class="arithmatex">\(u' = ru + \sum e^{s - m'}V\)</span>，输出 <span class="arithmatex">\(u/\ell\)</span>。</p>
+<p>分数 [0, ln 2]、值 [1, 3]：第二块 r = 1/2，ℓ = 1.5，u = 3.5，输出 7/3，与整行一致。L = 8192 时完整 S、P 写读要 1 GiB。</p>
+<p>口诀：计票只记三个数，换了最高票一起缩。</p>
+</details>
+<h3 id="i108-flashattention-kv-b-b-1-64-128">I108 · FlashAttention 的 K/V 块 b 怎么选？b = 1 / 64 / 128 各多少读写、多少次更新？</h3>
+<p>来源：<a href="lessons/27-fusion-flash.html">第 27 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>片上预算 <span class="arithmatex">\(2ad + 2bd + 4ab + 4ad + 12a \le 101376\)</span>（RTX PRO 6000 一个线程块 99 KB）。</p>
+<p>b = 1：a = 128，扫描 64 次，260 MiB，524,288 次更新；b = 64：82、100、404 MiB、12,800；b = 128：53、155、624 MiB、9,920。小块少读但更新多约 41 倍、矩阵单元用不满。实测 SDPA：MATH 2.6 ms / 848 MiB，FLASH 80 μs / 22 MiB。</p>
+<p>口诀：块越小读得越少，更新越频繁。</p>
+</details>
+<h2 id="_18">算子与运行时 · 编译器、运行时与完整请求</h2>
+<h3 id="i109-splitreordercompute_at">I109 · split、reorder、compute_at 各在改什么？为什么说循环结构就是数据的生命周期？</h3>
+<p>来源：<a href="lessons/28-compiler.html">第 28 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>split：<span class="arithmatex">\(i = 64i_o + i_i\)</span> 切块；reorder：外层遍历输出块、内层块内；compute_at：生产者在消费者哪层循环生成。</p>
+<p><span class="arithmatex">\(Y = \operatorname{SiLU}(AW)\)</span>：A、W 块 4 KiB 在 ko 层每次换，累加器 16 KiB 在 jo 层活到 128 次归约做完，SiLU 放在 ko 之后，省掉完整 C 的 48 MiB 写读。放外层 = 先算完整结果复用；放内层 = 只算要的、可能重算。10 个算子的链有 512 种融合划分。</p>
+<p>口诀：切块、换序、定在哪层算，缩进就是寿命。</p>
+</details>
+<h3 id="i110-5-7-scale">I110 · 哪些变换会改变结果？例 5-7 的整行 scale 为什么必须先读完整行？</h3>
+<p>来源：<a href="lessons/28-compiler.html">第 28 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>激活不能挪到归约前：SiLU(1) + SiLU(−1) ≈ 0.4621 ≠ SiLU(0) = 0。分块归约要带够统计量（m、ℓ、u）。舍入位置要保留（激活前仍要 round_to_bf16）。</p>
+<p>例 5-7（E4M3FN 最大 448）：两块首元素 1 和 10。读完整行：1 × 44.8 → 44 → 55/56；读完第一块就量化：1 → 448 → 1。差 1.8%，舍入过的回不去。</p>
+<p>口诀：先汇总再打折，顺序是规则的一部分。</p>
+</details>
+<h3 id="i111-5-9">I111 · 编译器怎么从一堆候选里挑？例 5-9 里新实现什么时候更快？</h3>
+<p>来源：<a href="lessons/28-compiler.html">第 28 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>固定目标（形状、精度、调用频数）→ 列候选 → 用资源报告和依赖排除 → 估时间排序 → 按代表形状实测，评编译后的程序。</p>
+<p>例 5-9：原 A、B 都 10 μs；新 A 5、B 20 μs。各一次变慢 25%；A 100 次、B 1 次快 1.9 倍。平均 <span class="arithmatex">\(20 - 15p &lt; 10 \iff p &gt; 2/3\)</span>。也可以按形状分别选。</p>
+<p>口诀：先筛硬条件，再估分，最后按真实活计面试。</p>
+</details>
+<h3 id="i112-5-10-20-s100-5-s-vllm-v060">I112 · 例 5-10：主机准备和加速器计算各 20 μs、100 段，流水多久？加速器快到 5 μs 呢？vLLM v0.6.0 改了什么？</h3>
+<p>来源：<a href="lessons/29-runtime.html">第 29 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p><span class="arithmatex">\(T = t_h + (n-1)\max(t_h, t_d) + t_d\)</span>：串行 4000、流水 2020 μs；加速器 5 μs 时 2005 μs（只省 15）；主机也降到 5 μs 才 505 μs。</p>
+<p>vLLM v0.5.3 时 H100 跑 Llama 3 8B，一步里 API 服务器 33%、调度 29%、执行 38%（争 GIL）。v0.6.0：API 服务器独立进程、多步调度、异步输出处理 → 8B 吞吐 2.7 倍、70B 1.8 倍，没改 kernel。</p>
+<p>口诀：厨师快了单子没快，菜还是按单子的节奏出。</p>
+</details>
+<h3 id="i113-cuda-graph-5-11">I113 · CUDA Graph 省的是什么？和融合有什么区别？例 5-11 里输入多大时图重放不再省时间？</h3>
+<p>来源：<a href="lessons/29-runtime.html">第 29 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>图重放：主机一次 graph launch，加速器仍执行每个节点，省主机提交。3 次 FFN：18 次 launch → 3 次 graph launch，kernel 仍 18；融合才把 kernel 减到 15。</p>
+<p>例 5-11：普通 40 μs，图准备 5 μs 原能省 15 μs；新输入要复制到固定地址（读 + 写，1792 GB/s）：2 MiB → 27.3 μs，16 MiB → 43.7 μs。临界 <span class="arithmatex">\(X &lt; 15\,\mu s \times B / 2 \approx 12.8\)</span> MiB。FlashInfer 36 层共用一份 plan：约 2.0 → 0.72 ms。</p>
+<p>口诀：套餐一键重下，搬了家得先把东西搬回原址。</p>
+</details>
+<h3 id="i114-5-12-70">I114 · 例 5-12：通用、分桶、特化分别在多少组范围内最省？跑 70 组时各多久？</h3>
+<p>来源：<a href="lessons/29-runtime.html">第 29 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>10 次 FFN 一组：实际 5632 行，分桶后 8192 行（+45%）。通用 100 ms + 17.0 ms/组（MFU 20%），分桶 400 + 12.4（40%），特化 900 + 6.8（50%）。</p>
+<p><span class="arithmatex">\(T = P + rT\)</span>：1–64 组通用，65–89 组分桶，90 组起特化；70 组 1.29 / 1.27 / 1.38 s。已缓存时特化从第一组起最省。调优 10 分钟、每次省 5 μs：1.2 亿次才回本。</p>
+<p>口诀：均码、三档、量体裁衣：做得多就裁。</p>
+</details>
+<h3 id="i115-persistent-kernel-up-silu">I115 · persistent kernel 怎么让相邻算子按块重叠？up 投影 + SiLU 的例子快多少？什么省不掉？</h3>
+<p>来源：<a href="lessons/29-runtime.html">第 29 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>一直驻留，从队列领任务（原子加约 0.15 μs），完成后发标志（跨 SM 交接约 0.37 μs）。</p>
+<p>8 块：投影 12.8 μs、激活 1.76 μs；两次 launch 约 126 μs → 一次 launch 按块约 114 μs（约 1.1 倍）。两段越接近省得越多。kernel 边界在加速器上约 370–430 ns；decode 时每个边界都是全 SM 交接，约 1 μs，是依赖本身的代价。</p>
+<p>口诀：做好一个递一个，跨 SM 那一下省不掉。</p>
+</details>
+<h3 id="i116-20-2-10">I116 · 热点占 20%，加速 2 倍、10 倍、无穷倍，整体各快多少？</h3>
+<p>来源：<a href="lessons/30-request-view.html">第 30 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p><span class="arithmatex">\(S = 1/((1 - f) + f/s)\)</span>：1.11、1.22（新时间 0.82）、上限 1.25。热点越快，其他阶段占比越高；上限 <span class="arithmatex">\(1/(1 - f)\)</span>。</p>
+<p>口诀：地铁再快，走路那段还得走。</p>
+</details>
+<h3 id="i117-10a-60b-40-10-sab-a-15-s-a-b-90">I117 · 准备 10、A 60、B 40、收尾 10 μs（A、B 并行），把 A 缩到 15 μs 请求快多少？A 抢带宽让 B 变 90 呢？</h3>
+<p>来源：<a href="lessons/30-request-view.html">第 30 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p><span class="arithmatex">\(T = 10 + \max(A, B) + 10\)</span>：80 → 60 μs，A 省 45 请求只省 20，关键路径换成 B；A 低于 40 后再缩没用。B 变 90 时 110 μs，反而更慢。</p>
+<p>存储同理：V4.1 共享全局 KV，驻留降到约 1/4，逐层读取只少约 9%，少占的容量不等于少读的字节。</p>
+<p>口诀：炖肉快了看煮饭，抢了燃气饭更晚。</p>
+</details>
+<h3 id="i118-qwen3-8b-swiglu-kernel-26-5">I118 · Qwen3-8B 一次请求里 SwiGLU kernel 快 2.6 倍，请求快多少？第 5 部分有哪四个常见误区？</h3>
+<p>来源：<a href="lessons/30-request-view.html">第 30 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>7239 入 32 出、36 层：1152 次调用（prefill 36 次、decode 1116 次）。decode 2.4 → 0.92 ms；激活共 13.6 ms，只占 851 ms 的 1.6%。预期省约 1.4 ms，实测 11 对配对差中位数约 1.3 ms（0.16%）。</p>
+<p>误区：看 kernel 数判断成本（图重放不减 kernel）；访问量最小就最快（b = 1 更新多 41 倍）；加缓冲就提吞吐（第三个槽没用）；稳态最快总耗时就最短（70 组分桶 1.27 &lt; 特化 1.38 s）。</p>
+<p>口诀：先数次数，再算每次，最后看关键路径。</p>
+</details>
 </main>
 <footer>来自个人学习仓库的对话讲义，含练习作答记录。源码：<a href="https://github.com/wikieden/ai-infra-from-constraints">github.com/wikieden/ai-infra-from-constraints</a>。更多讲义书：<a href="https://wikieden.github.io/ai-books/">Physical AI 0-1-♾️（合集）</a></footer>
 <script>(function(){var d=document.documentElement,K=["s","m","l","xl"];

@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SM 驻留与在途字节</title><link rel="stylesheet" href="anim.css">
+<style>svg text.cap{font-size:15px;font-weight:500}svg text.num{font-size:17px;font-weight:600}</style></head>
+<body><main>
+<h1>第 25 章 · 一个 SM 能放几个线程块</h1>
+<p class="sub">配套讲义：<a href="../lessons/25-submit-sync.html">第 25 章 · 提交、搬移与同步：从调用返回到结果可用</a>。H100 一个 SM：2048 线程槽、64K 寄存器、233,472 B 共享内存、32 块上限；每块 256 线程，另留 1 KiB。在途字节按 3.35 TB/s ÷ 132 个 SM、每条加载 512 B 计。</p>
+<div class="panel"><svg id="sv" viewBox="0 0 680 360"></svg></div>
+<div class="row"><button id="play">▶ 播放</button><button id="step">→ 单步</button><button id="reset">↺ 从头开始</button></div>
+<div class="row"><label for="r">每线程寄存器</label><input type="range" id="r" min="32" max="255" step="1" value="128"><span id="rv">128</span><label for="s">每块共享内存 KiB</label><input type="range" id="s" min="8" max="200" step="8" value="96"><span id="svv">96</span></div><div class="row"><label for="l">显存延迟</label><select id="l"><option value="600">600 ns</option><option value="1000">1000 ns</option></select><label for="q">每 warp 挂起加载</label><select id="q"><option value="4">4 条</option><option value="2">2 条</option></select></div>
+<p class="note">看点：① 三根横条是线程槽、寄存器、共享内存，彩色段是每个驻留块；② 驻留块数取三项里最小的；③ 下面比较需要的在途字节和驻留 warp 能提供的，不够就变红；④ 播放：96 KiB → 32 KiB（寄存器仍卡 2 块）→ 64 寄存器（4 块）→ 回 2 块、1000 ns、每 warp 2 条（覆盖 0.65）。</p>
+</main>
+<script src="anim.js"></script>
+<script>
+const sv=$('sv');
+const F=[[128,96,600,4],[128,32,600,4],[64,32,600,4],[128,96,1000,2]];let k=0,custom=null;
+const COL=['var(--accent)','var(--good)','var(--purple)','var(--teal)','var(--warm)','var(--amber)'];
+function draw(){clear(sv);const [r,s,l,q]=custom||F[k];$('r').value=r;$('rv').textContent=r;$('s').value=s;$('svv').textContent=s;$('l').value=l;$('q').value=q;
+ const per={'线程槽':[2048,256],'寄存器':[65536,256*r],'共享内存':[233472,(s+1)*1024]};const lim={};for(const n in per)lim[n]=Math.floor(per[n][0]/per[n][1]);
+ const n=Math.min(lim['线程槽'],lim['寄存器'],lim['共享内存'],32);const warps=n*8,occ=warps/64;
+ txt(`驻留 ${n} 块 = ${warps} 个 warp，占用率 ${(occ*100).toFixed(0)}%`,{x:340,y:26,'text-anchor':'middle',class:'cap'},sv);
+ Object.entries(per).forEach(([name,[tot,need]],i)=>{const y=52+i*52;txt(name,{x:96,y:y+20,'text-anchor':'end',class:'m'},sv);el('rect',{x:106,y,width:420,height:30,fill:'none',stroke:'var(--line)'},sv);
+  for(let b=0;b<Math.min(n,12);b++)el('rect',{x:106+b*need/tot*420,y:y+1,width:Math.max(need/tot*420-1,1),height:28,fill:COL[b%COL.length],opacity:.6},sv);
+  txt(`允许 ${lim[name]} 块`,{x:536,y:y+20,class:'m',fill:lim[name]===n?'var(--bad)':'var(--muted)'},sv)});
+ const need=3.35e12*l*1e-9/132,have=warps*q*512;const cov=have/need;
+ txt(`在途字节：需要 ${(need/1e3).toFixed(1)} KB（延迟 ${l} ns），提供 ${(have/1024).toFixed(0)} KiB（每 warp ${q} 条）`,{x:340,y:236,'text-anchor':'middle',class:'m'},sv);
+ const X=v=>80+v/50000*520;el('rect',{x:80,y:250,width:X(Math.min(have,50000))-80,height:28,fill:cov>=1?'var(--good)':'var(--bad)',opacity:.6},sv);
+ el('line',{x1:X(need),y1:242,x2:X(need),y2:286,stroke:'var(--text)','stroke-width':2},sv);txt('需要',{x:X(need),y:300,'text-anchor':'middle',class:'m'},sv);
+ txt(`覆盖 ${cov.toFixed(2)} 倍${cov>=1?'：藏得住延迟':'：有效带宽 = 在途字节 ÷ 延迟'}`,{x:340,y:330,'text-anchor':'middle',class:'num'},sv)}
+function reset(){k=0;custom=null;draw()}
+function next(){if(custom!==null){custom=null;draw();return true}if(k>=F.length-1)return false;k++;draw();return true}
+const f=()=>{ANIM.stop();custom=[+$('r').value,+$('s').value,+$('l').value,+$('q').value];draw()};['r','s'].forEach(i=>$(i).oninput=f);['l','q'].forEach(i=>$(i).onchange=f);
+setupPlayer({captureSeed:1,reset,next},1700);
+</script><a href="https://wikieden.github.io/ai-books/" style="position:fixed;right:12px;bottom:12px;z-index:99;padding:4px 10px;border-radius:14px;background:rgba(127,127,127,.18);color:inherit;font:13px/1.6 system-ui,sans-serif;text-decoration:none">← 全部讲义书</a>
+</body></html>

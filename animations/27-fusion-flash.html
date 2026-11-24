@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>在线 Softmax</title><link rel="stylesheet" href="anim.css">
+<style>svg text.cap{font-size:15px;font-weight:500}svg text.num{font-size:17px;font-weight:600}</style></head>
+<body><main>
+<h1>第 27 章 · 在线 Softmax 逐块更新</h1>
+<p class="sub">配套讲义：<a href="../lessons/27-fusion-flash.html">第 27 章 · 算子融合与 FlashAttention：中间结果不落地</a>。一行 6 个分数和对应的值，每读一块只更新 m（最大分数）、ℓ（以 m 为基准的指数和）、u（同样权重下的值之和）。</p>
+<div class="panel"><svg id="sv" viewBox="0 0 680 360"></svg></div>
+<div class="row"><button id="play">▶ 播放</button><button id="step">→ 单步</button><button id="reset">↺ 从头开始</button></div>
+<div class="row"><label for="b">每块几个元素</label><select id="b"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="6">6</option></select></div>
+<p class="note">看点：① 上面一排是分数和值，读过的变灰；② 中间三格是当前 m、ℓ、u，最大值变大时显示缩放系数 r；③ 右边比较当前 u/ℓ 和一次处理整行：读完最后一块时相等；④ 块越大步数越少，结果不变。</p>
+</main>
+<script src="anim.js"></script>
+<script>
+const sv=$('sv');
+const S=[0.3,-1.2,2.5,0.7,1.9,-0.4],V=[1,2,3,4,5,6];let blk=1,k=0,custom=null;
+const full=(()=>{const m=Math.max(...S);const w=S.map(x=>Math.exp(x-m));return w.reduce((a,x,i)=>a+x*V[i],0)/w.reduce((a,x)=>a+x,0)})();
+function state(n){let m=-Infinity,l=0,u=0,r=null;for(let s0=0;s0<n;s0+=blk){const s=S.slice(s0,s0+blk),v=V.slice(s0,s0+blk);const mn=Math.max(m,...s);r=m===-Infinity?null:Math.exp(m-mn);const p=s.map(x=>Math.exp(x-mn));l=(r??0)*l+p.reduce((a,x)=>a+x,0);u=(r??0)*u+p.reduce((a,x,i)=>a+x*v[i],0);m=mn}return {m,l,u,r}}
+function draw(){clear(sv);if(custom)blk=custom;$('b').value=blk;const steps=Math.ceil(6/blk);const n=Math.min((k+1)*blk,6);const st=state(n);
+ txt(`每块 ${blk} 个，共 ${steps} 步；已读 ${n} / 6`,{x:340,y:26,'text-anchor':'middle',class:'cap'},sv);
+ S.forEach((s,i)=>{const x=60+i*98,done=i<n,cur=i>=n-blk&&i<n;el('rect',{x,y:48,width:86,height:62,rx:6,fill:cur?'var(--warm)':'none',opacity:cur?.25:1,stroke:'var(--line)'},sv);
+  txt(`s = ${s}`,{x:x+43,y:72,'text-anchor':'middle',class:'m',opacity:done?1:.35},sv);txt(`v = ${V[i]}`,{x:x+43,y:96,'text-anchor':'middle',class:'m',opacity:done?1:.35},sv)});
+ [['m',st.m.toFixed(3)],['ℓ',st.l.toFixed(3)],['u',st.u.toFixed(3)]].forEach(([a,b],i)=>{const x=60+i*150;el('rect',{x,y:140,width:130,height:70,rx:8,fill:'none',stroke:'var(--accent)'},sv);txt(a,{x:x+65,y:166,'text-anchor':'middle',class:'m'},sv);txt(b,{x:x+65,y:196,'text-anchor':'middle',class:'num'},sv)});
+ txt(st.r===null?'第一块：直接初始化':(st.r<1?`最大值变大：旧 ℓ、u 乘 r = ${st.r.toFixed(3)}`:'最大值没变：r = 1'),{x:270,y:240,'text-anchor':'middle',class:'m'},sv);
+ el('rect',{x:510,y:140,width:150,height:110,rx:8,fill:'none',stroke:'var(--good)'},sv);txt('当前 u/ℓ',{x:585,y:164,'text-anchor':'middle',class:'m'},sv);txt((st.u/st.l).toFixed(4),{x:585,y:192,'text-anchor':'middle',class:'num'},sv);
+ txt(`整行 ${full.toFixed(4)}`,{x:585,y:222,'text-anchor':'middle',class:'m'},sv);if(n===6)txt('✓ 相等',{x:585,y:242,'text-anchor':'middle',class:'m',fill:'var(--good)'},sv);
+ txt('旧分数读完即可丢弃，只把 m、ℓ、u 带到下一块',{x:340,y:300,'text-anchor':'middle',class:'m'},sv)}
+function reset(){k=0;custom=null;blk=1;draw()}
+function next(){if(custom!==null){custom=null;k=0;draw();return true}if((k+1)*blk>=6)return false;k++;draw();return true}
+$('b').onchange=()=>{ANIM.stop();custom=+$('b').value;k=Math.ceil(6/custom)-1;draw()};
+setupPlayer({captureSeed:1,reset,next},1300);
+</script><a href="https://wikieden.github.io/ai-books/" style="position:fixed;right:12px;bottom:12px;z-index:99;padding:4px 10px;border-radius:14px;background:rgba(127,127,127,.18);color:inherit;font:13px/1.6 system-ui,sans-serif;text-decoration:none">← 全部讲义书</a>
+</body></html>

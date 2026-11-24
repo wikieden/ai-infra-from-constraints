@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>第 29 章 · 运行时：重叠、CUDA Graph、动态形状与 persistent kernel · 从约束推导 AI Infra</title>
+<script>(function(){try{var d=document.documentElement,t=localStorage.getItem("ab-theme"),f=localStorage.getItem("ab-fs");if(t)d.dataset.theme=t;if(f)d.dataset.fs=f}catch(e){}})();</script>
+<style>:root{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa;--fs:16px}
+@media (prefers-color-scheme:dark){:root:not([data-theme]){--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}}
+:root[data-theme="light"]{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa}
+:root[data-theme="dark"]{--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}
+:root[data-theme="sepia"]{--bg:#f6efe1;--fg:#3b3127;--mute:#7a6a58;--line:#e2d6bf;--card:#fbf6ec;--acc:#a0522d;--code:#ece2cd;--quote:#efe5d2}
+:root[data-theme="green"]{--bg:#e3eddf;--fg:#22301f;--mute:#566650;--line:#c9d8c3;--card:#eef5eb;--acc:#2e7d4f;--code:#d6e4d0;--quote:#dae7d5}
+:root[data-theme="navy"]{--bg:#0f1a2b;--fg:#dde6f3;--mute:#93a4bd;--line:#23324a;--card:#15233a;--acc:#6cc4ff;--code:#1a2a44;--quote:#16243b}
+:root[data-fs="s"]{--fs:15px}
+:root[data-fs="m"]{--fs:16px}
+:root[data-fs="l"]{--fs:18px}
+:root[data-fs="xl"]{--fs:20px}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:var(--fs)/1.75 -apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Helvetica Neue",sans-serif}
+a{color:var(--acc)}
+header.top{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+header.top .in{max-width:860px;margin:0 auto;padding:10px 16px;display:flex;gap:6px 16px;align-items:center;flex-wrap:wrap;font-size:14px}
+header.top .brand{font-weight:600;color:var(--fg);text-decoration:none;margin-right:auto}
+header.top a{text-decoration:none}
+.prefs{display:inline-flex;gap:4px;align-items:center}
+.prefs button,.prefs select,#nav-toggle{font:inherit;font-size:13px;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:2px 8px;cursor:pointer}
+main{max-width:860px;margin:0 auto;padding:24px 16px 72px;overflow-wrap:anywhere}
+h1{font-size:1.75em;line-height:1.35;margin:8px 0 16px} h2{font-size:1.375em;margin:40px 0 12px;padding-top:8px;border-top:1px solid var(--line)} h3{font-size:1.125em;margin:28px 0 8px}
+.layout{display:grid;grid-template-columns:260px minmax(0,1fr);max-width:1180px;margin:0 auto}
+.layout main{margin:0;max-width:880px}
+nav.side{position:sticky;top:49px;align-self:start;max-height:calc(100vh - 49px);overflow-y:auto;padding:20px 8px 40px 16px;border-right:1px solid var(--line);font-size:14px;line-height:1.5}
+nav.side .h{font-weight:600;color:var(--mute);margin:4px 8px 8px;font-size:13px}
+nav.side a{display:block;padding:5px 8px;border-radius:6px;color:var(--fg);text-decoration:none}
+nav.side a:hover{background:var(--code)} nav.side a.cur{background:var(--quote);color:var(--acc);font-weight:600}
+nav.side a .n{color:var(--mute);margin-right:6px;font-variant-numeric:tabular-nums}
+#nav-toggle{display:none}
+@media (max-width:960px){.layout{display:block} nav.side{display:none;position:fixed;z-index:6;top:49px;left:0;bottom:0;width:min(300px,85vw);max-height:none;background:var(--bg);box-shadow:2px 0 12px rgba(0,0,0,.2)} nav.side.open{display:block} #nav-toggle{display:inline-block}}
+.run{display:flex;flex-wrap:wrap;align-items:center;gap:4px 0;margin:4px 0 12px}
+.run details{flex-basis:100%;margin:6px 0 0;font-size:.94em}
+img{max-width:100%;height:auto;border-radius:8px;border:1px solid var(--line);background:#fff}
+blockquote{margin:16px 0;padding:10px 16px;background:var(--quote);border-left:3px solid var(--acc);border-radius:4px;color:var(--mute)}
+blockquote p{margin:4px 0}
+code{background:var(--code);padding:1px 5px;border-radius:4px;font-size:.9em}
+pre{background:var(--code);padding:12px 14px;border-radius:8px;overflow-x:auto} pre code{padding:0;background:none}
+table{border-collapse:collapse;display:block;overflow-x:auto;max-width:100%;margin:12px 0;font-size:.94em}
+th,td{border:1px solid var(--line);padding:6px 10px;vertical-align:top} th{background:var(--code)}
+details{border:1px solid var(--line);border-radius:8px;padding:6px 12px;margin:8px 0;background:var(--card)}
+details[open]{padding-bottom:10px} summary{cursor:pointer;color:var(--acc);font-weight:500}
+mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%}
+.btn{display:inline-block;margin:4px 8px 4px 0;padding:6px 14px;border:1px solid var(--acc);border-radius:999px;text-decoration:none;font-size:14px}
+.pager{display:flex;justify-content:space-between;gap:12px;margin-top:48px;padding-top:16px;border-top:1px solid var(--line);font-size:15px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin:16px 0}
+.card{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;color:inherit;text-decoration:none}
+.card:hover{border-color:var(--acc)} .card img{border:0;border-bottom:1px solid var(--line);border-radius:0;aspect-ratio:16/10;object-fit:contain;width:100%}
+.card .no{color:var(--mute);font-size:13px;padding:8px 12px 0} .card .t{padding:0 12px 12px;font-weight:500;line-height:1.5}
+.lead{font-size:1.06em;color:var(--mute)}
+footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-size:13px}
+</style>
+<script>window.MathJax={tex:{inlineMath:[["\\(","\\)"]],displayMath:[["\\[","\\]"],["$$","$$"]],processEscapes:true,processEnvironments:true}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"></script>
+</head><body>
+<header class="top"><div class="in">
+<button type="button" id="nav-toggle" aria-label="打开章节列表">☰ 章节</button><a class="brand" href="../index.html">从约束推导 AI Infra</a>
+<a href="../lessons/index.html">讲义目录</a>
+<a href="../animations/index.html">动画</a>
+<a href="../review.html">复习卡片</a>
+<a href="../lessons/appendix-glossary.html">缩写表</a>
+<a href="https://wikieden.github.io/ai-books/glossary.html">全局词汇</a>
+<a href="https://wikieden.github.io/ai-books/">← 全部讲义书</a>
+<span class="prefs" title="字号与主题"><button type="button" data-fs-step="-1" aria-label="字号变小">A−</button><button type="button" data-fs-step="1" aria-label="字号变大">A+</button><select id="ab-theme" aria-label="主题色"><option value="">跟随系统</option><option value="light">浅色</option><option value="dark">深色</option><option value="sepia">米黄护眼</option><option value="green">豆沙绿护眼</option><option value="navy">夜蓝</option></select></span>
+</div></header>
+<div class="layout"><nav class="side" aria-label="章节"><div class="h">从约束推导 AI Infra</div><a href="index.html">讲义目录</a><a href="01-six-layers.html"><span class="n">1</span>一次请求走过的六层（进行中）</a><a href="02-request-lifecycle.html"><span class="n">2</span>一次生成请求的处理过程：权重加载一次，每个 token 都要再读一遍</a><a href="03-dataflow-hierarchy.html"><span class="n">3</span>从存储程序到数据流执行：存储层次就像大楼里的厕所</a><a href="04-key-numbers.html"><span class="n">4</span>系统设计的关键数字：容量、算力、带宽、延迟</a><a href="05-estimate.html"><span class="n">5</span>用几个数字估算一次模型执行：算和读各要多久，实测为什么达不到</a><a href="06-architecture.html"><span class="n">6</span>需求如何推动架构：TPU、SmartNIC、Unified Bus</a><a href="07-compute-graph.html"><span class="n">7</span>计算图与张量结构：一个 token 经过一层要算多少</a><a href="08-generation-budget.html"><span class="n">8</span>自回归生成的资源账：存一次的、每步读的、用完就扔的</a><a href="09-kv-sharing.html"><span class="n">9</span>KV 怎么变小 ①：头共享与潜变量压缩</a><a href="10-kv-sparse-linear.html"><span class="n">10</span>KV 怎么变小 ②：窗口、稀疏、线性与混合注意力</a><a href="11-moe.html"><span class="n">11</span>MoE：专家路由与批内权重复用</a><a href="12-network-shape.html"><span class="n">12</span>网络形状：深宽、专家粒度、残差与多 token 预测</a><a href="13-model-comparison.html"><span class="n">13</span>整个模型的资源需求与比较：存多少、算多少、能放几条请求</a><a href="14-workload-arrival.html"><span class="n">14</span>从单次请求到持续到达的负载：什么时候来，比来多少更要紧</a><a href="15-agent-tasks.html"><span class="n">15</span>多轮交互与 Agent 任务：前缀、成功成本、关键路径</a><a href="16-multimodal-realtime.html"><span class="n">16</span>多模态与实时交互：数据换形状，时间有死线（略讲）</a><a href="17-training-rl.html"><span class="n">17</span>训练与强化学习的计算和状态：为什么训练要 6ND、要存 18 字节</a><a href="18-scaling-lifecycle.html"><span class="n">18</span>Scaling law 与全生命周期成本：训练多大、训练多久、服务多少次</a><a href="19-accelerator-basics.html"><span class="n">19</span>从矩阵乘法认识加速器：算多少、搬多少、耗多少电</a><a href="20-compute-units.html"><span class="n">20</span>计算单元：矩阵、向量、流水与低精度</a><a href="21-memory-movement.html"><span class="n">21</span>存储层次与数据搬移：放得下、取得到、来得及</a><a href="22-package-interconnect.html"><span class="n">22</span>多芯片封装与互联：计算放在哪，数据走哪条路</a><a href="23-architecture-evolution.html"><span class="n">23</span>架构演进与专用架构：每一代新增的东西，省掉了哪一笔</a><a href="24-choose-accelerator.html"><span class="n">24</span>根据架构选择加速器：先估下界，再找差距，最后算账</a><a href="25-submit-sync.html"><span class="n">25</span>提交、搬移与同步：从调用返回到结果可用</a><a href="26-tiling-layout.html"><span class="n">26</span>单个算子：分块、布局与切分</a><a href="27-fusion-flash.html"><span class="n">27</span>算子融合与 FlashAttention：中间结果不落地</a><a href="28-compiler.html"><span class="n">28</span>编译器：表达、变换与选择</a><a href="29-runtime.html" class="cur"><span class="n">29</span>运行时：重叠、CUDA Graph、动态形状与 persistent kernel</a><a href="30-request-view.html"><span class="n">30</span>从局部优化到完整请求</a><a href="appendix-glossary.html">附录 · 缩写与术语表</a><a href="appendix-tp-pp-cp.html">附录 · 补充资料：TP、PP、CP，一个模型沿三个方向切给多张卡</a></nav><main>
+<h1 id="29-cuda-graph-persistent-kernel">第 29 章 · 运行时：重叠、CUDA Graph、动态形状与 persistent kernel</h1><div class="run"><a class="btn" href="../animations/29-runtime.html">▶ 打开本章可交互动画</a><a class="btn" href="https://colab.research.google.com/github/wikieden/ai-infra-from-constraints/blob/main/code/notebooks/ch29_runtime.ipynb" target="_blank" rel="noopener">在 Colab 运行本章代码</a><a class="btn" href="../code/notebooks/ch29_runtime.ipynb" download>下载 notebook</a><details><summary>本地运行</summary><pre><code>git clone https://github.com/wikieden/ai-infra-from-constraints
+cd ai-infra-from-constraints/code/notebooks
+pip install jupyterlab torch numpy
+jupyter lab ch29_runtime.ipynb</code></pre><p>也可以下载后直接用 VS Code 打开 .ipynb 运行。需要 GPU 的章节在 Colab 里选「代码执行程序 → 更改运行时类型 → GPU」。</p></details></div>
+<blockquote>
+<p>本章回答：GPU 算快了四倍，为什么整体几乎没变？CUDA Graph 省的是什么，什么时候反而更慢？输入长度一直在变，是每个形状编一份、补齐到几个桶，还是用一份通用程序？两个相邻 kernel 能不能不等前一个全部算完？<br />
+讲解日期：2026-11-24 · 上一章：<a href="../lessons/28-compiler.html">第 28 章 编译器：表达、变换与选择</a> · 下一章：<a href="../lessons/30-request-view.html">第 30 章 从局部优化到完整请求</a><br />
+对应原文：<code>materials/ai-infra-book/manuscripts/05-算子与运行时.md</code> §5.5 L768–L905（例 5-10 到 5-12，图 5-26 到 5-37）<br />
+本章缩写：GIL = Global Interpreter Lock（全局 / 解释器 / 锁，Python）· MPK = Mirage Persistent Kernel（Mirage 持久 kernel，研究系统）· PDL = Programmatic Dependent Launch（程序化 / 依赖 / 启动）。全部缩写见 <a href="../lessons/appendix-glossary.html">缩写与术语表</a></p>
+</blockquote>
+<p>编译器选好了加速器程序，运行时还要每一步准备输入、挑程序、提交、管缓冲。同一份 kernel，提交方式和复用方式不同，总时间就不同。本章接着第 25 章的时间线看主机这一侧。</p>
+<h2 id="_1">讲解</h2>
+<h3 id="gpu-2026-11-24">第一步：GPU 快了，主机就成了瓶颈（2026-11-24）</h3>
+<p><strong>类比：一个厨师配一个传菜员。</strong> 传菜员 20 秒送一道单，厨师 20 秒炒一道；厨师练到 5 秒一道，菜还是 20 秒出一道，因为单子来得慢。</p>
+<p><strong>例 5-10</strong>（原文 L776–L778）：100 段工作，主机准备和加速器计算各 20 μs，准备下一段的数据都已知、资源独立：</p>
+<div class="arithmatex">\[T_{\mathrm{pipe}} = t_h + (n - 1)\max(t_h, t_d) + t_d\]</div>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">主机准备</th>
+<th style="text-align: right;">加速器计算</th>
+<th style="text-align: right;">串行</th>
+<th style="text-align: right;">流水</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">20 μs</td>
+<td style="text-align: right;">20 μs</td>
+<td style="text-align: right;">4000 μs</td>
+<td style="text-align: right;">2020 μs</td>
+</tr>
+<tr>
+<td style="text-align: right;">20 μs</td>
+<td style="text-align: right;">5 μs</td>
+<td style="text-align: right;">2500 μs</td>
+<td style="text-align: right;">2005 μs（只少 15 μs）</td>
+</tr>
+<tr>
+<td style="text-align: right;">5 μs</td>
+<td style="text-align: right;">5 μs</td>
+<td style="text-align: right;">1000 μs</td>
+<td style="text-align: right;">505 μs</td>
+</tr>
+</tbody>
+</table>
+<p><img alt="三种时间线：串行、流水、加速器提速后大部分时间在等主机" src="../figures/29-runtime-host.png" /></p>
+<p><em>图 29-1 · 只画前四段。加速器越快，等下一项任务的时间越长。</em></p>
+<p>两个方向：<strong>少准备</strong>（复用已确定的形状和执行计划）、<strong>早准备</strong>（在上一段执行期间准备下一段，如异步处理上一轮输出）。自回归生成里，下一步要等上一步选出的 token；组 batch、更新语法状态、判断是否停止，各自依赖不同结果，不依赖的那部分可以提前。</p>
+<p><strong>vLLM v0.6.0 的例子</strong>（原文 L792）：发布前剖析，单张 H100 跑 Llama 3 8B，一步里 API 服务器占 33%、调度占 29%，加速器执行只占 38%（API 服务器和引擎在同一 Python 进程里争 GIL）。v0.6.0 把 API 服务器挪到独立进程、引入多步调度、输出处理异步化，8B 吞吐到 v0.5.3 的 2.7 倍、70B 1.8 倍。<strong>没改一个 kernel，没换硬件。</strong></p>
+<p><strong>一句话</strong>：流水的节拍由慢的一侧决定；加速器快过主机以后，再优化 kernel 几乎没用，要减主机准备或把它藏到执行期间。</p>
+<h3 id="cuda-graph2026-11-24">第二步：CUDA Graph：省提交，但要付输入复制（2026-11-24）</h3>
+<p><strong>类比：外卖的固定套餐。</strong> 第一次把一整套点单记下来（capture），以后一键重下（replay），不用每道菜重新填单。但套餐的配送地址是固定的，你搬了家，就得先把东西搬回原地址。</p>
+<p><strong>省的是什么</strong>（原文 L798–L820）：图重放时主机只发一次 graph launch，加速器仍执行图里的每个 kernel。3 次 FFN：</p>
+<table>
+<thead>
+<tr>
+<th>方式</th>
+<th style="text-align: right;">主机 launch</th>
+<th style="text-align: right;">加速器 kernel</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>普通提交</td>
+<td style="text-align: right;">18 次 kernel launch</td>
+<td style="text-align: right;">18</td>
+</tr>
+<tr>
+<td>图重放</td>
+<td style="text-align: right;">3 次 graph launch</td>
+<td style="text-align: right;">18</td>
+</tr>
+<tr>
+<td>融合激活链</td>
+<td style="text-align: right;">15 次</td>
+<td style="text-align: right;">15</td>
+</tr>
+<tr>
+<td>融合 + 图重放</td>
+<td style="text-align: right;">3 次</td>
+<td style="text-align: right;">15</td>
+</tr>
+</tbody>
+</table>
+<p><strong>融合减少加速器 kernel 数，图重放减少主机提交次数</strong>，两件事。</p>
+<p><strong>例 5-11：输入复制何时抵消收益</strong>（原文 L828–L844）：普通执行 = 主机等待 20 + 计算 20 = 40 μs；图重放准备 5 μs，原本能省 15 μs。但图按记录的固定地址读输入，新输入不在那儿就要先复制（读 + 写，按 1792 GB/s）：</p>
+<table>
+<thead>
+<tr>
+<th>输入</th>
+<th style="text-align: right;">复制</th>
+<th style="text-align: right;">图执行总时间</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\([256, 4096]\)</span> BF16，2 MiB</td>
+<td style="text-align: right;">2.3 μs</td>
+<td style="text-align: right;">27.3 μs（省 12.7）</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\([2048, 4096]\)</span>，16 MiB</td>
+<td style="text-align: right;">18.7 μs</td>
+<td style="text-align: right;">43.7 μs（比普通还慢）</td>
+</tr>
+</tbody>
+</table>
+<div class="arithmatex">\[\frac{2X}{B} &lt; 15\ \mu\text{s} \iff X &lt; \frac{15 \times 10^{-6} \times 1.792 \times 10^{12}}{2} \approx 12.8\ \text{MiB}\]</div>
+<p><img alt="图重放省下的是固定一段，复制随输入变长" src="../figures/29-runtime-graph.png" /></p>
+<p><em>图 29-2 · 让上游直接写进图的固定缓冲，或从输入较小的位置开始捕获，都能免掉这次复制。</em></p>
+<p><strong>计划也能复用</strong>（原文 L846）：FlashInfer 把 plan（按本步各请求长度和 KV 位置选 kernel、分任务、排工作区，并把元数据复制到 GPU）和 run 分开。同一步 36 层长度相同，共用一份 plan：36 层注意力从约 2.0 / 2.4 ms 降到 0.72 / 0.75 ms，H2D 从 144 次降到 4 次，kernel 数不变。长度变了必须重新 plan，否则按旧长度算，结果错。</p>
+<p><strong>场景代码</strong>：PyTorch 捕获和重放一张图；新输入要 <code>copy_</code> 进捕获时的静态张量（真实 API）：</p>
+<pre><code class="language-python">import torch
+
+static_x = torch.randn(256, 4096, device=&quot;cuda&quot;, dtype=torch.bfloat16)
+w = torch.randn(4096, 4096, device=&quot;cuda&quot;, dtype=torch.bfloat16)
+torch.matmul(static_x, w)                         # 预热
+g = torch.cuda.CUDAGraph()
+with torch.cuda.graph(g):
+    static_y = static_x @ w                       # 记录：地址固定
+
+new_x = torch.randn_like(static_x)
+static_x.copy_(new_x)                             # 例 5-11 里那次复制
+g.replay()                                        # 一次提交，跑完整张图
+</code></pre>
+<p><strong>补基础</strong>：stream、graph、PDL 见<a href="https://wikieden.github.io/cuda-to-tensor-core/lessons/26-streams-graphs-pdl.html">《CUDA 从线程到 Tensor Core》第 26 章</a>；PyTorch 的 CUDA Graph 见<a href="https://wikieden.github.io/pytorch-inside-out/lessons/28-compile-graphs.html">《PyTorch 从里到外》第 28 章</a>。</p>
+<p><strong>一句话</strong>：图重放省的是一段固定的主机提交时间，输入复制随数据量增长；12.8 MiB 以上（RTX PRO 6000）复制就吃掉了收益。</p>
+<h3 id="2026-11-24">第三步：动态形状：通用、分桶还是特化（2026-11-24）</h3>
+<p><strong>类比：做衣服。</strong> 均码（通用）谁都能穿但不合身；S / M / L 三档（分桶）要多做几种版型、有人穿得宽松；量体裁衣（特化）每件都合身，但每来一个新身材就要打一次版。</p>
+<p><strong>例 5-12</strong>（原文 L852–L874）：10 次 FFN 一组：8 次 256 行、1 次 1536 行、1 次 2048 行，共 5632 行；分成 512、2048 两个桶，实际执行 8192 行，多算 45%。每行 <span class="arithmatex">\(6HF\)</span> FLOPs，在 RTX PRO 6000 上：</p>
+<table>
+<thead>
+<tr>
+<th>策略</th>
+<th style="text-align: right;">有效处理率</th>
+<th style="text-align: right;">一次性准备 <span class="arithmatex">\(P\)</span></th>
+<th style="text-align: right;">每组执行 <span class="arithmatex">\(T\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>通用（5632 行）</td>
+<td style="text-align: right;">100 TFLOP/s（MFU 20%）</td>
+<td style="text-align: right;">100 ms</td>
+<td style="text-align: right;">17.0 ms</td>
+</tr>
+<tr>
+<td>分桶（8192 行）</td>
+<td style="text-align: right;">200 TFLOP/s（40%）</td>
+<td style="text-align: right;">400 ms</td>
+<td style="text-align: right;">12.4 ms</td>
+</tr>
+<tr>
+<td>逐形状特化（5632 行）</td>
+<td style="text-align: right;">250 TFLOP/s（50%）</td>
+<td style="text-align: right;">900 ms</td>
+<td style="text-align: right;">6.8 ms</td>
+</tr>
+</tbody>
+</table>
+<div class="arithmatex">\[T_{\mathrm{total}} = P + rT\]</div>
+<p><img alt="截距是准备时间，斜率是每组执行时间；最省时的策略随组数换手" src="../figures/29-runtime-buckets.png" /></p>
+<p><em>图 29-3 · 1–64 组通用最省，65–89 组分桶最省，90 组起特化最省。</em></p>
+<ul>
+<li>跑 70 组：1.29 / 1.27 / 1.38 s，分桶最短；特化每组更快，但省下的还没抵掉多出的准备。</li>
+<li>程序已经缓存时准备成本是 0，特化从第一组起最快：选择<strong>同时依赖形状频数和缓存状态</strong>。</li>
+<li>自动调优也一样（原文 L876）：搜索 10 分钟、每次省 5 μs，要 <span class="arithmatex">\(600 / (5 \times 10^{-6}) = 1.2 \times 10^8\)</span> 次调用才回本：每秒 1 万次约 3.3 小时，每秒 100 次约 14 天。</li>
+</ul>
+<p><strong>场景代码</strong>：<code>torch.compile</code> 的 <code>dynamic=True</code> 走通用路径，<code>mark_dynamic</code> 指定哪一维会变；不标的话每个新形状可能重编一次（真实 API）：</p>
+<pre><code class="language-python">import torch
+
+ffn = torch.compile(model.mlp, dynamic=False)      # 每个新长度触发一次重编（特化）
+x = torch.randn(256, 4096, device=&quot;cuda&quot;)
+torch._dynamo.mark_dynamic(x, 0)                   # 第 0 维会变：编一份通用的
+y = torch.compile(model.mlp)(x)
+</code></pre>
+<p><strong>一句话</strong>：总时间 = 准备 + 组数 × 每组；执行越快的方案准备越贵，哪个最省取决于会跑多少组、程序是否已缓存。</p>
+<h3 id="persistent-kernel-kernel2026-11-24">第四步：persistent kernel：按块交接，不等整个 kernel（2026-11-24）</h3>
+<p><strong>类比：流水线上的零件按个传递。</strong> 不必等前一道工序把一整箱都做完才开下一道；做好一个就递一个。但每递一次要签收（领任务、发完成标志），这也花时间。</p>
+<p>原文 L882–L904：<strong>persistent kernel</strong> 一直驻留在加速器上，从队列领任务，按完成标志判断依赖是否就绪。up 投影接 SiLU，512 个 token 分 8 块（每块 64 行），RTX PRO 6000：</p>
+<ul>
+<li>每块投影 <span class="arithmatex">\(2 \times 64 \times 4096 \times 12288 \approx 6.44\)</span> GFLOPs ÷ 503.8 TFLOP/s ≈ 12.8 μs；每块激活读写 <span class="arithmatex">\(64 \times 12288 \times 4\)</span> B ÷ 1792 GB/s ≈ 1.76 μs。</li>
+<li><strong>两次 launch、整段等待</strong>：<span class="arithmatex">\(2 \times 5 + 8 \times (12.8 + 1.76) \approx 126\)</span> μs。</li>
+<li><strong>一次 launch、按块</strong>：领任务（一次原子加，约 0.15 μs）+ 发完成标志（跨 SM 交接，约 0.37 μs）= 每任务 0.52 μs；<span class="arithmatex">\(5 + 8 \times 13.3 + 2.28 \approx 114\)</span> μs，约 1.1 倍。</li>
+</ul>
+<p><img alt="按块启动激活：投影首尾相接，激活只在每块投影之后短暂工作" src="../figures/29-runtime-persistent.png" /></p>
+<p><em>图 29-4 · 省下约 12.6 μs = 少一次 5 μs launch + 7 块激活藏进投影，再减去关键路径上 4.7 μs 的任务开销。两段越接近，按块重叠省得越多。</em></p>
+<p><strong>kernel 边界在加速器一侧有多贵</strong>（原文 L902–L904）：CUDA Graph 里两个空 kernel 的间隔约 430 ns，PDL 约 370 ns，和第 21 章的一对一跨 SM 交接相当。decode 时 batch 1，每个矩阵—向量乘都铺满所有 SM，每个边界都是一次全 SM 交接：64 个 <span class="arithmatex">\(4096 \times 4096\)</span> 投影串成依赖链，每个边界多 1.2–2.3 μs，主要是在等最慢的 SM；改成各 SM 从计数器领下一批行（快的多做），降到 0.74–1.06 μs，接近全 SM 汇合约 1 μs 的下限。<strong>这部分是依赖本身的代价，换提交方式消不掉。</strong></p>
+<p><strong>一句话</strong>：persistent kernel 省 launch、让相邻算子按块重叠，节拍仍由慢的阶段决定；跨 SM 的依赖往返省不掉。</p>
+<h2 id="_2">动画演示：通用、分桶、特化，跑多少组换手</h2>
+<p><img alt="准备成本与累计执行时间" src="../animations/29-runtime.gif" /></p>
+<p>可交互版：<a href="../animations/29-runtime.html">animations/29-runtime.html</a>（滑块：组数 1–150；开关：程序已缓存）。</p>
+<p><strong>怎么看</strong>：</p>
+<ol>
+<li>三条线是三种策略的总时间 <span class="arithmatex">\(P + rT\)</span>：截距是准备，斜率是每组执行（第三步）；</li>
+<li>竖线是当前组数，右边列出三种策略的总时间，最省的高亮；</li>
+<li>播放时组数 10 → 65 → 70 → 90 → 150，看最省的策略从通用换到分桶、再换到特化；</li>
+<li>打开"已缓存"，准备都变成 0，特化从第一组起最省。</li>
+</ol>
+<h2 id="_3">练习与作答记录</h2>
+<p><strong>题 1</strong>（第一步）：200 段，主机准备 12 μs、加速器 8 μs。串行和流水各多久？加速器再快一倍呢？主机快一倍呢？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p><strong>题 2</strong>（第二步）：普通执行 = 主机等待 30 + 计算 25 μs；图重放准备 6 μs。复制带宽 1008 GB/s（RTX 4090），输入多大时图重放不再省时间？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p><strong>题 3</strong>（第三步）：三种策略：准备 50 / 300 / 1000 ms，每组 20 / 15 / 8 ms。各在多少组范围内最省？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p>原书实验 5-7、5-8（L1013、L1017：小形状次数改成 4、RTX 4090 上的图复制临界值）。想多练可以做。</p>
+<h2 id="_4">口诀</h2>
+<blockquote>
+<p>厨师快了单子没快，菜还是按单子的节奏出；<br />
+套餐一键重下，搬了家得先把东西搬回原址；<br />
+均码、三档、量体裁衣：做得多就裁，做得少就穿均码；<br />
+做好一个递一个，签收也要时间，跨 SM 那一下省不掉。</p>
+</blockquote>
+<h2 id="_5">本章复习卡片</h2>
+<p><a href="../review.html">I112</a>（例 5-10 主机流水与 vLLM v0.6.0）、<a href="../review.html">I113</a>（CUDA Graph 省提交 vs 融合省 kernel；12.8 MiB 临界）、<a href="../review.html">I114</a>（例 5-12 通用 / 分桶 / 特化与 <span class="arithmatex">\(P + rT\)</span>）、<a href="../review.html">I115</a>（persistent kernel 126 → 114 μs 与依赖本身的代价）。练习做完后，按答错、卡住的地方再补。</p>
+<h2 id="_6">附录 · 延伸阅读</h2>
+<blockquote>
+<p>留给以后深入学习用，不影响本章主线。★ 是建议先读的。</p>
+</blockquote>
+<h3 id="_7">推荐阅读</h3>
+<table>
+<thead>
+<tr>
+<th>读什么</th>
+<th>读哪里</th>
+<th>读它为了什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>★ AII 第 5 章</td>
+<td>§5.5 L768–L905</td>
+<td>本章原文</td>
+</tr>
+<tr>
+<td>vLLM 博客，v0.6.0 性能更新（2024-09）</td>
+<td>剖析与三项改动</td>
+<td>主机开销占步间隔的实例（原文 <code>[^vllm060]</code>）</td>
+</tr>
+<tr>
+<td>CUDA Programming Guide</td>
+<td>CUDA Graphs</td>
+<td>捕获、更新、重放</td>
+</tr>
+<tr>
+<td>FlashInfer 文档</td>
+<td>plan / run 接口</td>
+<td>执行计划复用</td>
+</tr>
+<tr>
+<td>Mirage Persistent Kernel 论文</td>
+<td>系统设计</td>
+<td>任务队列式 persistent kernel（原文 <code>[^persistent]</code>）</td>
+</tr>
+<tr>
+<td><a href="https://wikieden.github.io/cuda-to-tensor-core/lessons/26-streams-graphs-pdl.html">《CUDA 从线程到 Tensor Core》第 26 章</a></td>
+<td>stream、graph、PDL</td>
+<td>CUDA 侧写法</td>
+</tr>
+<tr>
+<td><a href="https://wikieden.github.io/pytorch-inside-out/lessons/28-compile-graphs.html">《PyTorch 从里到外》第 28 章</a></td>
+<td>compile 与 CUDA Graph</td>
+<td>框架侧</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_8">数学原理</h3>
+<ul>
+<li><strong>两段流水</strong>：<span class="arithmatex">\(T = t_1 + (n-1)\max(t_1, t_2) + t_2\)</span>，和第 27 章双缓冲同一个式子。</li>
+<li><strong>直线比较</strong>：<span class="arithmatex">\(P_i + rT_i\)</span>，两两相等处 <span class="arithmatex">\(r^* = \Delta P / \Delta T\)</span>。</li>
+<li><strong>回本次数</strong>：准备成本 ÷ 每次节省。</li>
+</ul>
+<h3 id="_9">公式清单</h3>
+<table>
+<thead>
+<tr>
+<th>公式</th>
+<th>意思</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\(T_{\mathrm{pipe}} = t_h + (n-1)\max(t_h, t_d) + t_d\)</span></td>
+<td>主机—加速器流水</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(2X/B &lt; \Delta T_{\mathrm{submit}}\)</span></td>
+<td>图重放仍省时间的输入上限</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(T_{\mathrm{total}} = P + rT\)</span>，<span class="arithmatex">\(r^* = \Delta P/\Delta T\)</span></td>
+<td>准备与执行的换手点</td>
+</tr>
+<tr>
+<td>回本调用数 = 搜索时间 ÷ 每次节省</td>
+<td>自动调优</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_10">代码对照：把本章的数字用代码算一遍</h3>
+<blockquote>
+<p>纯 Python，不需要 GPU。代码在仓库本地 <code>ai-infra/solutions/chapter-code/ch29_runtime.py</code>，配套测试 <code>tests/test_ch29.py</code>：</p>
+<p><code>bash  
+cd ai-infra/solutions/chapter-code  
+uv run python ch29_runtime.py   # 一步一步打印  
+uv run pytest tests/test_ch29.py</code></p>
+</blockquote>
+<p><strong>讲义 ↔ 代码</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>讲义</th>
+<th>公式</th>
+<th>写法</th>
+<th>跑出来</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第一步 例 5-10</td>
+<td>两段流水</td>
+<td><code>host_pipeline(100, 20, 5)</code></td>
+<td>4000 / 2020 / 2005 / 505 μs</td>
+</tr>
+<tr>
+<td>第二步 例 5-11</td>
+<td>复制 <span class="arithmatex">\(2X/B\)</span></td>
+<td><code>graph_total_us(mib)</code>、<code>graph_breakeven_bytes()</code></td>
+<td>27.3 / 43.7 μs；12.8 MiB</td>
+</tr>
+<tr>
+<td>第三步 例 5-12</td>
+<td><span class="arithmatex">\(P + rT\)</span></td>
+<td><code>group_ms</code>、<code>total_ms</code>、<code>best(r)</code></td>
+<td>17.0 / 12.4 / 6.8 ms；65 / 90 组</td>
+</tr>
+<tr>
+<td>第四步 persistent</td>
+<td></td>
+<td><code>persistent_us()</code></td>
+<td>126 → 114 μs</td>
+</tr>
+</tbody>
+</table>
+<p><strong>关键几行</strong>：</p>
+<pre><code class="language-python">STRATS = {&quot;通用&quot;: (100, 5632, 100), &quot;分桶&quot;: (400, 8192, 200), &quot;特化&quot;: (900, 5632, 250)}
+
+def total_ms(name, r):
+    prep, rows, tf = STRATS[name]
+    return prep + r * group_ms(rows, tf)     # 截距 + 组数 × 斜率
+</code></pre>
+<p><strong>代码里才看得到的 3 件事</strong>：</p>
+<ol>
+<li>换手点用未取整的每组时间算：分桶比通用每组省 4.62 ms，300 / 4.62 = 64.9，所以第 65 组起分桶更省。</li>
+<li><code>graph_total_us</code> 的复制按读 + 写共 <span class="arithmatex">\(2X\)</span> 字节共用一份显存带宽。</li>
+<li>persistent 那段最后一块激活不能藏，所以末尾要加一次 1.76 + 0.52 μs。</li>
+</ol>
+<p><strong>自己改一改</strong>（不影响练习答案）：</p>
+<ul>
+<li>给 <code>STRATS</code> 加一种"三个桶（512、1024、2048）"，准备 600 ms，算它在哪些组数最省。</li>
+<li>把 <code>persistent_us</code> 的块数从 8 改成 4、16、32，任务开销开始吃掉收益的块数是多少？</li>
+<li>用 <code>host_pipeline</code> 算 vLLM 那个例子：执行只占 38% 时，主机开销减半能快多少？</li>
+</ul><nav class="pager"><a href="28-compiler.html">← 第 28 章 · 编译器：表达、变换与选择</a><a href="30-request-view.html">第 30 章 · 从局部优化到完整请求 →</a></nav>
+</main></div>
+<footer>来自个人学习仓库的对话讲义，含练习作答记录。源码：<a href="https://github.com/wikieden/ai-infra-from-constraints">github.com/wikieden/ai-infra-from-constraints</a>。更多讲义书：<a href="https://wikieden.github.io/ai-books/">Physical AI 0-1-♾️（合集）</a></footer>
+<script>(function(){var d=document.documentElement,K=["s","m","l","xl"];
+function save(k,v){try{v?localStorage.setItem(k,v):localStorage.removeItem(k)}catch(e){}}
+var s=document.getElementById("ab-theme");if(s){s.value=d.dataset.theme||"";s.onchange=function(){if(s.value)d.dataset.theme=s.value;else delete d.dataset.theme;save("ab-theme",s.value)}}
+document.querySelectorAll("[data-fs-step]").forEach(function(b){b.onclick=function(){var i=K.indexOf(d.dataset.fs||"m")+(+b.dataset.fsStep);i=Math.max(0,Math.min(K.length-1,i));d.dataset.fs=K[i];save("ab-fs",K[i])}});
+var nb=document.getElementById("nav-toggle"),side=document.querySelector("nav.side");if(nb&&side){nb.onclick=function(){side.classList.toggle("open")}}
+var cur=side&&side.querySelector(".cur");if(cur)cur.scrollIntoView({block:"center"});
+})();</script>
+</body></html>
