@@ -865,13 +865,8 @@ footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-
 </tr>
 <tr>
 <td>micro-batch</td>
-<td>一批数据再切成的小份，让流水线各段同时有活干</td>
-<td><a href="../lessons/appendix-tp-pp-cp.html">补充 · TP/PP/CP</a></td>
-</tr>
-<tr>
-<td>micro-batch</td>
-<td>一次前向和反向实际处理的数据子集；累计若干个再更新一次</td>
-<td><a href="../lessons/17-training-rl.html">17</a></td>
+<td>一批数据再切成的小份，每份做一次前向和反向：流水线里让各段同时有活干，训练里累计若干份再更新一次参数</td>
+<td><a href="../lessons/appendix-tp-pp-cp.html">补充 · TP/PP/CP</a>、<a href="../lessons/17-training-rl.html">17</a></td>
 </tr>
 <tr>
 <td>prefill（预填充）</td>
