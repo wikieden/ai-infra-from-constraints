@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="330" viewBox="0 0 860 330">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="16.0" y="26.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="17" fill="#1f2937" text-anchor="start" font-weight="bold">压缩与索引：先把多个 token 压成条目，查询时先扫索引、再读选中的条目</text>
+<text x="16.0" y="320.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">示意：8 个 token 每 4 个压成 1 条（省略 V4 CSA 的相邻块重叠）。V4-Flash 的 CSA 层每次最多读 512 条主记录 + 128 个窗口位置。</text>
+<text x="30.0" y="70.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="13" fill="#1f2937" text-anchor="start" font-weight="bold">压缩</text>
+<rect x="90.0" y="56.0" width="38.0" height="28.0" rx="3" fill="#f3f4f6" stroke="#6b7280" stroke-width="1.4" opacity="1"/>
+<text x="109.0" y="75.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#1f2937" text-anchor="middle" font-weight="normal">t1</text>
+<rect x="136.0" y="56.0" width="38.0" height="28.0" rx="3" fill="#f3f4f6" stroke="#6b7280" stroke-width="1.4" opacity="1"/>
+<text x="155.0" y="75.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#1f2937" text-anchor="middle" font-weight="normal">t2</text>
+<rect x="182.0" y="56.0" width="38.0" height="28.0" rx="3" fill="#f3f4f6" stroke="#6b7280" stroke-width="1.4" opacity="1"/>
+<text x="201.0" y="75.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#1f2937" text-anchor="middle" font-weight="normal">t3</text>
+<rect x="228.0" y="56.0" width="38.0" height="28.0" rx="3" fill="#f3f4f6" stroke="#6b7280" stroke-width="1.4" opacity="1"/>
+<text x="247.0" y="75.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#1f2937" text-anchor="middle" font-weight="normal">t4</text>
+<rect x="274.0" y="56.0" width="38.0" height="28.0" rx="3" fill="#f3f4f6" stroke="#6b7280" stroke-width="1.4" opacity="1"/>
+<text x="293.0" y="75.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#1f2937" text-anchor="middle" font-weight="normal">t5</text>
+<rect x="320.0" y="56.0" width="38.0" height="28.0" rx="3" fill="#f3f4f6" stroke="#6b7280" stroke-width="1.4" opacity="1"/>
+<text x="339.0" y="75.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#1f2937" text-anchor="middle" font-weight="normal">t6</text>
+<rect x="366.0" y="56.0" width="38.0" height="28.0" rx="3" fill="#f3f4f6" stroke="#6b7280" stroke-width="1.4" opacity="1"/>
+<text x="385.0" y="75.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#1f2937" text-anchor="middle" font-weight="normal">t7</text>
+<rect x="412.0" y="56.0" width="38.0" height="28.0" rx="3" fill="#f3f4f6" stroke="#6b7280" stroke-width="1.4" opacity="1"/>
+<text x="431.0" y="75.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#1f2937" text-anchor="middle" font-weight="normal">t8</text>
+<rect x="120.0" y="120.0" width="120.0" height="40.0" rx="8" fill="#ccfbf1" stroke="#0d9488" stroke-width="1.4" opacity="1"/>
+<text x="180.0" y="136.5" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="middle" font-weight="bold">条目 1</text>
+<text x="180.0" y="152.1" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#4b5563" text-anchor="middle" font-weight="normal">主 512 + 索引 128</text>
+<line x1="170.0" y1="84.0" x2="180.0" y2="120.0" stroke="#6b7280" stroke-width="1.6"/>
+<polygon points="180.0,120.0 173.8,113.5 181.9,111.2" fill="#6b7280" stroke="#6b7280" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<rect x="304.0" y="120.0" width="120.0" height="40.0" rx="8" fill="#ccfbf1" stroke="#0d9488" stroke-width="1.4" opacity="1"/>
+<text x="364.0" y="136.5" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="middle" font-weight="bold">条目 2</text>
+<text x="364.0" y="152.1" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#4b5563" text-anchor="middle" font-weight="normal">主 512 + 索引 128</text>
+<line x1="354.0" y1="84.0" x2="364.0" y2="120.0" stroke="#6b7280" stroke-width="1.6"/>
+<polygon points="364.0,120.0 357.8,113.5 365.9,111.2" fill="#6b7280" stroke="#6b7280" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<text x="30.0" y="220.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="13" fill="#1f2937" text-anchor="start" font-weight="bold">查询</text>
+<rect x="90.0" y="200.0" width="90.0" height="40.0" rx="8" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<text x="135.0" y="223.8" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="middle" font-weight="bold">新查询</text>
+<rect x="230.0" y="196.0" width="190.0" height="48.0" rx="8" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<text x="325.0" y="223.6" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="middle" font-weight="bold">① 扫全部索引条目打分</text>
+<rect x="470.0" y="196.0" width="170.0" height="48.0" rx="8" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.4" opacity="1"/>
+<text x="555.0" y="223.6" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="middle" font-weight="bold">② 选 top-k 条</text>
+<rect x="690.0" y="196.0" width="150.0" height="48.0" rx="8" fill="#dcfce7" stroke="#16a34a" stroke-width="1.4" opacity="1"/>
+<text x="765.0" y="216.5" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="middle" font-weight="bold">③ 读选中的主记录</text>
+<text x="765.0" y="232.1" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#4b5563" text-anchor="middle" font-weight="normal">+ 最近 128 个窗口</text>
+<line x1="180.0" y1="220.0" x2="230.0" y2="220.0" stroke="#4b5563" stroke-width="1.6"/>
+<polygon points="230.0,220.0 222.1,224.2 222.1,215.8" fill="#4b5563" stroke="#4b5563" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<line x1="420.0" y1="220.0" x2="470.0" y2="220.0" stroke="#4b5563" stroke-width="1.6"/>
+<polygon points="470.0,220.0 462.1,224.2 462.1,215.8" fill="#4b5563" stroke="#4b5563" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<line x1="640.0" y1="220.0" x2="690.0" y2="220.0" stroke="#4b5563" stroke-width="1.6"/>
+<polygon points="690.0,220.0 682.1,224.2 682.1,215.8" fill="#4b5563" stroke="#4b5563" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<text x="325.0" y="270.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#ea580c" text-anchor="middle" font-weight="normal">扫描量随条目数增长</text>
+<text x="765.0" y="270.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#16a34a" text-anchor="middle" font-weight="normal">读取量有上限</text>
+</svg>

@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>第 07 章 · 计算图与张量结构：一个 token 经过一层要算多少 · 从约束推导 AI Infra</title>
+<script>(function(){try{var d=document.documentElement,t=localStorage.getItem("ab-theme"),f=localStorage.getItem("ab-fs");if(t)d.dataset.theme=t;if(f)d.dataset.fs=f}catch(e){}})();</script>
+<style>:root{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa;--fs:16px}
+@media (prefers-color-scheme:dark){:root:not([data-theme]){--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}}
+:root[data-theme="light"]{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa}
+:root[data-theme="dark"]{--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}
+:root[data-theme="sepia"]{--bg:#f6efe1;--fg:#3b3127;--mute:#7a6a58;--line:#e2d6bf;--card:#fbf6ec;--acc:#a0522d;--code:#ece2cd;--quote:#efe5d2}
+:root[data-theme="green"]{--bg:#e3eddf;--fg:#22301f;--mute:#566650;--line:#c9d8c3;--card:#eef5eb;--acc:#2e7d4f;--code:#d6e4d0;--quote:#dae7d5}
+:root[data-theme="navy"]{--bg:#0f1a2b;--fg:#dde6f3;--mute:#93a4bd;--line:#23324a;--card:#15233a;--acc:#6cc4ff;--code:#1a2a44;--quote:#16243b}
+:root[data-fs="s"]{--fs:15px}
+:root[data-fs="m"]{--fs:16px}
+:root[data-fs="l"]{--fs:18px}
+:root[data-fs="xl"]{--fs:20px}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:var(--fs)/1.75 -apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Helvetica Neue",sans-serif}
+a{color:var(--acc)}
+header.top{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+header.top .in{max-width:860px;margin:0 auto;padding:10px 16px;display:flex;gap:6px 16px;align-items:center;flex-wrap:wrap;font-size:14px}
+header.top .brand{font-weight:600;color:var(--fg);text-decoration:none;margin-right:auto}
+header.top a{text-decoration:none}
+.prefs{display:inline-flex;gap:4px;align-items:center}
+.prefs button,.prefs select,#nav-toggle{font:inherit;font-size:13px;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:2px 8px;cursor:pointer}
+main{max-width:860px;margin:0 auto;padding:24px 16px 72px;overflow-wrap:anywhere}
+h1{font-size:1.75em;line-height:1.35;margin:8px 0 16px} h2{font-size:1.375em;margin:40px 0 12px;padding-top:8px;border-top:1px solid var(--line)} h3{font-size:1.125em;margin:28px 0 8px}
+.layout{display:grid;grid-template-columns:260px minmax(0,1fr);max-width:1180px;margin:0 auto}
+.layout main{margin:0;max-width:880px}
+nav.side{position:sticky;top:49px;align-self:start;max-height:calc(100vh - 49px);overflow-y:auto;padding:20px 8px 40px 16px;border-right:1px solid var(--line);font-size:14px;line-height:1.5}
+nav.side .h{font-weight:600;color:var(--mute);margin:4px 8px 8px;font-size:13px}
+nav.side a{display:block;padding:5px 8px;border-radius:6px;color:var(--fg);text-decoration:none}
+nav.side a:hover{background:var(--code)} nav.side a.cur{background:var(--quote);color:var(--acc);font-weight:600}
+nav.side a .n{color:var(--mute);margin-right:6px;font-variant-numeric:tabular-nums}
+#nav-toggle{display:none}
+@media (max-width:960px){.layout{display:block} nav.side{display:none;position:fixed;z-index:6;top:49px;left:0;bottom:0;width:min(300px,85vw);max-height:none;background:var(--bg);box-shadow:2px 0 12px rgba(0,0,0,.2)} nav.side.open{display:block} #nav-toggle{display:inline-block}}
+.run{display:flex;flex-wrap:wrap;align-items:center;gap:4px 0;margin:4px 0 12px}
+.run details{flex-basis:100%;margin:6px 0 0;font-size:.94em}
+img{max-width:100%;height:auto;border-radius:8px;border:1px solid var(--line);background:#fff}
+blockquote{margin:16px 0;padding:10px 16px;background:var(--quote);border-left:3px solid var(--acc);border-radius:4px;color:var(--mute)}
+blockquote p{margin:4px 0}
+code{background:var(--code);padding:1px 5px;border-radius:4px;font-size:.9em}
+pre{background:var(--code);padding:12px 14px;border-radius:8px;overflow-x:auto} pre code{padding:0;background:none}
+table{border-collapse:collapse;display:block;overflow-x:auto;max-width:100%;margin:12px 0;font-size:.94em}
+th,td{border:1px solid var(--line);padding:6px 10px;vertical-align:top} th{background:var(--code)}
+details{border:1px solid var(--line);border-radius:8px;padding:6px 12px;margin:8px 0;background:var(--card)}
+details[open]{padding-bottom:10px} summary{cursor:pointer;color:var(--acc);font-weight:500}
+mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%}
+.btn{display:inline-block;margin:4px 8px 4px 0;padding:6px 14px;border:1px solid var(--acc);border-radius:999px;text-decoration:none;font-size:14px}
+.pager{display:flex;justify-content:space-between;gap:12px;margin-top:48px;padding-top:16px;border-top:1px solid var(--line);font-size:15px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin:16px 0}
+.card{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;color:inherit;text-decoration:none}
+.card:hover{border-color:var(--acc)} .card img{border:0;border-bottom:1px solid var(--line);border-radius:0;aspect-ratio:16/10;object-fit:contain;width:100%}
+.card .no{color:var(--mute);font-size:13px;padding:8px 12px 0} .card .t{padding:0 12px 12px;font-weight:500;line-height:1.5}
+.lead{font-size:1.06em;color:var(--mute)}
+footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-size:13px}
+</style>
+<script>window.MathJax={tex:{inlineMath:[["\\(","\\)"]],displayMath:[["\\[","\\]"],["$$","$$"]],processEscapes:true,processEnvironments:true}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"></script>
+</head><body>
+<header class="top"><div class="in">
+<button type="button" id="nav-toggle" aria-label="打开章节列表">☰ 章节</button><a class="brand" href="../index.html">从约束推导 AI Infra</a>
+<a href="../lessons/index.html">讲义目录</a>
+<a href="../animations/index.html">动画</a>
+<a href="../review.html">复习卡片</a>
+<a href="../lessons/appendix-glossary.html">缩写表</a>
+<a href="https://wikieden.github.io/ai-books/glossary.html">全局词汇</a>
+<a href="https://wikieden.github.io/ai-books/">← 全部讲义书</a>
+<span class="prefs" title="字号与主题"><button type="button" data-fs-step="-1" aria-label="字号变小">A−</button><button type="button" data-fs-step="1" aria-label="字号变大">A+</button><select id="ab-theme" aria-label="主题色"><option value="">跟随系统</option><option value="light">浅色</option><option value="dark">深色</option><option value="sepia">米黄护眼</option><option value="green">豆沙绿护眼</option><option value="navy">夜蓝</option></select></span>
+</div></header>
+<div class="layout"><nav class="side" aria-label="章节"><div class="h">从约束推导 AI Infra</div><a href="index.html">讲义目录</a><a href="01-six-layers.html"><span class="n">1</span>一次请求走过的六层（进行中）</a><a href="02-request-lifecycle.html"><span class="n">2</span>一次生成请求的处理过程：权重加载一次，每个 token 都要再读一遍</a><a href="03-dataflow-hierarchy.html"><span class="n">3</span>从存储程序到数据流执行：存储层次就像大楼里的厕所</a><a href="04-key-numbers.html"><span class="n">4</span>系统设计的关键数字：容量、算力、带宽、延迟</a><a href="05-estimate.html"><span class="n">5</span>用几个数字估算一次模型执行：算和读各要多久，实测为什么达不到</a><a href="06-architecture.html"><span class="n">6</span>需求如何推动架构：TPU、SmartNIC、Unified Bus</a><a href="07-compute-graph.html" class="cur"><span class="n">7</span>计算图与张量结构：一个 token 经过一层要算多少</a><a href="08-generation-budget.html"><span class="n">8</span>自回归生成的资源账：存一次的、每步读的、用完就扔的</a><a href="09-kv-sharing.html"><span class="n">9</span>KV 怎么变小 ①：头共享与潜变量压缩</a><a href="10-kv-sparse-linear.html"><span class="n">10</span>KV 怎么变小 ②：窗口、稀疏、线性与混合注意力</a><a href="11-moe.html"><span class="n">11</span>MoE：专家路由与批内权重复用</a><a href="12-network-shape.html"><span class="n">12</span>网络形状：深宽、专家粒度、残差与多 token 预测</a><a href="13-model-comparison.html"><span class="n">13</span>整个模型的资源需求与比较：存多少、算多少、能放几条请求</a><a href="14-workload-arrival.html"><span class="n">14</span>从单次请求到持续到达的负载：什么时候来，比来多少更要紧</a><a href="15-agent-tasks.html"><span class="n">15</span>多轮交互与 Agent 任务：前缀、成功成本、关键路径</a><a href="16-multimodal-realtime.html"><span class="n">16</span>多模态与实时交互：数据换形状，时间有死线（略讲）</a><a href="17-training-rl.html"><span class="n">17</span>训练与强化学习的计算和状态：为什么训练要 6ND、要存 18 字节</a><a href="18-scaling-lifecycle.html"><span class="n">18</span>Scaling law 与全生命周期成本：训练多大、训练多久、服务多少次</a><a href="19-accelerator-basics.html"><span class="n">19</span>从矩阵乘法认识加速器：算多少、搬多少、耗多少电</a><a href="20-compute-units.html"><span class="n">20</span>计算单元：矩阵、向量、流水与低精度</a><a href="21-memory-movement.html"><span class="n">21</span>存储层次与数据搬移：放得下、取得到、来得及</a><a href="22-package-interconnect.html"><span class="n">22</span>多芯片封装与互联：计算放在哪，数据走哪条路</a><a href="23-architecture-evolution.html"><span class="n">23</span>架构演进与专用架构：每一代新增的东西，省掉了哪一笔</a><a href="24-choose-accelerator.html"><span class="n">24</span>根据架构选择加速器：先估下界，再找差距，最后算账</a><a href="appendix-glossary.html">附录 · 缩写与术语表</a><a href="appendix-tp-pp-cp.html">附录 · 补充资料：TP、PP、CP，一个模型沿三个方向切给多张卡</a></nav><main>
+<h1 id="07-token">第 07 章 · 计算图与张量结构：一个 token 经过一层要算多少</h1><div class="run"><a class="btn" href="../animations/07-compute-graph.html">▶ 打开本章可交互动画</a><a class="btn" href="https://colab.research.google.com/github/wikieden/ai-infra-from-constraints/blob/main/code/notebooks/ch07_compute_graph.ipynb" target="_blank" rel="noopener">在 Colab 运行本章代码</a><a class="btn" href="../code/notebooks/ch07_compute_graph.ipynb" download>下载 notebook</a><details><summary>本地运行</summary><pre><code>git clone https://github.com/wikieden/ai-infra-from-constraints
+cd ai-infra-from-constraints/code/notebooks
+pip install jupyterlab torch numpy
+jupyter lab ch07_compute_graph.ipynb</code></pre><p>也可以下载后直接用 VS Code 打开 .ipynb 运行。需要 GPU 的章节在 Colab 里选「代码执行程序 → 更改运行时类型 → GPU」。</p></details></div>
+<blockquote>
+<p>本章回答：Transformer 处理已知输入时，哪些计算能同时做、哪些必须等？Qwen3-8B 一层里有哪些矩阵，各有多大？处理 <span class="arithmatex">\(m\)</span> 个 token、读 <span class="arithmatex">\(S\)</span> 个旧 token 的上下文，一次前向要多少 FLOPs？<br />
+讲解日期：2026-11-24 · 上一章：<a href="../lessons/06-architecture.html">第 06 章 需求如何推动架构</a> · 下一章：<a href="../lessons/08-generation-budget.html">第 08 章 自回归生成的资源账</a><br />
+对应原文：<code>materials/ai-infra-book/manuscripts/02-模型架构.md</code> 章首 L1–L13、§2.1 L15–L213（表 2-1 L166–L196）<br />
+本章缩写：BF16 = Brain Float 16（Google Brain 提出的 / 浮点 / 16 位）· FFN = Feed-Forward Network（前馈 / 网络）· FLOPs = 浮点运算总次数 · GEMM = GEneral Matrix Multiply（通用 / 矩阵 / 乘）· KV = Key-Value（键 / 值）· QK Norm = Query-Key Normalization（查询与键 / 归一化）· RNN = Recurrent Neural Network（循环 / 神经 / 网络）· RoPE = Rotary Position Embedding（旋转 / 位置 / 编码）· SiLU = Sigmoid Linear Unit（S 形 / 线性 / 单元）· SwiGLU = Swish-Gated Linear Unit（Swish 门控 / 线性 / 单元）。全部缩写见 <a href="../lessons/appendix-glossary.html">缩写与术语表</a></p>
+</blockquote>
+<p>第 1 部分把"70B 模型"当成一个整体，只用参数数和每参数字节数估算。从本章起拆开模型：一个 token 到底经过哪些矩阵、读哪些上下文。全章用原书的 Qwen3-8B：36 层，约 81.9 亿参数。</p>
+<h2 id="_1">讲解</h2>
+<h3 id="2026-11-24">第一步：计算图：节点是运算，边是数据，箭头是先后（2026-11-24）</h3>
+<p><strong>类比：做菜的工序图。</strong> 每道工序是一个节点（切菜、焯水、炒），工序之间的箭头说明"这一步要等那一步的结果"。箭头决定哪些工序能同时做：切菜和烧水可以同时，炒必须等切完。</p>
+<p>原文 L17：节点的<strong>运算量</strong>决定计算需求，边上的<strong>张量</strong>决定传递的数据量，边的<strong>方向</strong>决定哪些运算必须先后执行。</p>
+<p><strong>两种依赖</strong>（原文 L23–L35）：4 个已知输入 token、3 层网络。</p>
+<p><img alt="RNN 同层要等前一个位置；因果 Transformer 只等上一层" src="../figures/07-compute-graph-deps.png" /></p>
+<p><em>图 7-1 · 左：RNN，同一层里第 <span class="arithmatex">\(t\)</span> 个位置要等第 <span class="arithmatex">\(t-1\)</span> 个（横向箭头）。右：因果 Transformer，第 <span class="arithmatex">\(l\)</span> 层的每个位置只读上一层里自己和之前的位置，同一层的 4 个位置可以同时算。</em></p>
+<table>
+<thead>
+<tr>
+<th>结构</th>
+<th>同一层内要等谁</th>
+<th>已知 4 个输入、3 层，最长依赖链（每格 1 单位、资源充足）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RNN：<span class="arithmatex">\(h_t = f(x_t, h_{t-1})\)</span></td>
+<td>前一个位置</td>
+<td>沿位置和层都要串（练习里自己数）</td>
+</tr>
+<tr>
+<td>因果 Transformer</td>
+<td>不用等；只等上一层</td>
+<td>3（只沿深度）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>生成又多一条依赖</strong>：下一次调用的输入是这次的输出，所以 decode 在调用之间是串行的（第 02 章）。</p>
+<p><strong>一句话</strong>：处理已知输入时，因果 Transformer 同层可以并行，只沿深度等；生成时又多出"等上一个输出"这条跨调用的串行依赖。</p>
+<h3 id="2026-11-24_1">第二步：一个矩阵乘法的三个数：参数、运算、字节（2026-11-24）</h3>
+<p><strong>类比：复印机。</strong> 一份底稿（权重矩阵）复印给 <span class="arithmatex">\(m\)</span> 个人（<span class="arithmatex">\(m\)</span> 行输入）：人越多，复印次数越多，但底稿只有一份；底稿换成更大的纸（输出更宽），底稿本身和每次复印的工作量都变大。</p>
+<p><strong>公式</strong>（原文 L48–L55）：<span class="arithmatex">\(m\)</span> 个 token，每个 <span class="arithmatex">\(k\)</span> 维，输出宽度 <span class="arithmatex">\(n\)</span>：</p>
+<div class="arithmatex">\[X \in \mathbb{R}^{m \times k},\quad W \in \mathbb{R}^{k \times n},\quad Y = XW \in \mathbb{R}^{m \times n}\]</div>
+<div class="arithmatex">\[N_W = kn, \qquad F = 2mkn, \qquad M_W = b_W kn\]</div>
+<ul>
+<li><span class="arithmatex">\(N_W\)</span>：权重参数个数；<span class="arithmatex">\(F\)</span>：运算量（每个输出元素是长度 <span class="arithmatex">\(k\)</span> 的点积，乘、加各算一次）；<span class="arithmatex">\(M_W\)</span>：权重字节数。</li>
+<li><span class="arithmatex">\(m\)</span> 翻倍：<span class="arithmatex">\(F\)</span> 翻倍，权重不变（同一模型处理更多输入）。</li>
+<li><span class="arithmatex">\(n\)</span> 翻倍：权重和 <span class="arithmatex">\(F\)</span> 都翻倍（模型的一层变宽）。</li>
+</ul>
+<p><strong>例子</strong>（编的小数）：<span class="arithmatex">\(m = 3\)</span>，<span class="arithmatex">\(k = 4\)</span>，<span class="arithmatex">\(n = 2\)</span>，BF16。</p>
+<table>
+<thead>
+<tr>
+<th>量</th>
+<th>算式</th>
+<th>值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\(N_W\)</span></td>
+<td><span class="arithmatex">\(4 \times 2\)</span></td>
+<td>8 个参数</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(F\)</span></td>
+<td><span class="arithmatex">\(2 \times 3 \times 4 \times 2\)</span></td>
+<td>48 FLOPs</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(M_W\)</span></td>
+<td><span class="arithmatex">\(2 \times 8\)</span></td>
+<td>16 字节</td>
+</tr>
+</tbody>
+</table>
+<p><strong><span class="arithmatex">\(m\)</span> 是多少</strong>（原文 L65、L95）：<span class="arithmatex">\(B\)</span> 条请求，每条本次输入 <span class="arithmatex">\(P\)</span> 个 token，<span class="arithmatex">\(m = BP\)</span>。prefill 一条 8192 token 的请求 <span class="arithmatex">\(m = 8192\)</span>；decode 时每条只补 1 个 token，<span class="arithmatex">\(m = B\)</span>。同一份权重，prefill 是"大矩阵乘大矩阵"，单请求 decode 接近"矩阵乘向量"。</p>
+<p><strong>一句话</strong>：一个投影的权重只看 <span class="arithmatex">\(k \times n\)</span>，运算量还要乘上行数 <span class="arithmatex">\(m\)</span>；prefill 和 decode 用同一份权重，输入形状却差几千倍。</p>
+<h3 id="qwen3-8b-2026-11-24">第三步：Qwen3-8B 一层里的矩阵（2026-11-24）</h3>
+<p><strong>类比：一条两道工序的流水线。</strong> 每层先过"注意力"（看看别的 token 说了什么），再过"前馈"（自己琢磨一下），每道工序旁边有一条直通的传送带（残差连接），把原料和加工结果加在一起。</p>
+<p><strong>配置</strong>（原文 L69–L76）：</p>
+<table>
+<thead>
+<tr>
+<th>配置</th>
+<th>符号</th>
+<th>Qwen3-8B</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>层数</td>
+<td><span class="arithmatex">\(L\)</span></td>
+<td>36</td>
+</tr>
+<tr>
+<td>隐藏维度</td>
+<td><span class="arithmatex">\(d\)</span></td>
+<td>4096</td>
+</tr>
+<tr>
+<td>FFN 中间维度</td>
+<td><span class="arithmatex">\(f\)</span></td>
+<td>12288</td>
+</tr>
+<tr>
+<td>查询头 / KV 头</td>
+<td><span class="arithmatex">\(n_Q\)</span> / <span class="arithmatex">\(n_{\mathrm{KV}}\)</span></td>
+<td>32 / 8（每 4 个查询头共用一个 KV 头，第 01 章的 GQA）</td>
+</tr>
+<tr>
+<td>头维度</td>
+<td><span class="arithmatex">\(d_h\)</span></td>
+<td>128</td>
+</tr>
+<tr>
+<td>词表</td>
+<td><span class="arithmatex">\(V\)</span></td>
+<td>151936</td>
+</tr>
+</tbody>
+</table>
+<p><img alt="Qwen3-8B 一层：注意力子层 + SwiGLU 前馈子层，各带一条残差" src="../figures/07-compute-graph-layer.png" /></p>
+<p><em>图 7-2 · 一层的骨架和每个矩阵的形状（输入宽 × 输出宽）。<span class="arithmatex">\(K\)</span>、<span class="arithmatex">\(V\)</span> 只有 1024 维，因为只有 8 个 KV 头。</em></p>
+<p><strong>例题 2-1</strong>（原文 L78–L88）：一层的投影和 FFN 有多少参数？</p>
+<div class="arithmatex">\[N_{\mathrm{proj}} = \underbrace{2 \times 4096^2}_{W_q,\,W_o} + \underbrace{2 \times 4096 \times 1024}_{W_k,\,W_v} = 41{,}943{,}040\]</div>
+<div class="arithmatex">\[N_{\mathrm{FFN}} = \underbrace{3 \times 4096 \times 12288}_{\text{gate, up, down}} = 150{,}994{,}944\]</div>
+<div class="arithmatex">\[F_{\mathrm{linear}} = 2m\,(N_{\mathrm{proj}} + N_{\mathrm{FFN}}) = 385{,}875{,}968\,m\]</div>
+<p>FFN 占这一层主要投影参数的 <span class="arithmatex">\(150.99 / (150.99 + 41.94) \approx 78\%\)</span>；BF16 下一层的 FFN 权重是 288 MiB。</p>
+<p><strong>SwiGLU</strong>（原文 L146–L152）：</p>
+<div class="arithmatex">\[\mathrm{FFN}(X) = \left[\mathrm{SiLU}(XW_{\mathrm{gate}}) \odot (XW_{\mathrm{up}})\right] W_{\mathrm{down}}, \qquad \mathrm{SiLU}(x) = \frac{x}{1 + e^{-x}}\]</div>
+<p>gate、up 两条分支把 4096 维升到 12288 维，gate 过 SiLU 后逐元素（<span class="arithmatex">\(\odot\)</span>）调节 up，再由 down 降回 4096。三个矩阵，所以是 <span class="arithmatex">\(3df\)</span> 个参数、<span class="arithmatex">\(6mdf\)</span> FLOPs。</p>
+<p><strong>补基础</strong>：q、k、v、多头见<a href="https://wikieden.github.io/transformer-visual/lessons/09-qkv.html">《从零读懂 Transformer》第 9 章</a>、<a href="https://wikieden.github.io/transformer-visual/lessons/13-multi-head.html">第 13 章</a>；SwiGLU 见<a href="https://wikieden.github.io/transformer-visual/lessons/20-ffn.html">第 20 章</a>。</p>
+<p><strong>一句话</strong>：Qwen3-8B 每层约 1.93 亿个投影参数，FFN 占约 78%；投影和 FFN 的运算量是 <span class="arithmatex">\(385{,}875{,}968\,m\)</span>，只和本次处理的 token 数有关。</p>
+<h3 id="2026-11-24_2">第四步：注意力：查询和上下文配对，数一数有多少对（2026-11-24）</h3>
+<p><strong>类比：新同学自我介绍后，挨个和班上已有的同学握手。</strong> 新来 <span class="arithmatex">\(P\)</span> 个同学，班上原有 <span class="arithmatex">\(S\)</span> 个：每个新同学要和所有老同学握手（长方形），新同学之间也按先来后到握手（三角形，后来的和先来的握，先来的不和后来的握）。</p>
+<p><strong>公式</strong>（原文 L119、L131、L137）：一个头的注意力</p>
+<div class="arithmatex">\[A = \mathrm{Softmax}\!\left(\frac{QK^{\mathsf T}}{\sqrt{d_h}} + \mathcal{M}\right), \qquad O = AV\]</div>
+<ul>
+<li><span class="arithmatex">\(\mathcal{M}\)</span>：因果掩码，把未来位置的分数设成 <span class="arithmatex">\(-\infty\)</span>；Qwen3 在点积前还做 QK Norm 和 RoPE。</li>
+<li>有效的查询—键配对数（不含头数）：</li>
+</ul>
+<div class="arithmatex">\[N_{\mathrm{pair}} = B\left(PS + \frac{P(P+1)}{2}\right)\]</div>
+<ul>
+<li>每一对，每个查询头的 <span class="arithmatex">\(QK^{\mathsf T}\)</span> 和 <span class="arithmatex">\(AV\)</span> 各约 <span class="arithmatex">\(2d_h\)</span> FLOPs，32 个头合计：</li>
+</ul>
+<div class="arithmatex">\[F_{\mathrm{attn}} = 4\,n_Q\,d_h\,N_{\mathrm{pair}} = 16384\,N_{\mathrm{pair}}\]</div>
+<p><img alt="已有 2 个旧 token、新来 3 个：长方形 + 三角形" src="../figures/07-compute-graph-pairs.png" /></p>
+<p><em>图 7-3 · 横轴是被读的 token，纵轴是新输入的查询。蓝色长方形是新 token 读旧 token，绿色三角形是新输入内部的因果访问，空白是被屏蔽的未来位置。</em></p>
+<p><strong>例子</strong>（原文图 2-4）：<span class="arithmatex">\(B = 1\)</span>，<span class="arithmatex">\(S = 2\)</span>，<span class="arithmatex">\(P = 3\)</span>：<span class="arithmatex">\(N_{\mathrm{pair}} = 3 \times 2 + 3 \times 4 / 2 = 6 + 6 = 12\)</span>。</p>
+<p><strong>两种增长</strong>（原文 L140–L142）：</p>
+<ul>
+<li>没有缓存的 prefill，输入长度翻倍：投影的行数翻倍，配对数约变 4 倍。</li>
+<li>把一条长输入拆成两条独立的短输入：<span class="arithmatex">\(BP\)</span> 不变，投影行数不变，但跨越分界的配对没了，注意力变少。</li>
+<li>只在前面加上下文（<span class="arithmatex">\(S\)</span> 变大）：投影行数不变，每个新 token 的配对变多。</li>
+</ul>
+<p><strong>一句话</strong>：注意力的运算量按"查询—键配对数"算，长方形是读旧上下文，三角形是新输入内部；<span class="arithmatex">\(BP\)</span> 相同不代表注意力相同。</p>
+<h3 id="2026-11-24_3">第五步：把一次前向加起来（2026-11-24）</h3>
+<p><strong>类比：结账时把每道工序的工时加起来</strong>：按人数算的工序（投影、FFN）、按握手次数算的工序（注意力），再加上最后一次统一打分（词表头）。</p>
+<p><strong>公式</strong>（原文 L203）：</p>
+<div class="arithmatex">\[F_{\mathrm{matrix}} = 36\left(385{,}875{,}968\,m + 16{,}384\,N_{\mathrm{pair}}\right) + 2\,m_{\mathrm{out}} \times 4096 \times 151936\]</div>
+<ul>
+<li>第一项随行数 <span class="arithmatex">\(m\)</span> 涨，第二项随配对数涨，第三项随实际做词表投影的 token 数 <span class="arithmatex">\(m_{\mathrm{out}}\)</span> 涨（只预测下一个 token 时，每条请求只要最后一个 token 的分数，<span class="arithmatex">\(m_{\mathrm{out}} = B\)</span>）。</li>
+<li>词嵌入是查表，按 token ID 取一行，不算矩阵运算。</li>
+</ul>
+<p><strong>例子</strong>（原文 L206）：</p>
+<table>
+<thead>
+<tr>
+<th>情形</th>
+<th><span class="arithmatex">\(m\)</span></th>
+<th><span class="arithmatex">\(N_{\mathrm{pair}}\)</span></th>
+<th><span class="arithmatex">\(F_{\mathrm{matrix}}\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>prefill：一条请求 8192 个输入 token（<span class="arithmatex">\(S = 0\)</span>，<span class="arithmatex">\(P = 8192\)</span>）</td>
+<td>8192</td>
+<td><span class="arithmatex">\(8192 \times 8193 / 2 = 33{,}558{,}528\)</span></td>
+<td>≈ 133.6 TFLOPs</td>
+</tr>
+<tr>
+<td>decode：已有 8192 个上下文，再补 1 个 token（<span class="arithmatex">\(S = 8192\)</span>，<span class="arithmatex">\(P = 1\)</span>）</td>
+<td>1</td>
+<td><span class="arithmatex">\(8192 + 1 = 8193\)</span></td>
+<td>≈ 20.0 GFLOPs</td>
+</tr>
+</tbody>
+</table>
+<p><img alt="prefill 和 decode 的运算量拆成三项" src="../figures/07-compute-graph-split.png" /></p>
+<p><em>图 7-4 · 同一模型，两种输入形状。prefill 里投影和 FFN 占大头，注意力已占约 15%；decode 只算 1 行，但注意力要读 8193 个位置。</em></p>
+<p>KV 缓存省掉的是旧 token 的投影和 FFN 重算；当前查询和整段上下文的注意力还是要算，而且要从缓存里读出旧 token 的 <span class="arithmatex">\(K\)</span>、<span class="arithmatex">\(V\)</span>（下一章算读多少）。</p>
+<p><strong>场景代码</strong>：用 PyTorch 数一个 Qwen3-8B 配置的参数，不需要下载权重（<code>meta</code> 设备只建形状、不分配内存）：</p>
+<pre><code class="language-python">import torch
+from transformers import AutoConfig, AutoModelForCausalLM
+
+cfg = AutoConfig.from_pretrained(&quot;Qwen/Qwen3-8B&quot;)                      # 只下载 config.json
+with torch.device(&quot;meta&quot;):
+    model = AutoModelForCausalLM.from_config(cfg)                      # 只有形状，没有数据
+layer = model.model.layers[0]
+n_proj = sum(p.numel() for n, p in layer.self_attn.named_parameters() if n.endswith(&quot;proj.weight&quot;))
+n_ffn = sum(p.numel() for p in layer.mlp.parameters())
+print(n_proj, n_ffn)                                                   # 41943040 150994944
+print(sum(p.numel() for p in model.parameters()) / 1e9)                # 约 8.19（十亿）
+</code></pre>
+<p><strong>一句话</strong>：一次前向 = 36 层 ×（按行数算的投影和 FFN + 按配对数算的注意力）+ 末端词表头；8192 token 的 prefill 要 133.6 TFLOPs，之后每步 decode 约 20 GFLOPs。</p>
+<h2 id="_2">动画演示：查询—键配对：长方形 + 三角形</h2>
+<p><img alt="查询—键配对数" src="../animations/07-compute-graph.gif" /></p>
+<p>可交互版：<a href="../animations/07-compute-graph.html">animations/07-compute-graph.html</a>（两个滑块：已有上下文 <span class="arithmatex">\(S\)</span>、本次新输入 <span class="arithmatex">\(P\)</span>，各 0–12；<span class="arithmatex">\(B = 1\)</span>）。</p>
+<p><strong>怎么看</strong>：</p>
+<ol>
+<li>每一行是一个新输入的查询，每一列是一个可以被读的 token（对应第四步）；</li>
+<li>播放时先只有新输入（<span class="arithmatex">\(S = 0\)</span>）：只有三角形；再加上旧上下文：多出一块长方形；</li>
+<li>右边的数字是 <span class="arithmatex">\(N_{\mathrm{pair}}\)</span> 和注意力运算量 <span class="arithmatex">\(16384\,N_{\mathrm{pair}}\)</span>（单层）、投影和 FFN 运算量 <span class="arithmatex">\(385{,}875{,}968\,P\)</span>（单层）；</li>
+<li>最后一帧是 decode：<span class="arithmatex">\(P = 1\)</span>，只剩一行，长度是 <span class="arithmatex">\(S + 1\)</span>。</li>
+</ol>
+<h2 id="_3">练习与作答记录</h2>
+<p><strong>题 1</strong>（第一步）：4 个已知输入 token、3 层，每层每 token 算 1 个单位时间，资源充足。RNN 处理完全部输入的最长依赖链是多长？因果 Transformer 呢？再加一个待生成的输出位置，计算它之前必须等哪个节点？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p><strong>题 2</strong>（第二、三步）：Qwen3-8B 一层的投影和 FFN，处理 <span class="arithmatex">\(m = 20\)</span> 个 token 要多少 FLOPs？如果 FFN 中间维度从 12288 改成 6144，一层的投影参数总数变成多少？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p><strong>题 3</strong>（第四步）：<span class="arithmatex">\(B = 2\)</span> 条请求，每条已有 <span class="arithmatex">\(S = 20\)</span> 个上下文 token，本次各输入 <span class="arithmatex">\(P = 4\)</span> 个。<span class="arithmatex">\(N_{\mathrm{pair}}\)</span> 是多少？如果把它们合成一条请求（<span class="arithmatex">\(B = 1\)</span>，<span class="arithmatex">\(S = 20\)</span>，<span class="arithmatex">\(P = 8\)</span>），<span class="arithmatex">\(m\)</span> 变不变？<span class="arithmatex">\(N_{\mathrm{pair}}\)</span> 变不变？为什么？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p>原书练习 2-1（L39–L41，RNN 与 Transformer 的依赖图）、练习 2-2（L210–L212，<span class="arithmatex">\(B = 4, S = 4096, P = 1024\)</span> 的三项运算量与前缀复用）。想多练可以做。</p>
+<h2 id="_4">口诀</h2>
+<blockquote>
+<p>节点算，边上传，箭头定先后；<br />
+行数乘权重，权重不随行数涨；<br />
+一层投影两亿个，FFN 占八成；<br />
+新旧握手长方形，新人之间三角形。</p>
+</blockquote>
+<h2 id="_5">本章复习卡片</h2>
+<p><a href="../review.html">I23</a>（RNN 与因果 Transformer 的依赖）、<a href="../review.html">I24</a>（<span class="arithmatex">\(N_W\)</span>、<span class="arithmatex">\(F\)</span>、<span class="arithmatex">\(M_W\)</span> 三个式子）、<a href="../review.html">I25</a>（Qwen3-8B 一层的参数和运算量）、<a href="../review.html">I26</a>（<span class="arithmatex">\(N_{\mathrm{pair}}\)</span> 与注意力运算量）。练习做完后，按答错、卡住的地方再补。</p>
+<h2 id="_6">附录 · 延伸阅读</h2>
+<blockquote>
+<p>留给以后深入学习用，不影响本章主线。★ 是建议先读的。</p>
+</blockquote>
+<h3 id="_7">推荐阅读</h3>
+<table>
+<thead>
+<tr>
+<th>读什么</th>
+<th>读哪里</th>
+<th>读它为了什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>★ AII 第 2 章</td>
+<td>章首 L1–L13、§2.1 L15–L213</td>
+<td>本章原文；表 2-1 是全书模型账的起点</td>
+</tr>
+<tr>
+<td>AII 第 2 章"模型矩阵查阅表"</td>
+<td>L933 起</td>
+<td>五个模型的每个矩阵尺寸，当工具表查</td>
+</tr>
+<tr>
+<td>★ <a href="https://wikieden.github.io/transformer-visual/lessons/17-causal-mask.html">《从零读懂 Transformer》第 17 章</a></td>
+<td>全章</td>
+<td>因果掩码为什么呈三角形</td>
+</tr>
+<tr>
+<td><a href="https://wikieden.github.io/transformer-visual/lessons/20-ffn.html">《从零读懂 Transformer》第 20 章</a></td>
+<td>SwiGLU 一节</td>
+<td>门控 FFN 的来历</td>
+</tr>
+<tr>
+<td><a href="https://wikieden.github.io/cuda-to-tensor-core/lessons/22-flashattention.html">《CUDA 从线程到 Tensor Core》第 22 章</a></td>
+<td>全章</td>
+<td>因果分块跳过上三角、分数在片上用完即释放（原文 L140）</td>
+</tr>
+<tr>
+<td>Qwen3 技术报告 / <code>config.json</code></td>
+<td>模型配置</td>
+<td>36 层、4096、12288、32/8 头、151936 词表的出处</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_8">数学原理</h3>
+<ul>
+<li><strong>矩阵乘法计数</strong>：<span class="arithmatex">\(m \times k\)</span> 乘 <span class="arithmatex">\(k \times n\)</span>，每个输出元素 <span class="arithmatex">\(k\)</span> 次乘、<span class="arithmatex">\(k\)</span> 次加（近似），共 <span class="arithmatex">\(mn\)</span> 个元素，约 <span class="arithmatex">\(2mkn\)</span> 次运算。</li>
+<li><strong>三角形数</strong>：<span class="arithmatex">\(1 + 2 + \cdots + P = P(P+1)/2\)</span>，所以全注意力随长度约按平方增长。</li>
+<li><strong>Softmax</strong>：<span class="arithmatex">\(a_j = e^{s_j} / \sum_i e^{s_i}\)</span>，系数都为正、和为 1；除以 <span class="arithmatex">\(\sqrt{d_h}\)</span> 防止分数随头宽增大而过大。</li>
+</ul>
+<h3 id="_9">公式清单</h3>
+<table>
+<thead>
+<tr>
+<th>公式</th>
+<th>意思</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\(N_W = kn\)</span>，<span class="arithmatex">\(F = 2mkn\)</span>，<span class="arithmatex">\(M_W = b_W kn\)</span></td>
+<td>一个投影的参数、运算、字节</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(m = BP\)</span></td>
+<td>本次参与投影的 token 数</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(N_{\mathrm{proj}} = 2d^2 + 2d \cdot n_{\mathrm{KV}} d_h\)</span></td>
+<td>Qwen3-8B 一层的注意力投影参数</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(N_{\mathrm{FFN}} = 3df\)</span></td>
+<td>SwiGLU 的参数</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(N_{\mathrm{pair}} = B\,(PS + P(P+1)/2)\)</span></td>
+<td>有效查询—键配对数</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(F_{\mathrm{attn}} = 4\,n_Q\,d_h\,N_{\mathrm{pair}}\)</span></td>
+<td>注意力的矩阵运算</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(F_{\mathrm{matrix}} = L\,(F_{\mathrm{linear}} + F_{\mathrm{attn}}) + 2\,m_{\mathrm{out}}\,dV\)</span></td>
+<td>一次前向的主要矩阵运算</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_10">代码对照：把本章的数字用代码算一遍</h3>
+<blockquote>
+<p>纯 Python，不需要 GPU，也不下载模型。代码在仓库本地 <code>ai-infra/solutions/chapter-code/ch07_compute_graph.py</code>，配套测试 <code>tests/test_ch07.py</code>：</p>
+<p><code>bash  
+cd ai-infra/solutions/chapter-code  
+uv run python ch07_compute_graph.py   # 一步一步打印  
+uv run pytest tests/test_ch07.py</code></p>
+</blockquote>
+<p><strong>讲义 ↔ 代码</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>讲义</th>
+<th>公式</th>
+<th>写法</th>
+<th>跑出来</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第二步 小例子</td>
+<td><span class="arithmatex">\(kn\)</span>、<span class="arithmatex">\(2mkn\)</span>、<span class="arithmatex">\(b_W kn\)</span></td>
+<td><code>matmul_cost(3, 4, 2)</code></td>
+<td>8 个参数、48 FLOPs、16 字节</td>
+</tr>
+<tr>
+<td>第三步 一层的参数</td>
+<td><span class="arithmatex">\(2d^2 + 2d \cdot 1024\)</span>、<span class="arithmatex">\(3df\)</span></td>
+<td><code>layer_params(QWEN3_8B)</code></td>
+<td>41,943,040 和 150,994,944，FFN 占 78%</td>
+</tr>
+<tr>
+<td>第四步 配对数</td>
+<td>长方形 + 三角形</td>
+<td><code>n_pair(1, 2, 3)</code>、<code>n_pair_bruteforce(1, 2, 3)</code></td>
+<td>12</td>
+</tr>
+<tr>
+<td>第五步 prefill 8192</td>
+<td>三项相加</td>
+<td><code>forward_flops(QWEN3_8B, 1, 0, 8192)</code></td>
+<td>133.6 TFLOPs</td>
+</tr>
+<tr>
+<td>第五步 decode</td>
+<td>同上</td>
+<td><code>forward_flops(QWEN3_8B, 1, 8192, 1)</code></td>
+<td>20.0 GFLOPs</td>
+</tr>
+</tbody>
+</table>
+<p><strong>关键几行</strong>：</p>
+<pre><code class="language-python">def forward_flops(c, B, S, P):
+    m = B * P                                       # 本次参与投影的 token 数
+    linear = 2 * m * sum(layer_params(c))           # 投影 + FFN：按行数
+    attn = 4 * c[&quot;n_q&quot;] * c[&quot;d_h&quot;] * n_pair(B, S, P)  # 注意力：按配对数
+    head = 2 * B * c[&quot;d&quot;] * c[&quot;vocab&quot;]              # 词表头：每条请求只算最后一个 token
+    return c[&quot;L&quot;] * (linear + attn) + head
+</code></pre>
+<p><strong>代码里才看得到的 3 件事</strong>：</p>
+<ol>
+<li><code>n_pair_bruteforce</code> 用两重循环逐个数"第 <span class="arithmatex">\(i\)</span> 个查询能看第 <span class="arithmatex">\(j\)</span> 个 token 吗"，和公式 <code>n_pair</code> 对上；规模大时只用公式。</li>
+<li>词表头只按 <code>B</code> 算（每条请求一行），不是按 <code>m</code>；如果误按 8192 行算，prefill 会多出约 10 TFLOPs。</li>
+<li>运算量只统计矩阵乘；归一化、RoPE、SiLU、残差这些逐元素运算没算进去（原文 L190）。</li>
+</ol>
+<p><strong>自己改一改</strong>（不影响练习答案）：</p>
+<ul>
+<li>把 prefill 长度从 8192 改成 4096、16384，看注意力那一项占比怎么变。</li>
+<li>把 <code>QWEN3_8B</code> 的 <code>n_kv</code> 改成 32（不用 GQA），看一层投影参数变成多少。</li>
+<li>用 <code>n_pair_bruteforce</code> 验证几组小的 <span class="arithmatex">\((B, S, P)\)</span>。</li>
+</ul><nav class="pager"><a href="06-architecture.html">← 第 06 章 · 需求如何推动架构：TPU、SmartNIC、Unified Bus</a><a href="08-generation-budget.html">第 08 章 · 自回归生成的资源账：存一次的、每步读的、用完就扔的 →</a></nav>
+</main></div>
+<footer>来自个人学习仓库的对话讲义，含练习作答记录。源码：<a href="https://github.com/wikieden/ai-infra-from-constraints">github.com/wikieden/ai-infra-from-constraints</a>。更多讲义书：<a href="https://wikieden.github.io/ai-books/">Physical AI 0-1-♾️（合集）</a></footer>
+<script>(function(){var d=document.documentElement,K=["s","m","l","xl"];
+function save(k,v){try{v?localStorage.setItem(k,v):localStorage.removeItem(k)}catch(e){}}
+var s=document.getElementById("ab-theme");if(s){s.value=d.dataset.theme||"";s.onchange=function(){if(s.value)d.dataset.theme=s.value;else delete d.dataset.theme;save("ab-theme",s.value)}}
+document.querySelectorAll("[data-fs-step]").forEach(function(b){b.onclick=function(){var i=K.indexOf(d.dataset.fs||"m")+(+b.dataset.fsStep);i=Math.max(0,Math.min(K.length-1,i));d.dataset.fs=K[i];save("ab-fs",K[i])}});
+var nb=document.getElementById("nav-toggle"),side=document.querySelector("nav.side");if(nb&&side){nb.onclick=function(){side.classList.toggle("open")}}
+var cur=side&&side.querySelector(".cur");if(cur)cur.scrollIntoView({block:"center"});
+})();</script>
+</body></html>

@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MoE 批内权重复用</title><link rel="stylesheet" href="anim.css">
+<style>svg text.cap{font-size:15px;font-weight:500}svg text.num{font-size:19px;font-weight:600}</style></head>
+<body><main>
+<h1>第 11 章 · 64 个 token 各选 8 个专家：路由越集中，读的权重越少</h1>
+<p class="sub">配套讲义：<a href="../lessons/11-moe.html">第 11 章 · MoE：专家路由与批内权重复用</a>。Qwen3.6 的一层：256 个路由专家，每个 6 MiB（BF16）；B = 64，每 token 选 8 个，共 512 次分派。</p>
+<div class="panel"><svg id="sv" viewBox="0 0 680 380"></svg></div>
+<div class="row"><button id="play">▶ 播放</button><button id="step">→ 单步</button><button id="reset">↺ 从头开始</button></div>
+<div class="row"><label for="u">自己拖：本批访问的不同专家数 U</label><input type="range" id="u" min="0" max="5" step="1" value="2"><span id="uv">64</span></div>
+<p class="note">看点：① 每个小格是一个路由专家，颜色越深分到的 token 越多；② 512 次分派平均摊到 U 个专家上，每个专家分到 512 / U 个；③ 专家运算量一直是 2 × N_e × 512，不变；④ 读取量 = 6 MiB × U，从 1.5 GiB 降到 48 MiB；每份权重被用的行数从 2 涨到 64。</p>
+</main>
+<script src="anim.js"></script>
+<script>
+const sv=$('sv');const US=[256,128,64,32,16,8];const NE=3145728;
+const FR=[];US.forEach(u=>{FR.push(u);FR.push(u)});
+let k=0,custom=null;
+function draw(){
+  clear(sv);const U=custom??FR[k],per=512/U;
+  txt(U===256?'均匀分派：256 个专家都要读，每个只用 2 行':(U===8?'全部集中到同一组 8 个专家：每份权重用 64 行':`分派集中到 ${U} 个专家`),{x:340,y:28,'text-anchor':'middle',class:'cap'},sv);
+  for(let e=0;e<256;e++){const x=30+(e%32)*19.5,y=50+Math.floor(e/32)*22,on=e<U;
+    el('rect',{x,y,width:16,height:18,rx:2,fill:on?'var(--warm)':'none',stroke:on?'none':'var(--line)',opacity:on?Math.min(1,0.25+per/64*0.75):1},sv)}
+  const fl=2*NE*512/1e9;
+  [['不同专家 U',String(U)],['每层读取',U*6>=1024?(U*6/1024).toFixed(2)+' GiB':U*6+' MiB'],['专家运算（不变）',fl.toFixed(2)+' GFLOPs'],['每份权重用几行',String(per)]].forEach(([a,b],i)=>{
+    const x=20+i*162;el('rect',{x,y:250,width:150,height:72,rx:8,fill:'none',stroke:'var(--line)'},sv);txt(a,{x:x+10,y:272,class:'m'},sv);txt(b,{x:x+10,y:306,class:'num'},sv)});
+}
+function reset(){k=0;custom=null;draw()}
+function next(){if(custom!==null){custom=null;draw();return true}if(k>=FR.length-1)return false;k++;draw();return true}
+$('u').oninput=e=>{ANIM.stop();custom=US[5-+e.target.value];$('uv').textContent=custom;draw()};
+setupPlayer({captureSeed:1,reset,next},1300);
+</script><a href="https://wikieden.github.io/ai-books/" style="position:fixed;right:12px;bottom:12px;z-index:99;padding:4px 10px;border-radius:14px;background:rgba(127,127,127,.18);color:inherit;font:13px/1.6 system-ui,sans-serif;text-decoration:none">← 全部讲义书</a>
+</body></html>

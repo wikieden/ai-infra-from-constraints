@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="820" height="330" viewBox="0 0 820 330">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="16.0" y="26.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="17" fill="#1f2937" text-anchor="start" font-weight="bold">H100 SXM 的存储层次：越往下越大、离计算单元越远</text>
+<text x="16.0" y="320.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">容量取自公开规格（与《CUDA 从线程到 Tensor Core》第 5 章一致）；主存是量级示意。条长按对数刻度。</text>
+<line x1="330.0" y1="56.0" x2="330.0" y2="282.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="330.0" y="298.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">100 KB</text>
+<line x1="440.0" y1="56.0" x2="440.0" y2="282.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="440.0" y="298.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">10 MB</text>
+<line x1="550.0" y1="56.0" x2="550.0" y2="282.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="550.0" y="298.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">1 GB</text>
+<line x1="660.0" y1="56.0" x2="660.0" y2="282.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="660.0" y="298.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">100 GB</text>
+<line x1="770.0" y1="56.0" x2="770.0" y2="282.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="770.0" y="298.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">10 TB</text>
+<text x="180.0" y="83.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="end" font-weight="normal">寄存器（每 SM）</text>
+<text x="190.0" y="83.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#6b7280" text-anchor="start" font-weight="normal">抽屉：伸手就拿</text>
+<rect x="330.0" y="64.0" width="23.0" height="28.0" rx="4" fill="#dcfce7" stroke="#16a34a" stroke-width="1.4" opacity="1"/>
+<text x="359.0" y="83.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#16a34a" text-anchor="start" font-weight="bold">256 KB</text>
+<text x="180.0" y="127.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="end" font-weight="normal">shared + L1（每 SM）</text>
+<text x="190.0" y="127.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#6b7280" text-anchor="start" font-weight="normal">本层的厕所</text>
+<rect x="330.0" y="108.0" width="23.0" height="28.0" rx="4" fill="#ccfbf1" stroke="#0d9488" stroke-width="1.4" opacity="1"/>
+<text x="359.0" y="127.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#0d9488" text-anchor="start" font-weight="bold">256 KB</text>
+<text x="180.0" y="171.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="end" font-weight="normal">L2 缓存（全卡）</text>
+<text x="190.0" y="171.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#6b7280" text-anchor="start" font-weight="normal">楼里的公共厕所</text>
+<rect x="330.0" y="152.0" width="148.4" height="28.0" rx="4" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<text x="484.4" y="171.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#2563eb" text-anchor="start" font-weight="bold">50 MB</text>
+<text x="180.0" y="215.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="end" font-weight="normal">显存 HBM（全卡）</text>
+<text x="190.0" y="215.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#6b7280" text-anchor="start" font-weight="normal">走出大楼</text>
+<rect x="330.0" y="196.0" width="324.7" height="28.0" rx="4" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.4" opacity="1"/>
+<text x="660.7" y="215.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#7c3aed" text-anchor="start" font-weight="bold">80 GB</text>
+<text x="180.0" y="259.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="end" font-weight="normal">主存（CPU 那边）</text>
+<text x="190.0" y="259.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#6b7280" text-anchor="start" font-weight="normal">隔壁街区，经 PCIe</text>
+<rect x="330.0" y="240.0" width="385.0" height="28.0" rx="4" fill="#f3f4f6" stroke="#6b7280" stroke-width="1.4" opacity="1"/>
+<text x="721.0" y="259.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#6b7280" text-anchor="start" font-weight="bold">~1 TB</text>
+<line x1="22.0" y1="76.0" x2="22.0" y2="262.0" stroke="#6b7280" stroke-width="1.6"/>
+<polygon points="22.0,262.0 17.8,254.1 26.2,254.1" fill="#6b7280" stroke="#6b7280" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<text x="22.0" y="68.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#6b7280" text-anchor="middle" font-weight="normal">近</text>
+<text x="22.0" y="282.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#6b7280" text-anchor="middle" font-weight="normal">远</text>
+</svg>

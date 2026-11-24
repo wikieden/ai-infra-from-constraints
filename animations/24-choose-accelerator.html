@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>同一模型挑一张卡</title><link rel="stylesheet" href="anim.css">
+<style>svg text.cap{font-size:15px;font-weight:500}svg text.num{font-size:17px;font-weight:600}</style></head>
+<body><main>
+<h1>第 24 章 · 同一个模型，挑一张卡</h1>
+<p class="sub">配套讲义：<a href="../lessons/24-choose-accelerator.html">第 24 章 · 根据架构选择加速器：先估下界，再找差距，最后算账</a>。每步读取下界 = 字节 ÷ 带宽；prefill 按 4K、61.85 TFLOPs（只算 Qwen3-8B）。235B 按专家最集中的路由算，每步权重 12.12 GB + 每请求 KV 1.575 GB。</p>
+<div class="panel"><svg id="sv" viewBox="0 0 680 360"></svg></div>
+<div class="row"><button id="play">▶ 播放</button><button id="step">→ 单步</button><button id="reset">↺ 从头开始</button></div>
+<div class="row"><label for="md">模型</label><select id="md"><option value="0">Qwen3-8B BF16</option><option value="1">Qwen3-235B-A22B 4-bit</option></select><label for="n">并发请求（8K）</label><input type="range" id="n" min="1" max="16" step="1" value="1"><span id="nv">1</span></div>
+<p class="note">看点：① 每行一张卡：蓝 = decode 每步读取下界，橙 = 4K prefill 矩阵时间；② 容量不够的卡变灰；③ 并发请求变多，KV 和预算一起涨，24 GB 卡最先放不下；④ 切到 235B，只剩 H200 和 M3 Ultra。</p>
+</main>
+<script src="anim.js"></script>
+<script>
+const sv=$('sv');
+const D=[['RTX 3090',24,936,71],['RTX 4090',24,1008,165.2],['RTX 5090',32,1792,209.5],['RTX PRO 6000',96,1792,503.8],['A100',80,2039,312],['H100',80,3350,989.4],['H200',141,4800,989.5],['M3 Ultra',256,819,0]];
+const M=[{w:16.381,r:15.137,kv:1.208,pre:61.85},{w:123.142,r:12.122,kv:1.575,pre:0}];const F=[[0,1],[0,4],[0,8],[0,16],[1,1],[1,8]];let k=0,custom=null;
+function draw(){clear(sv);const [mi,n]=custom||F[k];$('md').value=mi;$('n').value=n;$('nv').textContent=n;const m=M[mi],need=m.w+m.kv*n+2.147,bytes=m.r+m.kv*n;
+ txt(`${mi?'235B-A22B 4-bit':'Qwen3-8B BF16'}、${n} 条 8K：需要 ${need.toFixed(1)} GB，每步读 ${bytes.toFixed(1)} GB`,{x:340,y:24,'text-anchor':'middle',class:'cap'},sv);
+ const dmax=Math.max(...D.map(d=>bytes/d[2]*1e3));
+ D.forEach(([name,cap,bw,p],i)=>{const y=44+i*38,ok=cap>=need,op=ok?1:.25;txt(name,{x:110,y:y+19,'text-anchor':'end',class:'m',opacity:op},sv);
+  const t=bytes/bw*1e3;el('rect',{x:120,y,width:Math.max(t/dmax*250,1),height:24,fill:'var(--accent)',opacity:.75*op},sv);txt(ok?`${t.toFixed(1)} ms · ${(n*1000/t).toFixed(0)} tok/s`:'放不下',{x:126+(ok?t/dmax*250:0),y:y+17,class:'m',opacity:ok?1:.8},sv);
+  if(m.pre&&p){const pr=m.pre*1e12/(p*1e12)*1e3;el('rect',{x:500,y,width:pr/900*120,height:24,fill:'var(--warm)',opacity:.75*op},sv);txt(`${pr.toFixed(0)} ms`,{x:506+pr/900*120,y:y+17,class:'m',opacity:op},sv)}
+  else txt('—',{x:510,y:y+17,class:'m',opacity:op},sv)});
+ txt('decode 每步（下界）',{x:245,y:352,'text-anchor':'middle',class:'m'},sv);txt('4K prefill',{x:560,y:352,'text-anchor':'middle',class:'m'},sv)}
+function reset(){k=0;custom=null;draw()}
+function next(){if(custom!==null){custom=null;draw();return true}if(k>=F.length-1)return false;k++;draw();return true}
+const f=()=>{ANIM.stop();custom=[+$('md').value,+$('n').value];draw()};$('md').onchange=f;$('n').oninput=f;
+setupPlayer({captureSeed:1,reset,next},1600);
+</script><a href="https://wikieden.github.io/ai-books/" style="position:fixed;right:12px;bottom:12px;z-index:99;padding:4px 10px;border-radius:14px;background:rgba(127,127,127,.18);color:inherit;font:13px/1.6 system-ui,sans-serif;text-decoration:none">← 全部讲义书</a>
+</body></html>

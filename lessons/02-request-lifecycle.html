@@ -1,0 +1,628 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>第 02 章 · 一次生成请求的处理过程：权重加载一次，每个 token 都要再读一遍 · 从约束推导 AI Infra</title>
+<script>(function(){try{var d=document.documentElement,t=localStorage.getItem("ab-theme"),f=localStorage.getItem("ab-fs");if(t)d.dataset.theme=t;if(f)d.dataset.fs=f}catch(e){}})();</script>
+<style>:root{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa;--fs:16px}
+@media (prefers-color-scheme:dark){:root:not([data-theme]){--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}}
+:root[data-theme="light"]{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa}
+:root[data-theme="dark"]{--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}
+:root[data-theme="sepia"]{--bg:#f6efe1;--fg:#3b3127;--mute:#7a6a58;--line:#e2d6bf;--card:#fbf6ec;--acc:#a0522d;--code:#ece2cd;--quote:#efe5d2}
+:root[data-theme="green"]{--bg:#e3eddf;--fg:#22301f;--mute:#566650;--line:#c9d8c3;--card:#eef5eb;--acc:#2e7d4f;--code:#d6e4d0;--quote:#dae7d5}
+:root[data-theme="navy"]{--bg:#0f1a2b;--fg:#dde6f3;--mute:#93a4bd;--line:#23324a;--card:#15233a;--acc:#6cc4ff;--code:#1a2a44;--quote:#16243b}
+:root[data-fs="s"]{--fs:15px}
+:root[data-fs="m"]{--fs:16px}
+:root[data-fs="l"]{--fs:18px}
+:root[data-fs="xl"]{--fs:20px}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:var(--fs)/1.75 -apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Helvetica Neue",sans-serif}
+a{color:var(--acc)}
+header.top{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+header.top .in{max-width:860px;margin:0 auto;padding:10px 16px;display:flex;gap:6px 16px;align-items:center;flex-wrap:wrap;font-size:14px}
+header.top .brand{font-weight:600;color:var(--fg);text-decoration:none;margin-right:auto}
+header.top a{text-decoration:none}
+.prefs{display:inline-flex;gap:4px;align-items:center}
+.prefs button,.prefs select,#nav-toggle{font:inherit;font-size:13px;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:2px 8px;cursor:pointer}
+main{max-width:860px;margin:0 auto;padding:24px 16px 72px;overflow-wrap:anywhere}
+h1{font-size:1.75em;line-height:1.35;margin:8px 0 16px} h2{font-size:1.375em;margin:40px 0 12px;padding-top:8px;border-top:1px solid var(--line)} h3{font-size:1.125em;margin:28px 0 8px}
+.layout{display:grid;grid-template-columns:260px minmax(0,1fr);max-width:1180px;margin:0 auto}
+.layout main{margin:0;max-width:880px}
+nav.side{position:sticky;top:49px;align-self:start;max-height:calc(100vh - 49px);overflow-y:auto;padding:20px 8px 40px 16px;border-right:1px solid var(--line);font-size:14px;line-height:1.5}
+nav.side .h{font-weight:600;color:var(--mute);margin:4px 8px 8px;font-size:13px}
+nav.side a{display:block;padding:5px 8px;border-radius:6px;color:var(--fg);text-decoration:none}
+nav.side a:hover{background:var(--code)} nav.side a.cur{background:var(--quote);color:var(--acc);font-weight:600}
+nav.side a .n{color:var(--mute);margin-right:6px;font-variant-numeric:tabular-nums}
+#nav-toggle{display:none}
+@media (max-width:960px){.layout{display:block} nav.side{display:none;position:fixed;z-index:6;top:49px;left:0;bottom:0;width:min(300px,85vw);max-height:none;background:var(--bg);box-shadow:2px 0 12px rgba(0,0,0,.2)} nav.side.open{display:block} #nav-toggle{display:inline-block}}
+.run{display:flex;flex-wrap:wrap;align-items:center;gap:4px 0;margin:4px 0 12px}
+.run details{flex-basis:100%;margin:6px 0 0;font-size:.94em}
+img{max-width:100%;height:auto;border-radius:8px;border:1px solid var(--line);background:#fff}
+blockquote{margin:16px 0;padding:10px 16px;background:var(--quote);border-left:3px solid var(--acc);border-radius:4px;color:var(--mute)}
+blockquote p{margin:4px 0}
+code{background:var(--code);padding:1px 5px;border-radius:4px;font-size:.9em}
+pre{background:var(--code);padding:12px 14px;border-radius:8px;overflow-x:auto} pre code{padding:0;background:none}
+table{border-collapse:collapse;display:block;overflow-x:auto;max-width:100%;margin:12px 0;font-size:.94em}
+th,td{border:1px solid var(--line);padding:6px 10px;vertical-align:top} th{background:var(--code)}
+details{border:1px solid var(--line);border-radius:8px;padding:6px 12px;margin:8px 0;background:var(--card)}
+details[open]{padding-bottom:10px} summary{cursor:pointer;color:var(--acc);font-weight:500}
+mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%}
+.btn{display:inline-block;margin:4px 8px 4px 0;padding:6px 14px;border:1px solid var(--acc);border-radius:999px;text-decoration:none;font-size:14px}
+.pager{display:flex;justify-content:space-between;gap:12px;margin-top:48px;padding-top:16px;border-top:1px solid var(--line);font-size:15px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin:16px 0}
+.card{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;color:inherit;text-decoration:none}
+.card:hover{border-color:var(--acc)} .card img{border:0;border-bottom:1px solid var(--line);border-radius:0;aspect-ratio:16/10;object-fit:contain;width:100%}
+.card .no{color:var(--mute);font-size:13px;padding:8px 12px 0} .card .t{padding:0 12px 12px;font-weight:500;line-height:1.5}
+.lead{font-size:1.06em;color:var(--mute)}
+footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-size:13px}
+</style>
+<script>window.MathJax={tex:{inlineMath:[["\\(","\\)"]],displayMath:[["\\[","\\]"],["$$","$$"]],processEscapes:true,processEnvironments:true}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"></script>
+</head><body>
+<header class="top"><div class="in">
+<button type="button" id="nav-toggle" aria-label="打开章节列表">☰ 章节</button><a class="brand" href="../index.html">从约束推导 AI Infra</a>
+<a href="../lessons/index.html">讲义目录</a>
+<a href="../animations/index.html">动画</a>
+<a href="../review.html">复习卡片</a>
+<a href="../lessons/appendix-glossary.html">缩写表</a>
+<a href="https://wikieden.github.io/ai-books/glossary.html">全局词汇</a>
+<a href="https://wikieden.github.io/ai-books/">← 全部讲义书</a>
+<span class="prefs" title="字号与主题"><button type="button" data-fs-step="-1" aria-label="字号变小">A−</button><button type="button" data-fs-step="1" aria-label="字号变大">A+</button><select id="ab-theme" aria-label="主题色"><option value="">跟随系统</option><option value="light">浅色</option><option value="dark">深色</option><option value="sepia">米黄护眼</option><option value="green">豆沙绿护眼</option><option value="navy">夜蓝</option></select></span>
+</div></header>
+<div class="layout"><nav class="side" aria-label="章节"><div class="h">从约束推导 AI Infra</div><a href="index.html">讲义目录</a><a href="01-six-layers.html"><span class="n">1</span>一次请求走过的六层（进行中）</a><a href="02-request-lifecycle.html" class="cur"><span class="n">2</span>一次生成请求的处理过程：权重加载一次，每个 token 都要再读一遍</a><a href="03-dataflow-hierarchy.html"><span class="n">3</span>从存储程序到数据流执行：存储层次就像大楼里的厕所</a><a href="04-key-numbers.html"><span class="n">4</span>系统设计的关键数字：容量、算力、带宽、延迟</a><a href="05-estimate.html"><span class="n">5</span>用几个数字估算一次模型执行：算和读各要多久，实测为什么达不到</a><a href="06-architecture.html"><span class="n">6</span>需求如何推动架构：TPU、SmartNIC、Unified Bus</a><a href="07-compute-graph.html"><span class="n">7</span>计算图与张量结构：一个 token 经过一层要算多少</a><a href="08-generation-budget.html"><span class="n">8</span>自回归生成的资源账：存一次的、每步读的、用完就扔的</a><a href="09-kv-sharing.html"><span class="n">9</span>KV 怎么变小 ①：头共享与潜变量压缩</a><a href="10-kv-sparse-linear.html"><span class="n">10</span>KV 怎么变小 ②：窗口、稀疏、线性与混合注意力</a><a href="11-moe.html"><span class="n">11</span>MoE：专家路由与批内权重复用</a><a href="12-network-shape.html"><span class="n">12</span>网络形状：深宽、专家粒度、残差与多 token 预测</a><a href="13-model-comparison.html"><span class="n">13</span>整个模型的资源需求与比较：存多少、算多少、能放几条请求</a><a href="14-workload-arrival.html"><span class="n">14</span>从单次请求到持续到达的负载：什么时候来，比来多少更要紧</a><a href="15-agent-tasks.html"><span class="n">15</span>多轮交互与 Agent 任务：前缀、成功成本、关键路径</a><a href="16-multimodal-realtime.html"><span class="n">16</span>多模态与实时交互：数据换形状，时间有死线（略讲）</a><a href="17-training-rl.html"><span class="n">17</span>训练与强化学习的计算和状态：为什么训练要 6ND、要存 18 字节</a><a href="18-scaling-lifecycle.html"><span class="n">18</span>Scaling law 与全生命周期成本：训练多大、训练多久、服务多少次</a><a href="19-accelerator-basics.html"><span class="n">19</span>从矩阵乘法认识加速器：算多少、搬多少、耗多少电</a><a href="20-compute-units.html"><span class="n">20</span>计算单元：矩阵、向量、流水与低精度</a><a href="21-memory-movement.html"><span class="n">21</span>存储层次与数据搬移：放得下、取得到、来得及</a><a href="22-package-interconnect.html"><span class="n">22</span>多芯片封装与互联：计算放在哪，数据走哪条路</a><a href="23-architecture-evolution.html"><span class="n">23</span>架构演进与专用架构：每一代新增的东西，省掉了哪一笔</a><a href="24-choose-accelerator.html"><span class="n">24</span>根据架构选择加速器：先估下界，再找差距，最后算账</a><a href="appendix-glossary.html">附录 · 缩写与术语表</a><a href="appendix-tp-pp-cp.html">附录 · 补充资料：TP、PP、CP，一个模型沿三个方向切给多张卡</a></nav><main>
+<h1 id="02-token">第 02 章 · 一次生成请求的处理过程：权重加载一次，每个 token 都要再读一遍</h1><div class="run"><a class="btn" href="../animations/02-request-lifecycle.html">▶ 打开本章可交互动画</a><a class="btn" href="https://colab.research.google.com/github/wikieden/ai-infra-from-constraints/blob/main/code/notebooks/ch02_request_lifecycle.ipynb" target="_blank" rel="noopener">在 Colab 运行本章代码</a><a class="btn" href="../code/notebooks/ch02_request_lifecycle.ipynb" download>下载 notebook</a><details><summary>本地运行</summary><pre><code>git clone https://github.com/wikieden/ai-infra-from-constraints
+cd ai-infra-from-constraints/code/notebooks
+pip install jupyterlab torch numpy
+jupyter lab ch02_request_lifecycle.ipynb</code></pre><p>也可以下载后直接用 VS Code 打开 .ipynb 运行。需要 GPU 的章节在 Colab 里选「代码执行程序 → 更改运行时类型 → GPU」。</p></details></div>
+<blockquote>
+<p>本章回答：一个请求进了模型服务以后，先被交给谁、在实例里经过哪几步？prefill 和 decode 有什么不同？为什么请求只有几 KB，系统内部却要搬几百 GB？这些软件步骤分别落在哪块硬件上？<br />
+讲解日期：2026-11-24 · 上一章：<a href="../lessons/01-six-layers.html">第 01 章 一次请求走过的六层</a> · 下一章：第 03 章 从存储程序到数据流执行（待写）<br />
+对应原文：<code>materials/ai-infra-book/manuscripts/01-初识 AI Infra.md</code> §1.1.3 L55–L95（图 1-3 <code>ch01/figure-1-2-request.svg</code>、图 1-4 <code>ch01/figure-1-weight-lifetime.svg</code>、图 1-5 <code>ch01/figure-1-3-datacenter.svg</code>）；Qwen3-8B 的数字取自同一文件"本章数字速查" L456–L468<br />
+本章缩写：BF16 = Brain Float 16（Google Brain 提出的 / 浮点 / 16 位）· CED = Causal Encoder-Decoder（因果 / 编码器 / 解码器）· CPU = Central Processing Unit（中央 / 处理 / 单元）· DMA = Direct Memory Access（直接 / 内存 / 访问）· GPU = Graphics Processing Unit（图形 / 处理 / 单元）· HBM = High Bandwidth Memory（高 / 带宽 / 内存）· KV = Key-Value（键 / 值）· NIC = Network Interface Card（网络 / 接口 / 卡，即网卡）· NVL72 = NVLink 72（72 个 GPU 用 NVLink 连成一个域）· NVLink = NVIDIA Link（NVIDIA 的卡间直连）· PCIe = Peripheral Component Interconnect Express（外设 / 部件 / 互联 / 高速版）· TP = Tensor Parallelism（张量 / 并行）。AII、AISPE 是本专题两本书的简称。全部缩写见 <a href="../lessons/appendix-glossary.html">缩写与术语表</a></p>
+</blockquote>
+<p>第 01 章从上往下看了六层。本章换个方向：跟着<strong>一个具体请求</strong>走一遍，看它在每一层实际发生了什么，最后落到哪块硬件上。</p>
+<p><img alt="一次生成请求的全程：路由、实例内处理、prefill、decode、流式返回" src="../figures/02-request-lifecycle-route.png" /></p>
+<p><em>图 2-1 · 一次请求的全程。左边是软件的分工（谁负责），右边是实例内部的执行；第一步到第四步按这张图的顺序讲。</em></p>
+<h2 id="_1">讲解</h2>
+<h3 id="2026-11-24">第一步：谁来接这个请求：推理实例和路由器（2026-11-24）</h3>
+<p><strong>类比：连锁餐厅的总台。</strong> 外卖单先到总台，总台看哪家分店会做这道菜、哪家现在不忙，把单子派过去。到了分店，由分店的厨师长决定先炒哪几单、用几口灶。</p>
+<table>
+<thead>
+<tr>
+<th>原文的词</th>
+<th>是什么</th>
+<th>餐厅里对应</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>推理实例</strong>（inference instance）</td>
+<td>能独立完成一个模型请求的一组执行资源，可以是 1 张卡，也可以是多张卡</td>
+<td>一家分店（可能只有一口灶，也可能有好几口）</td>
+</tr>
+<tr>
+<td><strong>服务入口</strong></td>
+<td>核验访问权限、检查配额和请求内容</td>
+<td>总台先看你是不是会员、今天还能不能下单</td>
+</tr>
+<tr>
+<td><strong>服务路由器</strong>（router）</td>
+<td>按目标模型、各实例的负载，选一个实例</td>
+<td>总台派单给哪家分店</td>
+</tr>
+<tr>
+<td><strong>实例调度器</strong>（scheduler）</td>
+<td>实例内部安排加速器怎么执行</td>
+<td>分店的厨师长</td>
+</tr>
+</tbody>
+</table>
+<p>原文 L57 说了为什么先分清这一层："先分清谁负责执行，才能知道一份权重应放在哪里、一份中间结果应传给谁。"一个实例要有一份完整的模型权重（第四步细讲）；实例分在几张卡上，卡之间就要传中间结果。</p>
+<p><strong>例子</strong>：两个实例 A、B 都跑同一个模型。A 手上有 6 个请求，B 有 2 个。新请求来了，按"谁更闲"的规则，路由器把它派给 B。（数字是编的，真实路由还会看前缀缓存命中、请求长度等，第 9 章讲。）</p>
+<p><strong>一句话</strong>：入口先检查请求，路由器选一个实例，实例内部的调度器再安排卡怎么执行。两级分工：<strong>路由器管"去哪家"，调度器管"怎么做"</strong>。</p>
+<h3 id="token-batch-gpu2026-11-24">第二步：实例里面：切 token、排队、凑 batch、提交给 GPU（2026-11-24）</h3>
+<p><strong>类比：分店后厨。</strong> 单子先翻成后厨的格式（把菜名换成配料编号），挂到出单口排队；厨师长看看哪几单可以一锅炒（凑 batch），给每单留好盛菜的盘子（分配状态空间）；最后把指令交给灶台上的人（GPU）去炒。</p>
+<p>原文 L65 的顺序，拆成 5 步：</p>
+<p><img alt="实例内部的五步：分词、排队、编 batch、分配状态空间、CPU 提交、GPU 执行算子" src="../figures/02-request-lifecycle-pipeline.png" /></p>
+<p><em>图 2-2 · 实例内部的处理顺序。前四步主要在 CPU 上做，最后一步才轮到 GPU 算。</em></p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>做什么</th>
+<th>谁做</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>文本切成 <strong>token</strong> 序列（token 是模型处理文本的基本单位，可能是一个字、半个词或其他片段）</td>
+<td>实例或共享前端</td>
+</tr>
+<tr>
+<td>2</td>
+<td>请求放进队列</td>
+<td>实例调度器</td>
+</tr>
+<tr>
+<td>3</td>
+<td>和别的请求一起编进 <strong>batch</strong></td>
+<td>实例调度器</td>
+</tr>
+<tr>
+<td>4</td>
+<td>给这个请求的状态（第三步的 KV 缓存）分配显存空间</td>
+<td>实例调度器</td>
+</tr>
+<tr>
+<td>5</td>
+<td>CPU 上的运行时把计算任务提交给 GPU，GPU 执行相应的<strong>算子</strong>（矩阵乘法这类基本运算）</td>
+<td>CPU 运行时 → GPU</td>
+</tr>
+</tbody>
+</table>
+<p>这 5 步各属于第 01 章六层里的哪一层，留到练习题 1 自己判断。</p>
+<p><strong>场景代码</strong>：第 1 步"切 token"实际长这样。用 Hugging Face 的分词器，同一句话切出来几个 token 由分词结果决定，不等于字数：</p>
+<pre><code class="language-python">from transformers import AutoTokenizer
+
+tok = AutoTokenizer.from_pretrained(&quot;Qwen/Qwen3-8B&quot;)      # 只下载分词器，几 MB
+ids = tok(&quot;帮我找代码里的 bug&quot;)[&quot;input_ids&quot;]              # 第 1 步：文本 → token 编号
+print(len(ids), ids)                                      # token 数由分词器决定，不等于字数
+print([tok.decode([i]) for i in ids])                     # 每个 token 对应哪段文字
+</code></pre>
+<p><strong>一句话</strong>：进了实例以后，请求先在 CPU 这边被切成 token、排队、凑 batch、留好状态空间，最后才作为一串算子交给 GPU 算。</p>
+<h3 id="prefill-decode2026-11-24">第三步：prefill 和 decode：先把题读完，再一个字一个字写（2026-11-24）</h3>
+<p><strong>类比：考试写作文。</strong> 先把题目和材料<strong>一口气读完</strong>（prefill），然后<strong>一个字一个字往下写</strong>（decode），每写一个字都要回头看看前面写了什么。第 01 章的"便签"就是读题和写作时随手记下的要点（KV 缓存）。</p>
+<p>原文 L67：</p>
+<ul>
+<li><strong>预填充（prefill）</strong>：模型先处理输入。所有输入 token 在<strong>一次</strong>前向计算里一起处理，同时为每个输入 token 存下 k、v，并得到第一个输出 token。</li>
+<li><strong>解码（decode）</strong>：随后每一步只送进<strong>一个</strong>新 token（上一步的输出），读已有的整份 KV 缓存，追加这个 token 的 k、v，得到下一个 token。"前一步输出成为下一步输入"。</li>
+<li>生成的 token 转成文本，沿连接<strong>流式</strong>返回（一边生成一边发）。如果输出要求调用工具，应用去运行工具，把结果加进上下文，再发起后续调用。</li>
+</ul>
+<p><img alt="prefill 一次处理全部输入，decode 每步一个 token，KV 缓存逐步变长" src="../figures/02-request-lifecycle-prefill-decode.png" /></p>
+<p><em>图 2-3 · 时间从左往右。prefill 一次吃下 4 个输入 token；之后每个 decode 步只送进 1 个 token，KV 缓存每步多一格。</em></p>
+<p><strong>例子</strong>（数字是编的，方便手算）：输入"帮我找 bug"算 4 个 token，要输出 3 个 token。</p>
+<table>
+<thead>
+<tr>
+<th>第几次前向</th>
+<th>阶段</th>
+<th>送进模型的 token</th>
+<th>读多少份旧 KV</th>
+<th>结束时 KV 有几份</th>
+<th>输出</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>prefill</td>
+<td>4 个输入 token</td>
+<td>0</td>
+<td>4</td>
+<td>第 1 个输出 token</td>
+</tr>
+<tr>
+<td>2</td>
+<td>decode</td>
+<td>第 1 个输出 token</td>
+<td>4</td>
+<td>5</td>
+<td>第 2 个</td>
+</tr>
+<tr>
+<td>3</td>
+<td>decode</td>
+<td>第 2 个输出 token</td>
+<td>5</td>
+<td>6</td>
+<td>第 3 个</td>
+</tr>
+</tbody>
+</table>
+<p>两个规律：</p>
+<ul>
+<li>输出 <span class="arithmatex">\(N\)</span> 个 token，一共要 <span class="arithmatex">\(N\)</span> 次前向：1 次 prefill + <span class="arithmatex">\((N-1)\)</span> 次 decode。</li>
+<li>最后一个输出 token 不用再送进模型，所以结束时 KV 份数 = 输入长度 + <span class="arithmatex">\((N-1)\)</span>。这里是 <span class="arithmatex">\(4 + 2 = 6\)</span>。</li>
+</ul>
+<p><strong>场景代码</strong>：用 Hugging Face 手写生成循环，能看清 prefill 和 decode 的分界（<code>model.generate()</code> 内部就是这样做的）：</p>
+<pre><code class="language-python">import torch
+from transformers import AutoModelForCausalLM, AutoTokenizer
+
+tok = AutoTokenizer.from_pretrained(&quot;Qwen/Qwen3-8B&quot;)
+model = AutoModelForCausalLM.from_pretrained(&quot;Qwen/Qwen3-8B&quot;, dtype=torch.bfloat16, device_map=&quot;cuda&quot;)  # 旧版本参数名叫 torch_dtype
+
+ids = tok(&quot;帮我找代码里的 bug&quot;, return_tensors=&quot;pt&quot;).input_ids.to(&quot;cuda&quot;)
+out = model(input_ids=ids, use_cache=True)                # prefill：全部输入 token 一次前向
+past = out.past_key_values                                # 存下来的 KV 缓存
+nxt = out.logits[:, -1].argmax(-1, keepdim=True)          # 第 1 个输出 token（贪心选最大）
+for _ in range(2):                                        # decode：每步只送 1 个 token
+    out = model(input_ids=nxt, past_key_values=past, use_cache=True)
+    past = out.past_key_values                            # KV 缓存多了一份
+    nxt = out.logits[:, -1].argmax(-1, keepdim=True)
+</code></pre>
+<p><strong>补基础</strong>：为什么旧 token 的 k、v 算一次就不会再变，见<a href="https://wikieden.github.io/transformer-visual/lessons/17-causal-mask.html">《从零读懂 Transformer》第 17 章 因果 mask</a>；q、k、v 是什么，见<a href="https://wikieden.github.io/transformer-visual/lessons/09-qkv.html">第 9 章</a>。</p>
+<p><strong>一句话</strong>：prefill 一次读完全部输入、存下 KV、出第一个 token；decode 每步只送一个 token、读整份 KV、追加一份、出下一个 token。</p>
+<h3 id="2026-11-24_1">第四步：权重的两种搬移：加载一次，每步再读一遍（2026-11-24）</h3>
+<p><strong>类比：菜谱。</strong> 分店开张时，把菜谱从总部仓库<strong>搬来一次</strong>，放在厨房书架上（驻留）。之后每炒一锅，厨师都要把<strong>整本菜谱从书架翻一遍</strong>。搬一次和翻很多次，是两种频率完全不同的搬移。</p>
+<p>原文 L69：</p>
+<table>
+<thead>
+<tr>
+<th>搬移</th>
+<th>从哪到哪</th>
+<th>多久一次</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>加载</strong></td>
+<td>存储 → 显存</td>
+<td>实例启动或换模型时，<strong>一次</strong></td>
+</tr>
+<tr>
+<td><strong>执行时读取</strong></td>
+<td>显存 → GPU 计算单元</td>
+<td><strong>每次前向</strong>都读：当前层的权重和上下文状态读进来，算完交给下一层</td>
+</tr>
+<tr>
+<td><strong>卡间传递</strong>（多卡实例才有）</td>
+<td>一张卡 → 另一张卡</td>
+<td>每层算完的中间结果，要传过去后面才能继续</td>
+</tr>
+</tbody>
+</table>
+<p><strong>中间张量</strong>是运算产生、交给后续运算的多维数组（矩阵就是二维张量）。卡间怎么切、要传什么，见<a href="../lessons/appendix-tp-pp-cp.html">补充 · TP、PP、CP</a>。</p>
+<p><img alt="权重从存储加载一次进显存，之后每次前向都从显存读一遍到计算单元" src="../figures/02-request-lifecycle-weight-moves.png" /></p>
+<p><em>图 2-4 · 蓝框是显存里一直放着的同一份权重；它只从存储加载一次，但每次前向（prefill 和每个 decode 步）都要读一遍。</em></p>
+<p><strong>公式</strong>：</p>
+<div class="arithmatex">\[\text{权重读取次数} = N \qquad \text{权重读取总量} \approx N \times W_{\text{step}}\]</div>
+<ul>
+<li><span class="arithmatex">\(N\)</span>：输出 token 数，也就是前向次数（第三步）。</li>
+<li><span class="arithmatex">\(W_{\text{step}}\)</span>：一次前向要读的主要权重字节数，W = weight（权重），step = 一步。</li>
+</ul>
+<p><strong>例子</strong>：原书用的 Qwen3-8B，BF16 精度（每个参数 2 字节），原文"本章数字速查"给出：</p>
+<table>
+<thead>
+<tr>
+<th>原书的数</th>
+<th>值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>完整 BF16 权重（加载进显存的量）</td>
+<td>16.38 GB</td>
+</tr>
+<tr>
+<td>一步 decode 的主要权重读取 <span class="arithmatex">\(W_{\text{step}}\)</span></td>
+<td>15.14 GB（嵌入层只读当前 token 那一行，所以比 16.38 小）</td>
+</tr>
+<tr>
+<td>每个上下文 token 的 KV</td>
+<td>144 KiB</td>
+</tr>
+<tr>
+<td>2048 个 token 上下文的 KV</td>
+<td>288 MiB</td>
+</tr>
+</tbody>
+</table>
+<p>一个请求带 2048 个 token 的上下文（贴了一段代码），要输出 50 个 token：</p>
+<ul>
+<li>权重从存储<strong>加载 1 次</strong>：16.38 GB，而且实例启动时就加载好了，不算在这个请求头上。</li>
+<li>权重从显存<strong>读 50 次</strong>：约 <span class="arithmatex">\(50 \times 15.14 \approx 757\)</span> GB。</li>
+<li>prefill 结束时 KV 是 2048 × 144 KiB = 288 MiB，之后每个 decode 步追加 144 KiB。</li>
+<li>请求本身的文字：2048 个 token 按每个约 4 字节算（编的），大约 8 KB。</li>
+</ul>
+<p><img alt="外部请求只有几 KB，内部要读的数据是它的上亿倍" src="../figures/02-request-lifecycle-bytes-scale.png" /></p>
+<p><em>图 2-5 · 纵轴是对数刻度，每格差 1000 倍。请求文字约 8 KB，50 个 token 读权重的总量约 757 GB，差了大约一亿倍。</em></p>
+<p>这就是原文 L69 加粗的那句话：<strong>外部请求可能只有一小段文字，内部搬移的数据却包括大得多的权重、状态和中间张量。</strong>算这些读取要花多少时间，是第 05 章的事。</p>
+<p><strong>场景代码</strong>：用 vLLM 起一个实例，<code>tensor_parallel_size=2</code> 就是"一个实例分在 2 张卡上"，每张卡放一半权重，卡之间每层都要传中间结果：</p>
+<pre><code class="language-python">from vllm import LLM, SamplingParams
+
+llm = LLM(model=&quot;Qwen/Qwen3-8B&quot;, dtype=&quot;bfloat16&quot;, tensor_parallel_size=2)  # 启动时加载权重一次
+params = SamplingParams(max_tokens=50)                                        # 最多输出 50 个 token
+outs = llm.generate([&quot;帮我找代码里的 bug：...&quot;], params)                      # 每个 token 都要读一遍权重
+print(outs[0].outputs[0].text)
+</code></pre>
+<p><strong>一句话</strong>：权重加载一次、一直驻留在显存里；但每次前向都要从显存再读一遍，输出 <span class="arithmatex">\(N\)</span> 个 token 就读 <span class="arithmatex">\(N\)</span> 遍。</p>
+<h3 id="2026-11-24_2">第五步：软件落到硬件：托盘、超节点、数据中心（2026-11-24）</h3>
+<p><strong>类比：一座城市的物流。</strong> 一个仓库里（计算托盘），工人（GPU）手边有货架（显存）；同一个园区的仓库之间有内部传送带（超节点内互联，又快又近）；园区和园区之间走城市公路（数据中心网络，范围大、开销也大）。</p>
+<p><img alt="物理连接的两层视图：数据中心网络连起入口、存储和超节点；放大一个超节点，里面是托盘、CPU、GPU、HBM、网卡" src="../figures/02-request-lifecycle-hardware.png" /></p>
+<p><em>图 2-6 · 上层是数据中心，下层放大一个超节点。实线是数据路径，设备数量只是示意。</em></p>
+<p>原文 L77–L81，从小到大：</p>
+<table>
+<thead>
+<tr>
+<th>范围</th>
+<th>里面有什么</th>
+<th>管什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>计算托盘</strong>（机柜里可插拔的单元）/ 服务器</td>
+<td>CPU + 主存；GPU + 各自的显存（常用 <strong>HBM</strong>，通过宽接口持续供数据）；网卡</td>
+<td>CPU 跑主机程序、控制执行；GPU 算模型、存运行时数据</td>
+</tr>
+<tr>
+<td>托盘内的连接</td>
+<td>CPU ↔ GPU 走 <strong>PCIe</strong>；GPU ↔ GPU 可以走独立高速互联直接交换</td>
+<td>支持 <strong>DMA</strong> 的系统里，数据可以由传输硬件直接写进指定内存，CPU 只负责发起和管理（第 7 章讲）</td>
+</tr>
+<tr>
+<td><strong>超节点</strong></td>
+<td>一组靠高带宽互联紧密协作的加速器，可以跨多个托盘</td>
+<td>超节点内部的互联叫 <strong>scale-up</strong>（纵向扩展）：让一组卡以低通信开销一起算</td>
+</tr>
+<tr>
+<td><strong>数据中心</strong></td>
+<td>入口与 CPU 服务、共享存储、多个超节点组成的加速器资源池</td>
+<td>超节点之间经网卡和交换网络相连，叫 <strong>scale-out</strong>（横向扩展）：扩大集群范围</td>
+</tr>
+</tbody>
+</table>
+<p><strong>例子</strong>：原文举的 NVIDIA GB200 NVL72，一个机柜里放 36 个 Grace CPU 和 72 个 Blackwell GPU，72 个 GPU 通过 NVLink 连成<strong>同一个互联域</strong>。这样紧密协作的范围从一台机器扩大到了一整个机柜：模型的权重和状态可以分到更多卡上，频繁的交接都在机柜内完成；集群网络只负责对外连接。</p>
+<p>原文 L83 还把三种流量分开比较：</p>
+<table>
+<thead>
+<tr>
+<th>流量</th>
+<th>走哪条路</th>
+<th>多久一次</th>
+<th>能不能等</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>请求（用户的文字、返回的 token）</td>
+<td>服务入口</td>
+<td>每个请求进出一次，流式返回时一次一小段</td>
+<td>用户在等，但量小</td>
+</tr>
+<tr>
+<td>模型文件</td>
+<td>共享存储 → 显存</td>
+<td>启动或换模型时一次</td>
+<td><strong>可以提前加载</strong></td>
+</tr>
+<tr>
+<td>计算中的中间结果</td>
+<td>加速器互联（scale-up 为主）</td>
+<td>每层都有</td>
+<td><strong>必须及时到达</strong>，下一层才能继续</td>
+</tr>
+</tbody>
+</table>
+<p>所以物理连接会直接影响模型的执行时间。</p>
+<p><strong>一句话</strong>：一个托盘里是 CPU + 主存、GPU + HBM；超节点内部靠 scale-up 互联紧密协作，超节点之间靠 scale-out 网络扩大范围。三种流量里，只有中间结果是"每层都要、等不起"的。</p>
+<h3 id="2026-11-24_3">第六步：贯穿全书的两组模型（2026-11-24）</h3>
+<p>原文 L91–L95 先交代了后面各章反复用到的两组模型，这里只记住它们各自用来干什么：</p>
+<table>
+<thead>
+<tr>
+<th>模型</th>
+<th>书里用来做什么</th>
+<th>本章要记的一点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Qwen3-8B</strong>（开源）</td>
+<td>基础算例，建立计算方法</td>
+<td>第四步的 16.38 GB、15.14 GB、144 KiB 都是它</td>
+</tr>
+<tr>
+<td><strong>DeepSeek V4 / V4.1 Flash</strong></td>
+<td>检验模型和系统怎么一起变</td>
+<td>V4 用上下文压缩和稀疏访问改变存储和读取需求；V4.1 Flash 用 <strong>CED</strong>（因果编码器—解码器）重新分工</td>
+</tr>
+</tbody>
+</table>
+<p><strong>CED 改了什么</strong>（类比：秘书先把一大摞材料整理成摘要，写回复的人只看摘要）：传统的 decoder-only（仅解码器）模型让每个输入 token 都走完整个主干；CED 让编码器先把上下文整理成表示，解码器从这些表示里取全局信息。大量<strong>输入</strong> token 不用经过解码器主体，但生成新 token 时仍然依次经过编码器和解码器。输入和输出的路径不对称，正好对应 Agent 这类"输入多、输出少"的负载。第 2 章（原书）讲 CED 的结构。</p>
+<p><strong>一句话</strong>：Qwen3-8B 用来学怎么算，DeepSeek V4 / V4.1 用来看模型改了结构以后，系统要存什么、传什么怎么跟着变，这正是第 01 章说的跨层影响。</p>
+<h2 id="1-n">动画演示：一次请求从路由到流式返回，权重加载 1 次、读 N 次</h2>
+<p><img alt="一次生成请求的处理过程" src="../animations/02-request-lifecycle.gif" /></p>
+<p>可交互版：<a href="../animations/02-request-lifecycle.html">animations/02-request-lifecycle.html</a>（滑块：输出多少个 token，看前向次数、权重读取次数和 KV 份数怎么变；输入固定 4 个 token）。</p>
+<p><strong>怎么看</strong>：</p>
+<ol>
+<li>请求先到入口，路由器在两个实例里选更闲的那个（第一步）；</li>
+<li>实例里切 token、排队、编 batch、留 KV 空间，CPU 提交给 GPU（第二步）；</li>
+<li>权重从存储加载进显存，计数"加载 1 次"之后再也不变（第四步）；</li>
+<li>prefill：4 个输入 token 一起进，KV 一下子有 4 份，出第 1 个 token（第三步）；</li>
+<li>每个 decode 步：权重读一遍、整份 KV 读一遍、KV 多一份、流式送出一个 token；"读权重"计数一直涨（第三、四步）。</li>
+</ol>
+<h2 id="_2">练习与作答记录</h2>
+<p><strong>题 1</strong>（第一、二步）：下面 5 件事打乱了顺序。（a）按一个请求实际经过的先后排好；（b）每件事各属于第 01 章六层里的哪一层？</p>
+<ul>
+<li>A. GPU 执行矩阵乘法算子</li>
+<li>B. 路由器发现实例 A 很忙，把请求派给实例 B</li>
+<li>C. 入口检查这个用户今天的配额还剩多少</li>
+<li>D. 实例调度器把这个请求和另外 7 个请求编进同一个 batch</li>
+<li>E. CPU 上的运行时把一串计算任务提交给 GPU</li>
+</ul>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p><strong>题 2</strong>（第三、四步）：还是 Qwen3-8B、BF16，一个请求输入 1000 个 token，输出 300 个 token。</p>
+<p>（a）一共要几次前向？其中几次 prefill、几次 decode？
+（b）权重从存储加载几次？从显存读几次？读的总量大约多少 GB？
+（c）prefill 刚结束时，这个请求的 KV 缓存多大？请求全部结束时呢？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p><strong>题 3</strong>（第五步）：（a）把一个实例复制成两个实例（每个实例各自完整一份），显存里的权重总量怎么变？路由器多了什么事可做？（b）下面三样数据，各走第五步表里的哪条路？哪个可以提前准备，哪个必须及时到达？① 一个用户新发来的提问；② 换成另一个模型时的模型文件；③ 一个实例分在 4 张卡上，第 10 层算完的部分结果。</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p>原书还有一道延伸题（练习 1-1，原文 L87–L89）：沿图 1-3 到 1-5 补画 KV 状态的增长，并标出四种数据搬移。想多练可以做，作答也记在这里。</p>
+<h2 id="_3">口诀</h2>
+<blockquote>
+<p>路由选店，调度排单；<br />
+读题一口气，写字一个个；<br />
+菜谱搬一次，每锅翻一遍；<br />
+柜内 scale-up，柜外 scale-out。</p>
+</blockquote>
+<h2 id="_4">本章复习卡片</h2>
+<p><a href="../review.html">I03</a>（prefill 和 decode）、<a href="../review.html">I04</a>（权重的两种搬移）、<a href="../review.html">I05</a>（Qwen3-8B 三个数）、<a href="../review.html">I06</a>（scale-up 和 scale-out）。练习做完后，按答错、卡住的地方再补。</p>
+<h2 id="_5">附录 · 延伸阅读</h2>
+<blockquote>
+<p>留给以后深入学习用，不影响本章主线。★ 是建议先读的。</p>
+</blockquote>
+<h3 id="_6">推荐阅读</h3>
+<table>
+<thead>
+<tr>
+<th>读什么</th>
+<th>读哪里</th>
+<th>读它为了什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>★ AII 第 1 章</td>
+<td>§1.1.3 L55–L95，图 1-3 到 1-5</td>
+<td>本章的原文，三张图比文字更直观</td>
+</tr>
+<tr>
+<td>★ AII 第 1 章"本章数字速查"</td>
+<td>L456–L468</td>
+<td>Qwen3-8B 的权重、KV、每步读取量，后面各章反复用</td>
+</tr>
+<tr>
+<td>AII 第 1 章脚注</td>
+<td>L494（<code>[^request]</code>）、L496（<code>[^datacenter]</code>）</td>
+<td>调度与状态管理的分工可以对照 vLLM Scheduler 文档；GB200 NVL72 的官方硬件和网络指南</td>
+</tr>
+<tr>
+<td>AISPE 第 15–18 章</td>
+<td>中英对照 <code>materials/ai-systems-performance-engineering/docs/chapters/</code></td>
+<td>多节点推理、prefill / decode 分离的工程写法（第 8、9 章讲到时再精读）</td>
+</tr>
+<tr>
+<td><a href="../lessons/appendix-tp-pp-cp.html">补充 · TP、PP、CP</a></td>
+<td>全文</td>
+<td>一个实例分在多张卡上时，卡之间到底传什么</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_7">数学原理</h3>
+<ul>
+<li><strong>计数</strong>：输出 <span class="arithmatex">\(N\)</span> 个 token 要 <span class="arithmatex">\(N\)</span> 次前向（1 次 prefill + <span class="arithmatex">\(N-1\)</span> 次 decode）；结束时 KV 份数 = 输入长度 + <span class="arithmatex">\(N - 1\)</span>，因为最后一个输出不用再送进模型。</li>
+<li><strong>字节单位</strong>：GB = <span class="arithmatex">\(10^9\)</span> 字节，KiB = <span class="arithmatex">\(2^{10}\)</span> = 1024 字节，MiB = <span class="arithmatex">\(2^{20}\)</span> 字节。原书权重用 GB，KV 用 KiB / MiB，混算时要先换成同一种单位。</li>
+<li><strong>对数刻度</strong>：图 2-5 每往上一格乘 1000；8 KB 和 757 GB 相差约 <span class="arithmatex">\(10^8\)</span> 倍。</li>
+</ul>
+<h3 id="_8">公式清单</h3>
+<table>
+<thead>
+<tr>
+<th>公式</th>
+<th>意思</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>前向次数 <span class="arithmatex">\(= N = 1 + (N-1)\)</span></td>
+<td>输出 <span class="arithmatex">\(N\)</span> 个 token：1 次 prefill + <span class="arithmatex">\(N-1\)</span> 次 decode</td>
+</tr>
+<tr>
+<td>KV 份数（结束时）<span class="arithmatex">\(= L_{\text{in}} + N - 1\)</span></td>
+<td><span class="arithmatex">\(L_{\text{in}}\)</span>：输入长度（in = input）</td>
+</tr>
+<tr>
+<td>KV 字节 <span class="arithmatex">\(= \text{份数} \times 144\ \text{KiB}\)</span></td>
+<td>Qwen3-8B、BF16</td>
+</tr>
+<tr>
+<td>权重读取总量 <span class="arithmatex">\(\approx N \times W_{\text{step}}\)</span></td>
+<td><span class="arithmatex">\(W_{\text{step}} \approx 15.14\)</span> GB（Qwen3-8B、BF16）</td>
+</tr>
+<tr>
+<td>权重加载次数 <span class="arithmatex">\(= 1\)</span></td>
+<td>实例启动或换模型时</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_9">代码对照：把本章的数字用代码算一遍</h3>
+<blockquote>
+<p>纯 Python，不需要 GPU，也不下载模型。代码在仓库本地 <code>ai-infra/solutions/chapter-code/ch02_request_lifecycle.py</code>，配套测试 <code>tests/test_ch02.py</code>：</p>
+<p><code>bash  
+cd ai-infra/solutions/chapter-code  
+uv run python ch02_request_lifecycle.py   # 一步一步打印  
+uv run pytest tests/test_ch02.py</code></p>
+</blockquote>
+<p><strong>讲义 ↔ 代码</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>讲义</th>
+<th>公式</th>
+<th>写法</th>
+<th>跑出来</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第一步 路由选更闲的实例</td>
+<td>选排队最少的</td>
+<td><code>route(loads)</code></td>
+<td><code>{"A": 6, "B": 2}</code> → <code>B</code></td>
+</tr>
+<tr>
+<td>第三步 4 个输入、3 个输出</td>
+<td><span class="arithmatex">\(N\)</span> 次前向，KV <span class="arithmatex">\(= L_{\text{in}} + N - 1\)</span></td>
+<td><code>simulate(4, 3)</code></td>
+<td>3 次前向，KV 4 → 5 → 6</td>
+</tr>
+<tr>
+<td>第四步 Qwen3-8B 2048 输入、50 输出</td>
+<td><span class="arithmatex">\(N \times W_{\text{step}}\)</span></td>
+<td><code>weight_read_gb(50)</code></td>
+<td>约 757 GB</td>
+</tr>
+<tr>
+<td>第四步 2048 个 token 的 KV</td>
+<td>份数 × 144 KiB</td>
+<td><code>kv_mib(2048)</code></td>
+<td>288 MiB</td>
+</tr>
+<tr>
+<td>第四步 请求文字和读权重差多少倍</td>
+<td>757 GB ÷ 8 KB</td>
+<td><code>ratio()</code></td>
+<td>约 <span class="arithmatex">\(9.5 \times 10^7\)</span> 倍</td>
+</tr>
+</tbody>
+</table>
+<p><strong>关键几行</strong>：</p>
+<pre><code class="language-python">def simulate(prompt_len, out_len):
+    kv, steps = 0, []
+    for i in range(out_len):                    # 输出 N 个 token = N 次前向
+        fed = prompt_len if i == 0 else 1       # prefill 送进全部输入，decode 只送 1 个
+        read_old = kv                           # 先读已有的整份 KV
+        kv += fed                               # 再追加这次送进来的 token 的 k、v
+        steps.append((&quot;prefill&quot; if i == 0 else &quot;decode&quot;, fed, read_old, kv))
+    return steps
+</code></pre>
+<p><strong>代码里才看得到的 3 件事</strong>：</p>
+<ol>
+<li>循环跑 <span class="arithmatex">\(N\)</span> 次，但 KV 只追加到 <span class="arithmatex">\(L_{\text{in}} + N - 1\)</span>：最后一个输出 token 没被送进模型，它的 k、v 从没算过。要接着对话时，它会在下一次请求里补算。</li>
+<li>权重加载量（16.38 GB）和每步读取量（15.14 GB）不是同一个数，两个常量要分开写，混用会多算约 8%。</li>
+<li>原书的 GB 是 <span class="arithmatex">\(10^9\)</span> 字节，KV 的 KiB / MiB 是 <span class="arithmatex">\(2^{10}\)</span> / <span class="arithmatex">\(2^{20}\)</span>；<code>ratio()</code> 里先把 8 KB 换成字节再除。</li>
+</ol>
+<p><strong>自己改一改</strong>（不影响练习答案）：</p>
+<ul>
+<li>把 <code>simulate(4, 3)</code> 的输入长度改成 1、改成 10，看 decode 步读的旧 KV 份数怎么变。</li>
+<li>把 <code>route</code> 的负载改成两个实例一样忙，看它怎么挑（提示：Python 的 <code>min</code> 遇到并列取第一个）。</li>
+<li>把 <code>weight_read_gb</code> 的输出 token 数从 50 改成 5，看读取总量怎么变，再想想"加载 1 次"变不变。</li>
+</ul><nav class="pager"><a href="01-six-layers.html">← 第 01 章 · 一次请求走过的六层（进行中）</a><a href="03-dataflow-hierarchy.html">第 03 章 · 从存储程序到数据流执行：存储层次就像大楼里的厕所 →</a></nav>
+</main></div>
+<footer>来自个人学习仓库的对话讲义，含练习作答记录。源码：<a href="https://github.com/wikieden/ai-infra-from-constraints">github.com/wikieden/ai-infra-from-constraints</a>。更多讲义书：<a href="https://wikieden.github.io/ai-books/">Physical AI 0-1-♾️（合集）</a></footer>
+<script>(function(){var d=document.documentElement,K=["s","m","l","xl"];
+function save(k,v){try{v?localStorage.setItem(k,v):localStorage.removeItem(k)}catch(e){}}
+var s=document.getElementById("ab-theme");if(s){s.value=d.dataset.theme||"";s.onchange=function(){if(s.value)d.dataset.theme=s.value;else delete d.dataset.theme;save("ab-theme",s.value)}}
+document.querySelectorAll("[data-fs-step]").forEach(function(b){b.onclick=function(){var i=K.indexOf(d.dataset.fs||"m")+(+b.dataset.fsStep);i=Math.max(0,Math.min(K.length-1,i));d.dataset.fs=K[i];save("ab-fs",K[i])}});
+var nb=document.getElementById("nav-toggle"),side=document.querySelector("nav.side");if(nb&&side){nb.onclick=function(){side.classList.toggle("open")}}
+var cur=side&&side.querySelector(".cur");if(cur)cur.scrollIntoView({block:"center"});
+})();</script>
+</body></html>

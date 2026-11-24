@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="420" viewBox="0 0 880 420">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="16.0" y="26.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="17" fill="#1f2937" text-anchor="start" font-weight="bold">一次请求的全程：入口检查 → 路由器选实例 → 实例内部执行 → 流式返回</text>
+<text x="16.0" y="410.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">实例 A、B 的排队数是编的；一个实例可以只有 1 张卡，也可以分在多张卡上（这里 B 用 2 张）。</text>
+<rect x="20.0" y="170.0" width="110.0" height="64.0" rx="8" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.4" opacity="1"/>
+<text x="75.0" y="198.3" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="13.5" fill="#1f2937" text-anchor="middle" font-weight="bold">应用</text>
+<text x="75.0" y="215.8" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#4b5563" text-anchor="middle" font-weight="normal">组织上下文</text>
+<rect x="165.0" y="170.0" width="130.0" height="64.0" rx="8" fill="#f3f4f6" stroke="#6b7280" stroke-width="1.4" opacity="1"/>
+<text x="230.0" y="198.3" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="13.5" fill="#1f2937" text-anchor="middle" font-weight="bold">服务入口</text>
+<text x="230.0" y="215.8" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#4b5563" text-anchor="middle" font-weight="normal">权限 · 配额 · 内容</text>
+<rect x="330.0" y="170.0" width="110.0" height="64.0" rx="8" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<text x="385.0" y="198.3" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="13.5" fill="#1f2937" text-anchor="middle" font-weight="bold">路由器</text>
+<text x="385.0" y="215.8" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#4b5563" text-anchor="middle" font-weight="normal">选一个实例</text>
+<line x1="130.0" y1="202.0" x2="165.0" y2="202.0" stroke="#4b5563" stroke-width="1.6"/>
+<polygon points="165.0,202.0 157.1,206.2 157.1,197.8" fill="#4b5563" stroke="#4b5563" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<rect x="132.0" y="185.5" width="31.0" height="16.5" rx="3" fill="#ffffff" stroke="none" stroke-width="1.4" opacity="0.9"/>
+<text x="147.5" y="197.5" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#4b5563" text-anchor="middle" font-weight="normal">请求</text>
+<line x1="295.0" y1="202.0" x2="330.0" y2="202.0" stroke="#4b5563" stroke-width="1.6"/>
+<polygon points="330.0,202.0 322.1,206.2 322.1,197.8" fill="#4b5563" stroke="#4b5563" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<rect x="480.0" y="52.0" width="380.0" height="104.0" rx="10" fill="#f3f4f6" stroke="#6b7280" stroke-width="1.4" stroke-dasharray="5 4" opacity="0.55"/>
+<text x="490.0" y="70.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#6b7280" text-anchor="start" font-weight="bold">实例 A · 排队 6 个（忙）</text>
+<rect x="495.0" y="82.0" width="110.0" height="56.0" rx="8" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<text x="550.0" y="113.8" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="middle" font-weight="bold">调度器</text>
+<rect x="625.0" y="82.0" width="100.0" height="56.0" rx="8" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<text x="675.0" y="113.8" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="middle" font-weight="bold">CPU 运行时</text>
+<rect x="745.0" y="82.0" width="100.0" height="56.0" rx="8" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<text x="795.0" y="113.8" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="middle" font-weight="bold">GPU</text>
+<rect x="480.0" y="196.0" width="380.0" height="150.0" rx="10" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" stroke-dasharray="5 4" opacity="0.55"/>
+<text x="490.0" y="214.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#2563eb" text-anchor="start" font-weight="bold">实例 B · 排队 2 个 ← 派到这里</text>
+<rect x="495.0" y="240.0" width="110.0" height="64.0" rx="8" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<text x="550.0" y="268.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="middle" font-weight="bold">实例调度器</text>
+<text x="550.0" y="284.2" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#4b5563" text-anchor="middle" font-weight="normal">排队 · batch</text>
+<rect x="625.0" y="240.0" width="100.0" height="64.0" rx="8" fill="#dcfce7" stroke="#16a34a" stroke-width="1.4" opacity="1"/>
+<text x="675.0" y="268.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="middle" font-weight="bold">CPU 运行时</text>
+<text x="675.0" y="284.2" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#4b5563" text-anchor="middle" font-weight="normal">提交算子</text>
+<rect x="745.0" y="226.0" width="100.0" height="40.0" rx="8" fill="#dcfce7" stroke="#16a34a" stroke-width="1.4" opacity="1"/>
+<text x="795.0" y="249.8" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="middle" font-weight="bold">GPU 0</text>
+<rect x="745.0" y="280.0" width="100.0" height="40.0" rx="8" fill="#dcfce7" stroke="#16a34a" stroke-width="1.4" opacity="1"/>
+<text x="795.0" y="303.8" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="middle" font-weight="bold">GPU 1</text>
+<line x1="440.0" y1="202.0" x2="480.0" y2="120.0" stroke="#6b7280" stroke-width="1.6" stroke-dasharray="5 4"/>
+<polygon points="480.0,120.0 480.3,129.0 472.7,125.3" fill="#6b7280" stroke="#6b7280" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<rect x="435.0" y="140.4" width="54.0" height="16.5" rx="3" fill="#ffffff" stroke="none" stroke-width="1.4" opacity="0.9"/>
+<text x="462.0" y="152.4" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="middle" font-weight="normal">忙，不选</text>
+<line x1="440.0" y1="202.0" x2="495.0" y2="272.0" stroke="#ea580c" stroke-width="2"/>
+<polygon points="495.0,272.0 486.8,268.4 493.4,263.1" fill="#ea580c" stroke="#ea580c" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<rect x="452.0" y="220.5" width="31.0" height="16.5" rx="3" fill="#ffffff" stroke="none" stroke-width="1.4" opacity="0.9"/>
+<text x="467.5" y="232.5" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#ea580c" text-anchor="middle" font-weight="normal">派单</text>
+<line x1="605.0" y1="272.0" x2="625.0" y2="272.0" stroke="#4b5563" stroke-width="1.6"/>
+<polygon points="625.0,272.0 617.1,276.2 617.1,267.8" fill="#4b5563" stroke="#4b5563" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<line x1="725.0" y1="272.0" x2="745.0" y2="246.0" stroke="#4b5563" stroke-width="1.6"/>
+<polygon points="745.0,246.0 743.5,254.9 736.8,249.7" fill="#4b5563" stroke="#4b5563" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<line x1="725.0" y1="272.0" x2="745.0" y2="300.0" stroke="#4b5563" stroke-width="1.6"/>
+<polygon points="745.0,300.0 736.9,296.0 743.8,291.1" fill="#4b5563" stroke="#4b5563" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<line x1="795.0" y1="266.0" x2="795.0" y2="280.0" stroke="#16a34a" stroke-width="1.6"/>
+<polygon points="795.0,280.0 790.8,272.1 799.2,272.1" fill="#16a34a" stroke="#16a34a" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<polygon points="795.0,266.0 799.2,273.9 790.8,273.9" fill="#16a34a" stroke="#16a34a" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<text x="795.0" y="337.5" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#16a34a" text-anchor="middle" font-weight="normal">卡间传中间结果</text>
+<polyline points="670.0,346.0 670.0,378.0 75.0,378.0 75.0,234.0" fill="none" stroke="#7c3aed" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<polygon points="75.0,234.0 79.2,241.9 70.8,241.9" fill="#7c3aed" stroke="#7c3aed" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<rect x="304.9" y="361.5" width="135.2" height="16.5" rx="3" fill="#ffffff" stroke="none" stroke-width="1.4" opacity="0.9"/>
+<text x="372.5" y="373.5" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#7c3aed" text-anchor="middle" font-weight="normal">生成的 token 流式返回</text>
+</svg>

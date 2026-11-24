@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>关键路径与状态占用</title><link rel="stylesheet" href="anim.css">
+<style>svg text.cap{font-size:15px;font-weight:500}svg text.num{font-size:19px;font-weight:600}</style></head>
+<body><main>
+<h1>第 15 章 · 工具串行 vs 并行：关键路径和状态占用</h1>
+<p class="sub">配套讲义：<a href="../lessons/15-agent-tasks.html">第 15 章 · 多轮交互与 Agent 任务：前缀、成功成本、关键路径</a>。模型 2 秒 → 工具 A、B → 模型 3 秒。等待工具期间状态占 1 GiB。</p>
+<div class="panel"><svg id="sv" viewBox="0 0 680 330"></svg></div>
+<div class="row"><button id="play">▶ 播放</button><button id="step">→ 单步</button><button id="reset">↺ 从头开始</button></div>
+<div class="row"><label for="a">自己拖：工具 A（秒）</label><input type="range" id="a" min="1" max="15" step="1" value="6"><span id="av">6</span></div><div class="row"><label for="b">工具 B（秒）</label><input type="range" id="b" min="1" max="15" step="1" value="10"><span id="bv">10</span></div><div class="row"><label><input type="checkbox" id="dep" checked> 工具 B 依赖工具 A</label></div>
+<p class="note">看点：① 有依赖时 A、B 首尾相接，独立时并排、汇合点等慢的那个；② 总时间 = 关键路径长度；工具工作量 = A + B，两种情况一样；③ 等待工具期间状态占 1 GiB，GiB·s = 1 × 等待时长；④ 播放时依次演示 6 / 10 秒串行（21 秒）和并行（15 秒）。</p>
+</main>
+<script src="anim.js"></script>
+<script>
+const sv=$('sv');
+function box3(items,y){items.forEach(([a,b],i)=>{const x=20+i*(640/items.length);el('rect',{x,y,width:640/items.length-14,height:70,rx:8,fill:'none',stroke:'var(--line)'},sv);txt(a,{x:x+10,y:y+22,class:'m'},sv);txt(b,{x:x+10,y:y+54,class:'num'},sv)})}
+const F=[{a:6,b:10,d:true},{a:6,b:10,d:true},{a:6,b:10,d:false},{a:6,b:10,d:false}];let k=0,custom=null;
+function draw(){clear(sv);const {a,b,d}=custom||F[k];const wait=d?a+b:Math.max(a,b),tot=2+wait+3,sc=560/30,X=t=>60+t*sc;
+ txt(d?`B 依赖 A：串行，总 ${tot} 秒`:`A、B 独立：并行，总 ${tot} 秒`,{x:340,y:24,'text-anchor':'middle',class:'cap'},sv);
+ const bar=(x,w,y,l,c)=>{el('rect',{x:X(x),y,width:w*sc-2,height:26,rx:3,fill:c,opacity:.6},sv);txt(l,{x:X(x)+w*sc/2,y:y+18,'text-anchor':'middle',class:'m'},sv)};
+ bar(0,2,70,'模型','var(--purple)');if(d){bar(2,a,70,'工具 A','var(--warm)');bar(2+a,b,70,'工具 B','var(--warm)')}else{bar(2,a,52,'工具 A','var(--warm)');bar(2,b,88,'工具 B','var(--warm)')}
+ bar(2+wait,3,70,'模型','var(--purple)');
+ el('rect',{x:X(2),y:150,width:wait*sc,height:30,fill:'var(--teal)',opacity:.4},sv);txt('等待工具：状态 1 GiB',{x:X(2)+wait*sc/2,y:170,'text-anchor':'middle',class:'m'},sv);
+ for(let t=0;t<=30;t+=5)txt(String(t),{x:X(t),y:200,'text-anchor':'middle',class:'m'},sv);
+ box3([['总时间（关键路径）',tot+' s'],['工具工作量',(a+b)+' s'],['状态占用',wait+' GiB·s']],230)}
+function reset(){k=0;custom=null;draw()}
+function next(){if(custom!==null){custom=null;draw();return true}if(k>=F.length-1)return false;k++;draw();return true}
+function fs(){ANIM.stop();custom={a:+$('a').value,b:+$('b').value,d:$('dep').checked};$('av').textContent=custom.a;$('bv').textContent=custom.b;draw()}
+$('a').oninput=fs;$('b').oninput=fs;$('dep').onchange=fs;
+setupPlayer({captureSeed:1,reset,next},1500);
+</script><a href="https://wikieden.github.io/ai-books/" style="position:fixed;right:12px;bottom:12px;z-index:99;padding:4px 10px;border-radius:14px;background:rgba(127,127,127,.18);color:inherit;font:13px/1.6 system-ui,sans-serif;text-decoration:none">← 全部讲义书</a>
+</body></html>

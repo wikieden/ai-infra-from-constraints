@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="420" viewBox="0 0 760 420">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="16.0" y="26.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="17" fill="#1f2937" text-anchor="start" font-weight="bold">Amdahl 定律：被加速的部分占比 f 越大，整体收益越大</text>
+<text x="16.0" y="410.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">蓝线 s = 5（编码快 5 倍）；灰线 s → ∞，上限 1/(1-f)。点是原文的四组团队：f = 0.2、0.3、0.7、0.8。</text>
+<line x1="80.0" y1="360.0" x2="700.0" y2="360.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="74.0" y="364.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">1</text>
+<line x1="80.0" y1="300.0" x2="700.0" y2="300.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="74.0" y="304.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">2</text>
+<line x1="80.0" y1="240.0" x2="700.0" y2="240.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="74.0" y="244.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">3</text>
+<line x1="80.0" y1="180.0" x2="700.0" y2="180.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="74.0" y="184.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">4</text>
+<line x1="80.0" y1="120.0" x2="700.0" y2="120.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="74.0" y="124.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">5</text>
+<line x1="80.0" y1="60.0" x2="700.0" y2="60.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="74.0" y="64.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">6</text>
+<line x1="80.0" y1="60.0" x2="80.0" y2="360.0" stroke="#f0f1f3" stroke-width="1"/>
+<text x="80.0" y="375.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">0</text>
+<line x1="204.0" y1="60.0" x2="204.0" y2="360.0" stroke="#f0f1f3" stroke-width="1"/>
+<text x="204.0" y="375.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">0.2</text>
+<line x1="328.0" y1="60.0" x2="328.0" y2="360.0" stroke="#f0f1f3" stroke-width="1"/>
+<text x="328.0" y="375.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">0.4</text>
+<line x1="452.0" y1="60.0" x2="452.0" y2="360.0" stroke="#f0f1f3" stroke-width="1"/>
+<text x="452.0" y="375.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">0.6</text>
+<line x1="576.0" y1="60.0" x2="576.0" y2="360.0" stroke="#f0f1f3" stroke-width="1"/>
+<text x="576.0" y="375.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">0.8</text>
+<line x1="700.0" y1="60.0" x2="700.0" y2="360.0" stroke="#f0f1f3" stroke-width="1"/>
+<text x="700.0" y="375.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">1</text>
+<line x1="80.0" y1="360.0" x2="700.0" y2="360.0" stroke="#1f2937" stroke-width="1.3"/>
+<line x1="80.0" y1="60.0" x2="80.0" y2="360.0" stroke="#1f2937" stroke-width="1.3"/>
+<text x="390.0" y="392.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#1f2937" text-anchor="middle" font-weight="normal">被加速部分的占比 f</text>
+<text transform="translate(40.0,210.0) rotate(-90)" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#1f2937" text-anchor="middle">总加速比</text>
+<polyline points="80.0,360.0 86.2,359.4 92.4,358.8 98.6,358.1 104.8,357.5 111.0,356.8 117.2,356.2 123.4,355.5 129.6,354.8 135.8,354.1 142.0,353.3 148.2,352.6 154.4,351.8 160.6,351.0 166.8,350.2 173.0,349.4 179.2,348.6 185.4,347.7 191.6,346.8 197.8,345.9 204.0,345.0 210.2,344.1 216.4,343.1 222.6,342.1 228.8,341.1 235.0,340.0 241.2,338.9 247.4,337.8 253.6,336.7 259.8,335.5 266.0,334.3 272.2,333.0 278.4,331.8 284.6,330.4 290.8,329.1 297.0,327.7 303.2,326.2 309.4,324.8 315.6,323.2 321.8,321.6 328.0,320.0 334.2,318.3 340.4,316.6 346.6,314.7 352.8,312.9 359.0,310.9 365.2,308.9 371.4,306.8 377.6,304.6 383.8,302.4 390.0,300.0 396.2,297.6 402.4,295.0 408.6,292.3 414.8,289.6 421.0,286.7 427.2,283.6 433.4,280.5 439.6,277.1 445.8,273.7 452.0,270.0 458.2,266.2 464.4,262.1 470.6,257.8 476.8,253.3 483.0,248.6 489.2,243.5 495.4,238.2 501.6,232.5 507.8,226.5 514.0,220.0 520.2,213.1 526.4,205.7 532.6,197.8 538.8,189.2 545.0,180.0 551.2,170.0 557.4,159.1 563.6,147.3 569.8,134.3 576.0,120.0 582.2,104.2 588.4,86.7 594.6,67.1" fill="none" stroke="#6b7280" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="6 4" opacity="1"/>
+<polyline points="80.0,360.0 86.2,359.5 92.4,359.0 98.6,358.5 104.8,358.0 111.0,357.5 117.2,357.0 123.4,356.4 129.6,355.9 135.8,355.3 142.0,354.8 148.2,354.2 154.4,353.6 160.6,353.0 166.8,352.4 173.0,351.8 179.2,351.2 185.4,350.6 191.6,349.9 197.8,349.2 204.0,348.6 210.2,347.9 216.4,347.2 222.6,346.5 228.8,345.7 235.0,345.0 241.2,344.2 247.4,343.5 253.6,342.7 259.8,341.9 266.0,341.1 272.2,340.2 278.4,339.4 284.6,338.5 290.8,337.6 297.0,336.7 303.2,335.7 309.4,334.8 315.6,333.8 321.8,332.8 328.0,331.8 334.2,330.7 340.4,329.6 346.6,328.5 352.8,327.4 359.0,326.2 365.2,325.1 371.4,323.8 377.6,322.6 383.8,321.3 390.0,320.0 396.2,318.6 402.4,317.3 408.6,315.8 414.8,314.4 421.0,312.9 427.2,311.3 433.4,309.7 439.6,308.1 445.8,306.4 452.0,304.6 458.2,302.8 464.4,301.0 470.6,299.0 476.8,297.0 483.0,295.0 489.2,292.9 495.4,290.7 501.6,288.4 507.8,286.1 514.0,283.6 520.2,281.1 526.4,278.5 532.6,275.8 538.8,272.9 545.0,270.0 551.2,266.9 557.4,263.8 563.6,260.4 569.8,257.0 576.0,253.3 582.2,249.5 588.4,245.6 594.6,241.4 600.8,237.1 607.0,232.5 613.2,227.7 619.4,222.6 625.6,217.3 631.8,211.7 638.0,205.7 644.2,199.4 650.4,192.7 656.6,185.6 662.8,178.1 669.0,170.0 675.2,161.4 681.4,152.1 687.6,142.2 693.8,131.5 700.0,120.0" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<circle cx="204.0" cy="348.6" r="5" fill="#ea580c" stroke="#ea580c" stroke-width="1.4"/>
+<rect x="187.2" y="326.6" width="33.5" height="16.0" rx="3" fill="#ffffff" stroke="none" stroke-width="1.4" opacity="0.9"/>
+<text x="204.0" y="338.1" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#ea580c" text-anchor="middle" font-weight="normal">1.19</text>
+<circle cx="266.0" cy="341.1" r="5" fill="#ea580c" stroke="#ea580c" stroke-width="1.4"/>
+<rect x="249.2" y="319.1" width="33.5" height="16.0" rx="3" fill="#ffffff" stroke="none" stroke-width="1.4" opacity="0.9"/>
+<text x="266.0" y="330.6" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#ea580c" text-anchor="middle" font-weight="normal">1.32</text>
+<circle cx="514.0" cy="283.6" r="5" fill="#ea580c" stroke="#ea580c" stroke-width="1.4"/>
+<rect x="497.2" y="261.6" width="33.5" height="16.0" rx="3" fill="#ffffff" stroke="none" stroke-width="1.4" opacity="0.9"/>
+<text x="514.0" y="273.1" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#ea580c" text-anchor="middle" font-weight="normal">2.27</text>
+<circle cx="576.0" cy="253.3" r="5" fill="#ea580c" stroke="#ea580c" stroke-width="1.4"/>
+<rect x="559.2" y="231.3" width="33.5" height="16.0" rx="3" fill="#ffffff" stroke="none" stroke-width="1.4" opacity="0.9"/>
+<text x="576.0" y="242.8" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#ea580c" text-anchor="middle" font-weight="normal">2.78</text>
+<rect x="513.8" y="73.5" width="99.5" height="16.5" rx="3" fill="#ffffff" stroke="none" stroke-width="1.4" opacity="0.9"/>
+<text x="563.6" y="85.5" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="middle" font-weight="normal">s → ∞：1/(1-f)</text>
+<rect x="637.3" y="163.5" width="41.4" height="16.5" rx="3" fill="#ffffff" stroke="none" stroke-width="1.4" opacity="0.9"/>
+<text x="658.0" y="175.5" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#2563eb" text-anchor="middle" font-weight="normal">s = 5</text>
+</svg>

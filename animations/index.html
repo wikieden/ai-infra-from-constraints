@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>动画演示 · 从约束推导 AI Infra</title>
+<script>(function(){try{var d=document.documentElement,t=localStorage.getItem("ab-theme"),f=localStorage.getItem("ab-fs");if(t)d.dataset.theme=t;if(f)d.dataset.fs=f}catch(e){}})();</script>
+<style>:root{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa;--fs:16px}
+@media (prefers-color-scheme:dark){:root:not([data-theme]){--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}}
+:root[data-theme="light"]{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa}
+:root[data-theme="dark"]{--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}
+:root[data-theme="sepia"]{--bg:#f6efe1;--fg:#3b3127;--mute:#7a6a58;--line:#e2d6bf;--card:#fbf6ec;--acc:#a0522d;--code:#ece2cd;--quote:#efe5d2}
+:root[data-theme="green"]{--bg:#e3eddf;--fg:#22301f;--mute:#566650;--line:#c9d8c3;--card:#eef5eb;--acc:#2e7d4f;--code:#d6e4d0;--quote:#dae7d5}
+:root[data-theme="navy"]{--bg:#0f1a2b;--fg:#dde6f3;--mute:#93a4bd;--line:#23324a;--card:#15233a;--acc:#6cc4ff;--code:#1a2a44;--quote:#16243b}
+:root[data-fs="s"]{--fs:15px}
+:root[data-fs="m"]{--fs:16px}
+:root[data-fs="l"]{--fs:18px}
+:root[data-fs="xl"]{--fs:20px}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:var(--fs)/1.75 -apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Helvetica Neue",sans-serif}
+a{color:var(--acc)}
+header.top{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+header.top .in{max-width:860px;margin:0 auto;padding:10px 16px;display:flex;gap:6px 16px;align-items:center;flex-wrap:wrap;font-size:14px}
+header.top .brand{font-weight:600;color:var(--fg);text-decoration:none;margin-right:auto}
+header.top a{text-decoration:none}
+.prefs{display:inline-flex;gap:4px;align-items:center}
+.prefs button,.prefs select,#nav-toggle{font:inherit;font-size:13px;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:2px 8px;cursor:pointer}
+main{max-width:860px;margin:0 auto;padding:24px 16px 72px;overflow-wrap:anywhere}
+h1{font-size:1.75em;line-height:1.35;margin:8px 0 16px} h2{font-size:1.375em;margin:40px 0 12px;padding-top:8px;border-top:1px solid var(--line)} h3{font-size:1.125em;margin:28px 0 8px}
+.layout{display:grid;grid-template-columns:260px minmax(0,1fr);max-width:1180px;margin:0 auto}
+.layout main{margin:0;max-width:880px}
+nav.side{position:sticky;top:49px;align-self:start;max-height:calc(100vh - 49px);overflow-y:auto;padding:20px 8px 40px 16px;border-right:1px solid var(--line);font-size:14px;line-height:1.5}
+nav.side .h{font-weight:600;color:var(--mute);margin:4px 8px 8px;font-size:13px}
+nav.side a{display:block;padding:5px 8px;border-radius:6px;color:var(--fg);text-decoration:none}
+nav.side a:hover{background:var(--code)} nav.side a.cur{background:var(--quote);color:var(--acc);font-weight:600}
+nav.side a .n{color:var(--mute);margin-right:6px;font-variant-numeric:tabular-nums}
+#nav-toggle{display:none}
+@media (max-width:960px){.layout{display:block} nav.side{display:none;position:fixed;z-index:6;top:49px;left:0;bottom:0;width:min(300px,85vw);max-height:none;background:var(--bg);box-shadow:2px 0 12px rgba(0,0,0,.2)} nav.side.open{display:block} #nav-toggle{display:inline-block}}
+.run{display:flex;flex-wrap:wrap;align-items:center;gap:4px 0;margin:4px 0 12px}
+.run details{flex-basis:100%;margin:6px 0 0;font-size:.94em}
+img{max-width:100%;height:auto;border-radius:8px;border:1px solid var(--line);background:#fff}
+blockquote{margin:16px 0;padding:10px 16px;background:var(--quote);border-left:3px solid var(--acc);border-radius:4px;color:var(--mute)}
+blockquote p{margin:4px 0}
+code{background:var(--code);padding:1px 5px;border-radius:4px;font-size:.9em}
+pre{background:var(--code);padding:12px 14px;border-radius:8px;overflow-x:auto} pre code{padding:0;background:none}
+table{border-collapse:collapse;display:block;overflow-x:auto;max-width:100%;margin:12px 0;font-size:.94em}
+th,td{border:1px solid var(--line);padding:6px 10px;vertical-align:top} th{background:var(--code)}
+details{border:1px solid var(--line);border-radius:8px;padding:6px 12px;margin:8px 0;background:var(--card)}
+details[open]{padding-bottom:10px} summary{cursor:pointer;color:var(--acc);font-weight:500}
+mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%}
+.btn{display:inline-block;margin:4px 8px 4px 0;padding:6px 14px;border:1px solid var(--acc);border-radius:999px;text-decoration:none;font-size:14px}
+.pager{display:flex;justify-content:space-between;gap:12px;margin-top:48px;padding-top:16px;border-top:1px solid var(--line);font-size:15px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin:16px 0}
+.card{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;color:inherit;text-decoration:none}
+.card:hover{border-color:var(--acc)} .card img{border:0;border-bottom:1px solid var(--line);border-radius:0;aspect-ratio:16/10;object-fit:contain;width:100%}
+.card .no{color:var(--mute);font-size:13px;padding:8px 12px 0} .card .t{padding:0 12px 12px;font-weight:500;line-height:1.5}
+.lead{font-size:1.06em;color:var(--mute)}
+footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-size:13px}
+</style>
+<script>window.MathJax={tex:{inlineMath:[["\\(","\\)"]],displayMath:[["\\[","\\]"],["$$","$$"]],processEscapes:true,processEnvironments:true}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"></script>
+</head><body>
+<header class="top"><div class="in">
+<a class="brand" href="../index.html">从约束推导 AI Infra</a>
+<a href="../lessons/index.html">讲义目录</a>
+<a href="../animations/index.html">动画</a>
+<a href="../review.html">复习卡片</a>
+<a href="../lessons/appendix-glossary.html">缩写表</a>
+<a href="https://wikieden.github.io/ai-books/glossary.html">全局词汇</a>
+<a href="https://wikieden.github.io/ai-books/">← 全部讲义书</a>
+<span class="prefs" title="字号与主题"><button type="button" data-fs-step="-1" aria-label="字号变小">A−</button><button type="button" data-fs-step="1" aria-label="字号变大">A+</button><select id="ab-theme" aria-label="主题色"><option value="">跟随系统</option><option value="light">浅色</option><option value="dark">深色</option><option value="sepia">米黄护眼</option><option value="green">豆沙绿护眼</option><option value="navy">夜蓝</option></select></span>
+</div></header>
+<main>
+<h1 id="_1">动画演示</h1>
+<p>每章关键原理配一个可交互动画。讲义 md 里嵌的是 GIF（GitHub、Markdown 预览和 Mac 备忘录都能直接播放）；想自己单步、拖滑块，就用浏览器打开同名 <code>.html</code>。</p>
+<table>
+<thead>
+<tr>
+<th>章</th>
+<th>原理</th>
+<th>GIF</th>
+<th>可交互</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>01</td>
+<td>六层上下看；KV 缓存像便签越积越厚，每生成一个 token 读整叠；GQA 只剩 1/4，下面各层跟着变</td>
+<td><a href="01-six-layers.gif">01-six-layers.gif</a></td>
+<td><a href="01-six-layers.html">html</a></td>
+</tr>
+<tr>
+<td>02</td>
+<td>一次请求的全程：路由器派给更闲的实例；实例内切 token、排队、编 batch、留 KV 空间、CPU 提交；权重加载 1 次；prefill 一次、decode 逐步，每步读权重和整份 KV、KV 多一份、流式送出（滑块改输出 token 数）</td>
+<td><a href="02-request-lifecycle.gif">02-request-lifecycle.gif</a></td>
+<td><a href="02-request-lifecycle.html">html</a></td>
+</tr>
+<tr>
+<td>03</td>
+<td>矩阵乘法分块：每步把 A、B 各一块搬进近处，远处读取降到 2n³/t（滑块改 tile 边长）</td>
+<td><a href="03-dataflow-hierarchy.gif">03-dataflow-hierarchy.gif</a></td>
+<td><a href="03-dataflow-hierarchy.html">html</a></td>
+</tr>
+<tr>
+<td>04</td>
+<td>Amdahl 定律：能加速的部分按 1/s 缩短，不变的部分决定上限 1/(1-f)（滑块改 f 和 s）</td>
+<td><a href="04-key-numbers.gif">04-key-numbers.gif</a></td>
+<td><a href="04-key-numbers.html">html</a></td>
+</tr>
+<tr>
+<td>05</td>
+<td>batch 从 1 到 256：读权重不变、计算线性增长，转折点 B* ≈ 148；一步下界、每输出分摊、吞吐（滑块改 B）</td>
+<td><a href="05-estimate.gif">05-estimate.gif</a></td>
+<td><a href="05-estimate.html">html</a></td>
+</tr>
+<tr>
+<td>06</td>
+<td>网速越高，光转发要越多 CPU 核；SmartNIC 把核还给应用（滑块改链路速率和单核处理能力）</td>
+<td><a href="06-architecture.gif">06-architecture.gif</a></td>
+<td><a href="06-architecture.html">html</a></td>
+</tr>
+<tr>
+<td>07</td>
+<td>查询—键配对：长方形（新读旧）+ 三角形（新输入内部）；投影与注意力运算量（滑块改 S、P）</td>
+<td><a href="07-compute-graph.gif">07-compute-graph.gif</a></td>
+<td><a href="07-compute-graph.html">html</a></td>
+</tr>
+<tr>
+<td>08</td>
+<td>逐步生成：每步读全部已有位置、追加一格；保存与累计读取的比值（滑块改 H、n_d）</td>
+<td><a href="08-generation-budget.gif">08-generation-budget.gif</a></td>
+<td><a href="08-generation-budget.html">html</a></td>
+</tr>
+<tr>
+<td>09</td>
+<td>32 个查询头，KV 头从 32 减到 1；最后和 MLA 紧凑路径对比（滑块改 KV 头数）</td>
+<td><a href="09-kv-sharing.gif">09-kv-sharing.gif</a></td>
+<td><a href="09-kv-sharing.html">html</a></td>
+</tr>
+<tr>
+<td>10</td>
+<td>上下文从 1K 到 128K，四个模型的单请求状态（固定 + 逐 token，滑块改上下文）</td>
+<td><a href="10-kv-sparse-linear.gif">10-kv-sparse-linear.gif</a></td>
+<td><a href="10-kv-sparse-linear.html">html</a></td>
+</tr>
+<tr>
+<td>11</td>
+<td>64 个 token 各选 8 个专家：U 从 256 降到 8，读取从 1.5 GiB 降到 48 MiB，运算不变（滑块改 U）</td>
+<td><a href="11-moe.gif">11-moe.gif</a></td>
+<td><a href="11-moe.html">html</a></td>
+</tr>
+<tr>
+<td>12</td>
+<td>推测解码与普通 decode 并排生成 12 个 token（滑块改一轮耗时和 ḡ）</td>
+<td><a href="12-network-shape.gif">12-network-shape.gif</a></td>
+<td><a href="12-network-shape.html">html</a></td>
+</tr>
+<tr>
+<td>13</td>
+<td>RTX 4090 的 24 GB：权重、工作区、每条请求的 KV（滑块改上下文和工作区）</td>
+<td><a href="13-model-comparison.gif">13-model-comparison.gif</a></td>
+<td><a href="13-model-comparison.html">html</a></td>
+</tr>
+<tr>
+<td>14</td>
+<td>三个 60 秒窗口的到达速率与积压：到达高于处理率时上升，降下来后排空（滑块改三个窗口）</td>
+<td><a href="14-workload-arrival.gif">14-workload-arrival.gif</a></td>
+<td><a href="14-workload-arrival.html">html</a></td>
+</tr>
+<tr>
+<td>15</td>
+<td>工具串行 vs 并行：关键路径、工具工作量、等待期间的状态占用（滑块改两个工具耗时，开关改依赖）</td>
+<td><a href="15-agent-tasks.gif">15-agent-tasks.gif</a></td>
+<td><a href="15-agent-tasks.html">html</a></td>
+</tr>
+<tr>
+<td>16</td>
+<td>8 块音频的到达与播放：缓冲越大越晚开始、越不容易停顿（滑块改缓冲和第三块延迟）</td>
+<td><a href="16-multimodal-realtime.gif">16-multimodal-realtime.gif</a></td>
+<td><a href="16-multimodal-realtime.html">html</a></td>
+</tr>
+<tr>
+<td>17</td>
+<td>保留 16 条不变，保留比例从 1 降到 1/8：生成数、周期运算和每个保留样本的成本（滑块改保留比例）</td>
+<td><a href="17-training-rl.gif">17-training-rl.gif</a></td>
+<td><a href="17-training-rl.html">html</a></td>
+</tr>
+<tr>
+<td>18</td>
+<td>训练投入是截距、每次服务是斜率，两条线的交点就是回本次数（滑块改多投入的训练和每次节省）</td>
+<td><a href="18-scaling-lifecycle.gif">18-scaling-lifecycle.gif</a></td>
+<td><a href="18-scaling-lifecycle.html">html</a></td>
+</tr>
+<tr>
+<td>19</td>
+<td>行数 M 从 1 到 4096：读写量、算术强度和每 token 能量（滑块改 M）</td>
+<td><a href="19-accelerator-basics.gif">19-accelerator-basics.gif</a></td>
+<td><a href="19-accelerator-basics.html">html</a></td>
+</tr>
+<tr>
+<td>20</td>
+<td>注意力流水：矩阵、共享内存、指数三项谁最慢，瓶颈怎样转移（三个开关）</td>
+<td><a href="20-compute-units.gif">20-compute-units.gif</a></td>
+<td><a href="20-compute-units.html">html</a></td>
+</tr>
+<tr>
+<td>21</td>
+<td>缓冲槽：1–4 个槽的完成时间 1280 → 704，矩阵 ×2 后要 4 个槽（滑块改槽数）</td>
+<td><a href="21-memory-movement.gif">21-memory-movement.gif</a></td>
+<td><a href="21-memory-movement.html">html</a></td>
+</tr>
+<tr>
+<td>22</td>
+<td>固定开销与带宽：数据量从 8 KiB 到 32 MiB，A100 vs H100（滑块改数据量和 α）</td>
+<td><a href="22-package-interconnect.gif">22-package-interconnect.gif</a></td>
+<td><a href="22-package-interconnect.html">html</a></td>
+</tr>
+<tr>
+<td>23</td>
+<td>权重挪到 ROM 后 HBM 读取随 batch 变化，交点约 12.5（滑块改 batch 和上下文）</td>
+<td><a href="23-architecture-evolution.gif">23-architecture-evolution.gif</a></td>
+<td><a href="23-architecture-evolution.html">html</a></td>
+</tr>
+<tr>
+<td>24</td>
+<td>同一模型挑一张卡：七张卡加 M3 Ultra 的 decode / prefill 与容量（切换模型、滑块改并发）</td>
+<td><a href="24-choose-accelerator.gif">24-choose-accelerator.gif</a></td>
+<td><a href="24-choose-accelerator.html">html</a></td>
+</tr>
+<tr>
+<td>补充</td>
+<td>TP、PP、CP 三种切法：PP 按层分段与 bubble（滑块改 micro-batch 数）；TP 切矩阵、部分和 AllReduce；CP 切序列、因果三角形的跨卡依赖和前后搭配；组合 TP=8 × PP=3 × DP=2</td>
+<td><a href="appendix-tp-pp-cp.gif">appendix-tp-pp-cp.gif</a></td>
+<td><a href="appendix-tp-pp-cp.html">html</a></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_2">跑起来看（按钮、滑块能动）</h2>
+<p>在仓库根目录的 Claude 会话里说"打开第 N 章动画"即可（<code>.claude/launch.json</code> 里的 <code>ai-infra-animations</code> 配置）。自己在终端跑：</p>
+<pre><code class="language-bash">python3 -m http.server 8346 --directory ai-infra/notes/animations
+</code></pre>
+<p>然后浏览器打开 <code>http://localhost:8346/01-six-layers.html</code>。直接双击 html 也能打开。</p>
+<h2 id="_3">新增或修改一个动画</h2>
+<ol>
+<li>页面引用 <code>anim.css</code> 和 <code>anim.js</code>（从 <code>transformer-deep-dive/notes/animations/</code> 复制来的同一套），提供 <code>reset(seed)</code> 和 <code>next()</code>（返回 <code>false</code> 表示播完），用 <code>setupPlayer({captureSeed, reset, next}, 毫秒)</code> 挂上播放按钮。</li>
+<li>重新录 GIF（在本目录下执行）：</li>
+</ol>
+<p><code>bash
+   node ../../../tools/anim-capture/capture.mjs 01-six-layers.html 01-six-layers.gif 1600</code></p>
+<p>录完删掉多出来的 <code>*-last.png</code>。
+3. 在对应讲义里写 <code>## 动画演示</code>，嵌 GIF、链 html。</p>
+</main>
+<footer>来自个人学习仓库的对话讲义，含练习作答记录。源码：<a href="https://github.com/wikieden/ai-infra-from-constraints">github.com/wikieden/ai-infra-from-constraints</a>。更多讲义书：<a href="https://wikieden.github.io/ai-books/">Physical AI 0-1-♾️（合集）</a></footer>
+<script>(function(){var d=document.documentElement,K=["s","m","l","xl"];
+function save(k,v){try{v?localStorage.setItem(k,v):localStorage.removeItem(k)}catch(e){}}
+var s=document.getElementById("ab-theme");if(s){s.value=d.dataset.theme||"";s.onchange=function(){if(s.value)d.dataset.theme=s.value;else delete d.dataset.theme;save("ab-theme",s.value)}}
+document.querySelectorAll("[data-fs-step]").forEach(function(b){b.onclick=function(){var i=K.indexOf(d.dataset.fs||"m")+(+b.dataset.fsStep);i=Math.max(0,Math.min(K.length-1,i));d.dataset.fs=K[i];save("ab-fs",K[i])}});
+var nb=document.getElementById("nav-toggle"),side=document.querySelector("nav.side");if(nb&&side){nb.onclick=function(){side.classList.toggle("open")}}
+var cur=side&&side.querySelector(".cur");if(cur)cur.scrollIntoView({block:"center"});
+})();</script>
+</body></html>

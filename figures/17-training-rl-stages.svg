@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="820" height="300" viewBox="0 0 820 300">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="16.0" y="26.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="17" fill="#1f2937" text-anchor="start" font-weight="bold">保留 16 条不变，生成从 32 条增到 64 条：前三段翻倍，更新不变</text>
+<text x="16.0" y="290.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">例题 3-4（TFLOPs）。合计 2,181.559 → 3,410.701，+56.3%；每个保留样本 136.347 → 213.169。</text>
+<text x="120.0" y="112.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="end" font-weight="bold">生成 32 条</text>
+<rect x="130.0" y="90.0" width="79.1" height="34.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<text x="169.5" y="112.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#1f2937" text-anchor="middle" font-weight="normal">prefill</text>
+<rect x="209.1" y="90.0" width="21.9" height="34.0" rx="2" fill="#ccfbf1" stroke="#0d9488" stroke-width="1.4" opacity="1"/>
+<rect x="231.0" y="90.0" width="107.9" height="34.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<text x="285.0" y="112.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#1f2937" text-anchor="middle" font-weight="normal">参考模型</text>
+<rect x="339.0" y="90.0" width="161.9" height="34.0" rx="2" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.4" opacity="1"/>
+<text x="419.9" y="112.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#1f2937" text-anchor="middle" font-weight="normal">更新</text>
+<text x="508.9" y="112.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="start" font-weight="bold">2,181.6</text>
+<text x="120.0" y="192.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="end" font-weight="bold">生成 64 条</text>
+<rect x="130.0" y="170.0" width="158.1" height="34.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<text x="209.1" y="192.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#1f2937" text-anchor="middle" font-weight="normal">prefill</text>
+<rect x="288.1" y="170.0" width="43.9" height="34.0" rx="2" fill="#ccfbf1" stroke="#0d9488" stroke-width="1.4" opacity="1"/>
+<rect x="332.0" y="170.0" width="215.9" height="34.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<text x="440.0" y="192.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#1f2937" text-anchor="middle" font-weight="normal">参考模型</text>
+<rect x="547.9" y="170.0" width="161.9" height="34.0" rx="2" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.4" opacity="1"/>
+<text x="628.9" y="192.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#1f2937" text-anchor="middle" font-weight="normal">更新</text>
+<text x="717.8" y="192.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="start" font-weight="bold">3,410.7</text>
+</svg>

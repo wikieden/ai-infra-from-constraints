@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="300" viewBox="0 0 860 300">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="16.0" y="26.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="17" fill="#1f2937" text-anchor="start" font-weight="bold">RTX 4090 的 24 GB：权重、工作区，剩下的能放几条请求</text>
+<text x="16.0" y="290.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">Qwen3-8B BF16 权重 16.38 GB；工作区 2 GiB ≈ 2.15 GB；每条 8K 请求 KV 1.125 GiB ≈ 1.21 GB。剩余约 5.47 GB → 4 条（第 5 条放不下）。</text>
+<rect x="40.0" y="110.0" width="524.2" height="60.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<text x="302.1" y="146.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#1f2937" text-anchor="middle" font-weight="normal">权重 16.38 GB</text>
+<rect x="564.2" y="110.0" width="68.7" height="60.0" rx="2" fill="#f3f4f6" stroke="#6b7280" stroke-width="1.4" opacity="1"/>
+<text x="598.5" y="146.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#1f2937" text-anchor="middle" font-weight="normal">工作区</text>
+<rect x="632.9" y="110.0" width="38.7" height="60.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<rect x="671.6" y="110.0" width="38.7" height="60.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<rect x="710.2" y="110.0" width="38.7" height="60.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<rect x="748.9" y="110.0" width="38.7" height="60.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<rect x="787.5" y="110.0" width="20.5" height="60.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" stroke-dasharray="4 3" opacity="1"/>
+<rect x="40.0" y="110.0" width="768.0" height="60.0" rx="2" fill="none" stroke="#1f2937" stroke-width="2" opacity="1"/>
+<text x="808.0" y="96.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="middle" font-weight="bold">24 GB</text>
+<text x="40.0" y="96.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">0</text>
+<text x="790.0" y="196.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#6b7280" text-anchor="end" font-weight="normal">余 0.64 GB：不够第 5 条</text>
+<text x="40.0" y="226.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#1f2937" text-anchor="start" font-weight="normal">4K 上下文：9 条</text>
+<text x="40.0" y="246.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#ea580c" text-anchor="start" font-weight="normal">8K 上下文：4 条</text>
+<text x="40.0" y="266.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#1f2937" text-anchor="start" font-weight="normal">16K 上下文：2 条</text>
+</svg>

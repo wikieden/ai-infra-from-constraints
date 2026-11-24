@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="330" viewBox="0 0 860 330">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="16.0" y="26.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="17" fill="#1f2937" text-anchor="start" font-weight="bold">MLA 的两条路径：上投影放在哪一侧，缓存就存什么</text>
+<text x="16.0" y="320.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">结合律：q(cU_k)ᵀ = (qU_kᵀ)cᵀ。展开路径给每个上下文 token 升维；紧凑路径只变换当前这一个查询。</text>
+<text x="220.0" y="66.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="13.5" fill="#1f2937" text-anchor="middle" font-weight="bold">展开路径</text>
+<rect x="30.0" y="90.0" width="130.0" height="52.0" rx="8" fill="#fee2e2" stroke="#dc2626" stroke-width="1.4" opacity="1"/>
+<text x="95.0" y="112.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="middle" font-weight="bold">缓存：K、V</text>
+<text x="95.0" y="128.2" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#4b5563" text-anchor="middle" font-weight="normal">每 token 每头展开</text>
+<rect x="30.0" y="180.0" width="130.0" height="40.0" rx="8" fill="#f3f4f6" stroke="#6b7280" stroke-width="1.4" opacity="1"/>
+<text x="95.0" y="203.5" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#1f2937" text-anchor="middle" font-weight="bold">c × U_k（每个 token）</text>
+<rect x="250.0" y="90.0" width="130.0" height="52.0" rx="8" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<text x="315.0" y="119.8" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="middle" font-weight="bold">当前查询 q</text>
+<rect x="250.0" y="200.0" width="130.0" height="52.0" rx="8" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.4" opacity="1"/>
+<text x="315.0" y="222.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="middle" font-weight="bold">q · Kᵀ</text>
+<text x="315.0" y="238.2" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#4b5563" text-anchor="middle" font-weight="normal">得分数</text>
+<line x1="95.0" y1="142.0" x2="95.0" y2="180.0" stroke="#6b7280" stroke-width="1.6"/>
+<polygon points="95.0,180.0 90.8,172.1 99.2,172.1" fill="#6b7280" stroke="#6b7280" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<line x1="160.0" y1="200.0" x2="250.0" y2="226.0" stroke="#6b7280" stroke-width="1.6"/>
+<polygon points="250.0,226.0 241.2,227.9 243.5,219.7" fill="#6b7280" stroke="#6b7280" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<line x1="315.0" y1="142.0" x2="315.0" y2="200.0" stroke="#6b7280" stroke-width="1.6"/>
+<polygon points="315.0,200.0 310.8,192.1 319.2,192.1" fill="#6b7280" stroke="#6b7280" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<line x1="430.0" y1="60.0" x2="430.0" y2="290.0" stroke="#e5e7eb" stroke-width="1.5"/>
+<text x="650.0" y="66.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="13.5" fill="#1f2937" text-anchor="middle" font-weight="bold">紧凑路径</text>
+<rect x="470.0" y="90.0" width="130.0" height="52.0" rx="8" fill="#dcfce7" stroke="#16a34a" stroke-width="1.4" opacity="1"/>
+<text x="535.0" y="112.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="middle" font-weight="bold">缓存：潜变量 c</text>
+<text x="535.0" y="128.2" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#4b5563" text-anchor="middle" font-weight="normal">512 + 64 维</text>
+<rect x="690.0" y="90.0" width="140.0" height="52.0" rx="8" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<text x="760.0" y="119.8" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="middle" font-weight="bold">当前查询 q</text>
+<rect x="690.0" y="170.0" width="140.0" height="40.0" rx="8" fill="#f3f4f6" stroke="#6b7280" stroke-width="1.4" opacity="1"/>
+<text x="760.0" y="193.5" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#1f2937" text-anchor="middle" font-weight="bold">q × U_kᵀ（只 1 次）</text>
+<rect x="560.0" y="236.0" width="150.0" height="44.0" rx="8" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.4" opacity="1"/>
+<text x="635.0" y="261.8" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="middle" font-weight="bold">(qU_kᵀ) · cᵀ</text>
+<line x1="760.0" y1="142.0" x2="760.0" y2="170.0" stroke="#6b7280" stroke-width="1.6"/>
+<polygon points="760.0,170.0 755.8,162.1 764.2,162.1" fill="#6b7280" stroke="#6b7280" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<line x1="760.0" y1="210.0" x2="690.0" y2="236.0" stroke="#6b7280" stroke-width="1.6"/>
+<polygon points="690.0,236.0 696.0,229.3 698.9,237.2" fill="#6b7280" stroke="#6b7280" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<line x1="535.0" y1="142.0" x2="580.0" y2="236.0" stroke="#6b7280" stroke-width="1.6"/>
+<polygon points="580.0,236.0 572.8,230.7 580.4,227.0" fill="#6b7280" stroke="#6b7280" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+</svg>

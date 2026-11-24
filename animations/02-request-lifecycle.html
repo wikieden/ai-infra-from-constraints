@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>一次生成请求的处理过程</title><link rel="stylesheet" href="anim.css">
+<style>svg text.big{font-size:15px}svg text.cap{font-size:15px;font-weight:500}svg text.v{font-size:12px}svg text.num{font-size:20px;font-weight:600}</style></head>
+<body><main>
+<h1>第 02 章 · 一次生成请求：路由到实例，prefill 一次、decode 一步一步；权重加载 1 次、读 N 次</h1>
+<p class="sub">配套讲义：<a href="../lessons/02-request-lifecycle.html">第 02 章 · 一次生成请求的处理过程：权重加载一次，每个 token 都要再读一遍</a>。KV = Key–Value（键–值）；HBM = High Bandwidth Memory（高带宽内存，GPU 显存）。输入 4 个 token、实例排队数是编的；16.38 GB、15.14 GB 是原书 Qwen3-8B BF16 的数。</p>
+<div class="panel"><svg id="sv" viewBox="0 0 680 430"></svg></div>
+<div class="row"><button id="play">▶ 播放</button><button id="step">→ 单步</button><button id="reset">↺ 从头开始</button></div>
+<div class="row"><label for="n">自己拖：要输出多少个 token（输入固定 4 个）</label><input type="range" id="n" min="1" max="30" step="1" value="8"><span id="nv">8</span></div>
+<p class="note">看点：① 入口检查后，路由器把请求派给更闲的实例 B；② 实例里先在 CPU 这边切 token、排队、编 batch、留 KV 空间，再把算子提交给 GPU；③ 权重从存储加载进显存只有 1 次；④ prefill：4 个输入 token 一次前向，KV 一下子有 4 份，出第 1 个 token；⑤ 每个 decode 步只送 1 个 token：权重读一遍、整份 KV 读一遍、KV 多一份、流式送出一个 token。滑块：输出 N 个 token，前向 N 次、读权重 N 次，加载始终 1 次，KV = 4 + N − 1 份。</p>
+</main>
+<script src="anim.js"></script>
+<script>
+const sv=$('sv');
+const IN=4;
+// 状态序列：0 路由 1 实例内 2 加载 3 prefill 4..6 decode 7 小结
+const ST=[{cap:'入口检查后，路由器把请求派给更闲的实例 B',s:'route'},
+  {cap:'实例里：切 token → 排队 → 编 batch → 留 KV 空间 → CPU 提交给 GPU',s:'inst'},
+  {cap:'实例启动时：权重从存储加载进显存，只此 1 次',s:'load'},
+  {cap:'prefill：4 个输入 token 一次前向，KV 有 4 份，出第 1 个 token',s:'fwd',n:1},
+  {cap:'decode：只送上一步的输出；读权重、读整份 KV、追加 1 份',s:'fwd',n:2},
+  {cap:'decode：每步都把权重从显存再读一遍',s:'fwd',n:3},
+  {cap:'decode：token 一个一个流式送回用户',s:'fwd',n:4},
+  {cap:'小结：加载 1 次；输出 4 个 token 就前向 4 次、读权重 4 次；KV = 4 + 4 − 1 = 7 份',s:'fwd',n:4,sum:true}];
+const FR=[];ST.forEach((_,i)=>{FR.push(i);FR.push(i)});
+let k=0,custom=null;
+function defs(){const d=el('defs',{},sv);['var(--accent)','var(--warm)','var(--teal)','var(--purple)'].forEach((c,i)=>{const m=el('marker',{id:'m'+i,viewBox:'0 0 10 10',refX:9,refY:5,markerWidth:6,markerHeight:6,orient:'auto'},d);el('path',{d:'M0,0 L10,5 L0,10 z',fill:c},m)})}
+function box(x,y,w,h,t,on,sub){el('rect',{x,y,width:w,height:h,rx:7,fill:on?'var(--accent-bg)':'none',stroke:on?'var(--accent)':'var(--line)','stroke-width':on?2:1},sv);
+  txt(t,{x:x+w/2,y:y+(sub?h/2-2:h/2+5),'text-anchor':'middle',class:'v'},sv);if(sub)txt(sub,{x:x+w/2,y:y+h/2+14,'text-anchor':'middle',class:'m'},sv)}
+function arrow(x1,y1,x2,y2,c,dash){const a={x1,y1,x2,y2,stroke:`var(--${c})`,'stroke-width':2.2,'marker-end':`url(#m${{accent:0,warm:1,teal:2,purple:3}[c]})`};if(dash)a['stroke-dasharray']='5 4';el('line',a,sv)}
+function drawTop(hiB){box(10,52,70,34,'用户',false);box(100,52,80,34,'服务入口',false);box(200,52,80,34,'路由器',hiB);
+  box(320,44,150,50,'实例 A',false,'排队 6 个（忙）');box(500,44,170,50,'实例 B',hiB,'排队 2 个');
+  arrow(80,69,100,69,'accent');arrow(180,69,200,69,'accent');arrow(280,64,320,64,'accent',true);txt('忙，不选',{x:286,y:56,class:'m'},sv);
+  if(hiB){el('polyline',{points:'240,86 240,102 585,102 585,96',fill:'none',stroke:'var(--warm)','stroke-width':2.2,'marker-end':'url(#m1)'},sv);txt('派单',{x:400,y:98,'text-anchor':'middle',class:'m'},sv).style.fill='var(--warm)'}}
+// 实例 B 内部：存储、显存（权重 + KV）、计算单元、输出流
+function inside(st){
+  el('rect',{x:10,y:110,width:660,height:230,rx:10,fill:'none',stroke:'var(--line)','stroke-dasharray':'5 4'},sv);
+  txt('实例 B 内部',{x:20,y:128,class:'m'},sv);
+  box(20,150,90,60,'共享存储',false,'模型文件');
+  el('rect',{x:150,y:140,width:250,height:190,rx:8,fill:'none',stroke:'var(--accent)','stroke-dasharray':'4 3'},sv);
+  txt('GPU 显存（HBM）',{x:160,y:158,class:'m'},sv);
+  const loaded=st.loaded;
+  el('rect',{x:165,y:168,width:220,height:62,rx:6,fill:loaded?'var(--accent-bg)':'none',stroke:loaded?'var(--accent)':'var(--line)','stroke-dasharray':loaded?'':'4 3'},sv);
+  txt(loaded?'权重 16.38 GB（一直驻留）':'权重（还没加载）',{x:275,y:204,'text-anchor':'middle',class:'v'},sv);
+  txt('KV 缓存',{x:165,y:252,class:'m'},sv);
+  const kv=st.kv||0,cw=Math.min(22,215/Math.max(kv,1));
+  for(let i=0;i<kv;i++){const isNew=st.newKV&&i>=kv-st.newKV;el('rect',{x:165+i*cw,y:262,width:cw-2,height:28,rx:3,fill:isNew?'var(--warm)':'var(--teal)',opacity:isNew?.9:.55},sv)}
+  txt(`${kv} 份`,{x:165,y:312,class:'v'},sv);
+  box(440,170,110,54,'GPU 计算单元',!!st.fwd,st.fwd?st.fwd:'');
+  // 送进模型的 token
+  if(st.fed){const n=st.fed;for(let i=0;i<n;i++)el('rect',{x:440+i*26,y:132,width:22,height:22,rx:3,fill:n>1?'var(--teal)':'var(--warm)'},sv);
+    txt(n>1?'4 个输入 token':'上一步的输出',{x:440+n*26+4,y:148,class:'m'},sv);arrow(470,154,470,170,'accent')}
+  if(st.loadArrow)arrow(110,180,165,195,'warm');
+  if(st.read){arrow(385,196,440,196,'accent');arrow(165+kv*cw,276,440,214,'teal');txt('读权重',{x:398,y:188,class:'m'},sv);txt('读整份 KV',{x:395,y:258,class:'m'},sv).style.fill='var(--teal)'}
+  // 输出流
+  txt('流式返回给用户',{x:505,y:258,class:'m'},sv);
+  for(let i=0;i<(st.out||0);i++)el('rect',{x:440+i*26,y:270,width:22,height:22,rx:3,fill:'var(--purple)',opacity:.8},sv);
+  if(st.out)arrow(495,224,495,268,'purple');
+}
+function counters(c){const y=372;[['权重加载',c.load+' 次'],['前向次数',c.fwd+' 次'],['读权重',c.reads+' 次'],['≈ 读取量',c.reads?(c.reads*15.14).toFixed(0)+' GB':'0']].forEach(([a,b],i)=>{
+  const x=20+i*165;el('rect',{x,y,width:150,height:50,rx:8,fill:'none',stroke:'var(--line)'},sv);txt(a,{x:x+10,y:y+18,class:'m'},sv);txt(b,{x:x+10,y:y+42,class:'num'},sv)})}
+function draw(){
+  clear(sv);defs();
+  if(custom!==null){const N=custom;txt(`输出 ${N} 个 token：前向 ${N} 次 = 1 次 prefill + ${N-1} 次 decode`,{x:340,y:28,'text-anchor':'middle',class:'cap'},sv);
+    drawTop(true);inside({loaded:true,kv:IN+N-1,newKV:N-1,fwd:N>1?'decode':'prefill',out:Math.min(N,8)});
+    if(N>8)txt(`…共 ${N} 个`,{x:440+8*26+4,y:286,class:'m'},sv);
+    counters({load:1,fwd:N,reads:N});return}
+  const f=ST[FR[k]];txt(f.cap,{x:340,y:28,'text-anchor':'middle',class:'cap'},sv);
+  if(f.s==='route'){drawTop(true);inside({});counters({load:0,fwd:0,reads:0});return}
+  drawTop(true);
+  if(f.s==='inst'){inside({});const steps=['切 token','排队','编 batch','留 KV 空间','CPU 提交'];
+    steps.forEach((s,i)=>{const on=FR[k]===1;el('rect',{x:440,y:132+i*40,width:120,height:32,rx:6,fill:'var(--accent-bg)',stroke:'var(--accent)'},sv);txt(`${i+1} ${s}`,{x:500,y:153+i*40,'text-anchor':'middle',class:'v'},sv);
+      if(i<4)arrow(500,164+i*40,500,172+i*40,'accent')});
+    counters({load:0,fwd:0,reads:0});return}
+  if(f.s==='load'){inside({loaded:true,loadArrow:true});txt('加载 1 次',{x:112,y:232,class:'m'},sv).style.fill='var(--warm)';counters({load:1,fwd:0,reads:0});return}
+  const n=f.n,kv=IN+n-1;
+  inside({loaded:true,kv,newKV:n===1?IN:1,fed:n===1?IN:1,fwd:n===1?'prefill':'decode',read:!f.sum,out:n});
+  counters({load:1,fwd:n,reads:n});
+}
+function reset(){k=0;custom=null;draw()}
+function next(){if(custom!==null){custom=null;draw();return true}if(k>=FR.length-1)return false;k++;draw();return true}
+$('n').oninput=e=>{ANIM.stop();custom=+e.target.value;$('nv').textContent=custom;draw()};
+setupPlayer({captureSeed:1,reset,next},1600);
+</script><a href="https://wikieden.github.io/ai-books/" style="position:fixed;right:12px;bottom:12px;z-index:99;padding:4px 10px;border-radius:14px;background:rgba(127,127,127,.18);color:inherit;font:13px/1.6 system-ui,sans-serif;text-decoration:none">← 全部讲义书</a>
+</body></html>

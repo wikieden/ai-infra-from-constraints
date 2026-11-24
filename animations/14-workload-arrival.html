@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>突发到达时的积压与排空</title><link rel="stylesheet" href="anim.css">
+<style>svg text.cap{font-size:15px;font-weight:500}svg text.num{font-size:19px;font-weight:600}</style></head>
+<body><main>
+<h1>第 14 章 · 突发到达时的积压与排空</h1>
+<p class="sub">配套讲义：<a href="../lessons/14-workload-arrival.html">第 14 章 · 从单次请求到持续到达的负载：什么时候来，比来多少更要紧</a>。流体队列：三个 60 秒窗口各有一个到达速率（decode 步/秒），处理率固定为两张 RTX PRO 6000 的约 5,591 步/秒；120 秒后不再到达。</p>
+<div class="panel"><svg id="sv" viewBox="0 0 680 380"></svg></div>
+<div class="row"><button id="play">▶ 播放</button><button id="step">→ 单步</button><button id="reset">↺ 从头开始</button></div>
+<div class="row"><label for="a">自己拖：第一个窗口</label><input type="range" id="a" min="0" max="9000" step="100" value="4604"><span id="av">4604</span></div><div class="row"><label for="b">第二个窗口</label><input type="range" id="b" min="0" max="9000" step="100" value="1737"><span id="bv">1737</span></div><div class="row"><label for="c">第三个窗口</label><input type="range" id="c" min="0" max="9000" step="100" value="7471"><span id="cv">7471</span></div>
+<p class="note">看点：① 上半部分的三段是到达速率，红色虚线是处理率；② 下半部分是积压：到达高于虚线时上升，低于时下降，不会低于 0；③ 播放时先演均匀混合（4,604 一直低于处理率，不积压），再演例题 3-1 的时段变化：前一分钟 1,736.8、后一分钟 7,471.2、第三分钟不再到达，积压到约 11 万步，约 20 秒排空；④ 前一分钟闲着的能力存不到后一分钟。</p>
+</main>
+<script src="anim.js"></script>
+<script>
+const sv=$('sv');
+function box3(items,y){items.forEach(([a,b],i)=>{const x=20+i*(640/items.length);el('rect',{x,y,width:640/items.length-14,height:70,rx:8,fill:'none',stroke:'var(--line)'},sv);txt(a,{x:x+10,y:y+22,class:'m'},sv);txt(b,{x:x+10,y:y+54,class:'num'},sv)})}
+const MU=5591.33;const FR=[[4604,4604,4604],[4604,4604,4604],[1736.8,7471.2,0],[1736.8,7471.2,0]];
+const SEQ=[[4604,4604,4604],[1736.8,7471.2,0]];const F=[];SEQ.forEach(s=>{F.push(s);F.push(s)});
+let k=0,custom=null;
+function draw(){clear(sv);const r=custom||F[k];const X=t=>50+t*3.3;
+ txt(Math.max(...r)>MU?'有一段到达快于处理：积压上升，到达降下来后才排空':'到达一直低于处理率：没有积压',{x:340,y:24,'text-anchor':'middle',class:'cap'},sv);
+ const Y1=v=>150-v/9000*110;
+ for(let w=0;w<3;w++)el('rect',{x:X(w*60),y:Y1(r[w]),width:60*3.3-2,height:150-Y1(r[w]),fill:'var(--accent)',opacity:.5},sv);
+ el('line',{x1:X(0),y1:Y1(MU),x2:X(180),y2:Y1(MU),stroke:'var(--bad)','stroke-dasharray':'5 4'},sv);txt('处理率 5,591',{x:X(180)-4,y:Y1(MU)-6,'text-anchor':'end',class:'m'},sv);
+ let q=0,peak=0,pts=[],tEmpty=null;for(let t=0;t<=180;t+=0.05){const a=t<180?r[Math.floor(t/60)]:0;q=Math.max(0,q+(a-MU)*0.05);if(q>peak)peak=q;if(peak>0&&q===0&&tEmpty===null)tEmpty=t;pts.push(X(t)+','+(320-Math.min(q,140000)/140000*140))}
+ el('polyline',{points:pts.join(' '),fill:'none',stroke:'var(--warm)','stroke-width':2.5},sv);el('line',{x1:X(0),y1:320,x2:X(180),y2:320,stroke:'var(--line)'},sv);
+ [0,60,120,180].forEach(t=>txt(t+' s',{x:X(t),y:338,'text-anchor':'middle',class:'m'},sv));txt('积压',{x:X(0)-6,y:190,'text-anchor':'end',class:'m'},sv);txt('到达',{x:X(0)-6,y:60,'text-anchor':'end',class:'m'},sv);
+ txt(`积压峰值 ${Math.round(peak).toLocaleString()} 步`+(peak>0&&tEmpty!==null?`，第 ${tEmpty} 秒排空（到达降下来后 ${(tEmpty-120).toFixed(1)} 秒）`:''),{x:640,y:200,'text-anchor':'end',class:'cap'},sv)}
+function reset(){k=0;custom=null;draw()}
+function next(){if(custom!==null){custom=null;draw();return true}if(k>=F.length-1)return false;k++;draw();return true}
+function fs(){ANIM.stop();custom=[+$('a').value,+$('b').value,+$('c').value];['a','b','c'].forEach(i=>$(i+'v').textContent=$(i).value);draw()}
+['a','b','c'].forEach(i=>$(i).oninput=fs);
+setupPlayer({captureSeed:1,reset,next},1500);
+</script><a href="https://wikieden.github.io/ai-books/" style="position:fixed;right:12px;bottom:12px;z-index:99;padding:4px 10px;border-radius:14px;background:rgba(127,127,127,.18);color:inherit;font:13px/1.6 system-ui,sans-serif;text-decoration:none">← 全部讲义书</a>
+</body></html>

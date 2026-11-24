@@ -1,0 +1,550 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>第 05 章 · 用几个数字估算一次模型执行：算和读各要多久，实测为什么达不到 · 从约束推导 AI Infra</title>
+<script>(function(){try{var d=document.documentElement,t=localStorage.getItem("ab-theme"),f=localStorage.getItem("ab-fs");if(t)d.dataset.theme=t;if(f)d.dataset.fs=f}catch(e){}})();</script>
+<style>:root{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa;--fs:16px}
+@media (prefers-color-scheme:dark){:root:not([data-theme]){--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}}
+:root[data-theme="light"]{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa}
+:root[data-theme="dark"]{--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}
+:root[data-theme="sepia"]{--bg:#f6efe1;--fg:#3b3127;--mute:#7a6a58;--line:#e2d6bf;--card:#fbf6ec;--acc:#a0522d;--code:#ece2cd;--quote:#efe5d2}
+:root[data-theme="green"]{--bg:#e3eddf;--fg:#22301f;--mute:#566650;--line:#c9d8c3;--card:#eef5eb;--acc:#2e7d4f;--code:#d6e4d0;--quote:#dae7d5}
+:root[data-theme="navy"]{--bg:#0f1a2b;--fg:#dde6f3;--mute:#93a4bd;--line:#23324a;--card:#15233a;--acc:#6cc4ff;--code:#1a2a44;--quote:#16243b}
+:root[data-fs="s"]{--fs:15px}
+:root[data-fs="m"]{--fs:16px}
+:root[data-fs="l"]{--fs:18px}
+:root[data-fs="xl"]{--fs:20px}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:var(--fs)/1.75 -apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Helvetica Neue",sans-serif}
+a{color:var(--acc)}
+header.top{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+header.top .in{max-width:860px;margin:0 auto;padding:10px 16px;display:flex;gap:6px 16px;align-items:center;flex-wrap:wrap;font-size:14px}
+header.top .brand{font-weight:600;color:var(--fg);text-decoration:none;margin-right:auto}
+header.top a{text-decoration:none}
+.prefs{display:inline-flex;gap:4px;align-items:center}
+.prefs button,.prefs select,#nav-toggle{font:inherit;font-size:13px;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:2px 8px;cursor:pointer}
+main{max-width:860px;margin:0 auto;padding:24px 16px 72px;overflow-wrap:anywhere}
+h1{font-size:1.75em;line-height:1.35;margin:8px 0 16px} h2{font-size:1.375em;margin:40px 0 12px;padding-top:8px;border-top:1px solid var(--line)} h3{font-size:1.125em;margin:28px 0 8px}
+.layout{display:grid;grid-template-columns:260px minmax(0,1fr);max-width:1180px;margin:0 auto}
+.layout main{margin:0;max-width:880px}
+nav.side{position:sticky;top:49px;align-self:start;max-height:calc(100vh - 49px);overflow-y:auto;padding:20px 8px 40px 16px;border-right:1px solid var(--line);font-size:14px;line-height:1.5}
+nav.side .h{font-weight:600;color:var(--mute);margin:4px 8px 8px;font-size:13px}
+nav.side a{display:block;padding:5px 8px;border-radius:6px;color:var(--fg);text-decoration:none}
+nav.side a:hover{background:var(--code)} nav.side a.cur{background:var(--quote);color:var(--acc);font-weight:600}
+nav.side a .n{color:var(--mute);margin-right:6px;font-variant-numeric:tabular-nums}
+#nav-toggle{display:none}
+@media (max-width:960px){.layout{display:block} nav.side{display:none;position:fixed;z-index:6;top:49px;left:0;bottom:0;width:min(300px,85vw);max-height:none;background:var(--bg);box-shadow:2px 0 12px rgba(0,0,0,.2)} nav.side.open{display:block} #nav-toggle{display:inline-block}}
+.run{display:flex;flex-wrap:wrap;align-items:center;gap:4px 0;margin:4px 0 12px}
+.run details{flex-basis:100%;margin:6px 0 0;font-size:.94em}
+img{max-width:100%;height:auto;border-radius:8px;border:1px solid var(--line);background:#fff}
+blockquote{margin:16px 0;padding:10px 16px;background:var(--quote);border-left:3px solid var(--acc);border-radius:4px;color:var(--mute)}
+blockquote p{margin:4px 0}
+code{background:var(--code);padding:1px 5px;border-radius:4px;font-size:.9em}
+pre{background:var(--code);padding:12px 14px;border-radius:8px;overflow-x:auto} pre code{padding:0;background:none}
+table{border-collapse:collapse;display:block;overflow-x:auto;max-width:100%;margin:12px 0;font-size:.94em}
+th,td{border:1px solid var(--line);padding:6px 10px;vertical-align:top} th{background:var(--code)}
+details{border:1px solid var(--line);border-radius:8px;padding:6px 12px;margin:8px 0;background:var(--card)}
+details[open]{padding-bottom:10px} summary{cursor:pointer;color:var(--acc);font-weight:500}
+mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%}
+.btn{display:inline-block;margin:4px 8px 4px 0;padding:6px 14px;border:1px solid var(--acc);border-radius:999px;text-decoration:none;font-size:14px}
+.pager{display:flex;justify-content:space-between;gap:12px;margin-top:48px;padding-top:16px;border-top:1px solid var(--line);font-size:15px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin:16px 0}
+.card{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;color:inherit;text-decoration:none}
+.card:hover{border-color:var(--acc)} .card img{border:0;border-bottom:1px solid var(--line);border-radius:0;aspect-ratio:16/10;object-fit:contain;width:100%}
+.card .no{color:var(--mute);font-size:13px;padding:8px 12px 0} .card .t{padding:0 12px 12px;font-weight:500;line-height:1.5}
+.lead{font-size:1.06em;color:var(--mute)}
+footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-size:13px}
+</style>
+<script>window.MathJax={tex:{inlineMath:[["\\(","\\)"]],displayMath:[["\\[","\\]"],["$$","$$"]],processEscapes:true,processEnvironments:true}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"></script>
+</head><body>
+<header class="top"><div class="in">
+<button type="button" id="nav-toggle" aria-label="打开章节列表">☰ 章节</button><a class="brand" href="../index.html">从约束推导 AI Infra</a>
+<a href="../lessons/index.html">讲义目录</a>
+<a href="../animations/index.html">动画</a>
+<a href="../review.html">复习卡片</a>
+<a href="../lessons/appendix-glossary.html">缩写表</a>
+<a href="https://wikieden.github.io/ai-books/glossary.html">全局词汇</a>
+<a href="https://wikieden.github.io/ai-books/">← 全部讲义书</a>
+<span class="prefs" title="字号与主题"><button type="button" data-fs-step="-1" aria-label="字号变小">A−</button><button type="button" data-fs-step="1" aria-label="字号变大">A+</button><select id="ab-theme" aria-label="主题色"><option value="">跟随系统</option><option value="light">浅色</option><option value="dark">深色</option><option value="sepia">米黄护眼</option><option value="green">豆沙绿护眼</option><option value="navy">夜蓝</option></select></span>
+</div></header>
+<div class="layout"><nav class="side" aria-label="章节"><div class="h">从约束推导 AI Infra</div><a href="index.html">讲义目录</a><a href="01-six-layers.html"><span class="n">1</span>一次请求走过的六层（进行中）</a><a href="02-request-lifecycle.html"><span class="n">2</span>一次生成请求的处理过程：权重加载一次，每个 token 都要再读一遍</a><a href="03-dataflow-hierarchy.html"><span class="n">3</span>从存储程序到数据流执行：存储层次就像大楼里的厕所</a><a href="04-key-numbers.html"><span class="n">4</span>系统设计的关键数字：容量、算力、带宽、延迟</a><a href="05-estimate.html" class="cur"><span class="n">5</span>用几个数字估算一次模型执行：算和读各要多久，实测为什么达不到</a><a href="06-architecture.html"><span class="n">6</span>需求如何推动架构：TPU、SmartNIC、Unified Bus</a><a href="07-compute-graph.html"><span class="n">7</span>计算图与张量结构：一个 token 经过一层要算多少</a><a href="08-generation-budget.html"><span class="n">8</span>自回归生成的资源账：存一次的、每步读的、用完就扔的</a><a href="09-kv-sharing.html"><span class="n">9</span>KV 怎么变小 ①：头共享与潜变量压缩</a><a href="10-kv-sparse-linear.html"><span class="n">10</span>KV 怎么变小 ②：窗口、稀疏、线性与混合注意力</a><a href="11-moe.html"><span class="n">11</span>MoE：专家路由与批内权重复用</a><a href="12-network-shape.html"><span class="n">12</span>网络形状：深宽、专家粒度、残差与多 token 预测</a><a href="13-model-comparison.html"><span class="n">13</span>整个模型的资源需求与比较：存多少、算多少、能放几条请求</a><a href="14-workload-arrival.html"><span class="n">14</span>从单次请求到持续到达的负载：什么时候来，比来多少更要紧</a><a href="15-agent-tasks.html"><span class="n">15</span>多轮交互与 Agent 任务：前缀、成功成本、关键路径</a><a href="16-multimodal-realtime.html"><span class="n">16</span>多模态与实时交互：数据换形状，时间有死线（略讲）</a><a href="17-training-rl.html"><span class="n">17</span>训练与强化学习的计算和状态：为什么训练要 6ND、要存 18 字节</a><a href="18-scaling-lifecycle.html"><span class="n">18</span>Scaling law 与全生命周期成本：训练多大、训练多久、服务多少次</a><a href="19-accelerator-basics.html"><span class="n">19</span>从矩阵乘法认识加速器：算多少、搬多少、耗多少电</a><a href="20-compute-units.html"><span class="n">20</span>计算单元：矩阵、向量、流水与低精度</a><a href="21-memory-movement.html"><span class="n">21</span>存储层次与数据搬移：放得下、取得到、来得及</a><a href="22-package-interconnect.html"><span class="n">22</span>多芯片封装与互联：计算放在哪，数据走哪条路</a><a href="23-architecture-evolution.html"><span class="n">23</span>架构演进与专用架构：每一代新增的东西，省掉了哪一笔</a><a href="24-choose-accelerator.html"><span class="n">24</span>根据架构选择加速器：先估下界，再找差距，最后算账</a><a href="appendix-glossary.html">附录 · 缩写与术语表</a><a href="appendix-tp-pp-cp.html">附录 · 补充资料：TP、PP、CP，一个模型沿三个方向切给多张卡</a></nav><main>
+<h1 id="05">第 05 章 · 用几个数字估算一次模型执行：算和读各要多久，实测为什么达不到</h1><div class="run"><a class="btn" href="../animations/05-estimate.html">▶ 打开本章可交互动画</a><a class="btn" href="https://colab.research.google.com/github/wikieden/ai-infra-from-constraints/blob/main/code/notebooks/ch05_estimate.ipynb" target="_blank" rel="noopener">在 Colab 运行本章代码</a><a class="btn" href="../code/notebooks/ch05_estimate.ipynb" download>下载 notebook</a><details><summary>本地运行</summary><pre><code>git clone https://github.com/wikieden/ai-infra-from-constraints
+cd ai-infra-from-constraints/code/notebooks
+pip install jupyterlab torch numpy
+jupyter lab ch05_estimate.ipynb</code></pre><p>也可以下载后直接用 VS Code 打开 .ipynb 运行。需要 GPU 的章节在 Colab 里选「代码执行程序 → 更改运行时类型 → GPU」。</p></details></div>
+<blockquote>
+<p>本章回答：一张 H100 能不能让 70B 模型 10 ms 生成一个 token？算力翻倍和带宽翻倍，哪个有用？把 8 个请求凑一批，为什么吞吐涨了、每个人的等待却没缩短？实测比算出来的下界慢三倍，差距从哪来？<br />
+讲解日期：2026-11-24 · 上一章：<a href="../lessons/04-key-numbers.html">第 04 章 系统设计的关键数字</a> · 下一章：<a href="../lessons/06-architecture.html">第 06 章 需求如何推动架构</a><br />
+对应原文：<code>materials/ai-infra-book/manuscripts/01-初识 AI Infra.md</code> §1.3 L233–L365（例题 1-1 L237–L267、图 1-8 到 1-12、实测 L331–L355、§1.3.4 L363–L365）<br />
+本章缩写：BF16 = Brain Float 16（Google Brain 提出的 / 浮点 / 16 位）· FLOPs = 浮点运算总次数 · FLOP/s = 每秒浮点运算次数 · HBM = High Bandwidth Memory（高 / 带宽 / 内存）· KV = Key-Value（键 / 值）· MBU = Memory Bandwidth Utilization（内存 / 带宽 / 利用率）· PCIe = Peripheral Component Interconnect Express（外设 / 部件 / 互联 / 高速版）· TPOT = Time Per Output Token（每个 / 输出 / token 的时间）。全部缩写见 <a href="../lessons/appendix-glossary.html">缩写与术语表</a></p>
+</blockquote>
+<p>本章就是把第 04 章的 <span class="arithmatex">\(T_{\mathrm{compute}} = F/\Pi\)</span> 和 <span class="arithmatex">\(T_{\mathrm{memory}} = R/\beta\)</span> 用在一次生成上。全程只用 H100 SXM 的两个数：<span class="arithmatex">\(\Pi = 989.4\)</span> TFLOP/s，<span class="arithmatex">\(\beta = 3.35\)</span> TB/s（第 04 章速查表）。</p>
+<h2 id="_1">讲解</h2>
+<h3 id="token2026-11-24">第一步：生成一个 token，要存多少、读多少、算多少（2026-11-24）</h3>
+<p><strong>类比：一个人翻一本 70 万页的菜谱炒一盘菜。</strong> 菜谱一直放在书架上（存储）；每炒一盘都要从头翻一遍（读取）；每一页只看一眼、做一个动作（计算）。</p>
+<p><strong>例题 1-1</strong>（原文 L237）：一张 H100 SXM，能不能让 DeepSeek-R1-Distill-Llama-70B 在 10 ms 内生成一个新 token？</p>
+<p>为了手算，取参数 <span class="arithmatex">\(N = 70 \times 10^9\)</span>，每个参数 1 字节（第 04 章的 8 比特方案，读进来再转成 BF16 算）。</p>
+<p><strong>公式</strong>（原文 L264）：batch 里有 <span class="arithmatex">\(B\)</span> 个请求，共用一次读进来的权重：</p>
+<div class="arithmatex">\[M_W = b_W N, \qquad R_W = b_W N, \qquad F \approx 2BN\]</div>
+<ul>
+<li><span class="arithmatex">\(M_W\)</span>：权重要<strong>存</strong>多少字节；<span class="arithmatex">\(R_W\)</span>：这一步要<strong>读</strong>多少字节；<span class="arithmatex">\(b_W\)</span>：每个权重几字节（这里是 1）。</li>
+<li><span class="arithmatex">\(F\)</span>：这一步的矩阵运算量。每个权重和一个 token 的特征相乘一次、再加到结果里，乘、加各算一次，所以每个请求是 <span class="arithmatex">\(2N\)</span>。</li>
+<li><span class="arithmatex">\(M_W = R_W\)</span> 只是这一步碰巧相等：存一份、读一遍。下一步还要再读一遍 <span class="arithmatex">\(R_W\)</span>，存的还是那一份。</li>
+</ul>
+<p><strong>例子</strong>：<span class="arithmatex">\(B = 1\)</span>。</p>
+<table>
+<thead>
+<tr>
+<th>量</th>
+<th>算式</th>
+<th>值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>存 <span class="arithmatex">\(M_W\)</span></td>
+<td><span class="arithmatex">\(1 \times 70 \times 10^9\)</span></td>
+<td>70 GB（真实量化方案 73.73 GB，第 04 章已检查过放得下）</td>
+</tr>
+<tr>
+<td>读 <span class="arithmatex">\(R_W\)</span></td>
+<td>同上</td>
+<td>70 GB</td>
+</tr>
+<tr>
+<td>算 <span class="arithmatex">\(F\)</span></td>
+<td><span class="arithmatex">\(2 \times 1 \times 70 \times 10^9\)</span></td>
+<td>140 GFLOPs</td>
+</tr>
+</tbody>
+</table>
+<p><strong>一句话</strong>：一步生成要读一遍全部权重，算量是 <span class="arithmatex">\(2N\)</span> 乘 batch；存、读、算三个数要分开写。</p>
+<h3 id="2026-11-24">第二步：算要多久，读要多久，谁说了算（2026-11-24）</h3>
+<p><strong>类比：流水线上一个人搬箱子、一个人拆箱子。</strong> 搬一箱要 1 分钟，拆一箱只要 1 秒。拆的人再快，也得等箱子搬过来；一天能拆多少箱，由搬的速度决定。</p>
+<p><strong>公式</strong>（原文 L274、L284）：</p>
+<div class="arithmatex">\[T_{\mathrm{read}} \ge \frac{R_W}{\beta}, \qquad T_{\mathrm{compute}} \ge \frac{F}{\Pi}, \qquad T_{\mathrm{step}} \ge \max\!\left(\frac{F}{\Pi}, \frac{R_W}{\beta}\right)\]</div>
+<ul>
+<li>用 <span class="arithmatex">\(\max\)</span> 而不是相加：数据分块到达，算当前块时可以同时读下一块（读、算充分重叠）。稳定以后，较慢的那项决定速度。</li>
+</ul>
+<p><strong>例子</strong>（原文 L274–L277）：</p>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>算式</th>
+<th>值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>读权重</td>
+<td><span class="arithmatex">\(70\ \mathrm{GB} / 3350\ \mathrm{GB/s}\)</span></td>
+<td>≈ 20.90 ms</td>
+</tr>
+<tr>
+<td>矩阵计算</td>
+<td><span class="arithmatex">\(140\ \mathrm{GFLOPs} / 989400\ \mathrm{GFLOP/s}\)</span></td>
+<td>≈ 0.1415 ms</td>
+</tr>
+<tr>
+<td>比值</td>
+<td>20.90 / 0.1415</td>
+<td>≈ 148 倍</td>
+</tr>
+</tbody>
+</table>
+<p>读比算慢约 148 倍。每读进一个权重只做一次乘加，算的人很快就闲下来等下一块。单是读就要 20.90 ms，<strong>光靠这张卡、一个请求，10 ms 做不到</strong>。</p>
+<p>再试三种改法（原文 L291–L293）：</p>
+<p><img alt="算力翻倍几乎没用；带宽翻倍和权重减半都把下界降到 10.45 ms" src="../figures/05-estimate-bars.png" /></p>
+<p><em>图 5-1 · 蓝条是读权重的下界，橙条是矩阵计算的下界。算力翻倍只缩短本来就很短的橙条。</em></p>
+<table>
+<thead>
+<tr>
+<th>改法</th>
+<th>读</th>
+<th>算</th>
+<th>下界</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>原样</td>
+<td>20.90 ms</td>
+<td>0.1415 ms</td>
+<td>20.90 ms</td>
+</tr>
+<tr>
+<td>算力翻倍</td>
+<td>20.90 ms</td>
+<td>0.0707 ms</td>
+<td>20.90 ms（不变）</td>
+</tr>
+<tr>
+<td>带宽翻倍</td>
+<td>10.45 ms</td>
+<td>0.1415 ms</td>
+<td>10.45 ms</td>
+</tr>
+<tr>
+<td>权重减半（更低位宽）</td>
+<td>10.45 ms</td>
+<td>0.1415 ms</td>
+<td>10.45 ms</td>
+</tr>
+</tbody>
+</table>
+<p><strong>一句话</strong>：读权重比矩阵计算慢约 148 倍，所以单请求 decode 的速度由带宽决定：加带宽或少读数据才有用，加算力没用。</p>
+<h3 id="2026-11-24_1">第三步：批内复用：吞吐涨了，等待没缩短（2026-11-24）</h3>
+<p><strong>类比：校车。</strong> 一趟车走一样的路、花一样的时间；拉 1 个学生和拉 8 个学生，路上的时间一样。每个学生分摊的油钱少了（吞吐高了），但每个人在车上的时间一点没少（延迟没缩短）。</p>
+<p><strong>例子</strong>（原文 L299–L301）：8 个请求一起算，共用一次权重读取。</p>
+<table>
+<thead>
+<tr>
+<th>量</th>
+<th><span class="arithmatex">\(B = 1\)</span></th>
+<th><span class="arithmatex">\(B = 8\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>读权重</td>
+<td>70 GB，20.90 ms</td>
+<td>还是 70 GB，20.90 ms</td>
+</tr>
+<tr>
+<td>矩阵计算</td>
+<td>0.1415 ms</td>
+<td>约 8 倍，≈ 1.13 ms</td>
+</tr>
+<tr>
+<td>一步的下界</td>
+<td>20.90 ms</td>
+<td>20.90 ms</td>
+</tr>
+<tr>
+<td>每个输出分摊</td>
+<td>20.90 ms</td>
+<td>20.90 / 8 ≈ 2.61 ms</td>
+</tr>
+<tr>
+<td>吞吐</td>
+<td>≈ 47.9 token/s</td>
+<td>≈ 383 token/s</td>
+</tr>
+<tr>
+<td>每个请求等一步</td>
+<td>20.90 ms</td>
+<td>还是 20.90 ms</td>
+</tr>
+</tbody>
+</table>
+<p><strong>每个输出分摊 2.61 ms 不是任何一个请求的响应时间</strong>：每个请求都要等整批算完。</p>
+<p><strong>公式：转折点</strong>（原文 L307–L313）。<span class="arithmatex">\(B\)</span> 一直加，计算时间 <span class="arithmatex">\(2BN/\Pi\)</span> 会追上读取时间 <span class="arithmatex">\(b_W N/\beta\)</span>：</p>
+<div class="arithmatex">\[\frac{2B_*N}{\Pi} = \frac{b_W N}{\beta} \quad\Rightarrow\quad B_* = \frac{b_W\,\Pi}{2\beta}\]</div>
+<p>H100、<span class="arithmatex">\(b_W = 1\)</span>：<span class="arithmatex">\(B_* = 989.4 \times 10^{12} / (2 \times 3.35 \times 10^{12}) \approx 147.7\)</span>。</p>
+<p><img alt="batch 小于约 148 时，读取说了算；超过以后，计算说了算" src="../figures/05-estimate-batch.png" /></p>
+<p><em>图 5-2 · 横轴是 batch 里的请求数 <span class="arithmatex">\(B\)</span>。蓝线（读权重）不随 <span class="arithmatex">\(B\)</span> 变，橙线（计算）随 <span class="arithmatex">\(B\)</span> 线性增长，在约 148 处相交。</em></p>
+<p><img alt="吞吐上界：转折前随 B 线性上涨，转折后趋于平坦" src="../figures/05-estimate-throughput.png" /></p>
+<p><em>图 5-3 · 每批输出数 <span class="arithmatex">\(B\)</span> 除以一步的下界。转折点之后，计算时间和输出数一起增长，吞吐不再上涨。</em></p>
+<ul>
+<li><span class="arithmatex">\(B &lt; B_*\)</span>：读取说了算，多加请求几乎"免费"，吞吐近似按 <span class="arithmatex">\(B\)</span> 上涨。</li>
+<li><span class="arithmatex">\(B &gt; B_*\)</span>：计算说了算，整批时间随 <span class="arithmatex">\(B\)</span> 增长，吞吐趋于平坦。</li>
+<li>这个模型只算了权重读取和矩阵运算。真实情况下，一张 H100 放下 73.73 GB 权重后只剩约 6.27 GB，根本放不下 148 个请求的 KV（第 04 章）。</li>
+</ul>
+<p><strong>同一件事的另一种说法：算术强度</strong>（原文 L325）：</p>
+<div class="arithmatex">\[I = \frac{F}{R_W} = \frac{2B}{b_W}\]</div>
+<p>每读一个字节做几次运算。<span class="arithmatex">\(I &lt; \Pi/\beta\)</span>（H100 约 295）时读取慢，超过时计算慢。这就是 roofline 模型的出发点，见<a href="https://wikieden.github.io/cuda-to-tensor-core/lessons/09-roofline-profiling.html">《CUDA 从线程到 Tensor Core》第 9 章</a>。</p>
+<p><strong>场景代码</strong>：vLLM 里，一个实例同时处理多少个请求由这两个参数控制，它们决定了实际的 <span class="arithmatex">\(B\)</span>：</p>
+<pre><code class="language-python">from vllm import LLM
+
+llm = LLM(
+    model=&quot;deepseek-ai/DeepSeek-R1-Distill-Llama-70B&quot;,
+    quantization=&quot;fp8&quot;,              # 每个权重 1 字节：b_W = 1
+    max_num_seqs=8,                  # 一批最多 8 个请求同时 decode：B ≤ 8
+    gpu_memory_utilization=0.95,     # 留多少显存给 KV（第四步的容量限制）
+)
+</code></pre>
+<p><strong>一句话</strong>：批内复用让一次权重读取服务 <span class="arithmatex">\(B\)</span> 个请求，吞吐上涨；但每个请求仍要等整批算完。<span class="arithmatex">\(B\)</span> 超过 <span class="arithmatex">\(B_* = b_W\Pi/(2\beta)\)</span> 以后，计算接管。</p>
+<h3 id="2026-11-24_2">第四步：用实测检验估算（2026-11-24）</h3>
+<p><strong>类比：按地图估了 30 分钟的路程，实际开了 40 分钟。</strong> 估算方向是对的（越远越久），但实际多了红绿灯和堵车。</p>
+<p>原文 L333–L345：Qwen3-8B，BF16，RTX PRO 6000 Blackwell Workstation Edition（96 GB，1.792 TB/s，503.8 TFLOP/s），vLLM 0.23 eager 模式（按程序顺序逐个提交工作），每请求输入 2048、输出 256 个 token，每档测三次。</p>
+<table>
+<thead>
+<tr>
+<th>并发请求数</th>
+<th>1</th>
+<th>64</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>整批吞吐</td>
+<td>基准</td>
+<td>约 31 倍</td>
+</tr>
+<tr>
+<td>每请求输出间隔 TPOT</td>
+<td>约 26.5 ms</td>
+<td>约 40.5 ms</td>
+</tr>
+</tbody>
+</table>
+<p>两个趋势都和第三步一致：吞吐随 batch 上涨，每个人的等待反而变长。但吞吐只涨了 31 倍，不是 64 倍。原因是<strong>每个请求还有自己的 KV</strong>：权重共用，KV 各读各的。</p>
+<p><strong>公式</strong>（原文 L352）：把每个请求的状态加进来，</p>
+<div class="arithmatex">\[T_{\mathrm{step}} \approx \max\!\left(\frac{B F_1}{\Pi}, \frac{R_W + B\, R_{\mathrm{state},1}}{\beta}\right)\]</div>
+<ul>
+<li><span class="arithmatex">\(F_1\)</span>：每个请求的运算量；<span class="arithmatex">\(R_{\mathrm{state},1}\)</span>：每个请求要读写的状态（主要是 KV）。</li>
+<li><span class="arithmatex">\(B\)</span> 增大，权重读取被分摊，但 KV 读取总量也跟着 <span class="arithmatex">\(B\)</span> 涨。</li>
+</ul>
+<p><strong>一句话</strong>：实测验证了"吞吐随 batch 上涨、延迟变长"的方向；涨得没有 64 倍那么多，是因为每个请求的 KV 读取不能共享。</p>
+<h3 id="2026-11-24_3">第五步：实测为什么达不到极限：模型漏了项，还是系统有开销（2026-11-24）</h3>
+<p><strong>类比：考试估分。</strong> 估了 90 分、实际 60 分。要么是估分时漏看了几道题（模型漏项），要么是答题时手慢、涂卡出错（实现开销）。两种原因的改法完全不同。</p>
+<p>原文 L365：先按第一性原理算上限，再看实测离上限多远。不知道极限在哪，"比旧版快三成"说明不了什么。</p>
+<p><strong>例子</strong>：Qwen3-8B、batch = 1（第 02 章的数）。一步 decode 要读主要权重 15.14 GB + 旧 KV 0.302 GB：</p>
+<div class="arithmatex">\[T_{\mathrm{lower}} = \frac{15.14 + 0.302\ \mathrm{GB}}{1.792\ \mathrm{TB/s}} \approx 8.62\ \mathrm{ms}, \qquad \mathrm{MBU} = \frac{8.62}{26.5} \approx 33\%\]</div>
+<p><img alt="从 26.5 ms 到下界 8.62 ms：关掉日志、只算加速器事件，一步步逼近" src="../figures/05-estimate-gap.png" /></p>
+<p><em>图 5-4 · 同一张卡上，每次只改一个条件的补测。大部分差距在主机一侧。</em></p>
+<table>
+<thead>
+<tr>
+<th>测法</th>
+<th>一步多久</th>
+<th>差距来自</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>原始实测（客户端看到的输出间隔）</td>
+<td>26.5 ms</td>
+<td>—</td>
+</tr>
+<tr>
+<td>关掉逐步日志补测</td>
+<td>12.1 ms</td>
+<td>客户端日志占用主机时间（系统开销）</td>
+</tr>
+<tr>
+<td>只按加速器上的事件计时</td>
+<td>10.7 ms</td>
+<td>eager 模式逐个提交 kernel，经过 Python、驱动和 PCIe，加速器在两次 kernel 之间空转（系统开销）</td>
+</tr>
+<tr>
+<td>读取下界</td>
+<td>8.62 ms</td>
+<td>剩下约两成：模型只算了权重和 KV 读取，没算其他向量运算和采样（模型漏项）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>检查顺序</strong>：先问模型有没有漏项（补上，下界上移），再问实现有没有开销（去掉，实测下降）。</p>
+<p><strong>五个问题</strong>（原文 L361）：整次估算一直在回答——<strong>搬什么、搬多少、搬几次、经过哪里、谁在等待</strong>。</p>
+<p><strong>一句话</strong>：下界是硬件的物理极限，下界 ÷ 实测就是利用率；差距不是模型漏了项，就是系统有能去掉的开销，要靠一次只改一个条件的测量来分清。</p>
+<h2 id="batch-1-256">动画演示：batch 从 1 加到 256，读取说了算还是计算说了算</h2>
+<p><img alt="批内复用与转折点" src="../animations/05-estimate.gif" /></p>
+<p>可交互版：<a href="../animations/05-estimate.html">animations/05-estimate.html</a>（滑块：batch 里的请求数 <span class="arithmatex">\(B\)</span>，1 到 300；固定 H100 SXM、70B、每参数 1 字节）。</p>
+<p><strong>怎么看</strong>：</p>
+<ol>
+<li>蓝条是读权重（20.90 ms，不随 <span class="arithmatex">\(B\)</span> 变），橙条是矩阵计算（随 <span class="arithmatex">\(B\)</span> 变长），对应第二、三步；</li>
+<li>一步的下界取两者中较长的；转折点 <span class="arithmatex">\(B_* \approx 148\)</span> 处两条一样长；</li>
+<li>下面三个数：一步下界（每个请求都要等这么久）、每个输出分摊、吞吐上界；</li>
+<li>播放时 <span class="arithmatex">\(B\)</span> = 1 → 8 → 32 → 148 → 256：转折前吞吐近似按 <span class="arithmatex">\(B\)</span> 涨，转折后不再涨。</li>
+</ol>
+<h2 id="_2">练习与作答记录</h2>
+<p><strong>题 1</strong>（第一、二步）：同样的 70B 模型、每参数 1 字节，换成 A100 80GB SXM（第 04 章速查表：2.039 TB/s，312 TFLOP/s），batch = 1。读权重和矩阵计算的下界各是多少？哪项说了算？10 ms 做得到吗？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p><strong>题 2</strong>（第三步）：在 A100 上，<span class="arithmatex">\(b_W = 1\)</span> 时的转折点 <span class="arithmatex">\(B_*\)</span> 是多少？和 H100 的 148 比，大还是小？为什么？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p><strong>题 3</strong>（第三、五步）：一个同事说"我们把 batch 从 1 调到 32，吞吐涨了 20 倍，所以用户等待时间降了 20 倍"。错在哪？要同时报告哪两个指标？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p>原书练习 1-3（原文 L327–L329：带宽、算力打折以后，<span class="arithmatex">\(B = 1, 16, 64\)</span> 的执行时间和吞吐）和练习 1-4（原文 L357–L359：用实测吞吐和 TPOT 检验批处理模型）。想多练可以做。</p>
+<h2 id="_3">口诀</h2>
+<blockquote>
+<p>存读算，分三算；读比算慢百来番；<br />
+加算力，白费钱；加带宽、少读数，才见效；<br />
+一车拉八人，油钱分摊路不短；<br />
+先算极限再看差，漏项开销分开查。</p>
+</blockquote>
+<h2 id="_4">本章复习卡片</h2>
+<p><a href="../review.html">I14</a>（单步的存、读、算）、<a href="../review.html">I15</a>（<span class="arithmatex">\(\max\)</span> 下界与谁说了算）、<a href="../review.html">I16</a>（批内复用与转折点 <span class="arithmatex">\(B_*\)</span>）、<a href="../review.html">I17</a>（实测差距的两种来源）、<a href="../review.html">I18</a>（五个问题）。练习做完后，按答错、卡住的地方再补。</p>
+<h2 id="_5">附录 · 延伸阅读</h2>
+<blockquote>
+<p>留给以后深入学习用，不影响本章主线。★ 是建议先读的。</p>
+</blockquote>
+<h3 id="_6">推荐阅读</h3>
+<table>
+<thead>
+<tr>
+<th>读什么</th>
+<th>读哪里</th>
+<th>读它为了什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>★ AII 第 1 章</td>
+<td>§1.3 L233–L365</td>
+<td>本章原文，图 1-8 到 1-14</td>
+</tr>
+<tr>
+<td>★ AII 第 1 章"本章数字速查"</td>
+<td>L456–L472</td>
+<td>Qwen3-8B 的 prefill / decode 运算量、读取量和 8.62 ms 下界的来历</td>
+</tr>
+<tr>
+<td>AII 第 1 章脚注</td>
+<td>L480（<code>[^budget]</code>）、L484（<code>[^followup]</code>）、L486（<code>[^measurement]</code>）</td>
+<td>70B 预算复算、补测记录、实测说明</td>
+</tr>
+<tr>
+<td>★ <a href="https://wikieden.github.io/cuda-to-tensor-core/lessons/09-roofline-profiling.html">《CUDA 从线程到 Tensor Core》第 9 章</a></td>
+<td>全章</td>
+<td>roofline：算术强度和 <span class="arithmatex">\(\Pi/\beta\)</span> 的比较</td>
+</tr>
+<tr>
+<td>Williams、Waterman、Patterson，Roofline 论文</td>
+<td>全文</td>
+<td>roofline 模型的原始出处（原文 L482 脚注）</td>
+</tr>
+<tr>
+<td>AII 第 8 章</td>
+<td>推理优化</td>
+<td>批处理、KV 管理、推测解码，第三、四步的后续</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_7">数学原理</h3>
+<ul>
+<li><strong>重叠取最大</strong>：两件事能同时进行时，总时间由慢的那件决定，<span class="arithmatex">\(\max(a, b)\)</span>；不能重叠时才相加，<span class="arithmatex">\(a + b\)</span>。</li>
+<li><strong>分摊</strong>：整批时间 ÷ 输出数 = 每个输出分摊的时间。它是吞吐的倒数，不是延迟。</li>
+<li><strong>转折点</strong>：令两条线相等解出 <span class="arithmatex">\(B_*\)</span>。<span class="arithmatex">\(B_*\)</span> 和 <span class="arithmatex">\(N\)</span> 无关，只取决于 <span class="arithmatex">\(b_W\)</span> 和硬件的 <span class="arithmatex">\(\Pi/\beta\)</span>。</li>
+</ul>
+<h3 id="_8">公式清单</h3>
+<table>
+<thead>
+<tr>
+<th>公式</th>
+<th>意思</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\(M_W = b_W N\)</span>，<span class="arithmatex">\(R_W = b_W N\)</span>，<span class="arithmatex">\(F \approx 2BN\)</span></td>
+<td>单步存、读、算</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(T_{\mathrm{step}} \ge \max(F/\Pi,\ R_W/\beta)\)</span></td>
+<td>读、算充分重叠时的下界</td>
+</tr>
+<tr>
+<td>每输出分摊 <span class="arithmatex">\(= T_{\mathrm{step}} / B\)</span>；吞吐 <span class="arithmatex">\(= B / T_{\mathrm{step}}\)</span></td>
+<td>批内复用</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(B_* = b_W \Pi / (2\beta)\)</span></td>
+<td>计算追上读取的 batch</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(I = F / R_W = 2B / b_W\)</span></td>
+<td>算术强度；和 <span class="arithmatex">\(\Pi/\beta\)</span> 比</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(T_{\mathrm{step}} \approx \max(BF_1/\Pi,\ (R_W + B R_{\mathrm{state},1})/\beta)\)</span></td>
+<td>加上每请求状态</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\mathrm{MBU} = T_{\mathrm{lower}} / T\)</span></td>
+<td>读取下界 ÷ 实测</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_9">代码对照：把本章的数字用代码算一遍</h3>
+<blockquote>
+<p>纯 Python，不需要 GPU。代码在仓库本地 <code>ai-infra/solutions/chapter-code/ch05_estimate.py</code>，配套测试 <code>tests/test_ch05.py</code>：</p>
+<p><code>bash  
+cd ai-infra/solutions/chapter-code  
+uv run python ch05_estimate.py   # 一步一步打印  
+uv run pytest tests/test_ch05.py</code></p>
+</blockquote>
+<p><strong>讲义 ↔ 代码</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>讲义</th>
+<th>公式</th>
+<th>写法</th>
+<th>跑出来</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第一步 存、读、算</td>
+<td><span class="arithmatex">\(b_W N\)</span>，<span class="arithmatex">\(2BN\)</span></td>
+<td><code>step_bounds(1)</code></td>
+<td>70 GB、140 GFLOPs</td>
+</tr>
+<tr>
+<td>第二步 两个下界</td>
+<td><span class="arithmatex">\(R/\beta\)</span>，<span class="arithmatex">\(F/\Pi\)</span></td>
+<td><code>step_bounds(1)</code></td>
+<td>20.90 ms、0.1415 ms，约 148 倍</td>
+</tr>
+<tr>
+<td>第二步 三种改法</td>
+<td>改 <span class="arithmatex">\(\Pi\)</span>、<span class="arithmatex">\(\beta\)</span>、<span class="arithmatex">\(b_W\)</span></td>
+<td><code>step_bounds(1, pi=…, beta=…, bw=…)</code></td>
+<td>20.90、10.45、10.45 ms</td>
+</tr>
+<tr>
+<td>第三步 <span class="arithmatex">\(B = 8\)</span></td>
+<td>分摊与吞吐</td>
+<td><code>batch_view(8)</code></td>
+<td>1.13 ms，2.61 ms / 输出，383 token/s</td>
+</tr>
+<tr>
+<td>第三步 转折点</td>
+<td><span class="arithmatex">\(b_W\Pi/(2\beta)\)</span></td>
+<td><code>b_star()</code></td>
+<td>147.7</td>
+</tr>
+<tr>
+<td>第五步 Qwen3-8B 下界与 MBU</td>
+<td><span class="arithmatex">\((15.14 + 0.302)/1.792\)</span></td>
+<td><code>qwen_lower_ms()</code>、<code>mbu(26.5)</code></td>
+<td>8.62 ms、33%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>关键几行</strong>：</p>
+<pre><code class="language-python">def step_bounds(B, n=70e9, bw=1, pi=989.4e12, beta=3.35e12):
+    read_ms = bw * n / beta * 1e3          # 读一遍权重，和 B 无关
+    compute_ms = 2 * B * n / pi * 1e3      # 每个请求 2N 次运算
+    return read_ms, compute_ms, max(read_ms, compute_ms)   # 充分重叠：取较大者
+</code></pre>
+<p><strong>代码里才看得到的 3 件事</strong>：</p>
+<ol>
+<li>吞吐用 <code>B / lower_ms * 1e3</code>，单位是 token/s；把毫秒忘了乘 1000，会差三个数量级。</li>
+<li>原文的 47.9 和 383 token/s 是由 20.90 ms 算的；用不四舍五入的 20.896 ms 算出来是 47.86 和 382.9，测试里放宽到一位小数。</li>
+<li><code>b_star()</code> 里 <span class="arithmatex">\(N\)</span> 被约掉了：同一张卡上，7B 和 70B 的转折点一样，都只看 <span class="arithmatex">\(b_W\)</span> 和 <span class="arithmatex">\(\Pi/\beta\)</span>。</li>
+</ol>
+<p><strong>自己改一改</strong>（不影响练习答案）：</p>
+<ul>
+<li>把 <code>step_bounds</code> 的 <code>bw</code> 改成 2（BF16），看读取下界和 <code>b_star()</code> 怎么变。</li>
+<li>用 <code>batch_view(B)</code> 扫 <span class="arithmatex">\(B\)</span> = 1、64、128、256、512，画出吞吐曲线，和图 5-3 比。</li>
+<li>把 <code>mbu</code> 的实测时间换成 12.1 和 10.7，看利用率怎么一步步上升。</li>
+</ul><nav class="pager"><a href="04-key-numbers.html">← 第 04 章 · 系统设计的关键数字：容量、算力、带宽、延迟</a><a href="06-architecture.html">第 06 章 · 需求如何推动架构：TPU、SmartNIC、Unified Bus →</a></nav>
+</main></div>
+<footer>来自个人学习仓库的对话讲义，含练习作答记录。源码：<a href="https://github.com/wikieden/ai-infra-from-constraints">github.com/wikieden/ai-infra-from-constraints</a>。更多讲义书：<a href="https://wikieden.github.io/ai-books/">Physical AI 0-1-♾️（合集）</a></footer>
+<script>(function(){var d=document.documentElement,K=["s","m","l","xl"];
+function save(k,v){try{v?localStorage.setItem(k,v):localStorage.removeItem(k)}catch(e){}}
+var s=document.getElementById("ab-theme");if(s){s.value=d.dataset.theme||"";s.onchange=function(){if(s.value)d.dataset.theme=s.value;else delete d.dataset.theme;save("ab-theme",s.value)}}
+document.querySelectorAll("[data-fs-step]").forEach(function(b){b.onclick=function(){var i=K.indexOf(d.dataset.fs||"m")+(+b.dataset.fsStep);i=Math.max(0,Math.min(K.length-1,i));d.dataset.fs=K[i];save("ab-fs",K[i])}});
+var nb=document.getElementById("nav-toggle"),side=document.querySelector("nav.side");if(nb&&side){nb.onclick=function(){side.classList.toggle("open")}}
+var cur=side&&side.querySelector(".cur");if(cur)cur.scrollIntoView({block:"center"});
+})();</script>
+</body></html>

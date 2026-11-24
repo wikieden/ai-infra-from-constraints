@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="300" viewBox="0 0 640 300">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="16.0" y="26.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="17" fill="#1f2937" text-anchor="start" font-weight="bold">查询—键配对：长方形 + 三角形</text>
+<text x="16.0" y="290.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">已有 S = 2 个旧 token，新来 P = 3 个（编的）：N_pair = PS + P(P+1)/2 = 6 + 6 = 12。</text>
+<text x="188.0" y="118.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="end" font-weight="normal">新 1</text>
+<rect x="200.0" y="90.0" width="42.0" height="42.0" rx="3" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<rect x="246.0" y="90.0" width="42.0" height="42.0" rx="3" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<rect x="292.0" y="90.0" width="42.0" height="42.0" rx="3" fill="#dcfce7" stroke="#16a34a" stroke-width="1.4" opacity="1"/>
+<rect x="338.0" y="90.0" width="42.0" height="42.0" rx="3" fill="#ffffff" stroke="#d1d5db" stroke-width="1.4" opacity="1"/>
+<rect x="384.0" y="90.0" width="42.0" height="42.0" rx="3" fill="#ffffff" stroke="#d1d5db" stroke-width="1.4" opacity="1"/>
+<text x="188.0" y="164.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="end" font-weight="normal">新 2</text>
+<rect x="200.0" y="136.0" width="42.0" height="42.0" rx="3" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<rect x="246.0" y="136.0" width="42.0" height="42.0" rx="3" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<rect x="292.0" y="136.0" width="42.0" height="42.0" rx="3" fill="#dcfce7" stroke="#16a34a" stroke-width="1.4" opacity="1"/>
+<rect x="338.0" y="136.0" width="42.0" height="42.0" rx="3" fill="#dcfce7" stroke="#16a34a" stroke-width="1.4" opacity="1"/>
+<rect x="384.0" y="136.0" width="42.0" height="42.0" rx="3" fill="#ffffff" stroke="#d1d5db" stroke-width="1.4" opacity="1"/>
+<text x="188.0" y="210.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="end" font-weight="normal">新 3</text>
+<rect x="200.0" y="182.0" width="42.0" height="42.0" rx="3" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<rect x="246.0" y="182.0" width="42.0" height="42.0" rx="3" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<rect x="292.0" y="182.0" width="42.0" height="42.0" rx="3" fill="#dcfce7" stroke="#16a34a" stroke-width="1.4" opacity="1"/>
+<rect x="338.0" y="182.0" width="42.0" height="42.0" rx="3" fill="#dcfce7" stroke="#16a34a" stroke-width="1.4" opacity="1"/>
+<rect x="384.0" y="182.0" width="42.0" height="42.0" rx="3" fill="#dcfce7" stroke="#16a34a" stroke-width="1.4" opacity="1"/>
+<text x="221.0" y="80.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">旧 1</text>
+<text x="267.0" y="80.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">旧 2</text>
+<text x="313.0" y="80.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">新 1</text>
+<text x="359.0" y="80.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">新 2</text>
+<text x="405.0" y="80.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">新 3</text>
+<text x="315.0" y="254.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="middle" font-weight="normal">被读的 token（键）</text>
+<line x1="440.0" y1="106.0" x2="462.0" y2="106.0" stroke="#2563eb" stroke-width="2.5"/>
+<text x="468.0" y="110.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#1f2937" text-anchor="start" font-weight="normal">长方形：新读旧 PS</text>
+<line x1="440.0" y1="124.0" x2="462.0" y2="124.0" stroke="#16a34a" stroke-width="2.5"/>
+<text x="468.0" y="128.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#1f2937" text-anchor="start" font-weight="normal">三角形：新输入内部</text>
+<line x1="440.0" y1="142.0" x2="462.0" y2="142.0" stroke="#d1d5db" stroke-width="2.5"/>
+<text x="468.0" y="146.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#1f2937" text-anchor="start" font-weight="normal">未来位置：屏蔽</text>
+</svg>

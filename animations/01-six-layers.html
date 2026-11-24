@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>一次请求走过的六层</title><link rel="stylesheet" href="anim.css">
+<style>svg text.big{font-size:15px}svg text.cap{font-size:15px;font-weight:500}svg text.v{font-size:12px}</style></head>
+<body><main>
+<h1>第 01 章 · 一次请求走过的六层；KV 缓存变小，下面各层跟着变</h1>
+<p class="sub">配套讲义：<a href="../lessons/01-six-layers.html">第 01 章 · 一次请求走过的六层（进行中）</a>。KV = Key–Value（键–值）；MHA = Multi-Head Attention（多头注意力）；GQA = Grouped-Query Attention（分组查询注意力）。缓存大小只画相对比例，不对应具体模型。</p>
+<div class="panel"><svg id="sv" viewBox="0 0 680 400"></svg></div>
+<div class="row"><button id="play">▶ 播放</button><button id="step">→ 单步</button><button id="reset">↺ 从头开始</button></div>
+<div class="row"><label for="n">自己拖：对话已经有多少个 token</label><input type="range" id="n" min="1" max="40" step="1" value="12"><span id="nv">12</span></div>
+<p class="note">看点：① 六层从上到下：一张外卖单从顾客下单一路变成灶台上的具体动作；② 往下看：任务变成"算什么、搬什么"；往上看：硬件的容量、算力、带宽限制上面能做什么；③ KV 缓存像便签：每个旧 token 的 k、v 算一次就存起来，越积越厚，每生成一个新 token 都要把整叠读一遍；④ GQA 让几个头共用一套 k、v，缓存只剩 1/4，③–⑥ 层都跟着变。滑块：对话越长，便签越厚；GQA 那叠始终是 MHA 的 1/4。</p>
+</main>
+<script src="anim.js"></script>
+<script>
+const sv=$('sv');
+const L=[['① 应用与任务','顾客下单'],['② 模型与负载','菜谱 + 今晚客流'],['③ 训练与推理系统','厨师长排单'],['④ 算子与编译运行时','刀法和步骤'],['⑤ 处理器与存储','灶台 + 调料架'],['⑥ 互联与数据中心','传菜通道、电、排风']];
+const GQA=['同一块显存放更多请求，batch 凑得更大','KV 存法变了，attention 要写新算子','显存装得更多，每步要读的 KV 只剩 1/4','卡之间、机器之间传 KV 的量也只剩 1/4'];
+const ST=[{cap:'六层分工：一次请求从上往下穿过',s:0},{cap:'往下看：任务一层层变成具体的计算和数据搬移',s:1},{cap:'往上看：硬件的容量、算力、带宽决定上面能做什么',s:2},
+  {cap:'KV 缓存：旧 token 的 k、v 算一次就存起来，像便签越积越厚',s:3},{cap:'每生成一个新 token，都要把整叠便签从显存读一遍',s:4},
+  {cap:'GQA：4 个头共用一套 k、v，便签只剩 1/4，下面各层跟着变',s:5}];
+const FR=[];ST.forEach((_,i)=>{FR.push(i);FR.push(i)});
+let k=0,custom=null;
+function defs(){const d=el('defs',{},sv);['var(--accent)','var(--warm)'].forEach((c,i)=>{const m=el('marker',{id:'m'+i,viewBox:'0 0 10 10',refX:9,refY:5,markerWidth:6,markerHeight:6,orient:'auto'},d);el('path',{d:'M0,0 L10,5 L0,10 z',fill:c},m)})}
+function layers(hi,dim){L.forEach(([n,a],i)=>{const y=60+i*54,on=hi&&hi.includes(i);
+  el('rect',{x:30,y,width:250,height:46,rx:8,fill:on?'var(--accent-bg)':'none',stroke:on?'var(--accent)':'var(--line)','stroke-width':on?2:1,opacity:dim&&!on?.45:1},sv);
+  txt(n,{x:44,y:y+20,class:'big'},sv);txt('餐厅：'+a,{x:44,y:y+38,class:'m'},sv)})}
+function stackKV(x,y0,n,frac,col,lab){const h=Math.max(2,6*frac);let y=y0;
+  for(let i=0;i<n;i++){el('rect',{x,y:y-h,width:90,height:h-1,fill:col,opacity:.8},sv);y-=h}
+  txt(lab,{x:x+45,y:y0+18,'text-anchor':'middle',class:'m'},sv);return y}
+function tokens(n,y,newOne){const w=Math.min(26,300/(n+1));for(let i=0;i<n;i++)el('rect',{x:330+i*w,y,width:w-3,height:20,rx:3,fill:'var(--teal)',opacity:.7},sv);
+  if(newOne){el('rect',{x:330+n*w,y,width:w-3,height:20,rx:3,fill:'var(--warm)'},sv)}
+  txt(`已有 ${n} 个 token`+(newOne?' + 正在生成的新 token（橙）':''),{x:330,y:y-8,class:'m'},sv)}
+function draw(){
+  clear(sv);defs();
+  if(custom!==null){const n=custom;txt(`对话已有 ${n} 个 token：每生成一个新 token，要读整叠 KV`,{x:340,y:30,'text-anchor':'middle',class:'cap'},sv);
+    layers([4],true);tokens(Math.min(n,40),70,true);
+    const t1=stackKV(380,360,n,1,'var(--purple)','MHA：每个头一套 k、v');const t2=stackKV(520,360,n,0.25,'var(--teal)','GQA：4 个头共用一套');
+    txt(`${n} 份`,{x:425,y:t1-6,'text-anchor':'middle',class:'big'},sv);txt(`${n} 份 × 1/4`,{x:565,y:t2-6,'text-anchor':'middle',class:'big'},sv);return}
+  const f=ST[FR[k]];txt(f.cap,{x:340,y:30,'text-anchor':'middle',class:'cap'},sv);
+  if(f.s===0){layers([0,1,2,3,4,5]);txt('越往下越具体',{x:470,y:200,'text-anchor':'middle',class:'big'},sv);
+    txt('大多数人只熟悉其中一两层',{x:470,y:236,'text-anchor':'middle',class:'m'},sv);txt('层与层之间的接口，正是跨层优化的切入点',{x:470,y:258,'text-anchor':'middle',class:'m'},sv)}
+  else if(f.s===1){layers([0,1,2,3,4,5]);el('line',{x1:300,y1:70,x2:300,y2:370,stroke:'var(--accent)','stroke-width':3,'marker-end':'url(#m0)'},sv);
+    txt('要完成什么、多快、多少钱',{x:320,y:85,class:'big'},sv);txt('↓',{x:470,y:200,class:'big'},sv);txt('算什么、存什么、搬什么',{x:320,y:360,class:'big'},sv).style.fill='var(--accent)'}
+  else if(f.s===2){layers([0,1,2,3,4,5]);el('line',{x1:300,y1:370,x2:300,y2:70,stroke:'var(--warm)','stroke-width':3,'marker-end':'url(#m1)'},sv);
+    txt('能跑多大的模型、同时接多少请求、多快回答',{x:320,y:85,class:'big'},sv);txt('容量、算力、带宽（显存多大、算多快、搬多快）',{x:320,y:360,class:'big'},sv).style.fill='var(--warm)'}
+  else if(f.s<=4){layers([1,4],true);tokens(10,70,f.s===4);const top=stackKV(440,360,10,1,'var(--purple)','KV 缓存（显存里）');
+    txt('每个旧 token 一张便签：它的 k、v',{x:400,y:150,class:'m'},sv);
+    if(f.s===4){el('line',{x1:330+10*26+10,y1:95,x2:540,y2:top+4,stroke:'var(--warm)','stroke-width':2.5,'marker-end':'url(#m1)'},sv);
+      txt('新 token 的 q 要和前面所有 k 打分 → 整叠读一遍',{x:400,y:175,class:'m'},sv).style.fill='var(--warm)'}}
+  else{layers([2,3,4,5],true);GQA.forEach((g,i)=>txt('→ '+g,{x:300,y:60+(i+2)*54+28,class:'m'},sv));
+    stackKV(540,150,10,0.25,'var(--teal)','');txt('GQA：便签只剩 1/4',{x:585,y:125,'text-anchor':'middle',class:'big'},sv);
+    txt('改模型是 ② 层的事，影响一路传到下面',{x:470,y:80,'text-anchor':'middle',class:'m'},sv)}
+}
+function reset(){k=0;custom=null;draw()}
+function next(){if(custom!==null){custom=null;draw();return true}if(k>=FR.length-1)return false;k++;draw();return true}
+$('n').oninput=e=>{ANIM.stop();custom=+e.target.value;$('nv').textContent=custom;draw()};
+setupPlayer({captureSeed:1,reset,next},1600);
+</script><a href="https://wikieden.github.io/ai-books/" style="position:fixed;right:12px;bottom:12px;z-index:99;padding:4px 10px;border-radius:14px;background:rgba(127,127,127,.18);color:inherit;font:13px/1.6 system-ui,sans-serif;text-decoration:none">← 全部讲义书</a>
+</body></html>

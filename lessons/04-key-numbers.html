@@ -1,0 +1,563 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>第 04 章 · 系统设计的关键数字：容量、算力、带宽、延迟 · 从约束推导 AI Infra</title>
+<script>(function(){try{var d=document.documentElement,t=localStorage.getItem("ab-theme"),f=localStorage.getItem("ab-fs");if(t)d.dataset.theme=t;if(f)d.dataset.fs=f}catch(e){}})();</script>
+<style>:root{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa;--fs:16px}
+@media (prefers-color-scheme:dark){:root:not([data-theme]){--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}}
+:root[data-theme="light"]{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa}
+:root[data-theme="dark"]{--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}
+:root[data-theme="sepia"]{--bg:#f6efe1;--fg:#3b3127;--mute:#7a6a58;--line:#e2d6bf;--card:#fbf6ec;--acc:#a0522d;--code:#ece2cd;--quote:#efe5d2}
+:root[data-theme="green"]{--bg:#e3eddf;--fg:#22301f;--mute:#566650;--line:#c9d8c3;--card:#eef5eb;--acc:#2e7d4f;--code:#d6e4d0;--quote:#dae7d5}
+:root[data-theme="navy"]{--bg:#0f1a2b;--fg:#dde6f3;--mute:#93a4bd;--line:#23324a;--card:#15233a;--acc:#6cc4ff;--code:#1a2a44;--quote:#16243b}
+:root[data-fs="s"]{--fs:15px}
+:root[data-fs="m"]{--fs:16px}
+:root[data-fs="l"]{--fs:18px}
+:root[data-fs="xl"]{--fs:20px}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:var(--fs)/1.75 -apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Helvetica Neue",sans-serif}
+a{color:var(--acc)}
+header.top{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+header.top .in{max-width:860px;margin:0 auto;padding:10px 16px;display:flex;gap:6px 16px;align-items:center;flex-wrap:wrap;font-size:14px}
+header.top .brand{font-weight:600;color:var(--fg);text-decoration:none;margin-right:auto}
+header.top a{text-decoration:none}
+.prefs{display:inline-flex;gap:4px;align-items:center}
+.prefs button,.prefs select,#nav-toggle{font:inherit;font-size:13px;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:2px 8px;cursor:pointer}
+main{max-width:860px;margin:0 auto;padding:24px 16px 72px;overflow-wrap:anywhere}
+h1{font-size:1.75em;line-height:1.35;margin:8px 0 16px} h2{font-size:1.375em;margin:40px 0 12px;padding-top:8px;border-top:1px solid var(--line)} h3{font-size:1.125em;margin:28px 0 8px}
+.layout{display:grid;grid-template-columns:260px minmax(0,1fr);max-width:1180px;margin:0 auto}
+.layout main{margin:0;max-width:880px}
+nav.side{position:sticky;top:49px;align-self:start;max-height:calc(100vh - 49px);overflow-y:auto;padding:20px 8px 40px 16px;border-right:1px solid var(--line);font-size:14px;line-height:1.5}
+nav.side .h{font-weight:600;color:var(--mute);margin:4px 8px 8px;font-size:13px}
+nav.side a{display:block;padding:5px 8px;border-radius:6px;color:var(--fg);text-decoration:none}
+nav.side a:hover{background:var(--code)} nav.side a.cur{background:var(--quote);color:var(--acc);font-weight:600}
+nav.side a .n{color:var(--mute);margin-right:6px;font-variant-numeric:tabular-nums}
+#nav-toggle{display:none}
+@media (max-width:960px){.layout{display:block} nav.side{display:none;position:fixed;z-index:6;top:49px;left:0;bottom:0;width:min(300px,85vw);max-height:none;background:var(--bg);box-shadow:2px 0 12px rgba(0,0,0,.2)} nav.side.open{display:block} #nav-toggle{display:inline-block}}
+.run{display:flex;flex-wrap:wrap;align-items:center;gap:4px 0;margin:4px 0 12px}
+.run details{flex-basis:100%;margin:6px 0 0;font-size:.94em}
+img{max-width:100%;height:auto;border-radius:8px;border:1px solid var(--line);background:#fff}
+blockquote{margin:16px 0;padding:10px 16px;background:var(--quote);border-left:3px solid var(--acc);border-radius:4px;color:var(--mute)}
+blockquote p{margin:4px 0}
+code{background:var(--code);padding:1px 5px;border-radius:4px;font-size:.9em}
+pre{background:var(--code);padding:12px 14px;border-radius:8px;overflow-x:auto} pre code{padding:0;background:none}
+table{border-collapse:collapse;display:block;overflow-x:auto;max-width:100%;margin:12px 0;font-size:.94em}
+th,td{border:1px solid var(--line);padding:6px 10px;vertical-align:top} th{background:var(--code)}
+details{border:1px solid var(--line);border-radius:8px;padding:6px 12px;margin:8px 0;background:var(--card)}
+details[open]{padding-bottom:10px} summary{cursor:pointer;color:var(--acc);font-weight:500}
+mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%}
+.btn{display:inline-block;margin:4px 8px 4px 0;padding:6px 14px;border:1px solid var(--acc);border-radius:999px;text-decoration:none;font-size:14px}
+.pager{display:flex;justify-content:space-between;gap:12px;margin-top:48px;padding-top:16px;border-top:1px solid var(--line);font-size:15px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin:16px 0}
+.card{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;color:inherit;text-decoration:none}
+.card:hover{border-color:var(--acc)} .card img{border:0;border-bottom:1px solid var(--line);border-radius:0;aspect-ratio:16/10;object-fit:contain;width:100%}
+.card .no{color:var(--mute);font-size:13px;padding:8px 12px 0} .card .t{padding:0 12px 12px;font-weight:500;line-height:1.5}
+.lead{font-size:1.06em;color:var(--mute)}
+footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-size:13px}
+</style>
+<script>window.MathJax={tex:{inlineMath:[["\\(","\\)"]],displayMath:[["\\[","\\]"],["$$","$$"]],processEscapes:true,processEnvironments:true}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"></script>
+</head><body>
+<header class="top"><div class="in">
+<button type="button" id="nav-toggle" aria-label="打开章节列表">☰ 章节</button><a class="brand" href="../index.html">从约束推导 AI Infra</a>
+<a href="../lessons/index.html">讲义目录</a>
+<a href="../animations/index.html">动画</a>
+<a href="../review.html">复习卡片</a>
+<a href="../lessons/appendix-glossary.html">缩写表</a>
+<a href="https://wikieden.github.io/ai-books/glossary.html">全局词汇</a>
+<a href="https://wikieden.github.io/ai-books/">← 全部讲义书</a>
+<span class="prefs" title="字号与主题"><button type="button" data-fs-step="-1" aria-label="字号变小">A−</button><button type="button" data-fs-step="1" aria-label="字号变大">A+</button><select id="ab-theme" aria-label="主题色"><option value="">跟随系统</option><option value="light">浅色</option><option value="dark">深色</option><option value="sepia">米黄护眼</option><option value="green">豆沙绿护眼</option><option value="navy">夜蓝</option></select></span>
+</div></header>
+<div class="layout"><nav class="side" aria-label="章节"><div class="h">从约束推导 AI Infra</div><a href="index.html">讲义目录</a><a href="01-six-layers.html"><span class="n">1</span>一次请求走过的六层（进行中）</a><a href="02-request-lifecycle.html"><span class="n">2</span>一次生成请求的处理过程：权重加载一次，每个 token 都要再读一遍</a><a href="03-dataflow-hierarchy.html"><span class="n">3</span>从存储程序到数据流执行：存储层次就像大楼里的厕所</a><a href="04-key-numbers.html" class="cur"><span class="n">4</span>系统设计的关键数字：容量、算力、带宽、延迟</a><a href="05-estimate.html"><span class="n">5</span>用几个数字估算一次模型执行：算和读各要多久，实测为什么达不到</a><a href="06-architecture.html"><span class="n">6</span>需求如何推动架构：TPU、SmartNIC、Unified Bus</a><a href="07-compute-graph.html"><span class="n">7</span>计算图与张量结构：一个 token 经过一层要算多少</a><a href="08-generation-budget.html"><span class="n">8</span>自回归生成的资源账：存一次的、每步读的、用完就扔的</a><a href="09-kv-sharing.html"><span class="n">9</span>KV 怎么变小 ①：头共享与潜变量压缩</a><a href="10-kv-sparse-linear.html"><span class="n">10</span>KV 怎么变小 ②：窗口、稀疏、线性与混合注意力</a><a href="11-moe.html"><span class="n">11</span>MoE：专家路由与批内权重复用</a><a href="12-network-shape.html"><span class="n">12</span>网络形状：深宽、专家粒度、残差与多 token 预测</a><a href="13-model-comparison.html"><span class="n">13</span>整个模型的资源需求与比较：存多少、算多少、能放几条请求</a><a href="14-workload-arrival.html"><span class="n">14</span>从单次请求到持续到达的负载：什么时候来，比来多少更要紧</a><a href="15-agent-tasks.html"><span class="n">15</span>多轮交互与 Agent 任务：前缀、成功成本、关键路径</a><a href="16-multimodal-realtime.html"><span class="n">16</span>多模态与实时交互：数据换形状，时间有死线（略讲）</a><a href="17-training-rl.html"><span class="n">17</span>训练与强化学习的计算和状态：为什么训练要 6ND、要存 18 字节</a><a href="18-scaling-lifecycle.html"><span class="n">18</span>Scaling law 与全生命周期成本：训练多大、训练多久、服务多少次</a><a href="19-accelerator-basics.html"><span class="n">19</span>从矩阵乘法认识加速器：算多少、搬多少、耗多少电</a><a href="20-compute-units.html"><span class="n">20</span>计算单元：矩阵、向量、流水与低精度</a><a href="21-memory-movement.html"><span class="n">21</span>存储层次与数据搬移：放得下、取得到、来得及</a><a href="22-package-interconnect.html"><span class="n">22</span>多芯片封装与互联：计算放在哪，数据走哪条路</a><a href="23-architecture-evolution.html"><span class="n">23</span>架构演进与专用架构：每一代新增的东西，省掉了哪一笔</a><a href="24-choose-accelerator.html"><span class="n">24</span>根据架构选择加速器：先估下界，再找差距，最后算账</a><a href="appendix-glossary.html">附录 · 缩写与术语表</a><a href="appendix-tp-pp-cp.html">附录 · 补充资料：TP、PP、CP，一个模型沿三个方向切给多张卡</a></nav><main>
+<h1 id="04">第 04 章 · 系统设计的关键数字：容量、算力、带宽、延迟</h1><div class="run"><a class="btn" href="../animations/04-key-numbers.html">▶ 打开本章可交互动画</a><a class="btn" href="https://colab.research.google.com/github/wikieden/ai-infra-from-constraints/blob/main/code/notebooks/ch04_key_numbers.ipynb" target="_blank" rel="noopener">在 Colab 运行本章代码</a><a class="btn" href="../code/notebooks/ch04_key_numbers.ipynb" download>下载 notebook</a><details><summary>本地运行</summary><pre><code>git clone https://github.com/wikieden/ai-infra-from-constraints
+cd ai-infra-from-constraints/code/notebooks
+pip install jupyterlab torch numpy
+jupyter lab ch04_key_numbers.ipynb</code></pre><p>也可以下载后直接用 VS Code 打开 .ipynb 运行。需要 GPU 的章节在 Colab 里选「代码执行程序 → 更改运行时类型 → GPU」。</p></details></div>
+<blockquote>
+<p>本章回答：动手之前，怎么用几个数字判断一个方案行不行？只加速一部分，整体最多快多少？一张卡能不能放下一个 70B 模型？网卡的 400 Gbit/s 等于每秒多少 GB？<br />
+讲解日期：2026-11-24 · 上一章：<a href="../lessons/03-dataflow-hierarchy.html">第 03 章 从存储程序到数据流执行</a> · 下一章：<a href="../lessons/05-estimate.html">第 05 章 用几个数字估算一次模型执行</a><br />
+对应原文：<code>materials/ai-infra-book/manuscripts/01-初识 AI Infra.md</code> §1.2 L105–L231（表 L115–L128、图 1-6 <code>ch01/figure-1-4-numbers.svg</code>、GPU 速查表 L186–L191、图 1-7 <code>ch01/figure-1-capacity-path.svg</code>）<br />
+本章缩写：BF16 = Brain Float 16（Google Brain 提出的 / 浮点 / 16 位）· FLOP = FLoating-point OPeration（浮点 / 运算，一次）· FLOPs = 浮点运算总次数 · FLOP/s = 每秒浮点运算次数 · FP32 = Floating Point 32（浮点 / 32 位）· GiB / MiB / KiB = Gibibyte / Mebibyte / Kibibyte（二进制的 G / M / K 字节：<span class="arithmatex">\(2^{30}\)</span> / <span class="arithmatex">\(2^{20}\)</span> / <span class="arithmatex">\(2^{10}\)</span>）· HBM = High Bandwidth Memory（高 / 带宽 / 内存）· KV = Key-Value（键 / 值）· MBU = Memory Bandwidth Utilization（内存 / 带宽 / 利用率）· MFU = Model FLOPs Utilization（模型 / 浮点运算 / 利用率）· SXM = NVIDIA 的模块形态（插在主板上的 GPU 模块，区别于 PCIe 插卡）。全部缩写见 <a href="../lessons/appendix-glossary.html">缩写与术语表</a></p>
+</blockquote>
+<h2 id="_1">讲解</h2>
+<h3 id="jeff-dean-2026-11-24">第一步：先记住数量级：Jeff Dean 的"每个人都该知道的数字"（2026-11-24）</h3>
+<p><strong>类比：出门前先估路程。</strong> 去楼下便利店、去隔壁城市、去另一个国家，不用精确到分钟，先知道是"几分钟、几小时、几天"，就能决定走路、开车还是坐飞机。</p>
+<p>原文 L109–L128：Jeff Dean 2009 年演讲里的 12 个数（2009 年的设备，只用来看<strong>数量级</strong>）：</p>
+<p><img alt="12 种操作的耗时，从 0.5 ns 到 1.5 亿 ns，横跨 9 个数量级" src="../figures/04-key-numbers-dean.png" /></p>
+<p><em>图 4-1 · 横轴对数刻度，每格差 10 倍。访问一级缓存 0.5 ns，跨大洋往返 1.5 亿 ns。</em></p>
+<p><strong>单位</strong>（原文 L111）：</p>
+<table>
+<thead>
+<tr>
+<th>单位</th>
+<th>等于</th>
+<th>注意</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1 μs（微秒）</td>
+<td>1000 ns</td>
+<td>1 ns 是十亿分之一秒</td>
+</tr>
+<tr>
+<td>1 ms（毫秒）</td>
+<td>1000 μs</td>
+<td></td>
+</tr>
+<tr>
+<td>1 byte（字节）</td>
+<td>8 bit（比特）</td>
+<td>网速常用 bit/s，存储常用 byte</td>
+</tr>
+<tr>
+<td>KB / MB / GB / TB</td>
+<td><span class="arithmatex">\(10^3\)</span> / <span class="arithmatex">\(10^6\)</span> / <span class="arithmatex">\(10^9\)</span> / <span class="arithmatex">\(10^{12}\)</span> 字节</td>
+<td>十进制，厂商和本书都用它</td>
+</tr>
+<tr>
+<td>KiB / MiB / GiB</td>
+<td><span class="arithmatex">\(2^{10}\)</span> / <span class="arithmatex">\(2^{20}\)</span> / <span class="arithmatex">\(2^{30}\)</span> 字节</td>
+<td>二进制，相减之前要先换成同一种</td>
+</tr>
+</tbody>
+</table>
+<p><strong>例子</strong>：取三个数换算（原文 L130）。</p>
+<table>
+<thead>
+<tr>
+<th>操作</th>
+<th>ns</th>
+<th>换算</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>访问主存</td>
+<td>100</td>
+<td>0.1 μs</td>
+</tr>
+<tr>
+<td>同一数据中心内往返</td>
+<td>500,000</td>
+<td>0.5 ms</td>
+</tr>
+<tr>
+<td>磁盘寻道</td>
+<td>10,000,000</td>
+<td>10 ms</td>
+</tr>
+</tbody>
+</table>
+<p>磁盘寻道是主存访问的 <span class="arithmatex">\(10^7 / 10^2 = 10^5\)</span> 倍，也就是十万倍。</p>
+<p><strong>一句话</strong>：动手之前先看数量级；差十万倍的两件事，不用精确算也知道该先优化哪个。</p>
+<h3 id="amdahl-2026-11-24">第二步：等待会累加；只加速一部分，整体最多快多少：Amdahl 定律（2026-11-24）</h3>
+<p><strong>类比：做一顿饭。</strong> 炖汤要 2 小时，切菜 10 分钟。你刀工练得再快，这顿饭也快不了多少；想早点吃饭，得想办法缩短炖汤。</p>
+<p><strong>例子</strong>（原文 L138）：一个请求串行做 20 次寻道，每次 10 ms，CPU 计算一共 1 ms，总共 201 ms。</p>
+<table>
+<thead>
+<tr>
+<th>改法</th>
+<th>省了多少</th>
+<th>新总时间</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CPU 算快一倍</td>
+<td>0.5 ms</td>
+<td>200.5 ms</td>
+</tr>
+<tr>
+<td>数据连续放置，寻道从 20 次降到 10 次</td>
+<td>100 ms</td>
+<td>101 ms</td>
+</tr>
+</tbody>
+</table>
+<p><strong>公式</strong>（原文 L145）：原时间里比例 <span class="arithmatex">\(f\)</span> 的部分加速 <span class="arithmatex">\(s\)</span> 倍，其余不变，</p>
+<div class="arithmatex">\[\mathrm{Speedup} = \frac{1}{(1-f) + f/s}\]</div>
+<ul>
+<li><span class="arithmatex">\(f\)</span>：被加速的部分占原总时间的比例（fraction）。</li>
+<li><span class="arithmatex">\(s\)</span>：这部分加速了几倍（speed-up factor）。</li>
+<li><span class="arithmatex">\(s\)</span> 再大，总加速比也不超过 <span class="arithmatex">\(1/(1-f)\)</span>：剩下那部分一点没快。</li>
+</ul>
+<p><img alt="f 越大，加速同样的倍数，整体收益越大；s 趋于无穷时也有上限" src="../figures/04-key-numbers-amdahl.png" /></p>
+<p><em>图 4-2 · 横轴是 <span class="arithmatex">\(f\)</span>，纵轴是总加速比。蓝线 <span class="arithmatex">\(s = 5\)</span>，灰线 <span class="arithmatex">\(s \to \infty\)</span>（上限 <span class="arithmatex">\(1/(1-f)\)</span>）。标出了原文 AI 编程工具的两组团队。</em></p>
+<p><strong>例子</strong>（原文 L150–L152）：AI 编程工具让编码快 5 倍（<span class="arithmatex">\(s = 5\)</span>）。</p>
+<table>
+<thead>
+<tr>
+<th>团队</th>
+<th>编码占比 <span class="arithmatex">\(f\)</span></th>
+<th>总加速比</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>大公司，开会审批多</td>
+<td>0.2</td>
+<td><span class="arithmatex">\(1/(0.8 + 0.04) \approx 1.19\)</span></td>
+</tr>
+<tr>
+<td>大公司</td>
+<td>0.3</td>
+<td><span class="arithmatex">\(1/(0.7 + 0.06) \approx 1.32\)</span></td>
+</tr>
+<tr>
+<td>创业团队</td>
+<td>0.7</td>
+<td><span class="arithmatex">\(1/(0.3 + 0.14) \approx 2.27\)</span></td>
+</tr>
+<tr>
+<td>创业团队</td>
+<td>0.8</td>
+<td><span class="arithmatex">\(1/(0.2 + 0.16) \approx 2.78\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>以 <span class="arithmatex">\(f = 0.2\)</span> 为例：100 小时里编码 20 小时，缩到 4 小时，其他 80 小时不变，总共 84 小时。</p>
+<p><strong>一句话</strong>：被加速的部分原来占多少时间，决定了整体能快多少；局部再快，也要放回完整流程里算。</p>
+<h3 id="2026-11-24">第三步：四类数字：容量、计算吞吐、带宽、延迟（2026-11-24）</h3>
+<p><strong>类比：开一家餐馆要看四个数。</strong> 冰箱多大（容量），灶台一小时能炒几盘（计算吞吐），从仓库到后厨的传送带一小时运多少货（带宽），叫一次货要等多久才到（延迟）。</p>
+<p><strong>公式</strong>（原文 L162–L166）：一个任务要保存 <span class="arithmatex">\(M\)</span> 字节、做 <span class="arithmatex">\(F\)</span> 次浮点运算、经某个接口读写 <span class="arithmatex">\(R\)</span> 字节；加速器有容量 <span class="arithmatex">\(M_{\mathrm{cap}}\)</span>、计算吞吐 <span class="arithmatex">\(\Pi\)</span>、接口带宽 <span class="arithmatex">\(\beta\)</span>：</p>
+<div class="arithmatex">\[M \le M_{\mathrm{cap}}, \qquad T_{\mathrm{compute}} = \frac{F}{\Pi}, \qquad T_{\mathrm{memory}} = \frac{R}{\beta}\]</div>
+<ul>
+<li><span class="arithmatex">\(M\)</span>：要同时存下的字节数（M = memory）；cap = capacity（容量）。</li>
+<li><span class="arithmatex">\(F\)</span>：浮点运算次数（F = FLOPs）；<span class="arithmatex">\(\Pi\)</span>（读作 pi，大写）：每秒能做的浮点运算数。</li>
+<li><span class="arithmatex">\(R\)</span>：要读写的字节数（R = read/write）；<span class="arithmatex">\(\beta\)</span>（读作 beta）：每秒能搬的字节数。</li>
+<li>一份数据可以存一次、读很多次，所以 <span class="arithmatex">\(M\)</span> 和 <span class="arithmatex">\(R\)</span> 要分开算（第 02 章：权重存 16.38 GB，每步读 15.14 GB）。</li>
+<li><span class="arithmatex">\(\Pi\)</span>、<span class="arithmatex">\(\beta\)</span> 取峰值时，两个 <span class="arithmatex">\(T\)</span> 是<strong>时间下界</strong>：硬件的物理极限，软件怎么写都不可能更快。</li>
+</ul>
+<p><strong>利用率</strong>（原文 L170）：实际耗时 <span class="arithmatex">\(T\)</span> 离下界多远。</p>
+<div class="arithmatex">\[\mathrm{MFU} = \frac{F}{\Pi\, T}, \qquad \mathrm{MBU} = \frac{R}{\beta\, T}\]</div>
+<p>两者都不超过 1；越接近 1，越接近硬件极限。</p>
+<p><strong>延迟</strong>（原文 L180）：发起一次操作要等多久。传大块数据时，耗时主要看"数据量 ÷ 带宽"；小请求还得一次次等时，启动和往返时间可能成为大头。</p>
+<p><strong>例子</strong>：三张 GPU 的资源速查表（原文 L186–L191；BF16 输入、FP32 累加、稠密矩阵的峰值）。</p>
+<table>
+<thead>
+<tr>
+<th>资源或操作</th>
+<th style="text-align: right;">RTX 4090</th>
+<th style="text-align: right;">A100 80GB SXM</th>
+<th style="text-align: right;">H100 SXM</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>显存容量（GB）</td>
+<td style="text-align: right;">24</td>
+<td style="text-align: right;">80</td>
+<td style="text-align: right;">80</td>
+</tr>
+<tr>
+<td>显存带宽（TB/s）</td>
+<td style="text-align: right;">1.008</td>
+<td style="text-align: right;">2.039</td>
+<td style="text-align: right;">3.35</td>
+</tr>
+<tr>
+<td>BF16 矩阵峰值（TFLOP/s）</td>
+<td style="text-align: right;">165.2</td>
+<td style="text-align: right;">312</td>
+<td style="text-align: right;">989.4</td>
+</tr>
+<tr>
+<td>按带宽峰值读 1 GB（ms）</td>
+<td style="text-align: right;">0.99</td>
+<td style="text-align: right;">0.49</td>
+<td style="text-align: right;">0.30</td>
+</tr>
+</tbody>
+</table>
+<p>最后一行就是 <span class="arithmatex">\(T_{\mathrm{memory}} = 1\ \mathrm{GB} / \beta\)</span>。例如 H100：<span class="arithmatex">\(10^9 / (3.35 \times 10^{12}) \approx 0.30\)</span> ms。</p>
+<p><img alt="三张 GPU 读 1 GB 要多久：带宽越大越快" src="../figures/04-key-numbers-gpus.png" /></p>
+<p><em>图 4-3 · 按带宽峰值读 1 GB 的时间。带宽翻倍，读同样多的数据时间减半；算力同理。</em></p>
+<p><strong>场景代码</strong>：在一台有 GPU 的机器上，用 PyTorch 粗测显存带宽，就是"搬了多少字节 ÷ 花了多久"（<a href="https://wikieden.github.io/pytorch-inside-out/lessons/24-profiler.html">《PyTorch 从里到外》第 24 章</a>讲了更规范的计时）：</p>
+<pre><code class="language-python">import torch
+
+x = torch.empty(2 * 1024**3 // 2, dtype=torch.bfloat16, device=&quot;cuda&quot;)  # 2 GiB
+y = torch.empty_like(x)
+start, end = torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True)
+start.record(); y.copy_(x); end.record(); torch.cuda.synchronize()
+ms = start.elapsed_time(end)                                            # 毫秒
+moved = 2 * x.numel() * x.element_size()                                # 读一遍 + 写一遍
+print(f&quot;有效带宽 ≈ {moved / ms / 1e9:.0f} TB/s&quot;)                           # 字节/毫秒 → TB/s
+</code></pre>
+<p><strong>一句话</strong>：容量看放不放得下，算力和带宽把工作量换成时间，延迟看小请求要等多久；按峰值算出的是下界，实际耗时和它一比就是利用率。</p>
+<h3 id="2026-11-24_1">第四步：把参数换成字节，再换成要几张卡（2026-11-24）</h3>
+<p><strong>类比：搬家前先量家具。</strong> 先算家具总体积，再看一辆车装不装得下；装不下就分两车，或者把能拆的拆小（量化）。</p>
+<p><strong>公式</strong>（原文 L201）：</p>
+<div class="arithmatex">\[M_W = N \times b_W\]</div>
+<ul>
+<li><span class="arithmatex">\(N\)</span>：参数个数；<span class="arithmatex">\(b_W\)</span>：每个权重占几字节（W = weight；BF16 是 2，8 位整数是 1）。</li>
+</ul>
+<p><strong>例子</strong>（原文 L199–L211）：DeepSeek-R1-Distill-Llama-70B，稠密模型，约 705.54 亿个参数。</p>
+<table>
+<thead>
+<tr>
+<th>方案</th>
+<th>权重</th>
+<th>放在 H100 SXM（80 GB）上</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>BF16，一张卡</td>
+<td><span class="arithmatex">\(70{,}553{,}706{,}496 \times 2 \approx 141.11\)</span> GB</td>
+<td>放不下</td>
+</tr>
+<tr>
+<td>BF16，均分两张卡</td>
+<td>每张约 70.55 GB</td>
+<td>每张剩约 9.45 GB；两卡之间要交换中间结果（第 6 章）</td>
+</tr>
+<tr>
+<td>8 比特分组量化，一张卡</td>
+<td>73.73 GB（每 128 个权重共享一个 scale，部分参数仍用 BF16）</td>
+<td>剩约 6.27 GB</td>
+</tr>
+</tbody>
+</table>
+<p>141.11 GB 约等于 131.42 GiB：卡的容量和权重大小要换成同一种单位再相减。</p>
+<p><img alt="70B 模型的三种放法，和一张 H100 的 80 GB 比" src="../figures/04-key-numbers-capacity.png" /></p>
+<p><em>图 4-4 · 同一刻度上的三种放法。虚线是一张 H100 SXM 的 80 GB。</em></p>
+<p><strong>容量预算</strong>（原文 L220）：显存里不止权重，还有上下文状态和工作区。</p>
+<div class="arithmatex">\[M_W + M_{\mathrm{state}} + M_{\mathrm{work}} \le M_{\mathrm{cap}}\]</div>
+<p>8 比特方案，一个 8192 token 的请求：KV 缓存 2.5 GiB ≈ 2.68 GB，工作区预留 2 GiB ≈ 2.15 GB，</p>
+<div class="arithmatex">\[73.73 + 2.68 + 2.15 = 78.56\ \text{GB} \le 80\ \text{GB}\]</div>
+<p>刚好放得下。换成 24 GB 的 RTX 4090，三张合计 72 GB，连 73.73 GB 的权重都放不下，至少要四张，还要逐卡检查 KV 和工作区。</p>
+<p><img alt="8 比特权重 + 一个请求的 KV + 工作区，堆起来刚好在 80 GB 以内" src="../figures/04-key-numbers-budget.png" /></p>
+<p><em>图 4-5 · 一张 H100 上的容量预算：只剩约 1.4 GB 余量，再加一个同样长的请求就放不下了。</em></p>
+<p><strong>场景代码</strong>：不下载权重，只读模型的 safetensors 索引文件就能算出权重字节数（Hugging Face Hub 上的模型都有这个文件）：</p>
+<pre><code class="language-python">import json
+from huggingface_hub import hf_hub_download
+
+path = hf_hub_download(&quot;deepseek-ai/DeepSeek-R1-Distill-Llama-70B&quot;, &quot;model.safetensors.index.json&quot;)
+total = json.load(open(path))[&quot;metadata&quot;][&quot;total_size&quot;]     # 所有权重文件的总字节数
+print(f&quot;{total / 1e9:.2f} GB = {total / 2**30:.2f} GiB&quot;)     # 十进制 GB 与二进制 GiB
+</code></pre>
+<p><strong>一句话</strong>：参数数 × 每个参数的字节数 = 权重大小；再加上 KV 和工作区，和每张卡的容量比，就知道要几张卡、要不要量化。</p>
+<h3 id="bit-byte2026-11-24">第五步：网速的 bit 和存储的 byte（2026-11-24）</h3>
+<p><strong>类比：水管标的是"每秒多少升"，水桶标的是"能装多少斤"</strong>：单位不同，先换算再比较。</p>
+<p><strong>公式</strong>（原文 L227）：</p>
+<div class="arithmatex">\[\text{GB/s} = \frac{\text{Gbit/s}}{8}\]</div>
+<p><strong>例子</strong>：一张 400 Gbit/s 的 ConnectX-7 网卡，线速（链路的标称速率）= 400 / 8 = 50 GB/s，按线速传 1 GB 要 1 / 50 s = 20 ms。</p>
+<p>实际还要加上每次传输的启动时间、协议开销，以及共用链路的其他流量，应用拿到的带宽会比线速低。</p>
+<p><strong>一句话</strong>：网卡的 Gbit/s 除以 8 才是 GB/s；线速是上限，实际还要扣启动、协议和争抢。</p>
+<h2 id="amdahl">动画演示：Amdahl 定律：加速一部分，整体最多快多少</h2>
+<p><img alt="Amdahl 定律" src="../animations/04-key-numbers.gif" /></p>
+<p>可交互版：<a href="../animations/04-key-numbers.html">animations/04-key-numbers.html</a>（两个滑块：被加速部分的占比 <span class="arithmatex">\(f\)</span>，加速倍数 <span class="arithmatex">\(s\)</span>）。</p>
+<p><strong>怎么看</strong>：</p>
+<ol>
+<li>一条横条是原来的总时间，蓝色是能被加速的部分（占比 <span class="arithmatex">\(f\)</span>），灰色是不变的部分（第二步）；</li>
+<li>播放时 <span class="arithmatex">\(s\)</span> 从 1 变到 2、5、10、100：蓝色越缩越短，灰色一动不动；</li>
+<li>右边的数字是总加速比，最后停在上限 <span class="arithmatex">\(1/(1-f)\)</span> 附近；</li>
+<li>先演 <span class="arithmatex">\(f = 0.2\)</span>，再演 <span class="arithmatex">\(f = 0.8\)</span>：同样的 <span class="arithmatex">\(s\)</span>，收益差很多。</li>
+</ol>
+<h2 id="_2">练习与作答记录</h2>
+<p><strong>题 1</strong>（第二步）：一个流程里能加速的部分占 37%，加速 4 倍。总加速比是多少？就算这部分加速到无穷快，最多又是多少？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p><strong>题 2</strong>（第三、四步）：把第 02 章的 Qwen3-8B（BF16 权重 16.38 GB，每个 token 的 KV 144 KiB）放在一张 24 GB 的 RTX 4090 上，预留 2 GiB 工作区。单个请求最多能有多少个 token 的上下文？（注意 GB 和 GiB、KiB 的换算。）</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p><strong>题 3</strong>（第五步）：通过一条 100 Gbit/s 的链路，按线速把 16.38 GB 的权重传到另一台机器，最少要多久？实际为什么会更久？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p>原书练习 1-2（原文 L229–L231）：70B 模型在 H100 和 RTX A6000 上的多种放法。想多练可以做；最后一问"400 Gbit/s 换成 GB/s"正文第五步已经算过。</p>
+<h2 id="_3">口诀</h2>
+<blockquote>
+<p>先看量级再动手，十万倍差别一眼瞅；<br />
+加速一段看占比，剩下不动是上限；<br />
+放得下看容量，耗多久看算力和带宽；<br />
+参数乘字节算权重，bit 除以八才是 byte。</p>
+</blockquote>
+<h2 id="_4">本章复习卡片</h2>
+<p><a href="../review.html">I10</a>（Amdahl 定律）、<a href="../review.html">I11</a>（四类数字与下界、MFU / MBU）、<a href="../review.html">I12</a>（容量预算公式）、<a href="../review.html">I13</a>（GB 与 GiB、bit 与 byte）。练习做完后，按答错、卡住的地方再补。</p>
+<h2 id="_5">附录 · 延伸阅读</h2>
+<blockquote>
+<p>留给以后深入学习用，不影响本章主线。★ 是建议先读的。</p>
+</blockquote>
+<h3 id="_6">推荐阅读</h3>
+<table>
+<thead>
+<tr>
+<th>读什么</th>
+<th>读哪里</th>
+<th>读它为了什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>★ AII 第 1 章</td>
+<td>§1.2 L105–L231</td>
+<td>本章原文，含 Dean 表、Amdahl、GPU 速查表、70B 容量算例</td>
+</tr>
+<tr>
+<td>★ AII 第 1 章脚注</td>
+<td>L476（<code>[^dean]</code>）、L478（<code>[^h100]</code>）、L498（<code>[^real70]</code>）、L504（<code>[^gpu-numbers]</code>）</td>
+<td>每个数字的出处：Dean 演讲 PDF、H100 白皮书、权重索引、固定 GPU 规格</td>
+</tr>
+<tr>
+<td><a href="https://wikieden.github.io/cuda-to-tensor-core/lessons/09-roofline-profiling.html">《CUDA 从线程到 Tensor Core》第 9 章</a></td>
+<td>全章</td>
+<td>用算力和带宽两个数画 roofline，下一章会用到</td>
+</tr>
+<tr>
+<td><a href="https://wikieden.github.io/pytorch-inside-out/lessons/35-quant-export.html">《PyTorch 从里到外》第 35 章</a></td>
+<td>量化部分</td>
+<td>8 位量化和 scale 在 PyTorch 里怎么写</td>
+</tr>
+<tr>
+<td>Jeff Dean, LADIS 2009 演讲</td>
+<td>"Numbers Everyone Should Know"</td>
+<td>原始的 12 个数和纸笔估算方法</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_7">数学原理</h3>
+<ul>
+<li><strong>Amdahl 定律</strong>：新时间 = 不变部分 <span class="arithmatex">\((1-f)\)</span> + 加速部分 <span class="arithmatex">\(f/s\)</span>（以原总时间为 1）；加速比是它的倒数。<span class="arithmatex">\(s \to \infty\)</span> 时极限是 <span class="arithmatex">\(1/(1-f)\)</span>。</li>
+<li><strong>单位换算</strong>：十进制 <span class="arithmatex">\(10^3\)</span>，二进制 <span class="arithmatex">\(2^{10} = 1024\)</span>；1 GiB ≈ 1.074 GB。bit 和 byte 差 8 倍。</li>
+<li><strong>下界</strong>：用峰值算出的时间不可能被超越，因为峰值由硬件的计算单元数量、频率和接口宽度决定。</li>
+</ul>
+<h3 id="_8">公式清单</h3>
+<table>
+<thead>
+<tr>
+<th>公式</th>
+<th>意思</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\(\mathrm{Speedup} = 1/[(1-f) + f/s]\)</span></td>
+<td>Amdahl 定律</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\mathrm{Speedup} \le 1/(1-f)\)</span></td>
+<td>只加速一部分的上限</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(M \le M_{\mathrm{cap}}\)</span></td>
+<td>容量够不够</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(T_{\mathrm{compute}} = F/\Pi\)</span>，<span class="arithmatex">\(T_{\mathrm{memory}} = R/\beta\)</span></td>
+<td>计算和读写的时间下界</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\mathrm{MFU} = F/(\Pi T)\)</span>，<span class="arithmatex">\(\mathrm{MBU} = R/(\beta T)\)</span></td>
+<td>离硬件极限多远</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(M_W = N b_W\)</span></td>
+<td>权重字节数</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(M_W + M_{\mathrm{state}} + M_{\mathrm{work}} \le M_{\mathrm{cap}}\)</span></td>
+<td>容量预算</td>
+</tr>
+<tr>
+<td>GB/s = Gbit/s ÷ 8</td>
+<td>网速换算</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_9">代码对照：把本章的数字用代码算一遍</h3>
+<blockquote>
+<p>纯 Python，不需要 GPU。代码在仓库本地 <code>ai-infra/solutions/chapter-code/ch04_key_numbers.py</code>，配套测试 <code>tests/test_ch04.py</code>：</p>
+<p><code>bash  
+cd ai-infra/solutions/chapter-code  
+uv run python ch04_key_numbers.py   # 一步一步打印  
+uv run pytest tests/test_ch04.py</code></p>
+</blockquote>
+<p><strong>讲义 ↔ 代码</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>讲义</th>
+<th>公式</th>
+<th>写法</th>
+<th>跑出来</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第一步 寻道 ÷ 主存</td>
+<td><span class="arithmatex">\(10^7 / 10^2\)</span></td>
+<td><code>DEAN_NS</code></td>
+<td>100000 倍</td>
+</tr>
+<tr>
+<td>第二步 寻道例子</td>
+<td>20 × 10 + 1</td>
+<td><code>seek_example()</code></td>
+<td>201 → 200.5 / 101 ms</td>
+</tr>
+<tr>
+<td>第二步 AI 编程工具</td>
+<td>Amdahl</td>
+<td><code>amdahl(0.2, 5)</code> … <code>amdahl(0.8, 5)</code></td>
+<td>1.19、1.32、2.27、2.78</td>
+</tr>
+<tr>
+<td>第三步 读 1 GB</td>
+<td><span class="arithmatex">\(1\ \mathrm{GB}/\beta\)</span></td>
+<td><code>read_ms(1e9, gpu)</code></td>
+<td>0.99、0.49、0.30 ms</td>
+</tr>
+<tr>
+<td>第四步 70B BF16</td>
+<td><span class="arithmatex">\(N b_W\)</span></td>
+<td><code>weight_gb(70_553_706_496, 2)</code></td>
+<td>141.11 GB = 131.42 GiB</td>
+</tr>
+<tr>
+<td>第四步 容量预算</td>
+<td>三项相加</td>
+<td><code>budget_gb(73.73, 2.5, 2)</code></td>
+<td>78.56 GB</td>
+</tr>
+<tr>
+<td>第五步 网卡</td>
+<td>÷ 8</td>
+<td><code>gbit_to_gbyte(400)</code></td>
+<td>50 GB/s，1 GB 要 20 ms</td>
+</tr>
+</tbody>
+</table>
+<p><strong>关键几行</strong>：</p>
+<pre><code class="language-python">def amdahl(f, s):
+    return 1 / ((1 - f) + f / s)            # 不变的部分 + 加速后的部分，取倒数
+
+def budget_gb(weights_gb, kv_gib, work_gib):
+    gib = 2**30 / 1e9                        # 1 GiB = 1.0737 GB，先换成同一种单位
+    return weights_gb + kv_gib * gib + work_gib * gib
+</code></pre>
+<p><strong>代码里才看得到的 3 件事</strong>：</p>
+<ol>
+<li><code>budget_gb</code> 里 KV 和工作区是按 GiB 给的，权重是 GB；不换算直接相加会少算约 0.33 GB，正好吃掉一部分余量。</li>
+<li><code>amdahl(f, float("inf"))</code> 在 Python 里能直接算出上限 <span class="arithmatex">\(1/(1-f)\)</span>，因为 <code>f / inf == 0</code>。</li>
+<li>原书的 70.55、9.45 等数都是四舍五入后的两位小数，测试里用 <code>round(…, 2)</code> 比较。</li>
+</ol>
+<p><strong>自己改一改</strong>（不影响练习答案）：</p>
+<ul>
+<li>把 <code>amdahl</code> 的 <code>s</code> 改成 <code>float("inf")</code>，看 <span class="arithmatex">\(f = 0.2\)</span> 和 <span class="arithmatex">\(f = 0.8\)</span> 的上限分别是多少。</li>
+<li>用 <code>read_ms</code> 算一算三张卡各读 16.38 GB（Qwen3-8B 的权重）要多久。</li>
+<li>把 <code>budget_gb</code> 的 KV 从 2.5 GiB 加倍，看还放不放得下。</li>
+</ul><nav class="pager"><a href="03-dataflow-hierarchy.html">← 第 03 章 · 从存储程序到数据流执行：存储层次就像大楼里的厕所</a><a href="05-estimate.html">第 05 章 · 用几个数字估算一次模型执行：算和读各要多久，实测为什么达不到 →</a></nav>
+</main></div>
+<footer>来自个人学习仓库的对话讲义，含练习作答记录。源码：<a href="https://github.com/wikieden/ai-infra-from-constraints">github.com/wikieden/ai-infra-from-constraints</a>。更多讲义书：<a href="https://wikieden.github.io/ai-books/">Physical AI 0-1-♾️（合集）</a></footer>
+<script>(function(){var d=document.documentElement,K=["s","m","l","xl"];
+function save(k,v){try{v?localStorage.setItem(k,v):localStorage.removeItem(k)}catch(e){}}
+var s=document.getElementById("ab-theme");if(s){s.value=d.dataset.theme||"";s.onchange=function(){if(s.value)d.dataset.theme=s.value;else delete d.dataset.theme;save("ab-theme",s.value)}}
+document.querySelectorAll("[data-fs-step]").forEach(function(b){b.onclick=function(){var i=K.indexOf(d.dataset.fs||"m")+(+b.dataset.fsStep);i=Math.max(0,Math.min(K.length-1,i));d.dataset.fs=K[i];save("ab-fs",K[i])}});
+var nb=document.getElementById("nav-toggle"),side=document.querySelector("nav.side");if(nb&&side){nb.onclick=function(){side.classList.toggle("open")}}
+var cur=side&&side.querySelector(".cur");if(cur)cur.scrollIntoView({block:"center"});
+})();</script>
+</body></html>

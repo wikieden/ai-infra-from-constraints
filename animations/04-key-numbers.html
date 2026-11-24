@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Amdahl 定律</title><link rel="stylesheet" href="anim.css">
+<style>svg text.big{font-size:15px}svg text.cap{font-size:15px;font-weight:500}svg text.num{font-size:26px;font-weight:600}</style></head>
+<body><main>
+<h1>第 04 章 · Amdahl 定律：只加速一部分，整体最多快多少</h1>
+<p class="sub">配套讲义：<a href="../lessons/04-key-numbers.html">第 04 章 · 系统设计的关键数字：容量、算力、带宽、延迟</a>。原总时间记为 1；蓝色是能被加速的部分（占比 f），灰色是不变的部分。</p>
+<div class="panel"><svg id="sv" viewBox="0 0 680 340"></svg></div>
+<div class="row"><button id="play">▶ 播放</button><button id="step">→ 单步</button><button id="reset">↺ 从头开始</button></div>
+<div class="row"><label for="f">自己拖：被加速部分的占比 f</label><input type="range" id="f" min="0.05" max="0.95" step="0.05" value="0.5"><span id="fv">0.50</span></div>
+<div class="row"><label for="s">加速倍数 s</label><input type="range" id="s" min="0" max="5" step="1" value="3"><span id="sv2">10</span></div>
+<p class="note">看点：① 蓝色按 1/s 缩短，灰色一动不动；② 总加速比 = 1 / ((1-f) + f/s)；③ s 再大，总时间也不会短于灰色那段，所以上限是 1/(1-f)；④ 同样 s = 100，f = 0.2 只快到 1.25 倍附近，f = 0.8 能接近 5 倍。滑块 s 取 1、2、5、10、100、1000 几档。</p>
+</main>
+<script src="anim.js"></script>
+<script>
+const sv=$('sv');
+const SS=[1,2,5,10,100];const FR=[];[0.2,0.8].forEach(f=>SS.forEach(s=>{FR.push({f,s});FR.push({f,s})}));
+let k=0,custom=null;
+const sp=(f,s)=>1/((1-f)+f/s);
+function draw(){
+  clear(sv);const {f,s}=custom||FR[k];const W=560,x0=60;
+  txt(`f = ${f.toFixed(2)}，s = ${s>=1000?'1000':(+s.toFixed(1))}：总加速比 = 1 / (${(1-f).toFixed(2)} + ${f.toFixed(2)}/${+s.toFixed(1)}) = ${sp(f,s).toFixed(2)}`,{x:340,y:30,'text-anchor':'middle',class:'cap'},sv);
+  // 原来
+  txt('原来',{x:x0-8,y:92,'text-anchor':'end',class:'m'},sv);
+  el('rect',{x:x0,y:72,width:W*f,height:32,fill:'var(--accent)',opacity:.75},sv);
+  el('rect',{x:x0+W*f,y:72,width:W*(1-f),height:32,fill:'var(--muted)',opacity:.35},sv);
+  txt(`能加速 ${(f*100).toFixed(0)}%`,{x:x0+W*f/2,y:93,'text-anchor':'middle'},sv);
+  // 之后
+  txt('加速后',{x:x0-8,y:162,'text-anchor':'end',class:'m'},sv);
+  el('rect',{x:x0,y:142,width:Math.max(W*f/s,1),height:32,fill:'var(--accent)',opacity:.75},sv);
+  el('rect',{x:x0+W*f/s,y:142,width:W*(1-f),height:32,fill:'var(--muted)',opacity:.35},sv);
+  txt(`不变 ${(100*(1-f)).toFixed(0)}%`,{x:x0+W*f/s+W*(1-f)/2,y:163,'text-anchor':'middle'},sv);
+  // 上限线
+  const lim=x0+W*(1-f);el('line',{x1:lim,y1:132,x2:lim,y2:186,stroke:'var(--warm)','stroke-width':2,'stroke-dasharray':'5 4'},sv);
+  txt('最短也要这么长',{x:lim,y:202,'text-anchor':'middle',class:'m'},sv).style.fill='var(--warm)';
+  // 数字
+  [['总加速比',sp(f,s).toFixed(2)+' 倍'],['上限 1/(1-f)',(1/(1-f)).toFixed(2)+' 倍'],['新总时间',((1-f)+f/s).toFixed(3)]].forEach(([a,b],i)=>{
+    const x=40+i*210;el('rect',{x,y:240,width:190,height:70,rx:8,fill:'none',stroke:'var(--line)'},sv);txt(a,{x:x+10,y:262,class:'m'},sv);txt(b,{x:x+10,y:296,class:'num'},sv)});
+}
+function reset(){k=0;custom=null;draw()}
+function next(){if(custom!==null){custom=null;draw();return true}if(k>=FR.length-1)return false;k++;draw();return true}
+function fromSliders(){ANIM.stop();const f=+$('f').value,s=[1,2,5,10,100,1000][+$('s').value];$('fv').textContent=f.toFixed(2);$('sv2').textContent=s;custom={f,s};draw()}
+$('f').oninput=fromSliders;$('s').oninput=fromSliders;
+setupPlayer({captureSeed:1,reset,next},1300);
+</script><a href="https://wikieden.github.io/ai-books/" style="position:fixed;right:12px;bottom:12px;z-index:99;padding:4px 10px;border-radius:14px;background:rgba(127,127,127,.18);color:inherit;font:13px/1.6 system-ui,sans-serif;text-decoration:none">← 全部讲义书</a>
+</body></html>

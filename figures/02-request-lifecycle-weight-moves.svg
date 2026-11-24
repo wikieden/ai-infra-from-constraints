@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="360" viewBox="0 0 880 360">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="16.0" y="26.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="17" fill="#1f2937" text-anchor="start" font-weight="bold">权重的两种搬移：从存储加载 1 次，之后每次前向都从显存再读一遍</text>
+<text x="16.0" y="350.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">16.38 GB、15.14 GB 是原书 Qwen3-8B BF16 的数（AII 第 1 章“本章数字速查”）；输出 N 个 token 就读 N 遍。</text>
+<rect x="20.0" y="120.0" width="130.0" height="90.0" rx="8" fill="#f3f4f6" stroke="#6b7280" stroke-width="1.4" opacity="1"/>
+<text x="85.0" y="161.3" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="13.5" fill="#1f2937" text-anchor="middle" font-weight="bold">共享存储</text>
+<text x="85.0" y="178.8" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#4b5563" text-anchor="middle" font-weight="normal">模型文件</text>
+<rect x="200.0" y="70.0" width="220.0" height="190.0" rx="10" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" stroke-dasharray="5 4" opacity="0.55"/>
+<text x="210.0" y="88.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#2563eb" text-anchor="start" font-weight="bold">GPU 显存（HBM）</text>
+<rect x="222.0" y="112.0" width="176.0" height="106.0" rx="8" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<text x="310.0" y="154.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="15" fill="#1f2937" text-anchor="middle" font-weight="bold">权重</text>
+<text x="310.0" y="173.5" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#4b5563" text-anchor="middle" font-weight="normal">一直驻留</text>
+<text x="310.0" y="189.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#4b5563" text-anchor="middle" font-weight="normal">16.38 GB</text>
+<line x1="150.0" y1="165.0" x2="222.0" y2="165.0" stroke="#4b5563" stroke-width="1.6"/>
+<polygon points="222.0,165.0 214.1,169.2 214.1,160.8" fill="#4b5563" stroke="#4b5563" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<rect x="154.7" y="148.5" width="62.5" height="16.5" rx="3" fill="#ffffff" stroke="none" stroke-width="1.4" opacity="0.9"/>
+<text x="186.0" y="160.5" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#4b5563" text-anchor="middle" font-weight="normal">加载 1 次</text>
+<text x="85.0" y="231.5" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">实例启动 / 换模型时</text>
+<rect x="560.0" y="62.0" width="160.0" height="44.0" rx="8" fill="#dcfce7" stroke="#16a34a" stroke-width="1.4" opacity="1"/>
+<text x="640.0" y="80.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="middle" font-weight="bold">前向 1</text>
+<text x="640.0" y="96.2" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#4b5563" text-anchor="middle" font-weight="normal">prefill</text>
+<line x1="398.0" y1="165.0" x2="560.0" y2="84.0" stroke="#2563eb" stroke-width="1.6"/>
+<polygon points="560.0,84.0 554.8,91.3 551.0,83.8" fill="#2563eb" stroke="#2563eb" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<rect x="560.0" y="122.0" width="160.0" height="44.0" rx="8" fill="#dcfce7" stroke="#16a34a" stroke-width="1.4" opacity="1"/>
+<text x="640.0" y="140.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="middle" font-weight="bold">前向 2</text>
+<text x="640.0" y="156.2" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#4b5563" text-anchor="middle" font-weight="normal">decode</text>
+<line x1="398.0" y1="165.0" x2="560.0" y2="144.0" stroke="#2563eb" stroke-width="1.6"/>
+<polygon points="560.0,144.0 552.7,149.2 551.6,140.8" fill="#2563eb" stroke="#2563eb" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<rect x="560.0" y="182.0" width="160.0" height="44.0" rx="8" fill="#dcfce7" stroke="#16a34a" stroke-width="1.4" opacity="1"/>
+<text x="640.0" y="200.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="middle" font-weight="bold">前向 3</text>
+<text x="640.0" y="216.2" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#4b5563" text-anchor="middle" font-weight="normal">decode</text>
+<line x1="398.0" y1="165.0" x2="560.0" y2="204.0" stroke="#2563eb" stroke-width="1.6"/>
+<polygon points="560.0,204.0 551.3,206.2 553.3,198.0" fill="#2563eb" stroke="#2563eb" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<text x="640.0" y="254.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="18" fill="#6b7280" text-anchor="middle" font-weight="normal">⋮</text>
+<rect x="560.0" y="266.0" width="160.0" height="44.0" rx="8" fill="#dcfce7" stroke="#16a34a" stroke-width="1.4" opacity="1"/>
+<text x="640.0" y="284.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="middle" font-weight="bold">前向 N</text>
+<text x="640.0" y="300.2" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#4b5563" text-anchor="middle" font-weight="normal">decode</text>
+<line x1="398.0" y1="165.0" x2="560.0" y2="288.0" stroke="#2563eb" stroke-width="1.6"/>
+<polygon points="560.0,288.0 551.1,286.6 556.2,279.8" fill="#2563eb" stroke="#2563eb" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<rect x="404.8" y="41.5" width="150.4" height="16.5" rx="3" fill="#ffffff" stroke="none" stroke-width="1.4" opacity="0.9"/>
+<text x="480.0" y="53.5" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#2563eb" text-anchor="middle" font-weight="normal">每次都读一遍 ≈ 15.14 GB</text>
+<text x="744.0" y="120.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="13" fill="#2563eb" text-anchor="start" font-weight="bold">读取总量</text>
+<text x="744.0" y="137.6" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="13" fill="#2563eb" text-anchor="start" font-weight="bold">≈ N × 15.14 GB</text>
+<text x="744.0" y="182.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="13" fill="#6b7280" text-anchor="start" font-weight="bold">加载次数</text>
+<text x="744.0" y="199.6" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="13" fill="#6b7280" text-anchor="start" font-weight="bold">= 1</text>
+</svg>

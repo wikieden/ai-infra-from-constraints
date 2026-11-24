@@ -1,0 +1,465 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>第 20 章 · 计算单元：矩阵、向量、流水与低精度 · 从约束推导 AI Infra</title>
+<script>(function(){try{var d=document.documentElement,t=localStorage.getItem("ab-theme"),f=localStorage.getItem("ab-fs");if(t)d.dataset.theme=t;if(f)d.dataset.fs=f}catch(e){}})();</script>
+<style>:root{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa;--fs:16px}
+@media (prefers-color-scheme:dark){:root:not([data-theme]){--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}}
+:root[data-theme="light"]{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa}
+:root[data-theme="dark"]{--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}
+:root[data-theme="sepia"]{--bg:#f6efe1;--fg:#3b3127;--mute:#7a6a58;--line:#e2d6bf;--card:#fbf6ec;--acc:#a0522d;--code:#ece2cd;--quote:#efe5d2}
+:root[data-theme="green"]{--bg:#e3eddf;--fg:#22301f;--mute:#566650;--line:#c9d8c3;--card:#eef5eb;--acc:#2e7d4f;--code:#d6e4d0;--quote:#dae7d5}
+:root[data-theme="navy"]{--bg:#0f1a2b;--fg:#dde6f3;--mute:#93a4bd;--line:#23324a;--card:#15233a;--acc:#6cc4ff;--code:#1a2a44;--quote:#16243b}
+:root[data-fs="s"]{--fs:15px}
+:root[data-fs="m"]{--fs:16px}
+:root[data-fs="l"]{--fs:18px}
+:root[data-fs="xl"]{--fs:20px}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:var(--fs)/1.75 -apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Helvetica Neue",sans-serif}
+a{color:var(--acc)}
+header.top{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+header.top .in{max-width:860px;margin:0 auto;padding:10px 16px;display:flex;gap:6px 16px;align-items:center;flex-wrap:wrap;font-size:14px}
+header.top .brand{font-weight:600;color:var(--fg);text-decoration:none;margin-right:auto}
+header.top a{text-decoration:none}
+.prefs{display:inline-flex;gap:4px;align-items:center}
+.prefs button,.prefs select,#nav-toggle{font:inherit;font-size:13px;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:2px 8px;cursor:pointer}
+main{max-width:860px;margin:0 auto;padding:24px 16px 72px;overflow-wrap:anywhere}
+h1{font-size:1.75em;line-height:1.35;margin:8px 0 16px} h2{font-size:1.375em;margin:40px 0 12px;padding-top:8px;border-top:1px solid var(--line)} h3{font-size:1.125em;margin:28px 0 8px}
+.layout{display:grid;grid-template-columns:260px minmax(0,1fr);max-width:1180px;margin:0 auto}
+.layout main{margin:0;max-width:880px}
+nav.side{position:sticky;top:49px;align-self:start;max-height:calc(100vh - 49px);overflow-y:auto;padding:20px 8px 40px 16px;border-right:1px solid var(--line);font-size:14px;line-height:1.5}
+nav.side .h{font-weight:600;color:var(--mute);margin:4px 8px 8px;font-size:13px}
+nav.side a{display:block;padding:5px 8px;border-radius:6px;color:var(--fg);text-decoration:none}
+nav.side a:hover{background:var(--code)} nav.side a.cur{background:var(--quote);color:var(--acc);font-weight:600}
+nav.side a .n{color:var(--mute);margin-right:6px;font-variant-numeric:tabular-nums}
+#nav-toggle{display:none}
+@media (max-width:960px){.layout{display:block} nav.side{display:none;position:fixed;z-index:6;top:49px;left:0;bottom:0;width:min(300px,85vw);max-height:none;background:var(--bg);box-shadow:2px 0 12px rgba(0,0,0,.2)} nav.side.open{display:block} #nav-toggle{display:inline-block}}
+.run{display:flex;flex-wrap:wrap;align-items:center;gap:4px 0;margin:4px 0 12px}
+.run details{flex-basis:100%;margin:6px 0 0;font-size:.94em}
+img{max-width:100%;height:auto;border-radius:8px;border:1px solid var(--line);background:#fff}
+blockquote{margin:16px 0;padding:10px 16px;background:var(--quote);border-left:3px solid var(--acc);border-radius:4px;color:var(--mute)}
+blockquote p{margin:4px 0}
+code{background:var(--code);padding:1px 5px;border-radius:4px;font-size:.9em}
+pre{background:var(--code);padding:12px 14px;border-radius:8px;overflow-x:auto} pre code{padding:0;background:none}
+table{border-collapse:collapse;display:block;overflow-x:auto;max-width:100%;margin:12px 0;font-size:.94em}
+th,td{border:1px solid var(--line);padding:6px 10px;vertical-align:top} th{background:var(--code)}
+details{border:1px solid var(--line);border-radius:8px;padding:6px 12px;margin:8px 0;background:var(--card)}
+details[open]{padding-bottom:10px} summary{cursor:pointer;color:var(--acc);font-weight:500}
+mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%}
+.btn{display:inline-block;margin:4px 8px 4px 0;padding:6px 14px;border:1px solid var(--acc);border-radius:999px;text-decoration:none;font-size:14px}
+.pager{display:flex;justify-content:space-between;gap:12px;margin-top:48px;padding-top:16px;border-top:1px solid var(--line);font-size:15px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin:16px 0}
+.card{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;color:inherit;text-decoration:none}
+.card:hover{border-color:var(--acc)} .card img{border:0;border-bottom:1px solid var(--line);border-radius:0;aspect-ratio:16/10;object-fit:contain;width:100%}
+.card .no{color:var(--mute);font-size:13px;padding:8px 12px 0} .card .t{padding:0 12px 12px;font-weight:500;line-height:1.5}
+.lead{font-size:1.06em;color:var(--mute)}
+footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-size:13px}
+</style>
+<script>window.MathJax={tex:{inlineMath:[["\\(","\\)"]],displayMath:[["\\[","\\]"],["$$","$$"]],processEscapes:true,processEnvironments:true}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"></script>
+</head><body>
+<header class="top"><div class="in">
+<button type="button" id="nav-toggle" aria-label="打开章节列表">☰ 章节</button><a class="brand" href="../index.html">从约束推导 AI Infra</a>
+<a href="../lessons/index.html">讲义目录</a>
+<a href="../animations/index.html">动画</a>
+<a href="../review.html">复习卡片</a>
+<a href="../lessons/appendix-glossary.html">缩写表</a>
+<a href="https://wikieden.github.io/ai-books/glossary.html">全局词汇</a>
+<a href="https://wikieden.github.io/ai-books/">← 全部讲义书</a>
+<span class="prefs" title="字号与主题"><button type="button" data-fs-step="-1" aria-label="字号变小">A−</button><button type="button" data-fs-step="1" aria-label="字号变大">A+</button><select id="ab-theme" aria-label="主题色"><option value="">跟随系统</option><option value="light">浅色</option><option value="dark">深色</option><option value="sepia">米黄护眼</option><option value="green">豆沙绿护眼</option><option value="navy">夜蓝</option></select></span>
+</div></header>
+<div class="layout"><nav class="side" aria-label="章节"><div class="h">从约束推导 AI Infra</div><a href="index.html">讲义目录</a><a href="01-six-layers.html"><span class="n">1</span>一次请求走过的六层（进行中）</a><a href="02-request-lifecycle.html"><span class="n">2</span>一次生成请求的处理过程：权重加载一次，每个 token 都要再读一遍</a><a href="03-dataflow-hierarchy.html"><span class="n">3</span>从存储程序到数据流执行：存储层次就像大楼里的厕所</a><a href="04-key-numbers.html"><span class="n">4</span>系统设计的关键数字：容量、算力、带宽、延迟</a><a href="05-estimate.html"><span class="n">5</span>用几个数字估算一次模型执行：算和读各要多久，实测为什么达不到</a><a href="06-architecture.html"><span class="n">6</span>需求如何推动架构：TPU、SmartNIC、Unified Bus</a><a href="07-compute-graph.html"><span class="n">7</span>计算图与张量结构：一个 token 经过一层要算多少</a><a href="08-generation-budget.html"><span class="n">8</span>自回归生成的资源账：存一次的、每步读的、用完就扔的</a><a href="09-kv-sharing.html"><span class="n">9</span>KV 怎么变小 ①：头共享与潜变量压缩</a><a href="10-kv-sparse-linear.html"><span class="n">10</span>KV 怎么变小 ②：窗口、稀疏、线性与混合注意力</a><a href="11-moe.html"><span class="n">11</span>MoE：专家路由与批内权重复用</a><a href="12-network-shape.html"><span class="n">12</span>网络形状：深宽、专家粒度、残差与多 token 预测</a><a href="13-model-comparison.html"><span class="n">13</span>整个模型的资源需求与比较：存多少、算多少、能放几条请求</a><a href="14-workload-arrival.html"><span class="n">14</span>从单次请求到持续到达的负载：什么时候来，比来多少更要紧</a><a href="15-agent-tasks.html"><span class="n">15</span>多轮交互与 Agent 任务：前缀、成功成本、关键路径</a><a href="16-multimodal-realtime.html"><span class="n">16</span>多模态与实时交互：数据换形状，时间有死线（略讲）</a><a href="17-training-rl.html"><span class="n">17</span>训练与强化学习的计算和状态：为什么训练要 6ND、要存 18 字节</a><a href="18-scaling-lifecycle.html"><span class="n">18</span>Scaling law 与全生命周期成本：训练多大、训练多久、服务多少次</a><a href="19-accelerator-basics.html"><span class="n">19</span>从矩阵乘法认识加速器：算多少、搬多少、耗多少电</a><a href="20-compute-units.html" class="cur"><span class="n">20</span>计算单元：矩阵、向量、流水与低精度</a><a href="21-memory-movement.html"><span class="n">21</span>存储层次与数据搬移：放得下、取得到、来得及</a><a href="22-package-interconnect.html"><span class="n">22</span>多芯片封装与互联：计算放在哪，数据走哪条路</a><a href="23-architecture-evolution.html"><span class="n">23</span>架构演进与专用架构：每一代新增的东西，省掉了哪一笔</a><a href="24-choose-accelerator.html"><span class="n">24</span>根据架构选择加速器：先估下界，再找差距，最后算账</a><a href="appendix-glossary.html">附录 · 缩写与术语表</a><a href="appendix-tp-pp-cp.html">附录 · 补充资料：TP、PP、CP，一个模型沿三个方向切给多张卡</a></nav><main>
+<h1 id="20">第 20 章 · 计算单元：矩阵、向量、流水与低精度</h1><div class="run"><a class="btn" href="../animations/20-compute-units.html">▶ 打开本章可交互动画</a><a class="btn" href="https://colab.research.google.com/github/wikieden/ai-infra-from-constraints/blob/main/code/notebooks/ch20_compute_units.ipynb" target="_blank" rel="noopener">在 Colab 运行本章代码</a><a class="btn" href="../code/notebooks/ch20_compute_units.ipynb" download>下载 notebook</a><details><summary>本地运行</summary><pre><code>git clone https://github.com/wikieden/ai-infra-from-constraints
+cd ai-infra-from-constraints/code/notebooks
+pip install jupyterlab torch numpy
+jupyter lab ch20_compute_units.ipynb</code></pre><p>也可以下载后直接用 VS Code 打开 .ipynb 运行。需要 GPU 的章节在 Colab 里选「代码执行程序 → 更改运行时类型 → GPU」。</p></details></div>
+<blockquote>
+<p>本章回答：矩阵单元为什么适合神经网络，又为什么怕"行数太少"？Softmax、RoPE 这些向量工作慢在哪？注意力的 QK → Softmax → PV 怎么在矩阵单元和向量单元之间流水，瓶颈会怎么转移？低精度省了多少字节，又多了什么工作？<br />
+讲解日期：2026-11-24 · 上一章：<a href="../lessons/19-accelerator-basics.html">第 19 章 从矩阵乘法认识加速器</a> · 下一章：<a href="../lessons/21-memory-movement.html">第 21 章 存储层次与数据搬移</a><br />
+对应原文：<code>materials/ai-infra-book/manuscripts/04-加速器架构.md</code> §4.2 L223–L370（例 4-1、图 4-8 到 4-12）<br />
+本章缩写：FP4 / FP8 = 4 / 8 位浮点 · GEMM = GEneral Matrix Multiply（通用 / 矩阵 / 乘）· GEMV = GEneral Matrix-Vector multiply（通用 / 矩阵 / 向量乘）· INT8 = 8-bit Integer（8 位 / 整数）· RoPE = Rotary Position Embedding（旋转 / 位置 / 编码）· SIMD = Single Instruction, Multiple Data（单 / 指令 / 多 / 数据）· SIMT = Single Instruction, Multiple Threads（单 / 指令 / 多 / 线程）· SM = Streaming Multiprocessor（流式 / 多处理器）。全部缩写见 <a href="../lessons/appendix-glossary.html">缩写与术语表</a></p>
+</blockquote>
+<p>Transformer 一层里交替着两类计算：大量规则乘加（投影、QK、PV），以及逐元素运算、特殊函数和归约（归一化、RoPE、Softmax、门控激活）。硬件也就分成矩阵单元和向量单元，中间靠搬移和同步交接。</p>
+<h2 id="_1">讲解</h2>
+<h3 id="2026-11-24">第一步：矩阵单元：一块数据在阵列里被用很多次（2026-11-24）</h3>
+<p><strong>类比：流水线上传递零件。</strong> 一排工人每人拿到一个零件，加工一下再传给旁边的人；每个零件经过一整排人，被用了很多次，却只从仓库领了一次。</p>
+<p>原文 L233–L239：算一个 <span class="arithmatex">\(m \times n\)</span> 输出块时，同一行输入参与 <span class="arithmatex">\(n\)</span> 个输出，同一列权重参与 <span class="arithmatex">\(m\)</span> 个输出。矩阵单元让乘加单元共享操作数：数据在相邻单元间传递，部分和留在本地更新；一条指令描述一整块工作，控制开销被大量运算分摊。</p>
+<p><strong>例子</strong>（原文 L239）：一次 <span class="arithmatex">\(16 \times 16 \times 16\)</span> 的矩阵操作，两个输入块各 256 个元素，完成 <span class="arithmatex">\(2 \times 16^3 = 8192\)</span> 次浮点运算，每个输入元素在块内参与 16 次乘法。</p>
+<p><img alt="3×3 乘加阵列：输入沿行传，权重沿列传，部分和留在本地" src="../figures/20-compute-units-array.png" /></p>
+<p><em>图 20-1 · 用小阵列看操作数复用。真实的矩阵单元按固定的块形状执行。</em></p>
+<p><strong>怕行数太少</strong>（原文 L243–L251）：矩阵指令按固定块（<span class="arithmatex">\(m_t \times n_t \times k_t\)</span>）执行，不足一块的部分补零。有效运算比例：</p>
+<div class="arithmatex">\[\eta_{\mathrm{shape}} = \frac{MNK}{\lceil M/m_t \rceil m_t \cdot \lceil N/n_t \rceil n_t \cdot \lceil K/k_t \rceil k_t}\]</div>
+<p><strong>例子</strong>（原文 L249–L251，第 11 章的 MoE 场景）：64 个 token 各选 8 个专家，共 512 个有效行，行方向按 16 补齐：</p>
+<table>
+<thead>
+<tr>
+<th>分派</th>
+<th style="text-align: right;">每个专家几行</th>
+<th style="text-align: right;">实际执行的行</th>
+<th style="text-align: right;">有效比例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>均匀到 256 个专家</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;"><span class="arithmatex">\(256 \times 16 = 4096\)</span></td>
+<td style="text-align: right;">12.5%</td>
+</tr>
+<tr>
+<td>集中到 8 个专家</td>
+<td style="text-align: right;">64</td>
+<td style="text-align: right;"><span class="arithmatex">\(8 \times 64 = 512\)</span></td>
+<td style="text-align: right;">100%</td>
+</tr>
+</tbody>
+</table>
+<p>有效计算一样，前一种的执行量是后一种的 8 倍。<strong>多加乘加器，会同样加快补零的无用功</strong>；要减少补零，就得改变每个专家的行数，或换更小的计算块（比如单行用 GEMV）。</p>
+<p><img alt="一个专家的 16 行块：2 行有效时 14 行补零" src="../figures/20-compute-units-padding.png" /></p>
+<p><em>图 20-2 · 浅灰是补零。库为不同形状准备多种 kernel，原因就在这里。</em></p>
+<p><strong>一句话</strong>：矩阵单元靠块内复用提高吞吐，但按固定块执行，行数太少时大量算力花在补零上。</p>
+<h3 id="2026-11-24_1">第二步：向量工作：逐元素的可以并行，归约要一轮轮等（2026-11-24）</h3>
+<p><strong>类比：比赛选冠军。</strong> 每个选手各自热身（逐元素）可以同时进行；选冠军要两两比赛，一轮淘汰一半，轮数省不掉。</p>
+<p><strong>Softmax</strong>（原文 L274）：一行 <span class="arithmatex">\(n\)</span> 个分数，</p>
+<div class="arithmatex">\[a = \max_j z_j, \qquad e_j = \exp(z_j - a), \qquad p_j = \frac{e_j}{\sum_k e_k}\]</div>
+<p><span class="arithmatex">\(n = 128\)</span>：128 个指数可以并行；求最大值和求和是<strong>归约</strong>，理想二叉归约要 <span class="arithmatex">\(\log_2 128 = 7\)</span> 轮，每轮等上一轮。</p>
+<p><strong>RoPE</strong>（原文 L284–L287）：一对分量的旋转</p>
+<div class="arithmatex">\[x_0' = x_0\cos\theta - x_1\sin\theta, \qquad x_1' = x_0\sin\theta + x_1\cos\theta\]</div>
+<p>Qwen3-8B 一层 32 个 Q 头 + 8 个 K 头，每头 128 维 = 64 对：<span class="arithmatex">\((32 + 8) \times 64 = 2560\)</span> 对，每对 4 次乘 + 2 次加减 = 6 FLOPs，每个 token 15,360 FLOPs。系数只随位置变，可以预先算好：1024 个位置 × 64 个 cos + 64 个 sin × BF16 = 256 KiB。</p>
+<p><strong>分工</strong>（原文 L279）：向量单元做逐元素和归约，特殊函数单元算指数，控制逻辑管循环、地址、分支和同步。昇腾 950 的一个 AI 子系统是 1 个 Cube Core + 2 个 Vector Core，向量部分以 SIMD 为主、SIMT 为辅。</p>
+<p><strong>矩阵单元越快，向量工作在总时间里占比越大</strong>（原文 L289），资源配比就越需要调整（第 19 章的 Amdahl）。</p>
+<p><strong>一句话</strong>：逐元素运算可以并行，归约要一轮轮合并；矩阵单元越快，向量工作和操作数供给越容易成为瓶颈。</p>
+<h3 id="2026-11-24_2">第三步：注意力流水：瓶颈在三个资源之间转移（2026-11-24）</h3>
+<p><strong>类比：一条三工位的流水线：切菜、炒菜、装盘。</strong> 一盘菜要依次过三个工位，但多盘菜可以错开同时进行；稳定以后，每隔多久出一盘菜，由最慢的那个工位决定。</p>
+<p>原文 L293–L311：同一组查询行，<span class="arithmatex">\(Z = QK^{\mathsf T}\)</span> → <span class="arithmatex">\(P = \mathrm{Softmax}(Z)\)</span> → <span class="arithmatex">\(O = PV\)</span> 依次执行；分成多组后，矩阵单元算下一组的 QK，向量单元同时做上一组的 Softmax。</p>
+<p><strong>例子</strong>（原文 L305，FlashAttention-4 对 B200 单个 SM 的分析）：<span class="arithmatex">\(128 \times 128\)</span> 的块，头维度 128。</p>
+<table>
+<thead>
+<tr>
+<th>资源</th>
+<th>工作量</th>
+<th>速率（每 SM 每周期）</th>
+<th style="text-align: right;">周期</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>矩阵（QK + PV）</td>
+<td>约 8.39 MFLOPs</td>
+<td>8192 FLOPs</td>
+<td style="text-align: right;">1024</td>
+</tr>
+<tr>
+<td>指数</td>
+<td>16,384 个</td>
+<td>16 个</td>
+<td style="text-align: right;">1024</td>
+</tr>
+<tr>
+<td>共享内存读操作数</td>
+<td>96 KiB</td>
+<td>128 bytes</td>
+<td style="text-align: right;">768</td>
+</tr>
+</tbody>
+</table>
+<p><strong>公式</strong>（原文 L310）：</p>
+<div class="arithmatex">\[\tau \ge \max(T_{\mathrm{matrix}}, T_{\mathrm{smem}}, T_{\mathrm{exp}})\]</div>
+<p><strong>例 4-1</strong>（原文 L317–L325）：</p>
+<table>
+<thead>
+<tr>
+<th>配置</th>
+<th>三项（周期）</th>
+<th style="text-align: right;">相邻块完成间隔下界</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>原样</td>
+<td>1024、768、1024</td>
+<td style="text-align: right;">1024</td>
+</tr>
+<tr>
+<td>矩阵 ×2</td>
+<td>512、768、1024</td>
+<td style="text-align: right;">1024（没变！）</td>
+</tr>
+<tr>
+<td>矩阵 ×2、指数 ×2</td>
+<td>512、768、512</td>
+<td style="text-align: right;">768（共享内存成了瓶颈）</td>
+</tr>
+<tr>
+<td>再加共享内存 ×2</td>
+<td>512、384、512</td>
+<td style="text-align: right;">512</td>
+</tr>
+</tbody>
+</table>
+<p><img alt="四种配置下三个资源的周期：每提升一项，瓶颈转到下一项" src="../figures/20-compute-units-pipeline.png" /></p>
+<p><em>图 20-3 · 只加矩阵算力，指数单元仍然拖后腿；三项都提才能真正加快。要达到这个间隔，片上还得同时放下几块不同进度的数据（第 21 章）。</em></p>
+<p><strong>补基础</strong>：FlashAttention 的分块与在线 Softmax 见<a href="https://wikieden.github.io/cuda-to-tensor-core/lessons/22-flashattention.html">《CUDA 从线程到 Tensor Core》第 21、22 章</a>。</p>
+<p><strong>一句话</strong>：注意力流水的速度由矩阵、指数、共享内存三项里最慢的决定；单独提高一项，瓶颈就转到另一项。</p>
+<h3 id="2026-11-24_3">第四步：低精度：省字节，但要算转换的账（2026-11-24）</h3>
+<p><strong>类比：把书压缩成缩印本。</strong> 搬起来轻多了，但读之前要么先放大复印一份（展开），要么戴上放大镜直接读（低精度指令 + 缩放）。复印一次能读很多遍就值；每次都复印就亏。</p>
+<p><strong>存储量</strong>（原文 L340）：<span class="arithmatex">\(n\)</span> 个权重各 <span class="arithmatex">\(b\)</span> bit，每 <span class="arithmatex">\(g\)</span> 个共享一个 <span class="arithmatex">\(s\)</span> 字节的 scale：</p>
+<div class="arithmatex">\[V_W = \frac{nb}{8} + \frac{n}{g}s\]</div>
+<p><strong>例子</strong>（原文 L343）：<span class="arithmatex">\(4096 \times 4096\)</span> 权重，4 bit，每 32 个共享 1 字节 scale：数据 8 MiB + scale 0.5 MiB = 8.5 MiB，约是 BF16 的 1/3.8；每 16 个共享一个，总量 9 MiB。分组越细越准，scale 也越多。</p>
+<p><strong>两条执行路径</strong>（原文 L345–L351）：</p>
+<table>
+<thead>
+<tr>
+<th>路径</th>
+<th>做法</th>
+<th>代价</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>先展开</td>
+<td>把 <span class="arithmatex">\(q\)</span> 和 scale 展开成 BF16，再一次 GEMM</td>
+<td>要存 32 MiB 的高精度副本；每次调用都展开的话，转换时间是固定开销</td>
+</tr>
+<tr>
+<td>直接低精度</td>
+<td>低精度矩阵指令算 <span class="arithmatex">\(q\)</span>，再按 scale 调整</td>
+<td>分组细时要多次调用、多次缩放合并</td>
+</tr>
+</tbody>
+</table>
+<p>DeepSeek V4-Flash 的一种专家实现：FP4 存储和读取（省字节），转换成 FP8 再 GEMM。<strong>低精度能省多少时间 = 省下的读取时间 − 增加的转换时间</strong>。</p>
+<p><strong>实验</strong>（原文 L353–L363，Qwen3-VL-30B-A3B 的一个 <span class="arithmatex">\(2048 \times 1536\)</span> 专家矩阵，RTX PRO 6000，真实路由输入，误差门槛 2%）：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>误差</th>
+<th style="text-align: right;">单 token decode 时间</th>
+<th style="text-align: right;">显存峰值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>INT8，激活逐行缩放</td>
+<td>2.3%–3.5%（超门槛）</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+</tr>
+<tr>
+<td>INT8，激活每 128 个元素一组（16 次分组矩阵乘）</td>
+<td>1.5%–1.9%</td>
+<td style="text-align: right;">约 2.81 ms</td>
+<td style="text-align: right;">约 11.4 MiB</td>
+</tr>
+<tr>
+<td>先展开成 BF16，一次 GEMM</td>
+<td>—</td>
+<td style="text-align: right;">约 2.52 ms</td>
+<td style="text-align: right;">约 35.2 MiB</td>
+</tr>
+</tbody>
+</table>
+<p>分组更细降低了误差，分组调用增加了时间，省掉高精度副本减少了显存：<strong>格式和计算方法一起决定误差、时间和显存</strong>。改进方向是把组内计算、缩放、累加融合成一个 kernel。</p>
+<p><strong>场景代码</strong>：PyTorch 里一个分组量化的权重，展开成 BF16 就是 <code>q * scale</code>（对应"先展开"路径）：</p>
+<pre><code class="language-python">import torch
+
+n_out, n_in, g = 4096, 4096, 32
+q = torch.randint(-8, 8, (n_out, n_in), dtype=torch.int8)        # 4 bit 值（这里用 int8 装）
+scale = torch.rand(n_out, n_in // g, dtype=torch.bfloat16)       # 每 32 个共用一个 scale
+w = (q.view(n_out, n_in // g, g).to(torch.bfloat16) * scale[..., None]).view(n_out, n_in)
+print(w.dtype, w.numel() * 2 / 2**20, &quot;MiB&quot;)                     # 展开后的 BF16 副本：32 MiB
+</code></pre>
+<p><strong>一句话</strong>：低精度按 <span class="arithmatex">\(nb/8 + (n/g)s\)</span> 省存储和读取，但要算上展开或分组缩放的开销；省下的读取时间大于转换时间才划算。</p>
+<h2 id="_2">动画演示：注意力流水：瓶颈在三个资源之间转移</h2>
+<p><img alt="注意力流水的瓶颈转移" src="../animations/20-compute-units.gif" /></p>
+<p>可交互版：<a href="../animations/20-compute-units.html">animations/20-compute-units.html</a>（三个开关：矩阵 ×2、指数 ×2、共享内存 ×2）。</p>
+<p><strong>怎么看</strong>：</p>
+<ol>
+<li>三条横条是一个注意力块在矩阵、共享内存、指数三个资源上各要多少周期（第三步）；</li>
+<li>最长的那条标红，就是相邻两块完成间隔的下界 <span class="arithmatex">\(\tau\)</span>；</li>
+<li>下面的时间线画 6 个块错开流水：每个块依次过三个资源，稳定后每 <span class="arithmatex">\(\tau\)</span> 周期完成一块；</li>
+<li>播放时依次演示例 4-1 的四种配置：1024 → 1024 → 768 → 512。</li>
+</ol>
+<h2 id="_3">练习与作答记录</h2>
+<p><strong>题 1</strong>（第一步）：行方向按 16 补齐，48 个 token 各选 4 个专家，共 64 个专家。均匀分派时每个专家几行、实际执行多少行、有效比例多少？全部集中到同一组 4 个专家呢？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p><strong>题 2</strong>（第二步）：一个模型每层 64 个 Q 头、8 个 K 头，头维度 128，全部做 RoPE。每个 token 每层多少 FLOPs？为 4096 个位置预存 cos / sin 表（BF16）要多大？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p><strong>题 3</strong>（第三、四步）：三个资源原来是矩阵 1200、共享内存 900、指数 1000 周期。只把共享内存带宽和指数吞吐各翻倍、矩阵不变，下界是多少？再把矩阵也翻倍呢？另外：<span class="arithmatex">\(4096 \times 4096\)</span> 的权重用 8 bit、每 64 个共享一个 2 字节 scale，存储多少 MiB？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p>原书实验 4-1（L329–L331：<span class="arithmatex">\(128 \times 256\)</span> 和 <span class="arithmatex">\(256 \times 128\)</span> 的块）、实验 4-2（L367–L369：展开 <span class="arithmatex">\(R\)</span> 次的总时间）。想多练可以做。</p>
+<h2 id="_4">口诀</h2>
+<blockquote>
+<p>零件传一排，领一次用多次；块太大行太少，补零也在算；<br />
+热身可并行，冠军要一轮轮比；<br />
+三个工位流水，出菜看最慢的；<br />
+缩印本轻，读前放大或戴放大镜，复印一次读多遍才划算。</p>
+</blockquote>
+<h2 id="_5">本章复习卡片</h2>
+<p><a href="../review.html">I74</a>（矩阵单元的复用与补零，<span class="arithmatex">\(\eta_{\mathrm{shape}}\)</span>）、<a href="../review.html">I75</a>（Softmax 归约与 RoPE 的向量工作）、<a href="../review.html">I76</a>（注意力流水的 <span class="arithmatex">\(\tau\)</span> 与瓶颈转移）、<a href="../review.html">I77</a>（低精度的存储量与两条执行路径）。练习做完后，按答错、卡住的地方再补。</p>
+<h2 id="_6">附录 · 延伸阅读</h2>
+<blockquote>
+<p>留给以后深入学习用，不影响本章主线。★ 是建议先读的。</p>
+</blockquote>
+<h3 id="_7">推荐阅读</h3>
+<table>
+<thead>
+<tr>
+<th>读什么</th>
+<th>读哪里</th>
+<th>读它为了什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>★ AII 第 4 章</td>
+<td>§4.2 L223–L370</td>
+<td>本章原文，例 4-1、实验 4-1 / 4-2</td>
+</tr>
+<tr>
+<td>★ FlashAttention-4 论文（原文 <code>[^fa4]</code>）</td>
+<td>Blackwell 分析一节</td>
+<td>矩阵、指数、共享内存三项资源的配比</td>
+</tr>
+<tr>
+<td><a href="https://wikieden.github.io/cuda-to-tensor-core/lessons/index.html">《CUDA 从线程到 Tensor Core》第 15、21、22 章</a></td>
+<td>Tensor Core、在线 Softmax、FlashAttention</td>
+<td>GPU 上的同一套计算</td>
+</tr>
+<tr>
+<td>昇腾 950 白皮书（原文 <code>[^ascend]</code>）</td>
+<td>AI 子系统</td>
+<td>Cube + 2 Vector 的配比与 SIMD / SIMT</td>
+</tr>
+<tr>
+<td><a href="https://wikieden.github.io/pytorch-inside-out/lessons/35-quant-export.html">《PyTorch 从里到外》第 35 章</a></td>
+<td>量化</td>
+<td>PyTorch 里的量化格式与 scale</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_8">数学原理</h3>
+<ul>
+<li><strong>补零比例</strong>：每个维度向上取整到块大小，有效乘积 ÷ 补齐后的乘积。</li>
+<li><strong>二叉归约</strong>：<span class="arithmatex">\(n\)</span> 个数两两合并，<span class="arithmatex">\(\lceil \log_2 n \rceil\)</span> 轮。</li>
+<li><strong>流水线吞吐</strong>：稳定后的完成间隔由最慢的阶段决定（各阶段并行、独立资源时）。</li>
+<li><strong>分组点积</strong>：<span class="arithmatex">\(y_j \approx \sum_g a_g b_j (\sum_{k \in g} q_{x,k} q_{w,kj})\)</span>，每组 scale 不同，只能先组内累加再缩放。</li>
+</ul>
+<h3 id="_9">公式清单</h3>
+<table>
+<thead>
+<tr>
+<th>公式</th>
+<th>意思</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\(\eta_{\mathrm{shape}} = MNK / (\lceil M/m_t \rceil m_t \cdots)\)</span></td>
+<td>有效运算比例</td>
+</tr>
+<tr>
+<td>归约轮数 <span class="arithmatex">\(= \log_2 n\)</span></td>
+<td>Softmax 的 max、sum</td>
+</tr>
+<tr>
+<td>RoPE 每 token <span class="arithmatex">\(= (n_Q + n_K) \times (d_h/2) \times 6\)</span> FLOPs</td>
+<td>向量工作</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\tau \ge \max(T_{\mathrm{matrix}}, T_{\mathrm{smem}}, T_{\mathrm{exp}})\)</span></td>
+<td>流水下界</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(V_W = nb/8 + (n/g)s\)</span></td>
+<td>分组量化的存储量</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_10">代码对照：把本章的数字用代码算一遍</h3>
+<blockquote>
+<p>纯 Python，不需要 GPU。代码在仓库本地 <code>ai-infra/solutions/chapter-code/ch20_compute_units.py</code>，配套测试 <code>tests/test_ch20.py</code>：</p>
+<p><code>bash  
+cd ai-infra/solutions/chapter-code  
+uv run python ch20_compute_units.py   # 一步一步打印  
+uv run pytest tests/test_ch20.py</code></p>
+</blockquote>
+<p><strong>讲义 ↔ 代码</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>讲义</th>
+<th>公式</th>
+<th>写法</th>
+<th>跑出来</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第一步 16³ 块</td>
+<td><span class="arithmatex">\(2 \times 16^3\)</span></td>
+<td><code>2 * 16**3</code></td>
+<td>8192</td>
+</tr>
+<tr>
+<td>第一步 MoE 补零</td>
+<td>向上取整</td>
+<td><code>padded_rows([2] * 256, 16)</code>、<code>padded_rows([64] * 8, 16)</code></td>
+<td>4096、512</td>
+</tr>
+<tr>
+<td>第二步 归约与 RoPE</td>
+<td><span class="arithmatex">\(\log_2\)</span>、对数 × 6</td>
+<td><code>reduce_rounds(128)</code>、<code>rope_flops(32, 8, 128)</code></td>
+<td>7、15,360；表 256 KiB</td>
+</tr>
+<tr>
+<td>第三步 流水</td>
+<td>三项取最大</td>
+<td><code>attn_block_cycles(...)</code></td>
+<td>1024 / 1024 / 768 / 512</td>
+</tr>
+<tr>
+<td>第四步 量化存储</td>
+<td><span class="arithmatex">\(nb/8 + (n/g)s\)</span></td>
+<td><code>quant_mib(4096 * 4096, 4, 32, 1)</code></td>
+<td>8.5 MiB；<span class="arithmatex">\(g = 16\)</span> 时 9 MiB</td>
+</tr>
+</tbody>
+</table>
+<p><strong>关键几行</strong>：</p>
+<pre><code class="language-python">def attn_block_cycles(mat_x=1, exp_x=1, smem_x=1, tile=128, d=128):
+    matrix = 2 * 2 * tile * tile * d / (8192 * mat_x)    # QK + PV 的 FLOPs ÷ 每周期矩阵速率
+    exp = tile * tile / (16 * exp_x)                     # 每个分数一次指数
+    smem = 96 * 1024 / (128 * smem_x)                    # 操作数从共享内存读 96 KiB
+    return matrix, smem, exp, max(matrix, smem, exp)     # 流水下界取最慢的
+</code></pre>
+<p><strong>代码里才看得到的 3 件事</strong>：</p>
+<ol>
+<li><code>attn_block_cycles</code> 里 96 KiB 直接取自原文，没有从 Q、K、V 的形状推导；块形状改了，这个数也要重算。</li>
+<li><code>padded_rows</code> 只补行方向；真实 kernel 的列和 K 方向也可能补，补零比例会更低。</li>
+<li><code>quant_mib</code> 假设元素数能被分组大小整除；不整除时最后一组也要一个 scale。</li>
+</ol>
+<p><strong>自己改一改</strong>（不影响练习答案）：</p>
+<ul>
+<li>把 MoE 的 batch 从 64 改成 256，均匀分派时有效比例变成多少？</li>
+<li>只把指数吞吐翻倍（矩阵不变），下界是多少？瓶颈在哪？</li>
+<li>用 <code>quant_mib</code> 比较 FP8 不分组和 4 bit 每 128 个一组的存储量。</li>
+</ul><nav class="pager"><a href="19-accelerator-basics.html">← 第 19 章 · 从矩阵乘法认识加速器：算多少、搬多少、耗多少电</a><a href="21-memory-movement.html">第 21 章 · 存储层次与数据搬移：放得下、取得到、来得及 →</a></nav>
+</main></div>
+<footer>来自个人学习仓库的对话讲义，含练习作答记录。源码：<a href="https://github.com/wikieden/ai-infra-from-constraints">github.com/wikieden/ai-infra-from-constraints</a>。更多讲义书：<a href="https://wikieden.github.io/ai-books/">Physical AI 0-1-♾️（合集）</a></footer>
+<script>(function(){var d=document.documentElement,K=["s","m","l","xl"];
+function save(k,v){try{v?localStorage.setItem(k,v):localStorage.removeItem(k)}catch(e){}}
+var s=document.getElementById("ab-theme");if(s){s.value=d.dataset.theme||"";s.onchange=function(){if(s.value)d.dataset.theme=s.value;else delete d.dataset.theme;save("ab-theme",s.value)}}
+document.querySelectorAll("[data-fs-step]").forEach(function(b){b.onclick=function(){var i=K.indexOf(d.dataset.fs||"m")+(+b.dataset.fsStep);i=Math.max(0,Math.min(K.length-1,i));d.dataset.fs=K[i];save("ab-fs",K[i])}});
+var nb=document.getElementById("nav-toggle"),side=document.querySelector("nav.side");if(nb&&side){nb.onclick=function(){side.classList.toggle("open")}}
+var cur=side&&side.querySelector(".cur");if(cur)cur.scrollIntoView({block:"center"});
+})();</script>
+</body></html>

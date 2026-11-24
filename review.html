@@ -1,0 +1,968 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ai-infra · 复习卡片 · 从约束推导 AI Infra</title>
+<script>(function(){try{var d=document.documentElement,t=localStorage.getItem("ab-theme"),f=localStorage.getItem("ab-fs");if(t)d.dataset.theme=t;if(f)d.dataset.fs=f}catch(e){}})();</script>
+<style>:root{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa;--fs:16px}
+@media (prefers-color-scheme:dark){:root:not([data-theme]){--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}}
+:root[data-theme="light"]{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa}
+:root[data-theme="dark"]{--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}
+:root[data-theme="sepia"]{--bg:#f6efe1;--fg:#3b3127;--mute:#7a6a58;--line:#e2d6bf;--card:#fbf6ec;--acc:#a0522d;--code:#ece2cd;--quote:#efe5d2}
+:root[data-theme="green"]{--bg:#e3eddf;--fg:#22301f;--mute:#566650;--line:#c9d8c3;--card:#eef5eb;--acc:#2e7d4f;--code:#d6e4d0;--quote:#dae7d5}
+:root[data-theme="navy"]{--bg:#0f1a2b;--fg:#dde6f3;--mute:#93a4bd;--line:#23324a;--card:#15233a;--acc:#6cc4ff;--code:#1a2a44;--quote:#16243b}
+:root[data-fs="s"]{--fs:15px}
+:root[data-fs="m"]{--fs:16px}
+:root[data-fs="l"]{--fs:18px}
+:root[data-fs="xl"]{--fs:20px}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:var(--fs)/1.75 -apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Helvetica Neue",sans-serif}
+a{color:var(--acc)}
+header.top{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+header.top .in{max-width:860px;margin:0 auto;padding:10px 16px;display:flex;gap:6px 16px;align-items:center;flex-wrap:wrap;font-size:14px}
+header.top .brand{font-weight:600;color:var(--fg);text-decoration:none;margin-right:auto}
+header.top a{text-decoration:none}
+.prefs{display:inline-flex;gap:4px;align-items:center}
+.prefs button,.prefs select,#nav-toggle{font:inherit;font-size:13px;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:2px 8px;cursor:pointer}
+main{max-width:860px;margin:0 auto;padding:24px 16px 72px;overflow-wrap:anywhere}
+h1{font-size:1.75em;line-height:1.35;margin:8px 0 16px} h2{font-size:1.375em;margin:40px 0 12px;padding-top:8px;border-top:1px solid var(--line)} h3{font-size:1.125em;margin:28px 0 8px}
+.layout{display:grid;grid-template-columns:260px minmax(0,1fr);max-width:1180px;margin:0 auto}
+.layout main{margin:0;max-width:880px}
+nav.side{position:sticky;top:49px;align-self:start;max-height:calc(100vh - 49px);overflow-y:auto;padding:20px 8px 40px 16px;border-right:1px solid var(--line);font-size:14px;line-height:1.5}
+nav.side .h{font-weight:600;color:var(--mute);margin:4px 8px 8px;font-size:13px}
+nav.side a{display:block;padding:5px 8px;border-radius:6px;color:var(--fg);text-decoration:none}
+nav.side a:hover{background:var(--code)} nav.side a.cur{background:var(--quote);color:var(--acc);font-weight:600}
+nav.side a .n{color:var(--mute);margin-right:6px;font-variant-numeric:tabular-nums}
+#nav-toggle{display:none}
+@media (max-width:960px){.layout{display:block} nav.side{display:none;position:fixed;z-index:6;top:49px;left:0;bottom:0;width:min(300px,85vw);max-height:none;background:var(--bg);box-shadow:2px 0 12px rgba(0,0,0,.2)} nav.side.open{display:block} #nav-toggle{display:inline-block}}
+.run{display:flex;flex-wrap:wrap;align-items:center;gap:4px 0;margin:4px 0 12px}
+.run details{flex-basis:100%;margin:6px 0 0;font-size:.94em}
+img{max-width:100%;height:auto;border-radius:8px;border:1px solid var(--line);background:#fff}
+blockquote{margin:16px 0;padding:10px 16px;background:var(--quote);border-left:3px solid var(--acc);border-radius:4px;color:var(--mute)}
+blockquote p{margin:4px 0}
+code{background:var(--code);padding:1px 5px;border-radius:4px;font-size:.9em}
+pre{background:var(--code);padding:12px 14px;border-radius:8px;overflow-x:auto} pre code{padding:0;background:none}
+table{border-collapse:collapse;display:block;overflow-x:auto;max-width:100%;margin:12px 0;font-size:.94em}
+th,td{border:1px solid var(--line);padding:6px 10px;vertical-align:top} th{background:var(--code)}
+details{border:1px solid var(--line);border-radius:8px;padding:6px 12px;margin:8px 0;background:var(--card)}
+details[open]{padding-bottom:10px} summary{cursor:pointer;color:var(--acc);font-weight:500}
+mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%}
+.btn{display:inline-block;margin:4px 8px 4px 0;padding:6px 14px;border:1px solid var(--acc);border-radius:999px;text-decoration:none;font-size:14px}
+.pager{display:flex;justify-content:space-between;gap:12px;margin-top:48px;padding-top:16px;border-top:1px solid var(--line);font-size:15px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin:16px 0}
+.card{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;color:inherit;text-decoration:none}
+.card:hover{border-color:var(--acc)} .card img{border:0;border-bottom:1px solid var(--line);border-radius:0;aspect-ratio:16/10;object-fit:contain;width:100%}
+.card .no{color:var(--mute);font-size:13px;padding:8px 12px 0} .card .t{padding:0 12px 12px;font-weight:500;line-height:1.5}
+.lead{font-size:1.06em;color:var(--mute)}
+footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-size:13px}
+</style>
+<script>window.MathJax={tex:{inlineMath:[["\\(","\\)"]],displayMath:[["\\[","\\]"],["$$","$$"]],processEscapes:true,processEnvironments:true}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"></script>
+</head><body>
+<header class="top"><div class="in">
+<a class="brand" href="index.html">从约束推导 AI Infra</a>
+<a href="lessons/index.html">讲义目录</a>
+<a href="animations/index.html">动画</a>
+<a href="review.html">复习卡片</a>
+<a href="lessons/appendix-glossary.html">缩写表</a>
+<a href="https://wikieden.github.io/ai-books/glossary.html">全局词汇</a>
+<a href="https://wikieden.github.io/ai-books/">← 全部讲义书</a>
+<span class="prefs" title="字号与主题"><button type="button" data-fs-step="-1" aria-label="字号变小">A−</button><button type="button" data-fs-step="1" aria-label="字号变大">A+</button><select id="ab-theme" aria-label="主题色"><option value="">跟随系统</option><option value="light">浅色</option><option value="dark">深色</option><option value="sepia">米黄护眼</option><option value="green">豆沙绿护眼</option><option value="navy">夜蓝</option></select></span>
+</div></header>
+<main>
+<h1 id="ai-infra">ai-infra · 复习卡片</h1>
+<p>讲解中卡住、追问、答错的地方，以及必须记住的公式和数字，都会自动追加到这里。每张卡片的"来源"链接到 <a href="lessons/index.html">lessons/</a> 里对应的讲义章节，忘了就回去重读那一章。</p>
+<h2 id="_1">怎么用</h2>
+<ol>
+<li>先只看<strong>问题</strong>，自己说出或写出答案；</li>
+<li>再点开"答案"核对；</li>
+<li>答对了，在"复习记录"里补一个日期；答错了就当天再看一遍。</li>
+</ol>
+<p><strong>复习间隔</strong>（按答对的次数）：第 1 次 → 隔 1 天 → 隔 3 天 → 隔 7 天 → 隔 14 天 → 隔 30 天。连续答对 5 次的卡片移到文末"已掌握"。</p>
+<p>想复习时说一声"复习"，我会挑到期的卡片来考你。</p>
+<hr />
+<h2 id="_2">系统分层</h2>
+<h3 id="i01-8">I01 · "把 8 个请求凑成一批一起算"属于六层里的哪一层？它和"负载"有什么区别？</h3>
+<p>来源：<a href="lessons/01-six-layers.html">第 01 章</a> · 加入 2026-11-05 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>属于 <strong>③ 训练与推理系统</strong>。负载（②）是活怎么来：有几个请求、各自多长，由用户决定；凑 batch 是系统对来的活怎么排，由系统决定。</p>
+<p>餐厅类比：今晚来几单是客流（②），哪几单一起炒是厨师长排单（③）。</p>
+<p>口诀：活怎么来看负载，活怎么排看系统。</p>
+</details>
+<h3 id="i02-2-4">I02 · 怎么区分"改模型"（② 模型与负载）和"改算子实现"（④ 算子与编译运行时）？</h3>
+<p>来源：<a href="lessons/01-six-layers.html">第 01 章</a> · 加入 2026-11-05 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>看<strong>数学结果变没变</strong>。</p>
+<ul>
+<li>变了，就是 ②：例如改模型结构让 KV 只存 1/4，模型要存什么、算什么都变了，相当于换菜谱。</li>
+<li>没变，只是换了算法实现，就是 ④：例如分块计算、把相邻算子合并，相当于同一道菜换刀法。</li>
+</ul>
+<p>口诀：数学变了改模型，数学不变改算子。</p>
+</details>
+<h2 id="_3">请求处理过程</h2>
+<h3 id="i03-prefill-decode-n-token">I03 · prefill 和 decode 各做什么？输出 N 个 token 一共要几次前向？</h3>
+<p>来源：<a href="lessons/02-request-lifecycle.html">第 02 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<ul>
+<li><strong>prefill（预填充）</strong>：一次前向处理全部输入 token，存下它们的 k、v（KV 缓存），并得到第 1 个输出 token。</li>
+<li><strong>decode（解码）</strong>：之后每步只送进 1 个 token（上一步的输出），读已有的整份 KV，追加这个 token 的一份，得到下一个 token。</li>
+</ul>
+<p>输出 <span class="arithmatex">\(N\)</span> 个 token 共 <span class="arithmatex">\(N\)</span> 次前向：1 次 prefill + <span class="arithmatex">\((N-1)\)</span> 次 decode。结束时 KV 份数 = 输入长度 + <span class="arithmatex">\(N - 1\)</span>（最后一个输出不用再送进模型）。</p>
+<p>例子（编的）：输入 4 个、输出 3 个 → 3 次前向，KV 4 → 5 → 6。</p>
+<p>口诀：读题一口气，写字一个个。</p>
+</details>
+<h3 id="i04">I04 · 模型权重有哪两种搬移？各多久发生一次？</h3>
+<p>来源：<a href="lessons/02-request-lifecycle.html">第 02 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<table>
+<thead>
+<tr>
+<th>搬移</th>
+<th>从哪到哪</th>
+<th>多久一次</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>加载</td>
+<td>存储 → 显存</td>
+<td>实例启动或换模型时，<strong>1 次</strong>，之后一直驻留</td>
+</tr>
+<tr>
+<td>执行时读取</td>
+<td>显存 → GPU 计算单元</td>
+<td><strong>每次前向</strong>都读一遍</td>
+</tr>
+</tbody>
+</table>
+<p>所以输出 <span class="arithmatex">\(N\)</span> 个 token，权重加载 1 次、读 <span class="arithmatex">\(N\)</span> 次。多卡实例还多一种：卡间传中间结果，每层都有。</p>
+<p>口诀：菜谱搬一次，每锅翻一遍。</p>
+</details>
+<h3 id="i05-qwen3-8bbf16">I05 · 原书 Qwen3-8B（BF16）的三个基础数字是多少？各用来算什么？</h3>
+<p>来源：<a href="lessons/02-request-lifecycle.html">第 02 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<table>
+<thead>
+<tr>
+<th>数</th>
+<th>值</th>
+<th>用来算</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>完整权重</td>
+<td>16.38 GB</td>
+<td>加载进显存要占多少</td>
+</tr>
+<tr>
+<td>一次前向的主要权重读取</td>
+<td>15.14 GB</td>
+<td>读权重总量 ≈ 前向次数 × 15.14 GB（嵌入层只读当前 token 一行，所以比 16.38 小）</td>
+</tr>
+<tr>
+<td>每个上下文 token 的 KV</td>
+<td>144 KiB</td>
+<td>KV 大小 = 份数 × 144 KiB；2048 个 token 是 288 MiB</td>
+</tr>
+</tbody>
+</table>
+<p>出处：AII 第 1 章"本章数字速查"L456–L468。注意 GB 是 <span class="arithmatex">\(10^9\)</span> 字节，KiB / MiB 是 <span class="arithmatex">\(2^{10}\)</span> / <span class="arithmatex">\(2^{20}\)</span> 字节。</p>
+</details>
+<h3 id="i06-scale-up-scale-out">I06 · scale-up 和 scale-out 有什么区别？三种流量里哪种"等不起"？</h3>
+<p>来源：<a href="lessons/02-request-lifecycle.html">第 02 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<ul>
+<li><strong>scale-up（纵向扩展）</strong>：超节点<strong>内部</strong>的高带宽互联（如 NVLink），让一组卡以低通信开销一起算。例：GB200 NVL72，一个机柜 72 个 GPU 一个 NVLink 域。</li>
+<li><strong>scale-out（横向扩展）</strong>：超节点<strong>之间</strong>经网卡和交换网络相连，扩大集群范围，开销更大。</li>
+</ul>
+<p>三种流量：请求走服务入口；模型文件走共享存储，<strong>可以提前加载</strong>；计算中的中间结果走加速器互联，每层都有，<strong>必须及时到达</strong>，下一层才能继续。</p>
+<p>口诀：柜内 scale-up，柜外 scale-out。</p>
+</details>
+<h2 id="_4">存储层次与数据流</h2>
+<h3 id="i07-h100">I07 · 存储层次是在什么和什么之间折中？H100 从寄存器到显存各有多大？</h3>
+<p>来源：<a href="lessons/03-dataflow-hierarchy.html">第 03 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>在"近"和"大"之间折中：越靠近计算单元越快，但越小、越贵（大楼里每层都修厕所，走得近，但占面积、要维护）。</p>
+<p>H100 SXM：寄存器每 SM 256 KB；shared memory + L1 每 SM 256 KB；L2 全卡 50 MB；显存 HBM 80 GB；再往外是 CPU 主存（经 PCIe）。</p>
+<p>例：Qwen3-8B 一步要读 15.14 GB 权重，放得进显存，放不进 L2，所以每步都要从显存一块块搬进来。</p>
+<p>口诀：厕所修在楼层边，近的小来远的宽。</p>
+</details>
+<h3 id="i08">I08 · 矩阵乘法分块后，从显存读的次数怎么变？限制是什么？</h3>
+<p>来源：<a href="lessons/03-dataflow-hierarchy.html">第 03 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p><span class="arithmatex">\(n \times n\)</span> 矩阵乘法：不分块远处读取 <span class="arithmatex">\(2n^3\)</span>；tile 边长 <span class="arithmatex">\(t\)</span> 时降到 <span class="arithmatex">\(2n^3/t\)</span>。每个读进 shared memory 的数在近处被用 <span class="arithmatex">\(t\)</span> 次。</p>
+<p>例：<span class="arithmatex">\(n = 4\)</span>，不分块 128，<span class="arithmatex">\(t = 2\)</span> 时 64。</p>
+<p>限制：近处要同时放下两个 <span class="arithmatex">\(t \times t\)</span> 块（H100 每 SM 的 shared memory 最多 228 KB），所以 <span class="arithmatex">\(t\)</span> 不能无限大。</p>
+<p>口诀：读一次来用多遍，分块缓冲写成链。</p>
+</details>
+<h3 id="i09-prefilldecodekv-moe">I09 · prefill、decode、KV 访问、MoE 专家路由，复用范围有什么不同？为什么不能只靠一套自动缓存？</h3>
+<p>来源：<a href="lessons/03-dataflow-hierarchy.html">第 03 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>按"每读一遍权重被几个 token 用"：</p>
+<table>
+<thead>
+<tr>
+<th>访问</th>
+<th>复用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>prefill（例：2048 个输入 token）</td>
+<td>2048</td>
+</tr>
+<tr>
+<td>decode，batch = 1</td>
+<td>1</td>
+</tr>
+<tr>
+<td>decode，batch = 8</td>
+<td>8</td>
+</tr>
+<tr>
+<td>KV</td>
+<td>只服务本请求，每步整份读一遍</td>
+</tr>
+<tr>
+<td>MoE 专家</td>
+<td>只有路由到它的 token，平均值掩盖不均匀</td>
+</tr>
+</tbody>
+</table>
+<p>差了三个数量级，需求各不相同（算力、带宽、容量、不均匀），所以加速器要把计算单元、局部存储和数据通路按这些访问一起设计。</p>
+</details>
+<h2 id="_5">关键数字</h2>
+<h3 id="i10-amdahl">I10 · Amdahl 定律是什么？只加速一部分，整体最多快多少？</h3>
+<p>来源：<a href="lessons/04-key-numbers.html">第 04 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<div class="arithmatex">\[\mathrm{Speedup} = \frac{1}{(1-f) + f/s}, \qquad \mathrm{Speedup} \le \frac{1}{1-f}\]</div>
+<p><span class="arithmatex">\(f\)</span>：被加速部分占原总时间的比例；<span class="arithmatex">\(s\)</span>：这部分加速几倍。</p>
+<p>例：编码快 5 倍，编码占 20% 时整体只快 1.19 倍，占 80% 时快 2.78 倍。</p>
+<p>口诀：加速一段看占比，剩下不动是上限。</p>
+</details>
+<h3 id="i11-mfu-mbu">I11 · 估算一个任务要比较哪四类数字？时间下界和 MFU / MBU 怎么算？</h3>
+<p>来源：<a href="lessons/04-key-numbers.html">第 04 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>容量、计算吞吐、带宽、延迟。</p>
+<div class="arithmatex">\[M \le M_{\mathrm{cap}}, \quad T_{\mathrm{compute}} = F/\Pi, \quad T_{\mathrm{memory}} = R/\beta\]</div>
+<p><span class="arithmatex">\(\Pi\)</span>、<span class="arithmatex">\(\beta\)</span> 取峰值时是下界（硬件物理极限）。实际耗时 <span class="arithmatex">\(T\)</span>：<span class="arithmatex">\(\mathrm{MFU} = F/(\Pi T)\)</span>，<span class="arithmatex">\(\mathrm{MBU} = R/(\beta T)\)</span>，都不超过 1。</p>
+<p><span class="arithmatex">\(M\)</span> 和 <span class="arithmatex">\(R\)</span> 要分开算：存一份，可以读很多次。</p>
+<p>例：H100 带宽 3.35 TB/s，读 1 GB 至少 0.30 ms。</p>
+</details>
+<h3 id="i12">I12 · 一张卡能不能放下一个模型，容量预算怎么写？</h3>
+<p>来源：<a href="lessons/04-key-numbers.html">第 04 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<div class="arithmatex">\[M_W + M_{\mathrm{state}} + M_{\mathrm{work}} \le M_{\mathrm{cap}}, \qquad M_W = N b_W\]</div>
+<p>权重 + 上下文状态（KV）+ 工作区，多卡要逐卡算。</p>
+<p>例：70B BF16 权重 141.11 GB，一张 80 GB 的 H100 放不下；8 比特量化后 73.73 GB，加一个 8192 token 请求的 KV 2.68 GB 和工作区 2.15 GB，共 78.56 GB，刚好放得下。</p>
+</details>
+<h3 id="i13-gb-gibbit-byte-400-gbits-1-gb">I13 · GB 和 GiB、bit 和 byte 怎么换算？400 Gbit/s 的网卡传 1 GB 要多久？</h3>
+<p>来源：<a href="lessons/04-key-numbers.html">第 04 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<ul>
+<li>GB = <span class="arithmatex">\(10^9\)</span> 字节，GiB = <span class="arithmatex">\(2^{30}\)</span> 字节，1 GiB ≈ 1.074 GB；KiB / MiB 同理。相减前先换成同一种。</li>
+<li>1 byte = 8 bit；GB/s = Gbit/s ÷ 8。</li>
+</ul>
+<p>400 Gbit/s = 50 GB/s，按线速传 1 GB 要 20 ms；实际还要加启动时间、协议开销和链路争抢。</p>
+<p>口诀：bit 除以八才是 byte。</p>
+</details>
+<h2 id="_6">估算一次执行</h2>
+<h3 id="i14-70b-1-batch-1">I14 · 70B 模型、每参数 1 字节、batch = 1，一步生成要存、读、算多少？</h3>
+<p>来源：<a href="lessons/05-estimate.html">第 05 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<div class="arithmatex">\[M_W = b_W N, \quad R_W = b_W N, \quad F \approx 2BN\]</div>
+<p>存 70 GB，读 70 GB，算 140 GFLOPs（每个权重乘、加各一次）。<span class="arithmatex">\(M_W = R_W\)</span> 只是这一步碰巧相等：下一步存的还是那一份，但要再读一遍。</p>
+</details>
+<h3 id="i15-decode">I15 · 为什么单请求 decode 是带宽说了算？算力翻倍和带宽翻倍各有什么效果？</h3>
+<p>来源：<a href="lessons/05-estimate.html">第 05 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<div class="arithmatex">\[T_{\mathrm{step}} \ge \max\!\left(\frac{F}{\Pi}, \frac{R_W}{\beta}\right)\]</div>
+<p>读、算能重叠时取较大者。H100 上读权重约 20.90 ms，矩阵计算约 0.1415 ms，读慢约 148 倍。</p>
+<ul>
+<li>算力翻倍：下界仍 20.90 ms（只缩短本来就短的计算）。</li>
+<li>带宽翻倍或权重减半：下界降到 10.45 ms。</li>
+</ul>
+<p>口诀：加算力，白费钱；加带宽、少读数，才见效。</p>
+</details>
+<h3 id="i16-b_">I16 · 批内复用为什么提高吞吐却不缩短每个请求的等待？转折点 <span class="arithmatex">\(B_*\)</span> 怎么算？</h3>
+<p>来源：<a href="lessons/05-estimate.html">第 05 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p><span class="arithmatex">\(B\)</span> 个请求共用一次权重读取：读取时间不变，计算按 <span class="arithmatex">\(B\)</span> 增长。<span class="arithmatex">\(B = 8\)</span> 时一步仍约 20.90 ms，每个输出分摊约 2.61 ms，吞吐从约 47.9 涨到约 383 token/s；但每个请求都要等整批算完，等待没缩短。</p>
+<p>转折点：<span class="arithmatex">\(2B_*N/\Pi = b_W N/\beta\)</span>，</p>
+<div class="arithmatex">\[B_* = \frac{b_W \Pi}{2\beta}\]</div>
+<p>H100、<span class="arithmatex">\(b_W = 1\)</span> 时约 147.7。之前读取说了算，之后计算说了算。等价说法：算术强度 <span class="arithmatex">\(I = 2B/b_W\)</span> 和 <span class="arithmatex">\(\Pi/\beta\)</span>（H100 约 295）比。</p>
+<p>口诀：一车拉八人，油钱分摊路不短。</p>
+</details>
+<h3 id="i17">I17 · 实测比读取下界慢三倍，差距可能来自哪两种原因？怎么分清？</h3>
+<p>来源：<a href="lessons/05-estimate.html">第 05 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<ol>
+<li><strong>模型漏项</strong>：下界只算了部分工作（如只算权重和 KV 读取，没算其他向量运算和采样）。补上后下界上移。</li>
+<li><strong>系统开销</strong>：实现本身的浪费（如 eager 模式逐个提交 kernel、经 Python、驱动和 PCIe，加速器空转；客户端日志占主机时间）。去掉后实测下降。</li>
+</ol>
+<p>分清的办法：一次只改一个条件测量。例：Qwen3-8B 下界 8.62 ms，实测 26.5 ms（MBU 33%）→ 关日志 12.1 ms → 只算加速器事件 10.7 ms，只剩两成。</p>
+<p>检查顺序：先问模型有没有漏项，再问实现有没有开销。</p>
+</details>
+<h3 id="i18">I18 · 估算一次模型执行，全程在回答哪五个问题？</h3>
+<p>来源：<a href="lessons/05-estimate.html">第 05 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p><strong>搬什么、搬多少、搬几次、经过哪里、谁在等待。</strong></p>
+<p>对应：模型结构决定要哪些权重；位宽和参数量决定大小；批内复用改变读取次数；显存接口提供带宽；执行依赖决定等待。</p>
+</details>
+<h2 id="_7">需求与架构</h2>
+<h3 id="i19-tpu">I19 · 推动架构变化的根本是什么？举 TPU 的例子。</h3>
+<p>来源：<a href="lessons/06-architecture.html">第 06 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p><strong>比例的改变</strong>：需求变化（规模扩大、新负载）或硬件变化（某类器件提升更快），让计算量 : 读取量、带宽 : 处理能力、需求增长 : 单芯片能力这些比例变了，原来合理的分工就不再合算。</p>
+<p>TPU：2013 年预测"每位用户每天用三分钟语音搜索，数据中心可能要翻倍"，每日需求 <span class="arithmatex">\(Q F_1\)</span> 逼近空闲算力；专用芯片前期投入大，但规模越大越容易回本。TPU v1 2015 年部署，2017 年发表论文。</p>
+<p>口诀：比例一变，分工重排。</p>
+</details>
+<h3 id="i20-smartnic">I20 · SmartNIC 解决了什么问题？光转发要几个核怎么算？</h3>
+<p>来源：<a href="lessons/06-architecture.html">第 06 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<div class="arithmatex">\[n_{\mathrm{core}} = \frac{\lambda_{\mathrm{packet}}}{\mu_{\mathrm{core}}}\]</div>
+<p>40 Gbit/s、最小帧在线路上 84 字节：<span class="arithmatex">\(\lambda \approx 40 \times 10^9 / 672 \approx 5950\)</span> 万包/秒；单核 1000 万–2000 万包/秒，要 3–6 个核，只用来转发。</p>
+<p>网速涨得比 CPU 处理包的速度快。Azure 2015 年末起用基于 FPGA 的 SmartNIC，把重复的包处理交给网卡，CPU 留给租户应用，复杂策略仍由主机软件管。</p>
+</details>
+<h3 id="i21">I21 · 卡越来越多时，分析一个多卡方案按哪三步？</h3>
+<p>来源：<a href="lessons/06-architecture.html">第 06 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<ol>
+<li>每张卡能不能放下它要的数据（逐卡 <span class="arithmatex">\(M \le M_{\mathrm{cap}}\)</span>）；</li>
+<li>每张卡要算多少、读写多少；</li>
+<li>按执行依赖，谁要等谁，算总时间。</li>
+</ol>
+<p>加卡带来容量和算力，也带来通信和等待。UB（统一互联）的思路是让设备直接访问其他设备的内存，去掉跨主机的软件抽象层。</p>
+</details>
+<h3 id="i22">I22 · 原书列出的五个常见误区是什么？</h3>
+<p>来源：<a href="lessons/06-architecture.html">第 06 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<ol>
+<li>峰值算力翻倍，速度就翻倍 → 先看是不是算力限制，还要用 Amdahl 定律看上限。</li>
+<li>显存放得下权重，就能支持目标并发 → KV、工作区、运行时预留都占显存，多卡逐卡算。</li>
+<li>比旧实现快三成就算成功 → 先算硬件极限，再查差距来自漏项还是开销。</li>
+<li>上一代成熟的系统可以直接用于新负载 → 每种设计都以当时的比例为前提，先检查比例是否还成立。</li>
+<li>吞吐提高了，每个用户的等待就缩短了 → 吞吐和响应时间要同时报告。</li>
+</ol>
+</details>
+<h2 id="_8">模型架构 · 计算图与生成</h2>
+<h3 id="i23-rnn-transformer">I23 · RNN 和因果 Transformer 处理已知输入时，各要等什么？生成时又多了哪条依赖？</h3>
+<p>来源：<a href="lessons/07-compute-graph.html">第 07 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>RNN 同一层要等前一个位置（<span class="arithmatex">\(h_t = f(x_t, h_{t-1})\)</span>），沿位置和层都要串；因果 Transformer 同一层的已知位置可以并行，只等上一层的结果（沿深度）。</p>
+<p>生成时多一条跨调用的串行依赖：下一次调用的输入是这次的输出。</p>
+<p>口诀：节点算，边上传，箭头定先后。</p>
+</details>
+<h3 id="i24-mk-times-kn-m-n">I24 · 一个 <span class="arithmatex">\([m,k] \times [k,n]\)</span> 的投影，参数、运算、权重字节各是多少？<span class="arithmatex">\(m\)</span> 和 <span class="arithmatex">\(n\)</span> 翻倍各影响什么？</h3>
+<p>来源：<a href="lessons/07-compute-graph.html">第 07 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p><span class="arithmatex">\(N_W = kn\)</span>，<span class="arithmatex">\(F = 2mkn\)</span>，<span class="arithmatex">\(M_W = b_W kn\)</span>。</p>
+<ul>
+<li><span class="arithmatex">\(m\)</span>（本次 token 数，<span class="arithmatex">\(m = BP\)</span>）翻倍：<span class="arithmatex">\(F\)</span> 翻倍，权重不变。</li>
+<li><span class="arithmatex">\(n\)</span>（输出宽度）翻倍：权重和 <span class="arithmatex">\(F\)</span> 都翻倍。</li>
+</ul>
+<p>prefill 一条 8192 token 的请求 <span class="arithmatex">\(m = 8192\)</span>；decode 每条请求只补 1 个，<span class="arithmatex">\(m = B\)</span>。</p>
+<p>口诀：行数乘权重，权重不随行数涨。</p>
+</details>
+<h3 id="i25-qwen3-8b-ffn-m-token-flops">I25 · Qwen3-8B 一层的投影和 FFN 各多少参数？处理 <span class="arithmatex">\(m\)</span> 个 token 要多少 FLOPs？</h3>
+<p>来源：<a href="lessons/07-compute-graph.html">第 07 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<ul>
+<li>注意力投影：<span class="arithmatex">\(2 \times 4096^2 + 2 \times 4096 \times 1024 = 41{,}943{,}040\)</span></li>
+<li>SwiGLU FFN：<span class="arithmatex">\(3 \times 4096 \times 12288 = 150{,}994{,}944\)</span>（占约 78%，BF16 288 MiB）</li>
+<li>运算：<span class="arithmatex">\(385{,}875{,}968\,m\)</span> FLOPs</li>
+</ul>
+<p>一次前向 <span class="arithmatex">\(= 36(385{,}875{,}968\,m + 16384\,N_{\mathrm{pair}}) + 2 m_{\mathrm{out}} \times 4096 \times 151936\)</span>：8192 token prefill 约 133.6 TFLOPs，8K 上下文下一步 decode 约 20.0 GFLOPs。</p>
+</details>
+<h3 id="i26-n_mathrmpair">I26 · 有效查询—键配对数 <span class="arithmatex">\(N_{\mathrm{pair}}\)</span> 怎么算？注意力运算量和它什么关系？</h3>
+<p>来源：<a href="lessons/07-compute-graph.html">第 07 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p><span class="arithmatex">\(N_{\mathrm{pair}} = B\,(PS + P(P+1)/2)\)</span>：长方形是新 token 读旧上下文，三角形是新输入内部的因果访问。</p>
+<p><span class="arithmatex">\(F_{\mathrm{attn}} = 4\,n_Q\,d_h\,N_{\mathrm{pair}}\)</span>（Qwen3-8B：<span class="arithmatex">\(16384\,N_{\mathrm{pair}}\)</span>）。</p>
+<p><span class="arithmatex">\(BP\)</span> 相同不代表注意力相同：拆成两条独立短请求会少掉跨界的配对；前面加上下文会让每个新 token 的配对变多。</p>
+<p>例：<span class="arithmatex">\(S = 2\)</span>，<span class="arithmatex">\(P = 3\)</span> → 6 + 6 = 12。</p>
+</details>
+<h3 id="i27-kv-q-token-kv">I27 · 为什么缓存 K、V 而不缓存 Q？每 token 的 KV 怎么算？</h3>
+<p>来源：<a href="lessons/08-generation-budget.html">第 08 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>旧 token 的 K、V 算一次就不变，后来的 token 用自己的 Q 去对它们打分、汇总；旧 Q 已经用完，所以长期保存 K、V。</p>
+<p><span class="arithmatex">\(c_{\mathrm{KV}} = 2\,L\,n_{\mathrm{KV}}\,d_h\,b_{\mathrm{KV}}\)</span>。Qwen3-8B BF16：<span class="arithmatex">\(2 \times 36 \times 8 \times 128 \times 2 = 147{,}456\)</span> B = 144 KiB；8192 个 token 1.125 GiB。</p>
+<p>口诀：问完就走不留 Q，白板常驻 K 和 V。</p>
+</details>
+<h3 id="i28">I28 · 模型数据分哪三类？存储量和访问量有什么区别？</h3>
+<p>来源：<a href="lessons/08-generation-budget.html">第 08 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<ul>
+<li>权重：多次调用不变、所有请求共用；</li>
+<li>上下文状态（KV）：跟着请求保留、持续追加；</li>
+<li>临时数据（激活）：算子或阶段里产生、用完释放。</li>
+</ul>
+<p>存储量看某一时刻还要留着什么（峰值看同时活着的张量）；访问量看执行过程中累计读写了多少，同一份数据读 <span class="arithmatex">\(k\)</span> 次，访问量是存储量的 <span class="arithmatex">\(k\)</span> 倍。</p>
+</details>
+<h3 id="i29-batch-kv">I29 · batch 加到多少，每步读 KV 就比读权重多？</h3>
+<p>来源：<a href="lessons/08-generation-budget.html">第 08 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p><span class="arithmatex">\(B_* = R_W / (c_{\mathrm{KV}} H)\)</span>，向上取整。</p>
+<p>Qwen3-8B：<span class="arithmatex">\(R_W \approx 15.14\)</span> GB，<span class="arithmatex">\(c_{\mathrm{KV}} = 144\)</span> KiB。<span class="arithmatex">\(H = 8192\)</span> 时 13，<span class="arithmatex">\(H = 2048\)</span> 时 51。上下文越长，批内复用的收益越早被 KV 读取吃掉。</p>
+<p>口诀：车只一辆书包各背，上下文长早翻车。</p>
+</details>
+<h3 id="i30-n_d-kv">I30 · 一条请求生成 <span class="arithmatex">\(n_d\)</span> 步，累计读了多少旧 KV？最后存了多少？</h3>
+<p>来源：<a href="lessons/08-generation-budget.html">第 08 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p><span class="arithmatex">\(R_{\mathrm{old}} = c_{\mathrm{KV}}[n_d H + n_d(n_d-1)/2]\)</span>；结束时保存 <span class="arithmatex">\(c_{\mathrm{KV}}(H + n_d)\)</span>（最后一个输出没送进模型）。<span class="arithmatex">\(n_d = G - 1\)</span>。</p>
+<p>例题 2-3：<span class="arithmatex">\(P = 8192\)</span>，<span class="arithmatex">\(G = 1025\)</span>：累计 8,912,384 token·次 ≈ 1224 GiB，结束时只存约 1.27 GiB，差近千倍。</p>
+<p>口诀：存的一格一格长，读的一行一行涨。</p>
+</details>
+<h2 id="_9">模型架构 · 上下文状态</h2>
+<h3 id="i31-mhagqamqa">I31 · MHA、GQA、MQA 省了什么、没省什么？</h3>
+<p>来源：<a href="lessons/09-kv-sharing.html">第 09 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>几个查询头共用一份 K、V：KV 缓存和 K、V 投影参数按 KV 头数减少；但每个查询头仍各自打分，<span class="arithmatex">\(QK^{\mathsf T}\)</span>、<span class="arithmatex">\(AV\)</span> 运算量按查询头数算，不变。</p>
+<p>Qwen3-8B 8K：MHA（32 个 KV 头）4.5 GiB、GQA（8 个）1.125 GiB、MQA（1 个）144 MiB。</p>
+<p>口诀：打印机少人不少，KV 份数减、查询头不减。</p>
+</details>
+<h3 id="i32-mla">I32 · MLA 为什么只存低维潜变量就能算出同样的注意力？</h3>
+<p>来源：<a href="lessons/09-kv-sharing.html">第 09 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>展开键 <span class="arithmatex">\(K = cU_k\)</span>，结合律 <span class="arithmatex">\(qK^{\mathsf T} = (qU_k^{\mathsf T})\,c^{\mathsf T}\)</span>：先变换当前这一个查询，再直接和缓存里的低维 <span class="arithmatex">\(c\)</span> 点积；值也可以先加权汇总再上投影。上投影从"每个上下文 token"挪到"当前查询和汇总结果"上。</p>
+<p>代价：每个 token 仍存一个潜变量，存储和点积仍随上下文增长。</p>
+</details>
+<h3 id="i33-kimi-k3-mla8k">I33 · Kimi K3 的 MLA，8K 上下文下紧凑路径和展开路径各多大？</h3>
+<p>来源：<a href="lessons/09-kv-sharing.html">第 09 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>紧凑（存 512 + 64 维潜变量）：<span class="arithmatex">\(24 \times 8192 \times 576 \times 2\)</span> B = 216 MiB。</p>
+<p>展开（存各头 K、V，每 token 1,474,560 B）：约 11.25 GiB，差约 53 倍。差别只在缓存放在上投影的哪一侧。</p>
+</details>
+<h3 id="i34">I34 · 局部窗口、上下文压缩、稀疏索引各管什么？省下的读取要和什么一起算？</h3>
+<p>来源：<a href="lessons/10-kv-sparse-linear.html">第 10 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>窗口（SWA）读最近一段；压缩把多个 token 合成一条长期条目；索引先用小表示给条目打分、再只读选中的主记录。</p>
+<p>省下的主注意力读取要和索引扫描、压缩器更新一起算。V4-Flash 8K（BF16 参考格式）：保存 59.125 MiB，最后一次查询读 27.625 MiB（Qwen3-8B 各 1152 MiB）。</p>
+<p>口诀：近的看窗口，远的看小结，挑之前先翻目录。</p>
+</details>
+<h3 id="i35">I35 · 线性注意力的状态有多大？每步读写多少？</h3>
+<p>来源：<a href="lessons/10-kv-sparse-linear.html">第 10 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p><span class="arithmatex">\(\mathcal{S}_t = \mathcal{S}_{t-1} + k_t v_t^{\mathsf T}\)</span>，<span class="arithmatex">\(o_t = q_t^{\mathsf T}\mathcal{S}_t\)</span>；状态始终 <span class="arithmatex">\(d_k \times d_v\)</span>，不随上下文增长。</p>
+<p>Kimi K3：69 个 KDA 层 × 96 头 × 128×128 × FP32 = 414 MiB；每步读写各一次 828 MiB。短上下文时是显著的固定开销，长上下文时避免了越长读越多。</p>
+<p>口诀：摘要一张卡，读写都定额。</p>
+</details>
+<h3 id="i36-token">I36 · 混合模型的状态什么时候由固定部分决定，什么时候由逐 token 部分决定？</h3>
+<p>来源：<a href="lessons/10-kv-sparse-linear.html">第 10 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p><span class="arithmatex">\(M_{\mathrm{state}}(H) = M_{\mathrm{fixed}} + c_{\mathrm{state}} H\)</span>，交点 <span class="arithmatex">\(H_* = M_{\mathrm{fixed}} / c_{\mathrm{state}}\)</span>。</p>
+<p>Qwen3.6：61.875 MiB ÷ 20 KiB = 3168；Kimi K3：约 433.4 MiB ÷ 27 KiB ≈ 16.4K。低于 <span class="arithmatex">\(H_*\)</span> 缩短上下文省得少；远高于 <span class="arithmatex">\(H_*\)</span> 减小每 token 宽度更有效。</p>
+<p>口诀：月租加流量，交点 H* 定谁说了算。</p>
+</details>
+<h3 id="i37-v41-flash">I37 · 比较模型的上下文成本要同时看哪三个数？V4.1 Flash 的跨层共享省了什么？</h3>
+<p>来源：<a href="lessons/10-kv-sparse-linear.html">第 10 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>每 token 平均增量、长度为 <span class="arithmatex">\(N\)</span> 时实际保存、一次 decode 要读的历史。</p>
+<p>V4.1：只有 4 层有独立全局 KV，FP4 主记录 288 B + 索引 68 B，<span class="arithmatex">\((3/2 + 1)(288 + 68) = 890\)</span> B/token；V4 为 3514.25 B/token，约差 3.95 倍。但 8K 每步读取 11.375 vs 12.556 MiB，只少约 10%：跨层共享主要省保存，不省读取。</p>
+</details>
+<h2 id="_10">模型架构 · 专家与网络形状</h2>
+<h3 id="i38-moe-qwen36">I38 · MoE 怎么让"存多少"和"用多少"分开？Qwen3.6 的专家多大？</h3>
+<p>来源：<a href="lessons/11-moe.html">第 11 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>每层保存 <span class="arithmatex">\(EN_e\)</span> 个专家参数，每 token 只算 <span class="arithmatex">\(2k_{\mathrm{top}}N_e\)</span>。加大 <span class="arithmatex">\(E\)</span> 只增加存储。</p>
+<p>Qwen3.6：一个专家 <span class="arithmatex">\(3 \times 2048 \times 512 = 3{,}145{,}728\)</span> 参数（BF16 6 MiB），每层 256 个共 1.5 GiB，一个 token 选的 8 个 48 MiB。路由专家占全部参数约 93%。</p>
+<p>口诀：医生养得多，病人挂得少。</p>
+</details>
+<h3 id="i39-32">I39 · 同样的专家计算量，权重读取为什么能差 32 倍？</h3>
+<p>来源：<a href="lessons/11-moe.html">第 11 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p><span class="arithmatex">\(F_{\mathrm{expert}} = 2N_e\,B\,k_{\mathrm{top}}\)</span>（按分派行数），<span class="arithmatex">\(R_{\mathrm{expert}} = b_W N_e U\)</span>（按访问的不同专家数 <span class="arithmatex">\(U\)</span>）。</p>
+<p>例题 2-4：<span class="arithmatex">\(B = 64\)</span>，选 8 个，512 次分派。均匀到 256 个专家：<span class="arithmatex">\(U = 256\)</span>，每层读 1.5 GiB，每份权重用 2 行；集中到 8 个：读 48 MiB，每份用 64 行。</p>
+<p>口诀：算量看分派，读量看开了几扇门。</p>
+</details>
+<h3 id="i40">I40 · 共享专家和潜空间专家各改变了什么？</h3>
+<p>来源：<a href="lessons/11-moe.html">第 11 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>共享专家处理本次全部 <span class="arithmatex">\(m\)</span> 个 token：<span class="arithmatex">\(F_{\mathrm{layer}} = 2mN_s + 2\sum_e t_e N_e\)</span>（prefill 时 <span class="arithmatex">\(m\)</span> 是全部输入）。</p>
+<p>潜空间专家（Kimi K3：7168 → 3584 维）让路由专家矩阵变小，但多了进出潜空间的两次投影。</p>
+</details>
+<h3 id="i41">I41 · 深宽取舍和专家粒度的不变量是什么？变的又是什么？</h3>
+<p>来源：<a href="lessons/12-network-shape.html">第 12 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>稠密参数 <span class="arithmatex">\(\propto Ld^2\)</span>：层数 ×4、宽度 ×1/2，参数相近，但依赖链变 4 倍、每层还多存一份 KV。</p>
+<p>专家参数 <span class="arithmatex">\(3Edf\)</span>、单 token 运算 <span class="arithmatex">\(6k_{\mathrm{top}}df\)</span>：<span class="arithmatex">\(E\)</span> 和 <span class="arithmatex">\(k\)</span> 减半、<span class="arithmatex">\(f\)</span> 加倍都不变。变的是矩阵大小、每专家行数、路由器打分的专家数和多卡可切的份数。Qwen3-235B 三种粒度 16 token 都约 454 GFLOPs。</p>
+</details>
+<h3 id="i42-mhcattnres">I42 · 普通残差、mHC、AttnRes 各要保存什么，保存多久？</h3>
+<p>来源：<a href="lessons/12-network-shape.html">第 12 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>普通残差 <span class="arithmatex">\(x_{\ell+1} = x_\ell + f_\ell(x_\ell)\)</span>：子层计算期间留着输入。</p>
+<p>mHC（V4-Flash）：4 路 4096 维残差状态，进子层前混合、出来再写回；混合矩阵用 Sinkhorn（交替行归一、列归一）约束；8192 token 时混合投影约 555 GFLOPs。</p>
+<p>AttnRes（Kimi K3）：沿深度做注意力选之前的层；块表示只在一次前向里保存，KV 则跨调用保存。</p>
+</details>
+<h3 id="i43">I43 · 推测解码什么时候划算？</h3>
+<p>来源：<a href="lessons/12-network-shape.html">第 12 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>每输出分摊 <span class="arithmatex">\(= (T_s + T_v)/\bar g\)</span>，划算条件 <span class="arithmatex">\(\bar g &gt; (T_s + T_v)/T_d\)</span>。</p>
+<p>例：普通 decode 20 ms，一轮 30 ms：<span class="arithmatex">\(\bar g = 2\)</span> 时 15 ms，1.5 时打平，1 时 30 ms。</p>
+<p>口诀：草稿审得过，才比一字一字写得快。</p>
+</details>
+<h2 id="_11">模型架构 · 整模型比较</h2>
+<h3 id="i44-moe">I44 · 整个模型的权重和运算怎么累加？为什么 MoE 模型的总参数主要由专家决定？</h3>
+<p>来源：<a href="lessons/13-model-comparison.html">第 13 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p><span class="arithmatex">\(M_W = b_W\sum_g L_g N_g + M_{\mathrm{emb}} + M_{\mathrm{head}}\)</span>，<span class="arithmatex">\(F_{\mathrm{model}} = \sum_g L_g F_g + F_{\mathrm{head}}\)</span>；MoE 层的 <span class="arithmatex">\(N_g\)</span> 算全部专家，<span class="arithmatex">\(F_g\)</span> 只算实际收到的行。</p>
+<p>路由专家占比：Qwen3.6 约 93%，V4-Flash 约 97%，Kimi K3 约 98%；Qwen3-8B 的大头在每 token 都过的稠密 FFN。</p>
+</details>
+<h3 id="i45">I45 · 比较模型的资源需求，为什么要把权重、单次运算、每请求状态分开？</h3>
+<p>来源：<a href="lessons/13-model-comparison.html">第 13 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>三者排名不同：Qwen3.6 权重约是 Qwen3-8B 的 4 倍，单步运算更少；V4-Flash 权重更大，8K 状态反而更小（0.069 vs 1.125 GiB）；Kimi K3 三项都最大。</p>
+<p>V4.1 的 CED 让 8K prefill 从 282.4 降到 143.9 TFLOPs（解码器主体只处理末尾 128 个 token），但 decode 时两部分都要跑。</p>
+</details>
+<h3 id="i46">I46 · 一张卡放下权重后能放几条请求？反过来给定请求，权重最多多大？</h3>
+<p>来源：<a href="lessons/13-model-comparison.html">第 13 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p><span class="arithmatex">\(B_{\max} = \lfloor (M_{\mathrm{device}} - M_{\mathrm{weight}} - M_{\mathrm{workspace}}) / M_{\mathrm{state}} \rfloor\)</span>；<span class="arithmatex">\(N_{\max} = (C - M_0 - BK)/b_W\)</span>。</p>
+<p>RTX 4090 + Qwen3-8B BF16 + 2 GiB 工作区：4K 9 条、8K 4 条、16K 2 条；放 4 条 8K 请求时 BF16 权重最多约 85.1 亿参数。70B 在 H100 上：8 比特 1 条、4 比特 14 条（32K 时 3 条）。</p>
+<p>口诀：停车场先划固定位，剩下除以每辆车，向下取整。</p>
+</details>
+<h3 id="i47-8k-1m">I47 · 上下文从 8K 到 1M，哪些模型的交互运算涨得最快？为什么？</h3>
+<p>来源：<a href="lessons/13-model-comparison.html">第 13 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>全注意力类按上下文同比涨约 128 倍：Qwen3-8B 4.83 → 618.48 GFLOPs（状态 1.125 → 144 GiB），Qwen3.6、Kimi K3 的 MLA 部分同理。V4-Flash 约 38 倍（CSA 选择有上限，但索引扫描和 HCA 仍增长）；V4.1 约 7 倍（4 份共享全局 KV + 分层候选选择）。</p>
+<p>评估长上下文要分别看保存了多少、访问了哪些位置、为索引和更新多做了多少。</p>
+</details>
+<h3 id="i48">I48 · 模型架构这部分有哪四个常见误区？</h3>
+<p>来源：<a href="lessons/13-model-comparison.html">第 13 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<ol>
+<li>参数更多，每 token 计算就更大 → 看选中专家、注意力类型和调用形状。</li>
+<li>KV 降到 1/4，注意力计算也降 → GQA 查询头照样各自打分；MLA 还挪了上投影。</li>
+<li>状态大小固定，访问可以忽略 → 递推矩阵每步都要读写。</li>
+<li>输入 token 数相同就能公平比能力 → 同文本任务里不同分词器长度不同，要两种比较都看。</li>
+</ol>
+</details>
+<h2 id="_12">负载 · 到达与等待</h2>
+<h3 id="i49-ttft-token-p95">I49 · TTFT、完整请求时间、平均 token 间隔各量哪一段？p95 怎么取？</h3>
+<p>来源：<a href="lessons/14-workload-arrival.html">第 14 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p><span class="arithmatex">\(T_{\mathrm{TTFT}} = t_1 - t_a\)</span>（含排队），<span class="arithmatex">\(T_{\mathrm{request}} = t_G - t_a\)</span>，<span class="arithmatex">\(\overline{T}_{\mathrm{token}} = (t_G - t_1)/(G-1)\)</span>。缩短排队只改善 TTFT，不缩短已开始后的 token 间隔。</p>
+<p>p95（最近秩法）：<span class="arithmatex">\(n\)</span> 个观测排序后取第 <span class="arithmatex">\(\lceil 0.95n \rceil\)</span> 个；4 条取最大，480 条取第 456 个。</p>
+</details>
+<h3 id="i50">I50 · 等待中的请求为什么也占容量？怎么算？</h3>
+<p>来源：<a href="lessons/14-workload-arrival.html">第 14 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>状态占用按空间 × 时间算：<span class="arithmatex">\(A_M = \int M(t)\,\mathrm{d}t\)</span>，1 GiB 占 10 秒 = 10 GiB·s。</p>
+<p>任务每秒 <span class="arithmatex">\(\lambda\)</span> 个到达、每个占 <span class="arithmatex">\(M_0\)</span>、平均等 <span class="arithmatex">\(\tau\)</span> 秒，稳定时平均占用 <span class="arithmatex">\(\approx \lambda M_0 \tau\)</span>（Little 定律）。工具等待越久，同样的容量能服务的任务越少。</p>
+</details>
+<h3 id="i51">I51 · 平均处理能力够了，为什么还会积压？积压怎么算？</h3>
+<p>来源：<a href="lessons/14-workload-arrival.html">第 14 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>闲时没用的能力存不到忙时。<span class="arithmatex">\(Q_{k+1} = \max(0, Q_k + A_k - \mu_k \Delta t)\)</span>；到达 <span class="arithmatex">\(\lambda_w\)</span> 连续 <span class="arithmatex">\(\tau\)</span> 秒高于处理率 <span class="arithmatex">\(\mu\)</span>：积压 <span class="arithmatex">\((\lambda_w - \mu)\tau\)</span>，排空 <span class="arithmatex">\((\lambda_w - \mu)\tau/\mu\)</span>。</p>
+<p>例题 3-1：两张 RTX PRO 6000 约 5,591 步/秒，后一分钟每秒来 7,471.2 步，积压约 112,792 步，停止后约 20.17 秒排空。</p>
+<p>口诀：闲时的力气存不到忙时，超出乘时长就是积压。</p>
+</details>
+<h3 id="i52-kv">I52 · KV 池满时，排队等的是什么？</h3>
+<p>来源：<a href="lessons/14-workload-arrival.html">第 14 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>等的是空间不是算力：已有请求的状态没释放，即使有计算单元空闲，新请求也进不来；调度器还可能抢占（暂停已开始的请求、释放 KV，之后恢复或重算）。</p>
+<p>实测：同样 480 条请求，完整请求 p95 都约 299.4 s，TTFT p95 却差约 16 秒（242.9 vs 258.9），抢占 62 vs 24 次。</p>
+</details>
+<h2 id="agent">负载 · Agent 与多模态</h2>
+<h3 id="i53">I53 · 多轮对话里每轮要重算多少输入？改动的位置为什么比改动的多少更重要？</h3>
+<p>来源：<a href="lessons/15-agent-tasks.html">第 15 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p><span class="arithmatex">\(P_i = I_i - K_i\)</span>，<span class="arithmatex">\(S_i = K_i\)</span>：投影和 FFN 只算新增的，注意力仍要访问完整前缀，旧状态还得一直存着。</p>
+<p>四轮代码任务：全重算 76.196 TFLOPs，复用前缀 11.976 TFLOPs。已有 2000 token：末尾追加 100 个，复用 2000；改第 501 个，只能复用 500。</p>
+</details>
+<h3 id="i54">I54 · 多花算力让模型多想想，什么时候划算？</h3>
+<p>来源：<a href="lessons/15-agent-tasks.html">第 15 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>按成功任务算：<span class="arithmatex">\(C_{\mathrm{success}} = c/p\)</span>；新方法更省 <span class="arithmatex">\(\iff p_2/p_1 &gt; c_2/c_1\)</span>，生成、验证、失败尝试都进 <span class="arithmatex">\(c\)</span>。</p>
+<p>例：单价降到 1/10、用量 20 倍、成功率 50% → 80%，成功任务成本反而是原来的 1.25 倍。</p>
+<p>口诀：驾照算总账，花费除以通过率。</p>
+</details>
+<h3 id="i55-agent">I55 · 代码 Agent 的时间花在哪？工具并行省了什么，没省什么？</h3>
+<p>来源：<a href="lessons/15-agent-tasks.html">第 15 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>思考开启的那次：模型 76.294 s，工具 0.078 s。首轮 36.375 s 减半，总时间 76.510 → 58.323 s，加速 1.31 倍（Amdahl）。</p>
+<p>模型 2 s → 工具 6、10 s → 模型 3 s：串行 21 s，并行 15 s；工具工作量都是 16 s。并行缩短关键路径，但同时占着的状态更多：<span class="arithmatex">\(c_{\mathrm{KV}}(H_0 + \sum h_i)\)</span>。</p>
+</details>
+<h3 id="i56-ced-prefill">I56 · CED 和只做 prefill 的决策请求，各是为什么负载设计的？</h3>
+<p>来源：<a href="lessons/15-agent-tasks.html">第 15 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>Agent 常输入多、输出少。CED 的专家层工作 <span class="arithmatex">\(20P + 20\min(P, 128)\)</span> vs <span class="arithmatex">\(40P\)</span>：8192 个输入约 50.8%。</p>
+<p>决策请求只做一次前向读出选项概率：1929 token 在 H100 上约 70 ms；普通 LLM 再生成 64 个 token 约 0.65 s。转交比例 <span class="arithmatex">\(e\)</span> 超过 <span class="arithmatex">\(c_{\mathrm{dec}}/c_{\mathrm{LLM}} \approx 0.58\%\)</span>，转交费用就超过决策模型本身。</p>
+</details>
+<h3 id="i57-640640-qwen3-vl-4b">I57 · 一张 640×640 图片进 Qwen3-VL-4B，在三个阶段各多大？</h3>
+<p>来源：<a href="lessons/16-multimodal-realtime.html">第 16 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p><span class="arithmatex">\(n_v = HW/(p^2 r^2) = 640^2/(16^2 \times 2^2) = 400\)</span>。</p>
+<p>原文件 0.8 MB；编码缓存 EC <span class="arithmatex">\([400, 10240]\)</span> BF16 = 7.8125 MiB；视觉 token 的语言 KV <span class="arithmatex">\(400 \times 144\)</span> KiB = 56.25 MiB。EC 只要图片和编码配置一样就能复用；KV 还依赖图片之前的上下文。</p>
+</details>
+<h3 id="i58">I58 · 语音和图像生成的"一步"是什么？图像生成的运算量怎么算？</h3>
+<p>来源：<a href="lessons/16-multimodal-realtime.html">第 16 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>S2 Pro：每帧 1 次快路径建状态 + 9 次预测 = 10 次快路径前向。Qwen-Image：1024² → 4096 个 latent，50 步 × 2 路 CFG = 100 次 DiT 前向。</p>
+<p><span class="arithmatex">\(F_{\mathrm{image}} = n_s\,n_b\,F_{\mathrm{step}}\)</span>；文本每步追加上下文，图像去噪反复更新同一组 latent。</p>
+</details>
+<h3 id="i59">I59 · 实时语音为什么要缓冲？缓冲大小怎么取舍？打断要停哪几样？</h3>
+<p>来源：<a href="lessons/16-multimodal-realtime.html">第 16 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p><span class="arithmatex">\(B_{\mathrm{audio}}(t) = A(t) - P(t)\)</span>，余量到 0 而下一块没到就断。例：第三块 123 ms 才到，40 ms 缓冲首播 78 ms、停顿 5 ms；60 ms 缓冲首播 98 ms、不停顿。缓冲只能吸收抖动，补不了长期速度不足。</p>
+<p>打断分三个时刻：停播放（设备静音）、停计算（后端停生成）、放存储（释放缓冲与状态）。</p>
+</details>
+<h2 id="_13">负载 · 训练与预算</h2>
+<h3 id="i60-6nd">I60 · 训练一个线性层为什么是前向的三倍？6ND 从哪来？</h3>
+<p>来源：<a href="lessons/17-training-rl.html">第 17 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>前向 <span class="arithmatex">\(Y = XW\)</span>、输入梯度 <span class="arithmatex">\(\mathrm{d}X = \mathrm{d}Y\,W^{\mathsf T}\)</span>、权重梯度 <span class="arithmatex">\(\mathrm{d}W = X^{\mathsf T}\mathrm{d}Y\)</span>，各 <span class="arithmatex">\(2mkn\)</span>，合计 <span class="arithmatex">\(6mkn\)</span>；所有 token 过同一组参数，累加得 <span class="arithmatex">\(F_{\mathrm{train}} \approx 6ND\)</span>。</p>
+<p>冻结矩阵省权重梯度，但前面还要训练时输入梯度照算。</p>
+<p>口诀：复盘要草稿，倒推用方法。</p>
+</details>
+<h3 id="i61-qwen3-8b">I61 · 全参数训练每个参数存几字节？Qwen3-8B 合计多大？</h3>
+<p>来源：<a href="lessons/17-training-rl.html">第 17 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>BF16 权重 2 + FP32 梯度 4 + FP32 主权重 4 + Adam 一阶 4 + 二阶 4 = 18 字节，是推理权重的 9 倍（不含激活）。</p>
+<p>Qwen3-8B：<span class="arithmatex">\(8{,}190{,}735{,}360 \times 18\)</span> = 147.433 GB ≈ 137.308 GiB，超过 H100、RTX PRO 6000 乃至 H200 的显存。</p>
+</details>
+<h3 id="i62-6nd">I62 · 6ND 粗算漏了什么、多算了什么？</h3>
+<p>来源：<a href="lessons/17-training-rl.html">第 17 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>漏了注意力（不对应参数，Qwen3-8B 8192 token 前反向 59.381 TFLOPs）；多算了只查表的词嵌入。逐项 431.368 vs 6ND 402.591，高约 7.15%。</p>
+<p>同样 8192 token，4096+4096 的配对 16,781,312，7168+1024 的 26,218,496，一层注意力多 56%。只对监督 token 做词表投影：431.368 → 416.074。</p>
+</details>
+<h3 id="i63-rl">I63 · RL 一轮的运算量怎么算？样本筛得越严为什么越贵？</h3>
+<p>来源：<a href="lessons/17-training-rl.html">第 17 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p><span class="arithmatex">\(n_{\mathrm{generate}} \approx n_{\mathrm{keep}}/a\)</span>，<span class="arithmatex">\(F_{\mathrm{cycle}}(n) = n(f_g + f_r) + F_u\)</span>。</p>
+<p>例题 3-4：保留 16 条，生成 32 条 2,181.559 TFLOPs，64 条 3,410.701（+56.3%）；多出的全在生成和参考模型，更新不变。同步权重 <span class="arithmatex">\(rM_W\)</span>：4 个副本约 65.5 GB。组内奖励全相同时优势为 0，学不到东西。</p>
+</details>
+<h3 id="i64">I64 · 固定训练预算，参数和数据怎么分？</h3>
+<p>来源：<a href="lessons/18-scaling-lifecycle.html">第 18 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p><span class="arithmatex">\(L(N, D) = E + A/N^\alpha + B/D^\beta\)</span>，约束 <span class="arithmatex">\(C = 6ND\)</span>：<span class="arithmatex">\(N_{\mathrm{opt}} \propto C^{\beta/(\alpha+\beta)}\)</span>，<span class="arithmatex">\(D_{\mathrm{opt}} \propto C^{\alpha/(\alpha+\beta)}\)</span>。<span class="arithmatex">\(\alpha = \beta\)</span> 时预算 ×4，两者各 ×2（Chinchilla）；Kaplan 早期给的是 <span class="arithmatex">\(N \propto C^{0.73}\)</span>。</p>
+<p>只在固定训练预算、只看验证损失时成立。</p>
+</details>
+<h3 id="i65-scaling-law">I65 · 拟合出的 scaling law 怎么检验？</h3>
+<p>来源：<a href="lessons/18-scaling-lifecycle.html">第 18 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>留出更大的模型不参与拟合，再比预测和实际。例题 3-5：留出两个 ≥ 2B 的模型，实际 2.574 / 2.337，预测 2.583 / 2.363，RMSE 约 0.019 nats/token。拟合点的误差不能代替留出点的误差；还要多随机种子区分趋势和偶然，再把损失连到任务表现。</p>
+</details>
+<h3 id="i66-8b">I66 · 为什么 8B 模型实际训练的数据远超"计算最优"？</h3>
+<p>来源：<a href="lessons/18-scaling-lifecycle.html">第 18 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>计算最优约每参数 20 token（8B 约 160B）；实际 Llama 1 每参数 149，Qwen3 约 4500，高一两个数量级。原因：开发者把上线后的服务成本算进目标，服务量大、数据充足时选更小、训练更充分的模型。</p>
+<p>训练预算最优和全生命周期最优是两个不同的目标。</p>
+</details>
+<h3 id="i67-gpu-gpu">I67 · GPU 小时怎么换成工期？不同卡的 GPU 小时怎么比？</h3>
+<p>来源：<a href="lessons/18-scaling-lifecycle.html">第 18 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p><span class="arithmatex">\(T_{\mathrm{calendar}} = H_{\mathrm{GPU}}/n_{\mathrm{GPU}}\)</span>：Llama 1 65B 1,022,362 A100 小时用 2048 卡约 20.80 天；DeepSeek-V3 预训练 2.664M H800 小时约 54.20 天；Llama 3.1 405B 30.84M H100 小时用 16,384 卡约 78.43 天。</p>
+<p>跨设备按 BF16 峰值折：一个 H100 / H800 小时 ≈ 989.4/312 ≈ 3.17 个 A100 小时。</p>
+</details>
+<h3 id="i68">I68 · 多花训练换更小的模型，服务多少次能回本？</h3>
+<p>来源：<a href="lessons/18-scaling-lifecycle.html">第 18 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p><span class="arithmatex">\(C_{\mathrm{life}} = C_0 + Q\sum_j w_j c_j\)</span>，<span class="arithmatex">\(Q_* = \Delta C_0/\Delta c\)</span>（两者满足相同质量和时限）。</p>
+<p>例：多训 10 万 H100 GPU 小时（<span class="arithmatex">\(3.6 \times 10^8\)</span> GPU 秒），每任务省 0.72 GPU 秒 → 5 亿次回本。训练和服务用同一折算系数时，交点和 MFU 无关。</p>
+<p>口诀：截距是训练，斜率是服务，交点就是回本。</p>
+</details>
+<h2 id="_14">加速器 · 计算与功耗</h2>
+<h3 id="i69-q-m409640964096bf16">I69 · Q 投影 [M,4096]×[4096,4096]（BF16）的运算、访问和算术强度怎么算？上限是多少？</h3>
+<p>来源：<a href="lessons/19-accelerator-basics.html">第 19 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>运算 <span class="arithmatex">\(2MKN\)</span>；访问 = 权重 <span class="arithmatex">\(2KN\)</span> + 输入输出 <span class="arithmatex">\(2M(K+N)\)</span> 字节。<span class="arithmatex">\(M=1\)</span>：约 32 MiB、强度约 1；<span class="arithmatex">\(M=256\)</span>：36 MiB、约 228。</p>
+<p><span class="arithmatex">\(I(M) = 2KN/(2KN/M + 2(K+N)) \to KN/(K+N) = 2048\)</span>：每行自己的输入输出封顶。</p>
+<p>口诀：权重分摊给更多行，自己的输入输出摊不掉。</p>
+</details>
+<h3 id="i70-gpu-davinci">I70 · 加速器里谁算、谁搬、谁管同步？GPU 和昇腾 DaVinci 的分工差在哪？</h3>
+<p>来源：<a href="lessons/19-accelerator-basics.html">第 19 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>主机提交；搬移单元把数据从片外 → 共享缓存 → 局部缓冲；矩阵单元沿 K 维反复乘加，部分和留在片上；向量单元做 Softmax、激活。</p>
+<p>GPU：Tensor Core + L2/L1 硬件缓存，高性能路径显式用 shared memory / TMA。DaVinci：Cube / Vector / Scalar + MTE 按描述符在 GM、L1/UB、L0 间搬，软件更早要规划片上存储。</p>
+<p>口诀：办公室下单、叉车运料、机床加工、质检收尾。</p>
+</details>
+<h3 id="i71-60-s-40-s-2-4-tpu-v1">I71 · 矩阵 60 μs + 其余 40 μs，矩阵加速 2 倍、4 倍、无穷大各得多少？TPU v1 面积里缓冲占多少？</h3>
+<p>来源：<a href="lessons/19-accelerator-basics.html">第 19 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>70 / 55 / 40 μs，加速比 1.43 / 1.82 / 2.5（Amdahl 上限）。第一次翻倍省 30 μs，第二次只省 15 μs。</p>
+<p>TPU v1：数据缓冲约 37%、计算约 30%、控制约 2%：缓冲比计算还多，否则乘加器等数据。</p>
+<p>口诀：多摆炒锅少备菜台，备菜跟不上炒锅白搭。</p>
+</details>
+<h3 id="i72-qwen3-8b-8k-decode">I72 · 搬一个字节从近到远各多少能量？Qwen3-8B 单请求 8K decode 一步的能量怎么分？</h3>
+<p>来源：<a href="lessons/19-accelerator-basics.html">第 19 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>KB 级 SRAM 1.25、MB 级 SRAM 12.5、NVLink-C2C 10.4、HBM2 31.76、LPDDR 160 pJ/B；16 位乘加 0.75 pJ/FLOP。</p>
+<p>一步：读权重 0.481 J、KV 0.038 J、计算 0.015 J，合计 0.534 J，权重读取占 90%。batch <span class="arithmatex">\(M\)</span> 时每 token ≈ <span class="arithmatex">\(0.481/M + 0.053\)</span> J。</p>
+<p>口诀：搬得越远越费电，单请求九成电花在读权重。</p>
+</details>
+<h3 id="i73-hbm-h100-flop-b">I73 · HBM 一堆的带宽和容量怎么算？H100 的每 FLOP 能量预算 b 多少？超预算后频率怎么降？</h3>
+<p>来源：<a href="lessons/19-accelerator-basics.html">第 19 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p><span class="arithmatex">\(R_{\mathrm{stack}} = 1024r/8\)</span>，容量 = 层数 × 每层。H100：5 堆 × 1024 × 5.24 Gbit/s / 8 ≈ 3,350 GB/s。</p>
+<p><span class="arithmatex">\(b = (700 - 106)/989.4\text{T} \approx 0.60\)</span> pJ/FLOP。实际 <span class="arithmatex">\(e &gt; b\)</span>：电压不变频率 <span class="arithmatex">\(b/e\)</span>；电压随频率降 <span class="arithmatex">\((b/e)^{1/3}\)</span>。<span class="arithmatex">\(e/b = 1.5\)</span> 时 0.67 / 0.87。</p>
+<p>口诀：堆数定带宽，层数定容量，TDP 定能跑多快。</p>
+</details>
+<h3 id="i74-64-token-8-256">I74 · 矩阵单元为什么怕行数少？64 个 token 各选 8 个专家，均匀到 256 个专家时有效比例多少？</h3>
+<p>来源：<a href="lessons/20-compute-units.html">第 20 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>矩阵指令按固定块执行，不足补零：<span class="arithmatex">\(\eta = MNK / (\lceil M/m_t\rceil m_t \cdots)\)</span>。</p>
+<p>512 个有效行，均匀到 256 个专家每个 2 行，按 16 补齐执行 4,096 行，有效 12.5%；集中到 8 个专家 100%。多加乘加器同样加快补零的无用功。</p>
+<p>口诀：一锅只炒两个菜，十四个位子在空转。</p>
+</details>
+<h3 id="i75-softmax-rope-qwen3-8b-rope-token-flops">I75 · Softmax 和 RoPE 里，哪些能并行、哪些要一轮轮等？Qwen3-8B 一层 RoPE 每 token 多少 FLOPs？</h3>
+<p>来源：<a href="lessons/20-compute-units.html">第 20 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>逐元素（指数、旋转）可以并行；最大值和求和是归约，<span class="arithmatex">\(n=128\)</span> 要 <span class="arithmatex">\(\log_2 128 = 7\)</span> 轮。</p>
+<p>RoPE：<span class="arithmatex">\((32+8)\)</span> 头 × 64 对 = 2,560 对，每对 6 FLOPs → 15,360 FLOPs/token。cos/sin 可预算：1024 位置 × 128 × BF16 = 256 KiB。</p>
+<p>口诀：热身各自来，选冠军得一轮轮比。</p>
+</details>
+<h3 id="i76-4-1">I76 · 注意力流水的完成间隔 τ 怎么定？例 4-1 四种配置分别多少？</h3>
+<p>来源：<a href="lessons/20-compute-units.html">第 20 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p><span class="arithmatex">\(\tau \ge \max(T_{\mathrm{matrix}}, T_{\mathrm{smem}}, T_{\mathrm{exp}})\)</span>。B200 单 SM、128×128 块：矩阵 1024、共享内存 768、指数 1024 周期。</p>
+<p>原样 1024；矩阵 ×2 仍 1024；再指数 ×2 → 768（共享内存成瓶颈）；再共享内存 ×2 → 512。</p>
+<p>口诀：三道工序最慢的说了算，提一道瓶颈就挪一道。</p>
+</details>
+<h3 id="i77-40964096-4-bit-32-1-scale">I77 · 4096×4096 权重 4 bit、每 32 个共享 1 字节 scale 占多少？低精度有哪两条执行路径？</h3>
+<p>来源：<a href="lessons/20-compute-units.html">第 20 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p><span class="arithmatex">\(V_W = nb/8 + (n/g)s\)</span> = 8 + 0.5 = 8.5 MiB（BF16 的约 1/3.8）。</p>
+<p>先展开成 BF16 再 GEMM（要存高精度副本、有转换开销）；直接低精度指令 + 缩放（分组细就多次调用）。省下的读取时间大于转换时间才划算。</p>
+<p>口诀：缩印本搬着轻，读之前复印还是戴放大镜要算账。</p>
+</details>
+<h2 id="_15">加速器 · 存储与互联</h2>
+<h3 id="i78-mn128k64">I78 · m=n=128、k=64 的乘加块要多大片上缓冲？为什么数据大小、请求量和实际流量要分开算？</h3>
+<p>来源：<a href="lessons/21-memory-movement.html">第 21 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>BF16 输入 + 权重 32 KiB，FP32 累加器 64 KiB，一套 96 KiB；双缓冲 128 KiB。SM120 每 SM 100 KB：每组 32 KiB 驻留 3 组。</p>
+<p>四个输出块读同一份 32 KiB：请求 128 KiB，L2 命中后片外只 32 KiB，但 L2 仍要供 128 KiB。用 L2 请求量配 L2 带宽，用 DRAM 流量配片外带宽。</p>
+<p>口诀：工作台放两块板加成品，同一份料分开算数。</p>
+</details>
+<h3 id="i79-little-4-2-128-4096">I79 · Little 定律怎么限制有效带宽？例 4-2 里 128 个和 4,096 个在途事务各多快？</h3>
+<p>来源：<a href="lessons/21-memory-movement.html">第 21 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p><span class="arithmatex">\(R_{\mathrm{eff}} \le \min(R_{\mathrm{iface}}, N_o s / L)\)</span>，<span class="arithmatex">\(N_o \ge \lceil R L / s \rceil\)</span>。</p>
+<p>128 B、500 ns：4090 用满 1,008 GB/s 需 3,938 个。128 个 → 32.8 GB/s，读 1.125 GiB KV 36.9 ms；4,096 个 → 1.20 ms；换 5090 只到 1.15 ms（需 7,000 个，800 ns 时 11,200 个）。</p>
+<p>口诀：路上的车不够多，路再宽也跑不满。</p>
+</details>
+<h3 id="i80-4096-bf16-128128">I80 · 从行宽 4096 的 BF16 矩阵取 128×128，行步长和跨度多少？描述符描述什么？</h3>
+<p>来源：<a href="lessons/21-memory-movement.html">第 21 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p><span class="arithmatex">\(\mathrm{addr}(i,j) = \mathrm{base} + i s_r + j s_c\)</span>。有效 32 KiB，每行 256 B，行步长 8,192 B，跨度 <span class="arithmatex">\(127 \times 8192 + 256 = 1{,}040{,}640\)</span> B。</p>
+<p>描述符给起点、形状、步长，搬移单元（TMA、NDDMA）自己生成地址。分块方式决定同一份数据被请求几次。</p>
+<p>口诀：抄小表格，每行抄几格再翻过一大段。</p>
+</details>
+<h3 id="i81-b200-sm-14-2">I81 · 双缓冲的总时间怎么算？B200 单 SM 四块输入，1–4 个槽各多久？矩阵 ×2 呢？</h3>
+<p>来源：<a href="lessons/21-memory-movement.html">第 21 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p><span class="arithmatex">\(T_{\mathrm{pipe}} = t_l + t_c + (n-1)\max(t_l, t_c)\)</span>：8 块、2 / 1 μs → 串行 24、流水 17 μs。</p>
+<p>传输 64 + 等待 128、计算 128 tick：1280 / 768 / 704 / 704。矩阵 ×2：三槽 512，四槽才到 448。计算变快要更多槽。</p>
+<p>口诀：一个盆炒完才洗，盆够了灶台就不停。</p>
+</details>
+<h3 id="i82-sm-l2">I82 · 跨 SM 交接为什么只能经 L2？各种同步范围大约多久？</h3>
+<p>来源：<a href="lessons/21-memory-movement.html">第 21 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>寄存器、共享内存、L1 都是 SM 私有，簇外只能写 L2 → fence → 写标志，对方轮询再读。</p>
+<p>RTX PRO 6000：SM 内栅栏约 7 ns，簇内约 130 ns，经 L2 一对一约 370 ns，PDL kernel 边界约 366 ns，188 个 SM 汇合约 660 ns，汇合并送达数据约 1 μs。这是依赖本身的代价。</p>
+<p>口诀：同步圈子越大、走得越远，越贵。</p>
+</details>
+<h3 id="i83-die-b200-910c">I83 · 双 die 封装里计算放在哪有没有关系？B200 和 910C 各怎样？</h3>
+<p>来源：<a href="lessons/22-package-interconnect.html">第 22 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>看链路 / 本地带宽比。B200：NV-HBI 10 TB/s，本地 4 TB/s，比 2.5，读两侧各 32 GiB 都约 8.6 ms。910C：链路每方向 270 GB/s、本地 1.6 TB/s，比约 0.17；计算集中在 die 0 跨 die 读要约 127 ms，就地计算各 21.5 ms，链路只传 64 MiB（约 0.25 ms）。</p>
+<p>口诀：路比出货口宽在哪干都一样，路窄就在货边干。</p>
+</details>
+<h3 id="i84-rtx-4090-64-mib">I84 · RTX 4090 上传 64 MiB 和从显存读一次各多久？至少复用几次才不亏？</h3>
+<p>来源：<a href="lessons/22-package-interconnect.html">第 22 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>PCIe 4.0 x16 每方向 32 GB/s：约 2.1 ms；显存 1,008 GB/s：约 67 μs，差 31.5 倍。复用 <span class="arithmatex">\(R \ge 32\)</span> 次后每次分摊的上传不超过一次显存读取；<span class="arithmatex">\(R = 100\)</span> 约 21 μs。权重常驻、复制和计算重叠；统一内存是同步后使用。</p>
+<p>口诀：外地进货慢，一批货用够三十多次才不亏。</p>
+</details>
+<h3 id="i85">I85 · 卡间传输时间怎么算？转折点在哪？小数据和大数据各该优化什么？</h3>
+<p>来源：<a href="lessons/22-package-interconnect.html">第 22 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p><span class="arithmatex">\(T = \alpha + V/R\)</span>。α = 2 μs：8 KiB 在 A100 / H100 是 2.03 / 2.02 μs；2 MiB 是 8.99 / 6.66 μs。</p>
+<p><span class="arithmatex">\(V^* = \alpha R\)</span> = 900,000 B ≈ 879 KiB（H100）。小于它：合并、减少轮数、降 α；大于它：减字节、提带宽。链路越快转折点越大。</p>
+<p>口诀：快递先等取件再按重量走，明信片换快车没用。</p>
+</details>
+<h2 id="_16">加速器 · 演进与选择</h2>
+<h3 id="i86-v100-tensor-core-4096-1">I86 · V100 上 Tensor Core 对 4,096 行和 1 行的投影各有多大用？</h3>
+<p>来源：<a href="lessons/23-architecture-evolution.html">第 23 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>4,096 行：普通 FP32 8.75 ms → Tensor Core 1.10 ms，读写 0.112 ms，计算主导，约 1/8。</p>
+<p>1 行：2.14 μs → 0.268 μs，但读 32 MiB 权重要 37.3 μs，两条路径都在等读取。专用矩阵单元只缩短计算。</p>
+<p>口诀：灶快只帮大锅菜，一份菜还得跑仓库。</p>
+</details>
+<h3 id="i87-bf16-mx-4090-bf16-5090-mxfp4">I87 · BF16 和 MX 格式各换来了什么？4090 BF16 → 5090 MXFP4 读同一权重快多少，拆成哪两部分？</h3>
+<p>来源：<a href="lessons/23-architecture-evolution.html">第 23 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>BF16：同 2 字节，8 位指数，最小正规数约 <span class="arithmatex">\(1.18 \times 10^{-38}\)</span>（FP16 约 <span class="arithmatex">\(6.1 \times 10^{-5}\)</span>），换范围不省字节。</p>
+<p>MX：每 32 值 1 字节 scale，MXFP8 16.5、MXFP4 8.5 MiB。33.29 → 18.72 → 4.97 μs，共 6.69 倍 = 带宽 1.78 × 字节 3.76。</p>
+<p>口诀：小字号省纸，三十二字配个放大镜。</p>
+</details>
+<h3 id="i88-950-cv">I88 · 昇腾注意力块里，矩阵—向量交接为什么成了瓶颈？950 的 CV 直通省了什么？</h3>
+<p>来源：<a href="lessons/23-architecture-evolution.html">第 23 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>128×128 块 QK + PV 在 Cube 上约 1.024 μs；分数和概率各 64 KiB（FP32）经外层接口写读共 256 KiB，按每核 94 GB/s 要 2.79 μs，比矩阵还长。</p>
+<p>CV 直通：L1 ↔ UB 直接传 128 KiB，1.024 μs 内只需 128 GB/s。卷积时代的 MTE img2col 则省掉 6.891 MiB 的 HBM 写读。</p>
+<p>口诀：工序之间开窗口递货，不搬回仓库。</p>
+</details>
+<h3 id="i89-qwen3-235b-a22b-4-bit-mac">I89 · 统一内存的容量和带宽各决定什么？Qwen3-235B-A22B 4-bit 在 Mac 上怎么算？</h3>
+<p>来源：<a href="lessons/23-architecture-evolution.html">第 23 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>容量决定能不能放（M3 Ultra 256 → 512 GB，带宽都 819 GB/s，时间不变）；带宽决定每步多快。</p>
+<p>235B 4-bit：常驻约 123.1 GB，单请求合计约 126.9 GB，128 GB 机器放不下。每步只读选中专家约 13.697 GB，M3 Ultra 约 16.72 ms。八请求集中 / 分散路由 24.7 / 76.0 GB → 265 / 86 token/s。</p>
+<p>口诀：仓库大能多放，出货口宽才出得快。</p>
+</details>
+<h3 id="i90-groq-220-mib-sramqwen3-8b-kv">I90 · Groq 每颗 220 MiB SRAM，Qwen3-8B 的权重和 KV 各要多少颗？说明什么？</h3>
+<p>来源：<a href="lessons/23-architecture-evolution.html">第 23 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>BF16 权重 72 颗；一条 8K 请求 KV（1,152 MiB）6 颗，8 条 42 颗，8 条 32K 168 颗。</p>
+<p>权重没变，涨的是可写状态；分布式片上存储不能互借，芯片多了 KV 还要跨芯片汇集。</p>
+<p>口诀：机床旁货架不能互借，作业本越写越厚。</p>
+</details>
+<h3 id="i91-romhbm-batch">I91 · 权重固定放 ROM，HBM 读取缩小几倍？交点 batch 在哪？</h3>
+<p>来源：<a href="lessons/23-architecture-evolution.html">第 23 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p><span class="arithmatex">\(S = 1 + W/(BK)\)</span>，<span class="arithmatex">\(W = 15.1\)</span>、<span class="arithmatex">\(K = 1.21\)</span> GB：B=1 约 13.5 倍，B=16 约 1.8 倍。交点 <span class="arithmatex">\(B = W/K \approx 12.5\)</span>，从 13 起 KV 多于权重；32K 时约 3.1。</p>
+<p>两接口并行 <span class="arithmatex">\(t \ge \max(W/\beta_{\mathrm{ROM}}, BK/\beta_{\mathrm{HBM}})\)</span>；10,000 token/s 时读 1.21 GB KV 要 12.1 TB/s。</p>
+<p>口诀：书印在墙上，人一多书包照样重。</p>
+</details>
+<h3 id="i92-20-s-11-s">I92 · 执行时间模型的三条关系是什么？两阶段例子为什么是 20 μs 而不是 11 μs？</h3>
+<p>来源：<a href="lessons/24-choose-accelerator.html">第 24 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>同一资源相加 <span class="arithmatex">\(T_r = \sum w/p\)</span>；不同资源取最大 <span class="arithmatex">\(T \ge \max_r T_r\)</span>；阶段依赖串联 <span class="arithmatex">\(T = \sum_{\text{阶段}} \max_r\)</span>。</p>
+<p>阶段 1 矩阵 10、内存 1；阶段 2 矩阵 1、内存 10：10 + 10 = 20 μs。只看合计各 11 μs，少算 9 μs。另外速率要按精度选：4090 FP16 累加 330 vs FP32 累加 165 TFLOP/s。</p>
+<p>口诀：同灶相加，灶和烤箱取最大，汤等肉就串着来。</p>
+</details>
+<h3 id="i93-rtx-4090-q">I93 · RTX 4090 上 Q 投影的计算 / 读写转折行数怎么求？</h3>
+<p>来源：<a href="lessons/24-choose-accelerator.html">第 24 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p><span class="arithmatex">\(I^* = P/R = 165.2/1.008 \approx 164\)</span> FLOPs/B；令 <span class="arithmatex">\(I(M) = Md/(d + 2M) = I^*\)</span>：<span class="arithmatex">\(M^* = I^* d/(d - 2I^*) \approx 178.1\)</span>，179 行起计算更长。</p>
+<p><span class="arithmatex">\(M=1\)</span>：0.20 vs 33.3 μs；<span class="arithmatex">\(M=256\)</span>：52 vs 37.4 μs。低于转折点看 MBU，高于看 MFU。</p>
+<p>口诀：斜线是带宽，横线是算力，交点就是转折行。</p>
+</details>
+<h3 id="i94-qwen3-8b-decode-prefill-30904090a100h100">I94 · 同一 Qwen3-8B，换卡时 decode 和 prefill 各看什么？3090→4090、A100→H100 各快多少？</h3>
+<p>来源：<a href="lessons/24-choose-accelerator.html">第 24 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>decode 每步读 16.345 GB，看带宽；4K prefill 61.85 TFLOPs，看矩阵速率。</p>
+<p>3090→4090：decode −7.1%，prefill −57.0%。A100→H100：−39.1% / −68.5%；H100→H200 只快 decode。4090 / 5090 / M3 Ultra 读取上限 61.7 / 109.6 / 50.1 token/s。先按容量筛：8 条 8K 约 28.2 GB 就超出 24 GB 卡。</p>
+<p>口诀：堵车看起步（带宽），长途看马力（矩阵）。</p>
+</details>
+<h3 id="i95-vllm-decode-2583-ms-vs-912-ms">I95 · vLLM 单请求 decode 实测 25.83 ms vs 下界 9.12 ms，差距在哪？怎么拆？</h3>
+<p>来源：<a href="lessons/24-choose-accelerator.html">第 24 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p>MBU 35.3%；2K 上下文少读 0.9 GB 却不变快，batch 64 时 MBU 回到 65%：batch 1 时主要是固定工作（逐个启动 kernel、向量、采样、同步），靠融合和少启动来减。</p>
+<p>拆分：<span class="arithmatex">\(S/T = (S/A)(A/T)\)</span>，工作时快不快 × 有多少时间在工作。同是 40%：等太久就补重叠，干得慢就改粒度和访问。</p>
+<p>口诀：导航不准先改路，再数红灯。</p>
+</details>
+<h3 id="i96-4-3">I96 · 两台机器每任务谁更便宜怎么判？专用化例 4-3 为什么一年回不了本？</h3>
+<p>来源：<a href="lessons/24-choose-accelerator.html">第 24 章</a> · 加入 2026-11-24 · 复习记录：</p>
+<details>
+<summary>答案</summary>
+<p><span class="arithmatex">\(K_A &lt; K_B \iff c_A/c_B &lt; t_B/t_A\)</span>；功率代替小时成本就比能耗（4090 每步 7.30 J，5090 5.24 J）。</p>
+<p><span class="arithmatex">\(V^* = F_0/\Delta c\)</span> = 2,000 万 ÷ 0.5 美元/百万 = 40 万亿 token；100 台一年产出 15.8 万亿（39%），至少 254 台；寿命减半或利用率减半要 508 台。</p>
+<p>口诀：贵车快一倍就不贵，专车要跑够趟数。</p>
+</details>
+</main>
+<footer>来自个人学习仓库的对话讲义，含练习作答记录。源码：<a href="https://github.com/wikieden/ai-infra-from-constraints">github.com/wikieden/ai-infra-from-constraints</a>。更多讲义书：<a href="https://wikieden.github.io/ai-books/">Physical AI 0-1-♾️（合集）</a></footer>
+<script>(function(){var d=document.documentElement,K=["s","m","l","xl"];
+function save(k,v){try{v?localStorage.setItem(k,v):localStorage.removeItem(k)}catch(e){}}
+var s=document.getElementById("ab-theme");if(s){s.value=d.dataset.theme||"";s.onchange=function(){if(s.value)d.dataset.theme=s.value;else delete d.dataset.theme;save("ab-theme",s.value)}}
+document.querySelectorAll("[data-fs-step]").forEach(function(b){b.onclick=function(){var i=K.indexOf(d.dataset.fs||"m")+(+b.dataset.fsStep);i=Math.max(0,Math.min(K.length-1,i));d.dataset.fs=K[i];save("ab-fs",K[i])}});
+var nb=document.getElementById("nav-toggle"),side=document.querySelector("nav.side");if(nb&&side){nb.onclick=function(){side.classList.toggle("open")}}
+var cur=side&&side.querySelector(".cur");if(cur)cur.scrollIntoView({block:"center"});
+})();</script>
+</body></html>

@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>推测解码</title><link rel="stylesheet" href="anim.css">
+<style>svg text.cap{font-size:15px;font-weight:500}svg text.num{font-size:19px;font-weight:600}</style></head>
+<body><main>
+<h1>第 12 章 · 推测解码：草稿被采用得越多，每个输出越便宜</h1>
+<p class="sub">配套讲义：<a href="../lessons/12-network-shape.html">第 12 章 · 网络形状：深宽、专家粒度、残差与多 token 预测</a>。普通 decode 每步 20 ms，一步出 1 个 token；推测解码一轮（草稿 + 验证）耗时 T，平均出 ḡ 个有效 token。目标：生成 12 个 token。</p>
+<div class="panel"><svg id="sv" viewBox="0 0 680 360"></svg></div>
+<div class="row"><button id="play">▶ 播放</button><button id="step">→ 单步</button><button id="reset">↺ 从头开始</button></div>
+<div class="row"><label for="t">自己拖：一轮耗时 T（ms）</label><input type="range" id="t" min="20" max="60" step="5" value="30"><span id="tv">30</span></div>
+<div class="row"><label for="g">每轮平均有效输出 ḡ</label><input type="range" id="g" min="1" max="4" step="0.5" value="2"><span id="gv">2</span></div>
+<p class="note">看点：① 上排每步 20 ms 出 1 个；② 下排每轮 T ms 出 ḡ 个（绿），草稿里没通过的作废；③ 每输出分摊 = T / ḡ；④ ḡ > T / 20 才比普通 decode 快。播放时 T = 30，ḡ 从 1 涨到 3。</p>
+</main>
+<script src="anim.js"></script>
+<script>
+const sv=$('sv');const GS=[1,1.5,2,3];const FR=[];GS.forEach(g=>{FR.push({T:30,g});FR.push({T:30,g})});
+let k=0,custom=null;
+function draw(){
+  clear(sv);const {T,g}=custom||FR[k];const n=12,tn=20*n,ts=T*n/g,maxT=Math.max(tn,ts,1),sc=510/maxT;
+  txt(`T = ${T} ms，ḡ = ${g}：每输出 ${(T/g).toFixed(1)} ms，${T/g<20?'比普通 decode 快':(T/g>20?'比普通 decode 慢':'打平')}`,{x:340,y:28,'text-anchor':'middle',class:'cap'},sv);
+  txt('普通 decode',{x:20,y:74,class:'m'},sv);
+  for(let i=0;i<n;i++)el('rect',{x:100+i*20*sc,y:60,width:20*sc-2,height:22,rx:3,fill:'var(--accent)',opacity:.7},sv);
+  txt(`${tn} ms`,{x:104+tn*sc,y:76,class:'m'},sv);
+  txt('推测解码',{x:20,y:144,class:'m'},sv);
+  let made=0,r=0;while(made<n){const x=100+r*T*sc,good=Math.min(g,n-made),w=T*sc-3;
+    el('rect',{x,y:130,width:w,height:22,rx:3,fill:'var(--line)',opacity:.6},sv);
+    el('rect',{x,y:130,width:w*Math.min(1,good/Math.max(g,1)),height:22,rx:3,fill:'var(--good)',opacity:.8},sv);
+    txt(String(+good.toFixed(1)),{x:x+w/2,y:146,'text-anchor':'middle',class:'m'},sv);made+=g;r++}
+  txt(`${ts.toFixed(0)} ms`,{x:104+ts*sc,y:146,class:'m'},sv);
+  [['普通：每输出','20 ms'],['推测：每输出',(T/g).toFixed(1)+' ms'],['打平点 ḡ = T/20',(T/20).toFixed(2)]].forEach(([a,b],i)=>{
+    const x=30+i*210;el('rect',{x,y:220,width:195,height:72,rx:8,fill:'none',stroke:'var(--line)'},sv);txt(a,{x:x+10,y:242,class:'m'},sv);txt(b,{x:x+10,y:276,class:'num'},sv)});
+}
+function reset(){k=0;custom=null;draw()}
+function next(){if(custom!==null){custom=null;draw();return true}if(k>=FR.length-1)return false;k++;draw();return true}
+function fs(){ANIM.stop();custom={T:+$('t').value,g:+$('g').value};$('tv').textContent=custom.T;$('gv').textContent=custom.g;draw()}
+$('t').oninput=fs;$('g').oninput=fs;
+setupPlayer({captureSeed:1,reset,next},1500);
+</script><a href="https://wikieden.github.io/ai-books/" style="position:fixed;right:12px;bottom:12px;z-index:99;padding:4px 10px;border-radius:14px;background:rgba(127,127,127,.18);color:inherit;font:13px/1.6 system-ui,sans-serif;text-decoration:none">← 全部讲义书</a>
+</body></html>

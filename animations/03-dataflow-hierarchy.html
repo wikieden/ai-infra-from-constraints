@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>分块让远处读取降到 1/t</title><link rel="stylesheet" href="anim.css">
+<style>svg text.big{font-size:15px}svg text.cap{font-size:15px;font-weight:500}svg text.num{font-size:20px;font-weight:600}</style></head>
+<body><main>
+<h1>第 03 章 · 分块：一个数从显存读一次，在近处被用 t 次</h1>
+<p class="sub">配套讲义：<a href="../lessons/03-dataflow-hierarchy.html">第 03 章 · 从存储程序到数据流执行：存储层次就像大楼里的厕所</a>。播放演示 n = 4、t = 2 的矩阵乘法 C = A × B；"远处"是显存，"近处"是 shared memory。</p>
+<div class="panel"><svg id="sv" viewBox="0 0 680 400"></svg></div>
+<div class="row"><button id="play">▶ 播放</button><button id="step">→ 单步</button><button id="reset">↺ 从头开始</button></div>
+<div class="row"><label for="t">自己拖：tile 边长 t（矩阵边长固定 n = 8）</label><input type="range" id="t" min="0" max="3" step="1" value="1"><span id="tv">2</span></div>
+<p class="note">看点：① 每一帧，A 的一个块和 B 的一个块被搬进近处（远处读取 +2t²）；② 搬进来的每个数在近处被用 t 次，C 的块累加一次；③ 沿 K 方向滑 n/t 次，一个 C 块算完，再换下一个；④ 全部算完：远处读取 = 2n³/t。滑块：n = 8 时 t = 1、2、4、8，远处读取 1024 → 512 → 256 → 128，每翻一倍减半。</p>
+</main>
+<script src="anim.js"></script>
+<script>
+const sv=$('sv');const N=4,T=2,NB=N/T;
+// 播放序列：每个 C 块 (bi,bj) 沿 k 滑 NB 次
+const ST=[];for(let bi=0;bi<NB;bi++)for(let bj=0;bj<NB;bj++)for(let bk=0;bk<NB;bk++)ST.push({bi,bj,bk});
+let k=-1,custom=null;
+function grid(x,y,n,cell,hi,col,lab){for(let r=0;r<n;r++)for(let c=0;c<n;c++){const on=hi(r,c);
+  el('rect',{x:x+c*cell,y:y+r*cell,width:cell-3,height:cell-3,rx:3,fill:on?col:'none',stroke:on?col:'var(--line)',opacity:on?.75:1},sv)}
+  txt(lab,{x:x+n*cell/2,y:y+n*cell+18,'text-anchor':'middle',class:'m'},sv)}
+function counters(far,near,done){[['远处读取（显存）',far],['近处使用（shared）',near],['C 块完成',done]].forEach(([a,b],i)=>{
+  const x=30+i*210;el('rect',{x,y:320,width:190,height:56,rx:8,fill:'none',stroke:'var(--line)'},sv);txt(a,{x:x+10,y:340,class:'m'},sv);txt(String(b),{x:x+10,y:366,class:'num'},sv)})}
+function draw(){
+  clear(sv);
+  if(custom!==null){const t=custom,n=8,far=2*n**3/t;
+    txt(`n = 8，t = ${t}：远处读取 = 2n³ / t = ${far}`,{x:340,y:28,'text-anchor':'middle',class:'cap'},sv);
+    const cell=24;grid(40,60,n,cell,(r,c)=>r<t&&c<t,'var(--accent)','A 的一块');grid(250,60,n,cell,(r,c)=>r<t&&c<t,'var(--accent)','B 的一块');grid(460,60,n,cell,(r,c)=>r<t&&c<t,'var(--teal)','C 的一块');
+    txt(`每个搬进来的数在近处用 t = ${t} 次；近处使用总数始终是 2n³ = ${2*n**3}`,{x:340,y:290,'text-anchor':'middle',class:'m'},sv);
+    counters(far,2*n**3,`共 ${(n/t)**2} 块`);return}
+  if(k<0){txt('C = A × B，n = 4，t = 2：先什么都没搬',{x:340,y:28,'text-anchor':'middle',class:'cap'},sv);
+    const cell=40;grid(30,60,N,cell,()=>false,'','A');grid(250,60,N,cell,()=>false,'','B');grid(470,60,N,cell,()=>false,'','C');counters(0,0,`0 / ${NB*NB}`);return}
+  const s=ST[k],far=(k+1)*2*T*T,near=(k+1)*2*T*T*T,done=Math.floor((k+1)/NB);
+  txt(`C 块 (${s.bi},${s.bj})：沿 K 第 ${s.bk+1} / ${NB} 步，搬进 A、B 各一块（+${2*T*T}）`,{x:340,y:28,'text-anchor':'middle',class:'cap'},sv);
+  const cell=40;
+  grid(30,60,N,cell,(r,c)=>Math.floor(r/T)===s.bi&&Math.floor(c/T)===s.bk,'var(--accent)','A：本步搬进近处的块');
+  grid(250,60,N,cell,(r,c)=>Math.floor(r/T)===s.bk&&Math.floor(c/T)===s.bj,'var(--accent)','B：本步搬进近处的块');
+  grid(470,60,N,cell,(r,c)=>{const b=Math.floor(r/T)*NB+Math.floor(c/T),cur=s.bi*NB+s.bj;return b<cur||(b===cur)},'var(--teal)','C：已算 / 正在累加的块');
+  txt('每个搬进来的数在近处用 t = 2 次',{x:340,y:268,'text-anchor':'middle',class:'m'},sv);
+  if(k===ST.length-1)txt(`算完：远处读取 ${far} = 2n³/t；不分块要 ${2*N**3}`,{x:340,y:292,'text-anchor':'middle',class:'big'},sv).style.fill='var(--warm)';
+  counters(far,near,`${done} / ${NB*NB}`);
+}
+function reset(){k=-1;custom=null;draw()}
+function next(){if(custom!==null){custom=null;draw();return true}if(k>=ST.length-1)return false;k++;draw();return true}
+$('t').oninput=e=>{ANIM.stop();custom=[1,2,4,8][+e.target.value];$('tv').textContent=custom;draw()};
+setupPlayer({captureSeed:1,reset,next},1300);
+</script><a href="https://wikieden.github.io/ai-books/" style="position:fixed;right:12px;bottom:12px;z-index:99;padding:4px 10px;border-radius:14px;background:rgba(127,127,127,.18);color:inherit;font:13px/1.6 system-ui,sans-serif;text-decoration:none">← 全部讲义书</a>
+</body></html>

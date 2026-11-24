@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>音频缓冲</title><link rel="stylesheet" href="anim.css">
+<style>svg text.cap{font-size:15px;font-weight:500}svg text.num{font-size:19px;font-weight:600}</style></head>
+<body><main>
+<h1>第 16 章 · 音频缓冲：桶里有水就不断</h1>
+<p class="sub">配套讲义：<a href="../lessons/16-multimodal-realtime.html">第 16 章 · 多模态与实时交互：数据换形状，时间有死线（略讲）</a>。每块 20 ms 音频；第 i 块在 20(i+1) + 18 ms 到达（采集完 + 处理发送 13 ms + 传播 5 ms）。第三块的传播可以单独加长。</p>
+<div class="panel"><svg id="sv" viewBox="0 0 680 320"></svg></div>
+<div class="row"><button id="play">▶ 播放</button><button id="step">→ 单步</button><button id="reset">↺ 从头开始</button></div>
+<div class="row"><label for="buf">自己拖：初始缓冲（ms）</label><input type="range" id="buf" min="20" max="100" step="10" value="40"><span id="bufv">40</span></div><div class="row"><label for="late">第三块传播延迟（ms）</label><input type="range" id="late" min="5" max="90" step="5" value="50"><span id="latev">50</span></div>
+<p class="note">看点：① 上排圆点是到达时刻，下排色条是实际播放，红色是停顿；② 缓冲越大越晚开始，但越不容易断；③ 播放时先演 40 ms 缓冲（第三块 123 ms 才到，停顿 5 ms），再演 60 ms（不停顿、晚开始 20 ms）；④ 缓冲只能吸收偶尔的抖动，平均到达速度长期跟不上，再大也会耗尽。</p>
+</main>
+<script src="anim.js"></script>
+<script>
+const sv=$('sv');
+function box3(items,y){items.forEach(([a,b],i)=>{const x=20+i*(640/items.length);el('rect',{x,y,width:640/items.length-14,height:70,rx:8,fill:'none',stroke:'var(--line)'},sv);txt(a,{x:x+10,y:y+22,class:'m'},sv);txt(b,{x:x+10,y:y+54,class:'num'},sv)})}
+const F=[{buf:40,late:50},{buf:40,late:50},{buf:60,late:50},{buf:60,late:50}];let k=0,custom=null;
+function draw(){clear(sv);const {buf,late}=custom||F[k];const arr=[...Array(8)].map((_,i)=>20*(i+1)+13+(i===2?late:5));
+ let t=arr[0]+buf;const start=t;let stall=0;const plays=[[t,0]];for(let i=1;i<8;i++){t+=20;if(arr[i]>t){stall+=arr[i]-t;plays.push([t,arr[i]-t,'stall']);t=arr[i]}plays.push([t,i])}
+ const X=v=>40+v*2.1;txt(`缓冲 ${buf} ms：首播 ${start} ms，停顿 ${stall} ms`,{x:340,y:24,'text-anchor':'middle',class:'cap'},sv);
+ arr.forEach(a=>el('circle',{cx:X(a),cy:70,r:5,fill:'var(--accent)'},sv));txt('到达',{x:X(0),y:56,class:'m'},sv);
+ plays.forEach(p=>{if(p[2])el('rect',{x:X(p[0]),y:100,width:p[1]*2.1,height:30,fill:'var(--bad)',opacity:.6},sv);else{el('rect',{x:X(p[0]),y:100,width:20*2.1-2,height:30,rx:3,fill:'var(--good)',opacity:.65},sv);txt(String(p[1]+1),{x:X(p[0])+21,y:120,'text-anchor':'middle',class:'m'},sv)}});
+ for(let v=0;v<=300;v+=50)txt(v+'',{x:X(v),y:150,'text-anchor':'middle',class:'m'},sv);
+ box3([['首播时刻',start+' ms'],['总停顿',stall+' ms'],['每块数据','960 B']],200)}
+function reset(){k=0;custom=null;draw()}
+function next(){if(custom!==null){custom=null;draw();return true}if(k>=F.length-1)return false;k++;draw();return true}
+function fs(){ANIM.stop();custom={buf:+$('buf').value,late:+$('late').value};$('bufv').textContent=custom.buf;$('latev').textContent=custom.late;draw()}
+$('buf').oninput=fs;$('late').oninput=fs;
+setupPlayer({captureSeed:1,reset,next},1500);
+</script><a href="https://wikieden.github.io/ai-books/" style="position:fixed;right:12px;bottom:12px;z-index:99;padding:4px 10px;border-radius:14px;background:rgba(127,127,127,.18);color:inherit;font:13px/1.6 system-ui,sans-serif;text-decoration:none">← 全部讲义书</a>
+</body></html>

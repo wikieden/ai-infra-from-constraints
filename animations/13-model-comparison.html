@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>一张卡能同时放几条请求</title><link rel="stylesheet" href="anim.css">
+<style>svg text.cap{font-size:15px;font-weight:500}svg text.num{font-size:19px;font-weight:600}</style></head>
+<body><main>
+<h1>第 13 章 · 一张卡能同时放几条请求</h1>
+<p class="sub">配套讲义：<a href="../lessons/13-model-comparison.html">第 13 章 · 整个模型的资源需求与比较：存多少、算多少、能放几条请求</a>。RTX 4090（24 GB）跑 Qwen3-8B BF16（权重 16,381,470,720 字节）；每请求 KV = 144 KiB × 上下文长度。</p>
+<div class="panel"><svg id="sv" viewBox="0 0 680 320"></svg></div>
+<div class="row"><button id="play">▶ 播放</button><button id="step">→ 单步</button><button id="reset">↺ 从头开始</button></div>
+<div class="row"><label for="c">自己拖：每请求上下文</label><input type="range" id="c" min="0" max="6" step="1" value="3"><span id="cv">8K</span></div>
+<div class="row"><label for="w">工作区（GiB）</label><input type="range" id="w" min="1" max="6" step="1" value="2"><span id="wv">2</span></div>
+<p class="note">看点：① 长条是 24 GB：先放权重（蓝），再放工作区（灰），剩下的每格放一条请求的 KV（橙）；② 放不下的半格画成虚线；③ B_max = ⌊(24 GB − 权重 − 工作区) ÷ 每请求 KV⌋；④ 播放时上下文 4K → 8K → 16K → 32K，请求数 9 → 4 → 2 → 1。</p>
+</main>
+<script src="anim.js"></script>
+<script>
+const sv=$('sv');const CS=[1024,2048,4096,8192,16384,32768,65536];const W=16381470720,GIB=2**30;
+const FR=[];[4096,8192,16384,32768].forEach(c=>{FR.push({c,w:2});FR.push({c,w:2})});
+let k=0,custom=null;
+function draw(){
+  clear(sv);const {c,w}=custom||FR[k];const kv=147456*c,free=24e9-W-w*GIB,n=Math.max(0,Math.floor(free/kv));
+  const lab=c>=1024?(c/1024)+'K':c;
+  txt(`${lab} 上下文：每请求 KV ${(kv/GIB).toFixed(3)} GiB → 最多 ${n} 条`,{x:340,y:28,'text-anchor':'middle',class:'cap'},sv);
+  const x0=30,sc=620/24e9;
+  el('rect',{x:x0,y:70,width:W*sc,height:56,fill:'var(--accent)',opacity:.55},sv);txt('权重 16.38 GB',{x:x0+W*sc/2,y:103,'text-anchor':'middle'},sv);
+  let x=x0+W*sc;el('rect',{x,y:70,width:w*GIB*sc,height:56,fill:'var(--muted)',opacity:.35},sv);x+=w*GIB*sc;
+  for(let i=0;i<n;i++){el('rect',{x:x+1,y:72,width:kv*sc-2,height:52,rx:2,fill:'var(--warm)',opacity:.7},sv);x+=kv*sc}
+  const rest=x0+620-x;if(rest>0)el('rect',{x:x+1,y:72,width:Math.min(kv*sc,rest)-2,height:52,rx:2,fill:'none',stroke:'var(--warm)','stroke-dasharray':'4 3'},sv);
+  el('rect',{x:x0,y:70,width:620,height:56,fill:'none',stroke:'var(--text)','stroke-width':1.5},sv);
+  txt('24 GB',{x:x0+620,y:62,'text-anchor':'end',class:'m'},sv);
+  [['剩余空间',(free/1e9).toFixed(2)+' GB'],['每请求 KV',(kv/1e9).toFixed(2)+' GB'],['B_max',String(n)]].forEach(([a,b],i)=>{
+    const xx=30+i*210;el('rect',{x:xx,y:170,width:195,height:72,rx:8,fill:'none',stroke:'var(--line)'},sv);txt(a,{x:xx+10,y:192,class:'m'},sv);txt(b,{x:xx+10,y:226,class:'num'},sv)});
+}
+function reset(){k=0;custom=null;draw()}
+function next(){if(custom!==null){custom=null;draw();return true}if(k>=FR.length-1)return false;k++;draw();return true}
+function fs(){ANIM.stop();const c=CS[+$('c').value],w=+$('w').value;$('cv').textContent=c>=1024?(c/1024)+'K':c;$('wv').textContent=w;custom={c,w};draw()}
+$('c').oninput=fs;$('w').oninput=fs;
+setupPlayer({captureSeed:1,reset,next},1500);
+</script><a href="https://wikieden.github.io/ai-books/" style="position:fixed;right:12px;bottom:12px;z-index:99;padding:4px 10px;border-radius:14px;background:rgba(127,127,127,.18);color:inherit;font:13px/1.6 system-ui,sans-serif;text-decoration:none">← 全部讲义书</a>
+</body></html>

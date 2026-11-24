@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="780" height="330" viewBox="0 0 780 330">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="16.0" y="26.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="17" fill="#1f2937" text-anchor="start" font-weight="bold">从行宽 4096 的矩阵取 128×128：每行只读前 256 字节，再跳到下一行</text>
+<text x="16.0" y="320.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">BF16。每行有效 256 B，行步长 8,192 B；首行起点到末行终点跨度 1,040,640 B。图里只画 6 行，比例示意。</text>
+<rect x="60.0" y="60.0" width="680.0" height="22.0" rx="2" fill="#f3f4f6" stroke="#d1d5db" stroke-width="1" opacity="1"/>
+<rect x="60.0" y="60.0" width="85.0" height="22.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<text x="52.0" y="76.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#6b7280" text-anchor="end" font-weight="normal">行 0</text>
+<rect x="60.0" y="92.0" width="680.0" height="22.0" rx="2" fill="#f3f4f6" stroke="#d1d5db" stroke-width="1" opacity="1"/>
+<rect x="60.0" y="92.0" width="85.0" height="22.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<text x="52.0" y="108.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#6b7280" text-anchor="end" font-weight="normal">行 1</text>
+<rect x="60.0" y="124.0" width="680.0" height="22.0" rx="2" fill="#f3f4f6" stroke="#d1d5db" stroke-width="1" opacity="1"/>
+<rect x="60.0" y="124.0" width="85.0" height="22.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<text x="52.0" y="140.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#6b7280" text-anchor="end" font-weight="normal">行 2</text>
+<rect x="60.0" y="156.0" width="680.0" height="22.0" rx="2" fill="#f3f4f6" stroke="#d1d5db" stroke-width="1" opacity="1"/>
+<rect x="60.0" y="156.0" width="85.0" height="22.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<text x="52.0" y="172.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#6b7280" text-anchor="end" font-weight="normal">行 3</text>
+<rect x="60.0" y="188.0" width="680.0" height="22.0" rx="2" fill="#f3f4f6" stroke="#d1d5db" stroke-width="1" opacity="1"/>
+<rect x="60.0" y="188.0" width="85.0" height="22.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<text x="52.0" y="204.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#6b7280" text-anchor="end" font-weight="normal">行 4</text>
+<rect x="60.0" y="220.0" width="680.0" height="22.0" rx="2" fill="#f3f4f6" stroke="#d1d5db" stroke-width="1" opacity="1"/>
+<rect x="60.0" y="220.0" width="85.0" height="22.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<text x="52.0" y="236.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#6b7280" text-anchor="end" font-weight="normal">行 5</text>
+<line x1="151.0" y1="82.0" x2="66.0" y2="92.0" stroke="#ea580c" stroke-width="1.6"/>
+<polygon points="66.0,92.0 73.4,86.9 74.4,95.3" fill="#ea580c" stroke="#ea580c" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<text x="280.0" y="290.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="middle" font-weight="normal">蓝 = 有效 256 B（放大 4 倍画）· 灰 = 跳过</text>
+<line x1="60.0" y1="254.0" x2="740.0" y2="254.0" stroke="#7c3aed" stroke-width="1.6"/>
+<polygon points="740.0,254.0 732.1,258.2 732.1,249.8" fill="#7c3aed" stroke="#7c3aed" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<polygon points="60.0,254.0 67.9,249.8 67.9,258.2" fill="#7c3aed" stroke="#7c3aed" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<rect x="352.1" y="237.5" width="95.9" height="16.5" rx="3" fill="#ffffff" stroke="none" stroke-width="1.4" opacity="0.9"/>
+<text x="400.0" y="249.5" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#7c3aed" text-anchor="middle" font-weight="normal">行步长 8,192 B</text>
+</svg>

@@ -1,0 +1,1061 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>从约束推导 AI Infra · 讲义目录 · 从约束推导 AI Infra</title>
+<script>(function(){try{var d=document.documentElement,t=localStorage.getItem("ab-theme"),f=localStorage.getItem("ab-fs");if(t)d.dataset.theme=t;if(f)d.dataset.fs=f}catch(e){}})();</script>
+<style>:root{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa;--fs:16px}
+@media (prefers-color-scheme:dark){:root:not([data-theme]){--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}}
+:root[data-theme="light"]{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa}
+:root[data-theme="dark"]{--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}
+:root[data-theme="sepia"]{--bg:#f6efe1;--fg:#3b3127;--mute:#7a6a58;--line:#e2d6bf;--card:#fbf6ec;--acc:#a0522d;--code:#ece2cd;--quote:#efe5d2}
+:root[data-theme="green"]{--bg:#e3eddf;--fg:#22301f;--mute:#566650;--line:#c9d8c3;--card:#eef5eb;--acc:#2e7d4f;--code:#d6e4d0;--quote:#dae7d5}
+:root[data-theme="navy"]{--bg:#0f1a2b;--fg:#dde6f3;--mute:#93a4bd;--line:#23324a;--card:#15233a;--acc:#6cc4ff;--code:#1a2a44;--quote:#16243b}
+:root[data-fs="s"]{--fs:15px}
+:root[data-fs="m"]{--fs:16px}
+:root[data-fs="l"]{--fs:18px}
+:root[data-fs="xl"]{--fs:20px}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:var(--fs)/1.75 -apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Helvetica Neue",sans-serif}
+a{color:var(--acc)}
+header.top{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+header.top .in{max-width:860px;margin:0 auto;padding:10px 16px;display:flex;gap:6px 16px;align-items:center;flex-wrap:wrap;font-size:14px}
+header.top .brand{font-weight:600;color:var(--fg);text-decoration:none;margin-right:auto}
+header.top a{text-decoration:none}
+.prefs{display:inline-flex;gap:4px;align-items:center}
+.prefs button,.prefs select,#nav-toggle{font:inherit;font-size:13px;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:2px 8px;cursor:pointer}
+main{max-width:860px;margin:0 auto;padding:24px 16px 72px;overflow-wrap:anywhere}
+h1{font-size:1.75em;line-height:1.35;margin:8px 0 16px} h2{font-size:1.375em;margin:40px 0 12px;padding-top:8px;border-top:1px solid var(--line)} h3{font-size:1.125em;margin:28px 0 8px}
+.layout{display:grid;grid-template-columns:260px minmax(0,1fr);max-width:1180px;margin:0 auto}
+.layout main{margin:0;max-width:880px}
+nav.side{position:sticky;top:49px;align-self:start;max-height:calc(100vh - 49px);overflow-y:auto;padding:20px 8px 40px 16px;border-right:1px solid var(--line);font-size:14px;line-height:1.5}
+nav.side .h{font-weight:600;color:var(--mute);margin:4px 8px 8px;font-size:13px}
+nav.side a{display:block;padding:5px 8px;border-radius:6px;color:var(--fg);text-decoration:none}
+nav.side a:hover{background:var(--code)} nav.side a.cur{background:var(--quote);color:var(--acc);font-weight:600}
+nav.side a .n{color:var(--mute);margin-right:6px;font-variant-numeric:tabular-nums}
+#nav-toggle{display:none}
+@media (max-width:960px){.layout{display:block} nav.side{display:none;position:fixed;z-index:6;top:49px;left:0;bottom:0;width:min(300px,85vw);max-height:none;background:var(--bg);box-shadow:2px 0 12px rgba(0,0,0,.2)} nav.side.open{display:block} #nav-toggle{display:inline-block}}
+.run{display:flex;flex-wrap:wrap;align-items:center;gap:4px 0;margin:4px 0 12px}
+.run details{flex-basis:100%;margin:6px 0 0;font-size:.94em}
+img{max-width:100%;height:auto;border-radius:8px;border:1px solid var(--line);background:#fff}
+blockquote{margin:16px 0;padding:10px 16px;background:var(--quote);border-left:3px solid var(--acc);border-radius:4px;color:var(--mute)}
+blockquote p{margin:4px 0}
+code{background:var(--code);padding:1px 5px;border-radius:4px;font-size:.9em}
+pre{background:var(--code);padding:12px 14px;border-radius:8px;overflow-x:auto} pre code{padding:0;background:none}
+table{border-collapse:collapse;display:block;overflow-x:auto;max-width:100%;margin:12px 0;font-size:.94em}
+th,td{border:1px solid var(--line);padding:6px 10px;vertical-align:top} th{background:var(--code)}
+details{border:1px solid var(--line);border-radius:8px;padding:6px 12px;margin:8px 0;background:var(--card)}
+details[open]{padding-bottom:10px} summary{cursor:pointer;color:var(--acc);font-weight:500}
+mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%}
+.btn{display:inline-block;margin:4px 8px 4px 0;padding:6px 14px;border:1px solid var(--acc);border-radius:999px;text-decoration:none;font-size:14px}
+.pager{display:flex;justify-content:space-between;gap:12px;margin-top:48px;padding-top:16px;border-top:1px solid var(--line);font-size:15px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin:16px 0}
+.card{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;color:inherit;text-decoration:none}
+.card:hover{border-color:var(--acc)} .card img{border:0;border-bottom:1px solid var(--line);border-radius:0;aspect-ratio:16/10;object-fit:contain;width:100%}
+.card .no{color:var(--mute);font-size:13px;padding:8px 12px 0} .card .t{padding:0 12px 12px;font-weight:500;line-height:1.5}
+.lead{font-size:1.06em;color:var(--mute)}
+footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-size:13px}
+</style>
+<script>window.MathJax={tex:{inlineMath:[["\\(","\\)"]],displayMath:[["\\[","\\]"],["$$","$$"]],processEscapes:true,processEnvironments:true}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"></script>
+</head><body>
+<header class="top"><div class="in">
+<button type="button" id="nav-toggle" aria-label="打开章节列表">☰ 章节</button><a class="brand" href="../index.html">从约束推导 AI Infra</a>
+<a href="../lessons/index.html">讲义目录</a>
+<a href="../animations/index.html">动画</a>
+<a href="../review.html">复习卡片</a>
+<a href="../lessons/appendix-glossary.html">缩写表</a>
+<a href="https://wikieden.github.io/ai-books/glossary.html">全局词汇</a>
+<a href="https://wikieden.github.io/ai-books/">← 全部讲义书</a>
+<span class="prefs" title="字号与主题"><button type="button" data-fs-step="-1" aria-label="字号变小">A−</button><button type="button" data-fs-step="1" aria-label="字号变大">A+</button><select id="ab-theme" aria-label="主题色"><option value="">跟随系统</option><option value="light">浅色</option><option value="dark">深色</option><option value="sepia">米黄护眼</option><option value="green">豆沙绿护眼</option><option value="navy">夜蓝</option></select></span>
+</div></header>
+<div class="layout"><nav class="side" aria-label="章节"><div class="h">从约束推导 AI Infra</div><a href="index.html" class="cur">讲义目录</a><a href="01-six-layers.html"><span class="n">1</span>一次请求走过的六层（进行中）</a><a href="02-request-lifecycle.html"><span class="n">2</span>一次生成请求的处理过程：权重加载一次，每个 token 都要再读一遍</a><a href="03-dataflow-hierarchy.html"><span class="n">3</span>从存储程序到数据流执行：存储层次就像大楼里的厕所</a><a href="04-key-numbers.html"><span class="n">4</span>系统设计的关键数字：容量、算力、带宽、延迟</a><a href="05-estimate.html"><span class="n">5</span>用几个数字估算一次模型执行：算和读各要多久，实测为什么达不到</a><a href="06-architecture.html"><span class="n">6</span>需求如何推动架构：TPU、SmartNIC、Unified Bus</a><a href="07-compute-graph.html"><span class="n">7</span>计算图与张量结构：一个 token 经过一层要算多少</a><a href="08-generation-budget.html"><span class="n">8</span>自回归生成的资源账：存一次的、每步读的、用完就扔的</a><a href="09-kv-sharing.html"><span class="n">9</span>KV 怎么变小 ①：头共享与潜变量压缩</a><a href="10-kv-sparse-linear.html"><span class="n">10</span>KV 怎么变小 ②：窗口、稀疏、线性与混合注意力</a><a href="11-moe.html"><span class="n">11</span>MoE：专家路由与批内权重复用</a><a href="12-network-shape.html"><span class="n">12</span>网络形状：深宽、专家粒度、残差与多 token 预测</a><a href="13-model-comparison.html"><span class="n">13</span>整个模型的资源需求与比较：存多少、算多少、能放几条请求</a><a href="14-workload-arrival.html"><span class="n">14</span>从单次请求到持续到达的负载：什么时候来，比来多少更要紧</a><a href="15-agent-tasks.html"><span class="n">15</span>多轮交互与 Agent 任务：前缀、成功成本、关键路径</a><a href="16-multimodal-realtime.html"><span class="n">16</span>多模态与实时交互：数据换形状，时间有死线（略讲）</a><a href="17-training-rl.html"><span class="n">17</span>训练与强化学习的计算和状态：为什么训练要 6ND、要存 18 字节</a><a href="18-scaling-lifecycle.html"><span class="n">18</span>Scaling law 与全生命周期成本：训练多大、训练多久、服务多少次</a><a href="19-accelerator-basics.html"><span class="n">19</span>从矩阵乘法认识加速器：算多少、搬多少、耗多少电</a><a href="20-compute-units.html"><span class="n">20</span>计算单元：矩阵、向量、流水与低精度</a><a href="21-memory-movement.html"><span class="n">21</span>存储层次与数据搬移：放得下、取得到、来得及</a><a href="22-package-interconnect.html"><span class="n">22</span>多芯片封装与互联：计算放在哪，数据走哪条路</a><a href="23-architecture-evolution.html"><span class="n">23</span>架构演进与专用架构：每一代新增的东西，省掉了哪一笔</a><a href="24-choose-accelerator.html"><span class="n">24</span>根据架构选择加速器：先估下界，再找差距，最后算账</a><a href="appendix-glossary.html">附录 · 缩写与术语表</a><a href="appendix-tp-pp-cp.html">附录 · 补充资料：TP、PP、CP，一个模型沿三个方向切给多张卡</a></nav><main>
+<h1 id="ai-infra">从约束推导 AI Infra · 讲义目录</h1>
+<blockquote>
+<p>24 / 67 章已写（覆盖 AII 第 1–4 章）· 25 个动画（GIF + 可交互页面）· 84 张静态图 · 96 张复习卡片 · 主线《深入理解 AI Infra》（AII）12 章，AISPE 配读</p>
+</blockquote>
+<h2 id="_1">这本书讲什么</h2>
+<p>从一个"帮我找代码里的 bug"的请求讲起：它在系统里穿过哪几层、要存多少、读多少、算多少、在卡之间传多少，最后在哪块硬件上等。之后沿原书顺序，从模型架构、负载、单卡加速器和算子，一路讲到超节点、数据中心网络、推理与训练系统、资源调度和端边云。</p>
+<ul>
+<li><strong>适合谁</strong>：会一点 Transformer（知道 q、k、v 和 attention），对 GPU 和分布式系统没有基础也可以；用到的硬件、数学和其他书的概念，在那一章现场补，或链接到对应的书。</li>
+<li><strong>读完能做什么</strong>：拿到一个（模型、请求负载、硬件）组合，先用数量级估算定下显存、带宽、通信和卡数，再判断实测离物理极限差在哪一项（study-plan 的目标，对应里程碑 AI-M0–M11）。</li>
+<li><strong>怎么读</strong>：按章顺序读。每章先看讲解和动画，再自己做练习，最后用复习卡片隔几天考自己。</li>
+</ul>
+<p>全书反复回答五个问题：<strong>搬什么、搬多少、搬几次、经过哪里、谁在等待</strong>；主线是原书的一句话：<strong>数据搬移塑造了 AI Infra 的架构</strong>。</p>
+<h2 id="_2">讲解的特点</h2>
+<ul>
+<li><strong>一次一小步</strong>：每个概念按"白话类比 → 公式（每个符号说清楚怎么读）→ 小数字亲手算一遍"讲。</li>
+<li><strong>先算极限，再看差距</strong>：每个估算都先用峰值算力、带宽、容量算出下界，再和原书实测对比，分清差距来自模型漏项还是系统开销。</li>
+<li><strong>关键机制都有图和动画</strong>：结构和数据流画静态图，数字之间的关系画图表，要拖参数才看得出规律的做成可交互动画（batch、tile 边长、链路速率……）。</li>
+<li><strong>对照原文</strong>：讲到原文的地方标本地行号（如 AII §1.3 L274），数字都能在原书或它的计算脚本里查到；编的数会写明"编的"。</li>
+<li><strong>保留真实的学习过程</strong>：练习与作答记录里是学习时的原话、对错和点评。</li>
+<li><strong>术语不设门槛</strong>：缩写第一次出现就给英文全称并逐词解释，全书缩写见 <a href="../lessons/appendix-glossary.html">缩写与术语表</a>。</li>
+<li><strong>每章都有代码对照</strong>：<code>solutions/chapter-code/</code> 一章一个纯 Python 模块，配测试核对讲义里的数字和一本 notebook；只算讲过的例子，不提前给练习答案。</li>
+<li><strong>每章收尾有口诀</strong>：全部口诀汇总在本页末尾。</li>
+</ul>
+<h2 id="_3">示例动画</h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img alt="六层与 KV 缓存" src="../animations/01-six-layers.gif" /><br><strong>第 01 章 · 六层</strong>：一次请求从上往下穿过六层；KV 缓存像便签越积越厚<br><a href="../lessons/01-six-layers.html">讲义</a> · <a href="../animations/01-six-layers.html">▶ 交互</a></td>
+<td><img alt="一次生成请求" src="../animations/02-request-lifecycle.gif" /><br><strong>第 02 章 · 请求处理过程</strong>：路由到实例，prefill 一次、decode 一步步；权重加载 1 次、读 N 次<br><a href="../lessons/02-request-lifecycle.html">讲义</a> · <a href="../animations/02-request-lifecycle.html">▶ 交互</a></td>
+</tr>
+<tr>
+<td><img alt="分块" src="../animations/03-dataflow-hierarchy.gif" /><br><strong>第 03 章 · 分块</strong>：一个数从显存读一次，在近处被用 t 次<br><a href="../lessons/03-dataflow-hierarchy.html">讲义</a> · <a href="../animations/03-dataflow-hierarchy.html">▶ 交互</a></td>
+<td><img alt="Amdahl 定律" src="../animations/04-key-numbers.gif" /><br><strong>第 04 章 · Amdahl 定律</strong>：只加速一部分，整体最多快 1/(1-f)<br><a href="../lessons/04-key-numbers.html">讲义</a> · <a href="../animations/04-key-numbers.html">▶ 交互</a></td>
+</tr>
+<tr>
+<td><img alt="批内复用与转折点" src="../animations/05-estimate.gif" /><br><strong>第 05 章 · 批内复用</strong>：读权重不变、计算随 batch 增长，转折点 B* ≈ 148<br><a href="../lessons/05-estimate.html">讲义</a> · <a href="../animations/05-estimate.html">▶ 交互</a></td>
+<td><img alt="SmartNIC" src="../animations/06-architecture.gif" /><br><strong>第 06 章 · SmartNIC</strong>：网速越高，光转发要越多 CPU 核<br><a href="../lessons/06-architecture.html">讲义</a> · <a href="../animations/06-architecture.html">▶ 交互</a></td>
+</tr>
+</tbody>
+</table>
+<p>全部动画和本地打开方法见 <a href="../animations/index.html">animations/README.md</a>。</p>
+<h2 id="_4">其他入口</h2>
+<ul>
+<li>复习卡片：<a href="../review.html">../review.md</a>（说"复习"时按间隔挑到期的卡片）。</li>
+<li>缩写与术语表：<a href="../lessons/appendix-glossary.html">appendix-glossary.md</a>。</li>
+<li>代码对照：<code>solutions/chapter-code/</code>（每章模块、测试和 notebook）。</li>
+<li>学习计划与里程碑：../study-plan.md（阶段 A–F、AI-M0–M11、AI-G1–G3）。</li>
+<li>补充资料（对话里提前问到、属于后面章节的内容，讲到对应章时再并入正文）：</li>
+<li><a href="../lessons/appendix-tp-pp-cp.html">TP、PP、CP：一个模型沿三个方向切给多张卡</a>（AII §6.1.4、§6.2.2–§6.2.5；配动画）→ 讲到第 32、33 章时并入。</li>
+<li>原文：<code>materials/ai-infra-book/manuscripts/</code>（上游 clone）。行号以上游 <code>3bdcb4fc</code> 为准，<code>git pull</code> 后可能移动。</li>
+</ul>
+<h2 id="_5">全流程总览</h2>
+<pre><code>              一次推理请求                                    一次训练任务
+                   │                                              │
+  第 1 部分  六层、请求处理过程、数量级、估算方法（01–06）  ◀── 方法：先算极限，再看差距
+                   │                                              │
+  第 2 部分  模型架构：张量、KV 表示、MoE、全模型账（07–13）       │
+  第 3 部分  负载：请求分布、Agent、多模态、训练与 RL、预算（14–18）
+                   │                                              │
+  第 4 部分  单卡加速器：计算单元、存储层次、互联、选型（19–24）
+  第 5 部分  算子与运行时：分块、融合、编译器、CUDA Graph（25–30）
+                   │                                              │
+  第 6 部分  超节点：六种并行、集合通信、物理组织（31–37）
+  第 7 部分  数据中心网络：跨节点流量、远程访问、拥塞（38–43）
+                   │                                              │
+  第 8 部分  推理优化（44–49）          第 10 部分  训练系统（56–61）
+  第 9 部分  分布式推理（50–55）                  │
+                   │                                              │
+  第 11 部分  资源调度与运行环境：Agent 沙箱、资源池、成本（62–64）
+  第 12 部分  端边云协同：交互时间、跨设备分工、广域网（65–67）
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>部分</th>
+<th>做什么</th>
+<th>为什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>学会用容量、算力、带宽、延迟估算一次执行</td>
+<td>后面每一章都用同一套方法</td>
+</tr>
+<tr>
+<td>2–3</td>
+<td>把模型结构和负载换成"存多少、读多少、算多少"</td>
+<td>先知道需求，才谈得上满足需求</td>
+</tr>
+<tr>
+<td>4–5</td>
+<td>看单张卡怎么把这些需求变成计算和搬移</td>
+<td>单卡的极限和开销决定一切的起点</td>
+</tr>
+<tr>
+<td>6–7</td>
+<td>一张卡不够时，怎么切、怎么传、等多久</td>
+<td>大模型必须多卡，通信和等待成为主角</td>
+</tr>
+<tr>
+<td>8–10</td>
+<td>推理和训练系统各自怎么把资源用满</td>
+<td>两类负载的瓶颈和取舍不同</td>
+</tr>
+<tr>
+<td>11–12</td>
+<td>从单个模型扩展到完整任务和跨设备部署</td>
+<td>最终衡量的是任务完成时间和成本</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_6">目录</h2>
+<table>
+<thead>
+<tr>
+<th>章</th>
+<th>主题</th>
+<th>一句话精要</th>
+<th>对应原文</th>
+<th>动画</th>
+<th>卡片</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="../lessons/01-six-layers.html">01</a></td>
+<td>一次请求走过的六层</td>
+<td>任务从上往下变成"算什么、搬什么"，硬件从下往上限制能做什么；KV 缓存变小，下面各层跟着变</td>
+<td>AII §1.1.2 L29–L53、§1.1.3 L65</td>
+<td><a href="../animations/01-six-layers.html">▶</a></td>
+<td>I01–I02</td>
+<td>🟡 进行中（练习 2 待答）</td>
+</tr>
+<tr>
+<td><a href="../lessons/02-request-lifecycle.html">02</a></td>
+<td>一次生成请求的处理过程</td>
+<td>路由器管"去哪家"，调度器管"怎么做"；权重加载 1 次，输出 N 个 token 就读 N 遍</td>
+<td>AII §1.1.3 L55–L95</td>
+<td><a href="../animations/02-request-lifecycle.html">▶</a></td>
+<td>I03–I06</td>
+<td>🟡 正文已写，练习 0 / 3</td>
+</tr>
+<tr>
+<td><a href="../lessons/03-dataflow-hierarchy.html">03</a></td>
+<td>从存储程序到数据流执行</td>
+<td>存储层次在"近"和"大"之间折中；分块把"读一次、用多次"写进执行结构</td>
+<td>AII §1.1.4 L97–L103</td>
+<td><a href="../animations/03-dataflow-hierarchy.html">▶</a></td>
+<td>I07–I09</td>
+<td>🟡 正文已写，练习 0 / 3</td>
+</tr>
+<tr>
+<td><a href="../lessons/04-key-numbers.html">04</a></td>
+<td>系统设计的关键数字</td>
+<td>先看数量级；Amdahl 定律给出上限；容量、算力、带宽、延迟分开算</td>
+<td>AII §1.2 L105–L231</td>
+<td><a href="../animations/04-key-numbers.html">▶</a></td>
+<td>I10–I13</td>
+<td>🟡 正文已写，练习 0 / 3</td>
+</tr>
+<tr>
+<td><a href="../lessons/05-estimate.html">05</a></td>
+<td>用几个数字估算一次模型执行</td>
+<td>读权重比计算慢 148 倍；批内复用涨吞吐不缩等待；差距不是漏项就是开销</td>
+<td>AII §1.3 L233–L365</td>
+<td><a href="../animations/05-estimate.html">▶</a></td>
+<td>I14–I18</td>
+<td>🟡 正文已写，练习 0 / 3</td>
+</tr>
+<tr>
+<td><a href="../lessons/06-architecture.html">06</a></td>
+<td>需求如何推动架构</td>
+<td>比例一变，分工重排：TPU、SmartNIC、UB；老办法在新比例下又合算</td>
+<td>AII §1.4 L367–L454</td>
+<td><a href="../animations/06-architecture.html">▶</a></td>
+<td>I19–I22</td>
+<td>🟡 正文已写，练习 0 / 3</td>
+</tr>
+<tr>
+<td><a href="../lessons/07-compute-graph.html">07</a></td>
+<td>计算图与张量结构</td>
+<td>投影和 FFN 按行数 m 算，注意力按查询—键配对数算；8K prefill 133.6 TFLOPs，一步 decode 20 GFLOPs</td>
+<td>AII §2.1 L15–L213</td>
+<td><a href="../animations/07-compute-graph.html">▶</a></td>
+<td>I23–I26</td>
+<td>🟡 正文已写，练习 0 / 3</td>
+</tr>
+<tr>
+<td><a href="../lessons/08-generation-budget.html">08</a></td>
+<td>自回归生成的资源账</td>
+<td>缓存 K、V 不缓存 Q；batch 超过 R_W/(c_KV·H) 读 KV 就多于读权重；累计读取是保存的近千倍</td>
+<td>AII §2.2 L214–L301</td>
+<td><a href="../animations/08-generation-budget.html">▶</a></td>
+<td>I27–I30</td>
+<td>🟡 正文已写，练习 0 / 3</td>
+</tr>
+<tr>
+<td><a href="../lessons/09-kv-sharing.html">09</a></td>
+<td>KV 怎么变小 ①：头共享与潜变量压缩</td>
+<td>GQA / MQA 减 KV 份数不减查询头；MLA 用结合律只存低维潜变量</td>
+<td>AII §2.3.1–§2.3.2 L302–L356</td>
+<td><a href="../animations/09-kv-sharing.html">▶</a></td>
+<td>I31–I33</td>
+<td>🟡 正文已写，练习 0 / 3</td>
+</tr>
+<tr>
+<td><a href="../lessons/10-kv-sparse-linear.html">10</a></td>
+<td>KV 怎么变小 ②：窗口、稀疏、线性与混合注意力</td>
+<td>窗口管近期、压缩管远期、索引管挑选；递推状态固定大小；混合模型看交点 H*</td>
+<td>AII §2.3.3–§2.3.6 L358–L523</td>
+<td><a href="../animations/10-kv-sparse-linear.html">▶</a></td>
+<td>I34–I37</td>
+<td>🟡 正文已写，练习 0 / 3</td>
+</tr>
+<tr>
+<td><a href="../lessons/11-moe.html">11</a></td>
+<td>MoE：专家路由与批内权重复用</td>
+<td>存 E·N_e、用 k·N_e；运算按分派行数、读取按不同专家数，同样计算读取可差 32 倍</td>
+<td>AII §2.4 L524–L586</td>
+<td><a href="../animations/11-moe.html">▶</a></td>
+<td>I38–I40</td>
+<td>🟡 正文已写，练习 0 / 3</td>
+</tr>
+<tr>
+<td><a href="../lessons/12-network-shape.html">12</a></td>
+<td>网络形状：深宽、残差与多 token 预测</td>
+<td>深宽与专家粒度在不变量下改形状；残差方式决定要留什么；推测解码要 ḡ &gt; (T_s+T_v)/T_d</td>
+<td>AII §2.5 L587–L636</td>
+<td><a href="../animations/12-network-shape.html">▶</a></td>
+<td>I41–I43</td>
+<td>🟡 正文已写，练习 0 / 3</td>
+</tr>
+<tr>
+<td><a href="../lessons/13-model-comparison.html">13</a></td>
+<td>整个模型的资源需求与比较</td>
+<td>权重、单次运算、每请求状态三个维度分开比；B_max = ⌊剩余显存 ÷ 每请求状态⌋</td>
+<td>AII §2.6 L637–L909</td>
+<td><a href="../animations/13-model-comparison.html">▶</a></td>
+<td>I44–I48</td>
+<td>🟡 正文已写，练习 0 / 3</td>
+</tr>
+<tr>
+<td><a href="../lessons/14-workload-arrival.html">14</a></td>
+<td>从单次请求到持续到达的负载</td>
+<td>TTFT、输出间隔、完整请求各量一段；等待也按 GiB·s 占容量；平均够用、突发照样积压</td>
+<td>AII §3.1 L1–L146</td>
+<td><a href="../animations/14-workload-arrival.html">▶</a></td>
+<td>I49–I52</td>
+<td>🟡 正文已写，练习 0 / 3</td>
+</tr>
+<tr>
+<td><a href="../lessons/15-agent-tasks.html">15</a></td>
+<td>多轮交互与 Agent 任务</td>
+<td>每轮重算 I−K，改在哪比改多少要紧；成功任务成本 c/p；工具并行缩关键路径不减工作</td>
+<td>AII §3.2 L147–L279</td>
+<td><a href="../animations/15-agent-tasks.html">▶</a></td>
+<td>I53–I56</td>
+<td>🟡 正文已写，练习 0 / 3</td>
+</tr>
+<tr>
+<td><a href="../lessons/16-multimodal-realtime.html">16</a></td>
+<td>多模态与实时交互（略讲）</td>
+<td>一张图在原文件、EC、语言 KV 三站差两个数量级；音频缓冲吸收抖动但推迟首播</td>
+<td>AII §3.3 L280–L379</td>
+<td><a href="../animations/16-multimodal-realtime.html">▶</a></td>
+<td>I57–I59</td>
+<td>🟡 正文已写，练习 0 / 3</td>
+</tr>
+<tr>
+<td><a href="../lessons/17-training-rl.html">17</a></td>
+<td>训练与强化学习的计算和状态</td>
+<td>训练是前向的三倍（6ND），每参数 18 字节；6ND 漏注意力、多算词嵌入；RL 筛得越严生成越多</td>
+<td>AII §3.4–§3.5 L380–L548</td>
+<td><a href="../animations/17-training-rl.html">▶</a></td>
+<td>I60–I63</td>
+<td>🟡 正文已写，练习 0 / 3</td>
+</tr>
+<tr>
+<td><a href="../lessons/18-scaling-lifecycle.html">18</a></td>
+<td>Scaling law 与全生命周期成本</td>
+<td>固定预算按指数分参数和数据；实际训练远超计算最优，因为要算服务成本；回本点 ΔC0/Δc</td>
+<td>AII §3.6 L549–L707</td>
+<td><a href="../animations/18-scaling-lifecycle.html">▶</a></td>
+<td>I64–I68</td>
+<td>🟡 正文已写，练习 0 / 3</td>
+</tr>
+<tr>
+<td><a href="../lessons/19-accelerator-basics.html">19</a></td>
+<td>从矩阵乘法认识加速器</td>
+<td>投影强度封顶 KN/(K+N)；面积给缓冲还是乘加；搬得越远越耗电，单请求 decode 九成能量在读权重；HBM 堆与 TDP 封顶</td>
+<td>AII §4.1 L1–L222</td>
+<td><a href="../animations/19-accelerator-basics.html">▶</a></td>
+<td>I69–I73</td>
+<td>🟡 正文已写，练习 0 / 3</td>
+</tr>
+<tr>
+<td><a href="../lessons/20-compute-units.html">20</a></td>
+<td>计算单元：矩阵、向量、流水与低精度</td>
+<td>矩阵单元按块复用、行少就补零；归约要一轮轮等；注意力流水 τ 由最慢资源定；低精度省字节要算转换账</td>
+<td>AII §4.2 L223–L370</td>
+<td><a href="../animations/20-compute-units.html">▶</a></td>
+<td>I74–I77</td>
+<td>🟡 正文已写，练习 0 / 3</td>
+</tr>
+<tr>
+<td><a href="../lessons/21-memory-movement.html">21</a></td>
+<td>存储层次与数据搬移</td>
+<td>工作台放两块操作数加部分和；Little 定律定在途事务；步长寻址与描述符；缓冲槽数随计算变快而增；跨 SM 只能经 L2</td>
+<td>AII §4.3–§4.4 L371–L649</td>
+<td><a href="../animations/21-memory-movement.html">▶</a></td>
+<td>I78–I82</td>
+<td>🟡 正文已写，练习 0 / 3</td>
+</tr>
+<tr>
+<td><a href="../lessons/22-package-interconnect.html">22</a></td>
+<td>多芯片封装与互联</td>
+<td>链路 / 本地带宽比决定计算放哪；H2D 要复用 32 次以上；卡间 α + V/R，转折点 αR</td>
+<td>AII §4.5 L650–L730</td>
+<td><a href="../animations/22-package-interconnect.html">▶</a></td>
+<td>I83–I85</td>
+<td>🟡 正文已写，练习 0 / 3</td>
+</tr>
+<tr>
+<td><a href="../lessons/23-architecture-evolution.html">23</a></td>
+<td>架构演进与专用架构</td>
+<td>Tensor Core 只帮计算主导；精度省字节 × 带宽省时间；统一内存容量 vs 带宽；片上 SRAM 与固定权重 ROM 的账</td>
+<td>AII §4.6–§4.7 L731–L959</td>
+<td><a href="../animations/23-architecture-evolution.html">▶</a></td>
+<td>I86–I91</td>
+<td>🟡 正文已写，练习 0 / 4</td>
+</tr>
+<tr>
+<td><a href="../lessons/24-choose-accelerator.html">24</a></td>
+<td>根据架构选择加速器</td>
+<td>同资源相加、异资源取最大、阶段串联；decode 看带宽、prefill 看矩阵；实测先修口径再去开销；成本与回本</td>
+<td>AII §4.8 L960–L1259</td>
+<td><a href="../animations/24-choose-accelerator.html">▶</a></td>
+<td>I92–I96</td>
+<td>🟡 正文已写，练习 0 / 4</td>
+</tr>
+</tbody>
+</table>
+<p><strong>第 1 部分待补</strong>：AII §1.1.1 L9–L27（编程抽象上移：模型成了 LLM 时代的"操作系统"）还没讲，讲第 01 章时并进去，作为第零步；前言（<code>00-前言.md</code>）不单独成章，要点已写进本页"这本书讲什么"。</p>
+<h2 id="_7">后续大纲</h2>
+<p>按原书章节拆分，一章讲义对应原书的一个大节（## 级标题），原文行号由脚本按小节标题算出。原文超过约 250 行的章（13、24、28、36、37、43、62、64、67）讲到时可能再拆。"略讲"按 study-plan 的分级：只讲指定小节和结论，其余跳过。</p>
+<h3 id="2-aii-2-1245">第 2 部分 · 模型架构（AII 第 2 章，1245 行）</h3>
+<p>动手：AI-M1 单 token 账、AI-M2 状态表。补基础：<a href="https://wikieden.github.io/transformer-visual/lessons/index.html">《从零读懂 Transformer》</a>（attention、多头、位置编码、FFN）、<a href="https://wikieden.github.io/beyond-transformer/lessons/index.html">《超越 Transformer》</a>（MoE、现代架构）。</p>
+<table>
+<thead>
+<tr>
+<th>章</th>
+<th>主题</th>
+<th>对应原文</th>
+<th>要点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="../lessons/07-compute-graph.html">07</a> ✅</td>
+<td>计算图与张量结构</td>
+<td>§2.1 L15–L213</td>
+<td>因果计算图、模型配置与张量形状、注意力与位置编码、FFN 的前向计算量</td>
+</tr>
+<tr>
+<td><a href="../lessons/08-generation-budget.html">08</a> ✅</td>
+<td>自回归生成的资源账</td>
+<td>§2.2 L214–L301</td>
+<td>prefill / decode 与状态复用、内存占用与访问量、生成一整段回答的计算与读写</td>
+</tr>
+<tr>
+<td><a href="../lessons/09-kv-sharing.html">09</a> ✅</td>
+<td>KV 怎么变小 ①：头共享与潜变量压缩</td>
+<td>§2.3.1–§2.3.2 L310–L357</td>
+<td>MHA → GQA 的 KV 共享；MLA 潜变量压缩与执行路径</td>
+</tr>
+<tr>
+<td><a href="../lessons/10-kv-sparse-linear.html">10</a> ✅</td>
+<td>KV 怎么变小 ②：窗口、稀疏、线性与混合注意力</td>
+<td>§2.3.3–§2.3.6 L358–L523</td>
+<td>局部窗口、上下文压缩与稀疏索引、线性注意力的有限状态、混合注意力；每 token 存多少、每步 decode 读多少</td>
+</tr>
+<tr>
+<td><a href="../lessons/11-moe.html">11</a> ✅</td>
+<td>MoE：专家路由与批内权重复用</td>
+<td>§2.4 L524–L586</td>
+<td>稠密 FFN vs 专家路由、实际运算量与批内权重读取量、共享专家与潜空间计算</td>
+</tr>
+<tr>
+<td><a href="../lessons/12-network-shape.html">12</a> ✅</td>
+<td>网络形状：深宽、残差与多 token 预测</td>
+<td>§2.5 L587–L636</td>
+<td>深度、宽度与专家粒度；残差与跨层状态；MTP 的辅助计算</td>
+</tr>
+<tr>
+<td><a href="../lessons/13-model-comparison.html">13</a> ✅</td>
+<td>整个模型的资源需求与比较</td>
+<td>§2.6 L637–L900</td>
+<td>各组件汇总成全模型账；参数规模、精度与容量；不同请求条件下的模型比较（"模型矩阵查阅表"L933 起当工具表查）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-aii-3-812">第 3 部分 · 推理与训练负载（AII 第 3 章，812 行）</h3>
+<p>动手：AI-M3 训练账。补基础：<a href="https://wikieden.github.io/rl-from-scratch/lessons/index.html">《从零学强化学习》</a>（RL 的 rollout 与策略更新）。</p>
+<table>
+<thead>
+<tr>
+<th>章</th>
+<th>主题</th>
+<th>对应原文</th>
+<th>要点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="../lessons/14-workload-arrival.html">14</a> ✅</td>
+<td>从单次请求到持续到达的负载</td>
+<td>§3.1 L9–L146</td>
+<td>prefill / decode 的负载视角、任务目标与评价指标（TTFT、TPOT、goodput）、请求分布</td>
+</tr>
+<tr>
+<td><a href="../lessons/15-agent-tasks.html">15</a> ✅</td>
+<td>多轮交互与 Agent 任务</td>
+<td>§3.2 L147–L279</td>
+<td>多轮对话的前缀增长、推理与验证的成本、分支、工具等待与状态驻留</td>
+</tr>
+<tr>
+<td><a href="../lessons/16-multimodal-realtime.html">16</a> ✅</td>
+<td>多模态与实时交互（略讲）</td>
+<td>§3.3 L280–L379</td>
+<td>视觉编码与状态、音频与图像生成、连续感知与打断</td>
+</tr>
+<tr>
+<td><a href="../lessons/17-training-rl.html">17</a> ✅</td>
+<td>训练与强化学习的计算和状态</td>
+<td>§3.4–§3.5 L380–L548</td>
+<td>前向、反向与参数更新；预训练、中期训练与 SFT；6ND 估算到逐项计算；RL 的 rollout、奖励与权重同步</td>
+</tr>
+<tr>
+<td><a href="../lessons/18-scaling-lifecycle.html">18</a> ✅</td>
+<td>Scaling law 与全生命周期成本</td>
+<td>§3.6 L549–L698</td>
+<td>模型规模与数据量；从 Llama 到 Qwen 的训练投入；满足质量要求的全生命周期成本</td>
+</tr>
+</tbody>
+</table>
+<h3 id="4-aii-4-1266">第 4 部分 · 加速器架构（AII 第 4 章，1266 行）</h3>
+<p>动手：AI-M4 本机 roofline。配读：AISPE ch02 §2.3–2.5（略读）。补基础：<a href="https://wikieden.github.io/cuda-to-tensor-core/lessons/index.html">《CUDA 从线程到 Tensor Core》</a> 第 5、9、15、17、18、20 章。</p>
+<table>
+<thead>
+<tr>
+<th>章</th>
+<th>主题</th>
+<th>对应原文</th>
+<th>要点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="../lessons/19-accelerator-basics.html">19</a> ✅</td>
+<td>从矩阵乘法认识加速器</td>
+<td>§4.1 L13–L222</td>
+<td>矩阵乘法的计算与数据需求、加速器的组成与分工、芯片面积、功耗与封装的限制</td>
+</tr>
+<tr>
+<td><a href="../lessons/20-compute-units.html">20</a> ✅</td>
+<td>计算单元：矩阵、向量与低精度</td>
+<td>§4.2 L223–L370</td>
+<td>矩阵单元为什么适合神经网络、向量运算与控制、QK / Softmax / PV 流水、低精度怎么改变计算量与数据量</td>
+</tr>
+<tr>
+<td><a href="../lessons/21-memory-movement.html">21</a> ✅</td>
+<td>存储层次与数据搬移</td>
+<td>§4.3–§4.4 L371–L649</td>
+<td>显存与统一内存、缓存与片上缓冲（第 03 章的展开）；数据布局、异步搬移与双缓冲、SM 之间的交接与同步</td>
+</tr>
+<tr>
+<td><a href="../lessons/22-package-interconnect.html">22</a> ✅</td>
+<td>多芯片封装与互联</td>
+<td>§4.5 L650–L730</td>
+<td>封装内的计算芯片与内存、CPU 与加速器的数据访问、加速器之间的数据交换</td>
+</tr>
+<tr>
+<td><a href="../lessons/23-architecture-evolution.html">23</a> ✅</td>
+<td>架构演进与专用架构（部分略讲）</td>
+<td>§4.6–§4.7 L731–L959</td>
+<td>NVIDIA 矩阵、精度与数据路径的收益；Apple 统一内存；TPU、Groq、Graphcore、Cerebras；昇腾 §4.6.2 略讲</td>
+</tr>
+<tr>
+<td><a href="../lessons/24-choose-accelerator.html">24</a> ✅</td>
+<td>按架构预测性能、选择加速器</td>
+<td>§4.8 L960–L1259</td>
+<td>从资源预算建立执行时间模型、同一模型比较候选加速器、预测与实测的差距、容量 / 速度 / 功耗 / 成本的取舍</td>
+</tr>
+</tbody>
+</table>
+<h3 id="5-aii-5-1118">第 5 部分 · 算子与运行时（AII 第 5 章，1118 行）</h3>
+<p>动手：AI-M5 分块与 profile、AI-G2 Triton。配读：AISPE ch06–ch14（CUDA 内核部分只读，动手放在 cuda-programming）。补基础：<a href="https://wikieden.github.io/cuda-to-tensor-core/lessons/index.html">《CUDA 从线程到 Tensor Core》</a> 第 13、14、21、22、26 章，<a href="https://wikieden.github.io/pytorch-inside-out/lessons/index.html">《PyTorch 从里到外》</a>。</p>
+<table>
+<thead>
+<tr>
+<th>章</th>
+<th>主题</th>
+<th>对应原文</th>
+<th>要点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>25</td>
+<td>提交、搬移与同步</td>
+<td>§5.1 L21–L175</td>
+<td>从框架调用到 kernel launch、主机与加速器之间的复制、stream 与 event、从提交到结果可用、kernel 在 SM 上怎么执行</td>
+</tr>
+<tr>
+<td>26</td>
+<td>单个算子：分块、布局与访存</td>
+<td>§5.2 L176–L338</td>
+<td>矩阵形状与重复读取、容量约束下的分块复用、bank 冲突与布局、沿哪个维度切分</td>
+</tr>
+<tr>
+<td>27</td>
+<td>算子融合与 FlashAttention</td>
+<td>§5.3 L339–L480</td>
+<td>中间张量与融合边界、布局转换与双缓冲、FlashAttention 的分块与在线 Softmax</td>
+</tr>
+<tr>
+<td>28</td>
+<td>编译器：表达、变换与选择（部分跳过）</td>
+<td>§5.4 L481–L767</td>
+<td>为什么要比较多种实现、循环变换、依赖与舍入的限制、成本估计与实测选择；AKG §5.4.4、TileLang-Ascend §5.4.5 跳过</td>
+</tr>
+<tr>
+<td>29</td>
+<td>运行时：重叠、CUDA Graph 与动态形状</td>
+<td>§5.5 L768–L905</td>
+<td>主机准备与加速器计算的重叠、CUDA Graph 的收益与开销、动态形状与编译、persistent kernel</td>
+</tr>
+<tr>
+<td>30</td>
+<td>从局部优化到完整请求</td>
+<td>§5.6 L906–L974</td>
+<td>热点占比决定加速空间、关键路径切换、一次 Qwen3 请求的优化选择</td>
+</tr>
+</tbody>
+</table>
+<h3 id="6-aii-6-1190">第 6 部分 · 超节点（AII 第 6 章，1190 行）</h3>
+<p>动手：AI-M6 并行组合、AI-G3 nccl-tests。配读：AISPE ch04 §4.1、§4.6–4.10。补基础：distributed-pretraining 工程报告、本书<a href="../lessons/appendix-tp-pp-cp.html">补充 · TP、PP、CP</a>。</p>
+<table>
+<thead>
+<tr>
+<th>章</th>
+<th>主题</th>
+<th>对应原文</th>
+<th>要点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>31</td>
+<td>从单卡到多卡</td>
+<td>§6.1 L9–L124</td>
+<td>八张卡独立部署与协作、Qwen3-235B-A22B 的容量与单步时间、prefill / decode / 训练的不同要求、并行方式一览</td>
+</tr>
+<tr>
+<td>32</td>
+<td>六种并行 ①：数据、张量、序列并行</td>
+<td>§6.2.1–§6.2.3 L129–L266</td>
+<td>DP 复制模型切样本、TP 切一层内的矩阵、SP 沿序列分片（并入补充资料的 TP 部分）</td>
+</tr>
+<tr>
+<td>33</td>
+<td>六种并行 ②：上下文、流水线、专家并行</td>
+<td>§6.2.4–§6.2.6 L267–L359</td>
+<td>CP 切同一序列的注意力、PP 按层分段与气泡、EP 切专家集合（并入补充资料的 PP、CP 部分）</td>
+</tr>
+<tr>
+<td>34</td>
+<td>组合并行与模型规模</td>
+<td>§6.3 L360–L463</td>
+<td>组合方案与设备坐标、批内复用与负载不均、从数千亿到万亿参数</td>
+</tr>
+<tr>
+<td>35</td>
+<td>集合通信的实现与代价</td>
+<td>§6.4 L464–L608</td>
+<td>按切分方式定通信需求、环与树与通信轮次、通信库与计算的资源竞争、通信融合与卸载</td>
+</tr>
+<tr>
+<td>36</td>
+<td>超节点的物理组织与内存池</td>
+<td>§6.5–§6.6 L609–L882</td>
+<td>直连、交换与分层拓扑；NVIDIA、TPU、UB / CloudMatrix（§6.5.5 略讲）；内存借用与共享 KV</td>
+</tr>
+<tr>
+<td>37</td>
+<td>从并行方案到超节点规模</td>
+<td>§6.7 L883–L1183</td>
+<td>更大的协作组与更多实例、功率 / 成本 / 故障范围、给定模型和硬件怎么选切分；V4.1 Flash 综合（§6.7.4 略讲）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="7-aii-7-1115">第 7 部分 · 数据中心网络（AII 第 7 章，1115 行）</h3>
+<p>动手：AI-M7 分层网络。配读：AISPE ch04 §4.2–4.5（略读）、ch02 §2.6（略读）。</p>
+<table>
+<thead>
+<tr>
+<th>章</th>
+<th>主题</th>
+<th>对应原文</th>
+<th>要点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>38</td>
+<td>从超节点走向集群</td>
+<td>§7.1 L13–L115</td>
+<td>存储需求引出跨服务器协作、流量与资源模型、统一互联</td>
+</tr>
+<tr>
+<td>39</td>
+<td>跨节点流量与物理路径</td>
+<td>§7.2 L116–L314</td>
+<td>DP、TP、PP、EP 的跨服务器流量；多网卡与多轨拓扑</td>
+</tr>
+<tr>
+<td>40</td>
+<td>远程访问的路径与并发</td>
+<td>§7.3 L315–L519</td>
+<td>传输与完成通知、加速器直接发起通信、内存语义（§7.3.3 略讲）、并发与吞吐模型（第 06 章 SmartNIC / KV-Direct 的后续）</td>
+</tr>
+<tr>
+<td>41</td>
+<td>数据交接、顺序与状态管理</td>
+<td>§7.4 L520–L663</td>
+<td>分片的生成、使用与缓冲区复用；事务层与传输层（Jetty §7.4.2 略讲）；操作依赖、故障隔离与背压</td>
+</tr>
+<tr>
+<td>42</td>
+<td>共享网络中的拥塞与可靠性</td>
+<td>§7.5 L664–L829</td>
+<td>随时间变化的需求、反馈延迟与缓冲、多路径与重传、死锁</td>
+</tr>
+<tr>
+<td>43</td>
+<td>从通信改进到任务完成</td>
+<td>§7.6 L830–L1106</td>
+<td>关键路径从数据就绪开始、分层网络通信耗时、训练与推理的通信瓶颈、1024 卡里超节点变大后怎么重选</td>
+</tr>
+</tbody>
+</table>
+<h3 id="8-aii-8-793">第 8 部分 · 推理优化（AII 第 8 章，793 行）</h3>
+<p>动手：AI-M8 本机推理实测、AI-G1 批量扫描 + Nsight。配读：AISPE ch15、ch16。补基础：llm-full-stack 全链路地图。</p>
+<table>
+<thead>
+<tr>
+<th>章</th>
+<th>主题</th>
+<th>对应原文</th>
+<th>要点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>44</td>
+<td>推理请求的执行过程与资源需求</td>
+<td>§8.1 L20–L99</td>
+<td>执行资源与请求生命周期、权重 / KV / 运行时缓冲的容量需求、从单请求时间到服务目标</td>
+</tr>
+<tr>
+<td>45</td>
+<td>批处理与请求调度</td>
+<td>§8.2 L100–L227</td>
+<td>权重复用（第 05 章的展开）、连续批处理、长 prefill 的干扰与分块执行、token 预算与动态形状</td>
+</tr>
+<tr>
+<td>46</td>
+<td>KV 缓存的分配、复用与释放</td>
+<td>§8.3 L228–L381</td>
+<td>预留、碎片与分页分配；分支共享与写时复制；前缀复用；准入、淘汰、换出与重计算</td>
+</tr>
+<tr>
+<td>47</td>
+<td>压缩与卸载</td>
+<td>§8.4 L382–L499</td>
+<td>权重量化后的内存、KV 压缩与读取成本、权重卸载与预取、质量约束下的取舍</td>
+</tr>
+<tr>
+<td>48</td>
+<td>推测解码</td>
+<td>§8.5 L500–L593</td>
+<td>草稿、验证、回退与正确性；每轮耗时与输出数；草稿来源；草稿长度与并发竞争</td>
+</tr>
+<tr>
+<td>49</td>
+<td>请求负载下的性能与配置选择</td>
+<td>§8.6 L594–L710</td>
+<td>到达率、排队、准入与取消；SLO 约束下的有效吞吐；配置、加速器与完整任务成本</td>
+</tr>
+</tbody>
+</table>
+<h3 id="9-aii-9-926">第 9 部分 · 分布式推理（AII 第 9 章，926 行）</h3>
+<p>动手：AI-M9 P/D 配比。配读：AISPE ch17、ch18，ch15 §MoE 并行，ch04 §4.11–4.12 NIXL。</p>
+<table>
+<thead>
+<tr>
+<th>章</th>
+<th>主题</th>
+<th>对应原文</th>
+<th>要点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>50</td>
+<td>计算与状态的分布方式</td>
+<td>§9.1 L13–L85</td>
+<td>计算资源、推理实例与服务副本（第 02 章的展开）；计算分工与状态共享；状态驻留时间</td>
+</tr>
+<tr>
+<td>51</td>
+<td>Prefill–Decode 分离与资源配比</td>
+<td>§9.2 L86–L229</td>
+<td>为什么分离、KV 传输与两端内存、两阶段的实例配比、收益边界</td>
+</tr>
+<tr>
+<td>52</td>
+<td>Attention–FFN 分离与异构执行</td>
+<td>§9.3 L230–L347</td>
+<td>执行边界、CPU / GPU 协作、容量与专家复用、跨机 AF 与 micro-batch 流水</td>
+</tr>
+<tr>
+<td>53</td>
+<td>专家放置、复制与负载均衡</td>
+<td>§9.4 L348–L492</td>
+<td>大 EP 的计算与通信 skew、专家副本与动态调整、分发、计算与合并的重叠</td>
+</tr>
+<tr>
+<td>54</td>
+<td>KV 的分布、共享与请求路由</td>
+<td>§9.5 L493–L667</td>
+<td>缓存标识与共享范围、多级存储、持久化与部分重算、缓存亲和路由</td>
+</tr>
+<tr>
+<td>55</td>
+<td>扩缩容、故障恢复与部署方案比较</td>
+<td>§9.6–§9.7 L668–L806</td>
+<td>启动与预热、运行中重配置、流式生成的故障恢复；副本 / PD / AF / 共享 KV 的组合与比较</td>
+</tr>
+</tbody>
+</table>
+<h3 id="10-aii-10-976">第 10 部分 · 训练系统（AII 第 10 章，976 行）</h3>
+<p>动手：AI-M10 训练反推。配读：AISPE ch13 §PyTorch Distributed、ch05（略读）。补基础：distributed-pretraining、CS336 a2。</p>
+<table>
+<thead>
+<tr>
+<th>章</th>
+<th>主题</th>
+<th>对应原文</th>
+<th>要点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>56</td>
+<td>训练的容量与时间估算</td>
+<td>§10.1 L17–L146</td>
+<td>训练目标与可训练参数、参数 / 梯度 / 优化器 / 激活、计算需求与 MFU</td>
+</tr>
+<tr>
+<td>57</td>
+<td>训练状态的分片、重计算与卸载</td>
+<td>§10.2 L147–L298</td>
+<td>ZeRO / FSDP 状态分片、选择性重计算、CPU / GPU 卸载、每卡状态分配与拓扑</td>
+</tr>
+<tr>
+<td>58</td>
+<td>流水调度与通信重叠</td>
+<td>§10.3 L299–L488</td>
+<td>micro-batch 与梯度累积、流水线气泡与激活生命周期、梯度分桶与通信重叠、MoE 与长上下文</td>
+</tr>
+<tr>
+<td>59</td>
+<td>数据输入、checkpoint 与故障恢复</td>
+<td>§10.4 L489–L626</td>
+<td>数据读取与预取、可恢复状态、同步与异步保存、故障规模与保存周期、掉队者</td>
+</tr>
+<tr>
+<td>60</td>
+<td>强化学习训练系统</td>
+<td>§10.5 L627–L764</td>
+<td>生成、验证与更新；各阶段资源分配与权重同步；异步训练与策略版本；专家路由重放</td>
+</tr>
+<tr>
+<td>61</td>
+<td>从系统方案到期限与硬件选择</td>
+<td>§10.6 L765–L855</td>
+<td>汇总容量、每步耗时、停顿与恢复；4090 集群的可行范围；换硬件后的瓶颈；规模、数据量与期限的敏感性</td>
+</tr>
+</tbody>
+</table>
+<h3 id="11-aii-11-797">第 11 部分 · 资源调度与运行环境（AII 第 11 章，797 行，略讲）</h3>
+<p>study-plan 分级为略读：重点讲 §11.1、§11.3.3（RL 生成与训练配比）、§11.4.4（成本比较），其余只讲结论。</p>
+<table>
+<thead>
+<tr>
+<th>章</th>
+<th>主题</th>
+<th>对应原文</th>
+<th>要点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>62</td>
+<td>Agent 任务的资源需求与运行环境</td>
+<td>§11.1–§11.2 L29–L289</td>
+<td>一项代码任务的执行与等待、CPU 与环境驻留、沙箱的创建、暂停与恢复</td>
+</tr>
+<tr>
+<td>63</td>
+<td>共享资源池与 RL 资源配比</td>
+<td>§11.3 L290–L457</td>
+<td>成组分配与放置、队列与抢占、RL 生成与训练的动态配比、验证长尾</td>
+</tr>
+<tr>
+<td>64</td>
+<td>模型服务的选择、成本与扩容</td>
+<td>§11.4–§11.5 L458–L719</td>
+<td>思考预算、前缀缓存与实际用量、限流与路由、自建 / API / 订阅的成本、完整任务成本与扩容</td>
+</tr>
+</tbody>
+</table>
+<h3 id="12-aii-12-838">第 12 部分 · 端边云协同（AII 第 12 章，838 行，略讲）</h3>
+<p>study-plan 分级为略读：重点讲 §12.1、§12.2；§12.3–§12.4 的传输层细节只讲结论。配读：AISPE ch20（略读）。之后做收尾里程碑 AI-M11（按五个问题写一页自己的设计）。</p>
+<table>
+<thead>
+<tr>
+<th>章</th>
+<th>主题</th>
+<th>对应原文</th>
+<th>要点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>65</td>
+<td>从模型运行时间到完整交互时间</td>
+<td>§12.1 L9–L201</td>
+<td>图片精修、实时语音、Computer Use 三个场景；本地、附近设备与云端的比较；端侧资源</td>
+</tr>
+<tr>
+<td>66</td>
+<td>跨设备分工与会话迁移</td>
+<td>§12.2 L202–L314</td>
+<td>完整调用与分阶段执行、端侧编码的传输量、会话迁移、模型内部切分的通信边界</td>
+</tr>
+<tr>
+<td>67</td>
+<td>广域网、无线与部署选择</td>
+<td>§12.3–§12.5 L315–L659</td>
+<td>连接复用、窗口与丢包、多流优先级、无线争用与双路径（只讲结论）；地域、时限、成本与恢复的联合比较</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_8">口诀汇总</h2>
+<table>
+<thead>
+<tr>
+<th>章</th>
+<th>口诀</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>01</td>
+<td>（本章讲完后补）</td>
+</tr>
+<tr>
+<td>02</td>
+<td>路由选店，调度排单；读题一口气，写字一个个；菜谱搬一次，每锅翻一遍；柜内 scale-up，柜外 scale-out。</td>
+</tr>
+<tr>
+<td>03</td>
+<td>厕所修在楼层边，近的小来远的宽；读一次来用多遍，分块缓冲写成链；prefill、decode、KV、专家，复用各不同，一套缓存管不全。</td>
+</tr>
+<tr>
+<td>04</td>
+<td>先看量级再动手，十万倍差别一眼瞅；加速一段看占比，剩下不动是上限；放得下看容量，耗多久看算力和带宽；参数乘字节算权重，bit 除以八才是 byte。</td>
+</tr>
+<tr>
+<td>05</td>
+<td>存读算，分三算；读比算慢百来番；加算力，白费钱；加带宽、少读数，才见效；一车拉八人，油钱分摊路不短；先算极限再看差，漏项开销分开查。</td>
+</tr>
+<tr>
+<td>06</td>
+<td>比例一变，分工重排；需求翻倍造专芯，回本看规模；网速涨了核不够，包处理交给网卡；卡多了先算容量，再算读写，最后看谁在等；老办法新比例，数据搬移定架构。</td>
+</tr>
+<tr>
+<td>07</td>
+<td>节点算，边上传，箭头定先后；行数乘权重，权重不随行数涨；一层投影两亿个，FFN 占八成；新旧握手长方形，新人之间三角形。</td>
+</tr>
+<tr>
+<td>08</td>
+<td>问完就走不留 Q，白板常驻 K 和 V；菜谱共用、订单跟人、配菜即弃；车只一辆书包各背，上下文长早翻车；存的一格一格长，读的一行一行涨。</td>
+</tr>
+<tr>
+<td>09</td>
+<td>逐页笔记随书厚，摘要一张常改写；打印机少人不少，KV 份数减、查询头不减；压缩包里存潜变量，结合律把升维挪到查询上。</td>
+</tr>
+<tr>
+<td>10</td>
+<td>近的看窗口，远的看小结，挑之前先翻目录；摘要一张卡，读写都定额；月租加流量，交点 H* 定谁说了算；存的少不等于读的少，三个数一起看。</td>
+</tr>
+<tr>
+<td>11</td>
+<td>医生养得多，病人挂得少；算量看分派，读量看开了几扇门；分诊台人人过，专科先摘要再还原。</td>
+</tr>
+<tr>
+<td>12</td>
+<td>平房和高楼，面积一样楼层不同；专家切大切小，总量不变形状变；残差留原料，几路就留几份；草稿审得过，才比一字一字写得快。</td>
+</tr>
+<tr>
+<td>13</td>
+<td>存、算、账本三本账，各算各的别混一谈；专家占了九成七，单 token 只算挑中的；停车场先划固定位，剩下除以每辆车，向下取整；一千页的书，从头翻还是看目录，涨得天差地别。</td>
+</tr>
+<tr>
+<td>14</td>
+<td>备菜一大堆，出菜一盘盘；下单、接单、送完，三个钟各量一段；闲时的力气存不到忙时，超出乘时长就是积压；座位坐满了，灶台空着也得等。</td>
+</tr>
+<tr>
+<td>15</td>
+<td>前情提要记得住，新内容才要算；改中间一个字，后面全重来；驾照算总账，花费除以通过率；修车师傅想得久，助手拧螺丝几秒钟；烧水切菜可并行，工作不少灶台全占。</td>
+</tr>
+<tr>
+<td>16</td>
+<td>地图切格再合卡，张数是位置，页宽是数据；原图、EC、KV，三站三种大小；画画一遍遍修，步数乘分支乘单步；桶里有水不断流，桶越满开始越晚；闭麦、停排练、撤道具，三件事三个钟。</td>
+</tr>
+<tr>
+<td>17</td>
+<td>复盘要草稿，倒推用方法：前向一次，反向两次；账本 2 字节，草稿总账两本笔记各 4 字节；人头估餐费，漏了酒水多算了旁观；题筛得越严，做得越多，总结不变。</td>
+</tr>
+<tr>
+<td>18</td>
+<td>装修预算分面积和质量，指数定怎么分；模拟考贴得准，留出的才算数；店开得越久，越值得多培训厨师；人·天除以人数是工期，换卡先按峰值折；截距是训练，斜率是服务，交点就是回本。</td>
+</tr>
+<tr>
+<td>19</td>
+<td>标准答案一份，学生越多摊得越薄，作业本还得一本本收；工厂里下单、仓库、料架、机床、质检、叉车，各管一段；炒锅多了备菜跟不上，缓冲比计算还占地；水管越长灌水越费，decode 的电九成花在搬权重；地皮有上限，水管看周长，总电闸限开机。</td>
+</tr>
+<tr>
+<td>20</td>
+<td>零件传一排，领一次用多次；块太大行太少，补零也在算；热身可并行，冠军要一轮轮比；三个工位流水，出菜看最慢的；缩印本轻，读前放大或戴放大镜，复印一次读多遍才划算。</td>
+</tr>
+<tr>
+<td>21</td>
+<td>工作台放两块板一块成品，备下一对还要再大；数据、请求、流量三个数，配各自那一级的带宽；服务员少了，厨房再快也送不出去；小表格跳着抄，描述符替你算地址；盆多了菜能边洗边炒，灶台不停就别再加盆；队里交棒快，跨队先放桌上再喊话。</td>
+</tr>
+<tr>
+<td>22</td>
+<td>路比出货口宽，在哪干都一样；路窄就在货边干，只运成品；外地进货慢，一批货用够三十多次才不亏；快递先等取件，再按重量走路；明信片换快车没用，一车货才看车速。</td>
+</tr>
+<tr>
+<td>23</td>
+<td>灶快只帮大锅菜，一份菜还得跑仓库；小字号省纸，三十二字配个放大镜；仓库大能多放，出货口宽才出得快；机床旁货架不能互借，作业本越写越厚；书印在墙上，人一多书包照样重。</td>
+</tr>
+<tr>
+<td>24</td>
+<td>同一个灶相加，灶和烤箱取最大，汤等肉就串着来；堵车看起步（带宽），长途看马力（矩阵）；导航不准先改路，再数红灯；贵车快一倍就不贵，专车要跑够趟数才回本。</td>
+</tr>
+</tbody>
+</table>
+</main></div>
+<footer>来自个人学习仓库的对话讲义，含练习作答记录。源码：<a href="https://github.com/wikieden/ai-infra-from-constraints">github.com/wikieden/ai-infra-from-constraints</a>。更多讲义书：<a href="https://wikieden.github.io/ai-books/">Physical AI 0-1-♾️（合集）</a></footer>
+<script>(function(){var d=document.documentElement,K=["s","m","l","xl"];
+function save(k,v){try{v?localStorage.setItem(k,v):localStorage.removeItem(k)}catch(e){}}
+var s=document.getElementById("ab-theme");if(s){s.value=d.dataset.theme||"";s.onchange=function(){if(s.value)d.dataset.theme=s.value;else delete d.dataset.theme;save("ab-theme",s.value)}}
+document.querySelectorAll("[data-fs-step]").forEach(function(b){b.onclick=function(){var i=K.indexOf(d.dataset.fs||"m")+(+b.dataset.fsStep);i=Math.max(0,Math.min(K.length-1,i));d.dataset.fs=K[i];save("ab-fs",K[i])}});
+var nb=document.getElementById("nav-toggle"),side=document.querySelector("nav.side");if(nb&&side){nb.onclick=function(){side.classList.toggle("open")}}
+var cur=side&&side.querySelector(".cur");if(cur)cur.scrollIntoView({block:"center"});
+})();</script>
+</body></html>

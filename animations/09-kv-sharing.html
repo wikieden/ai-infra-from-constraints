@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>32 个查询头，KV 头从 32 减到 1</title><link rel="stylesheet" href="anim.css">
+<style>svg text.big{font-size:15px}svg text.cap{font-size:15px;font-weight:500}svg text.num{font-size:19px;font-weight:600}</style></head>
+<body><main>
+<h1>第 09 章 · 32 个查询头，KV 头从 32 减到 1</h1>
+<p class="sub">配套讲义：<a href="../lessons/09-kv-sharing.html">第 09 章 · KV 怎么变小 ①：头共享与潜变量压缩</a>。固定 Qwen3-8B 的 36 层、头宽 128、8192 个上下文 token、BF16。最后一帧换成 Kimi K3 的 MLA 紧凑路径作对比。</p>
+<div class="panel"><svg id="sv" viewBox="0 0 680 400"></svg></div>
+<div class="row"><button id="play">▶ 播放</button><button id="step">→ 单步</button><button id="reset">↺ 从头开始</button></div>
+<div class="row"><label for="k">自己拖：KV 头数</label><input type="range" id="k" min="0" max="5" step="1" value="3"><span id="kv">8</span></div>
+<p class="note">看点：① 上排 32 个查询头，下排 KV 头，连线表示谁用谁；② KV 头减半，每 token 的 KV 和 8K 上下文的 KV 都减半；③ 注意力运算量一直是 100%：查询头数没变，每个头照样打分；④ MLA 不减头数，而是把每 token 存的东西压成 576 维潜变量。</p>
+</main>
+<script src="anim.js"></script>
+<script>
+const sv=$('sv');const KS=[1,2,4,8,16,32];
+const SEQ=[32,8,1,'mla'];const FR=[];SEQ.forEach(x=>{FR.push(x);FR.push(x)});
+let k=0,custom=null;
+function draw(){
+  clear(sv);const st=custom??FR[k];
+  if(st==='mla'){txt('MLA（Kimi K3，24 个 MLA 层）：不减头数，每 token 只存 512 + 64 维潜变量',{x:340,y:28,'text-anchor':'middle',class:'cap'},sv);
+    [['GQA（Qwen3-8B）8K','1152 MiB'],['MLA 紧凑（Kimi K3）8K','216 MiB'],['MLA 展开（Kimi K3）8K','11.25 GiB']].forEach(([a,b],i)=>{
+      const y=80+i*96;el('rect',{x:140,y,width:400,height:78,rx:8,fill:'none',stroke:'var(--line)'},sv);txt(a,{x:156,y:y+28,class:'m'},sv);txt(b,{x:156,y:y+60,class:'num'},sv)});return}
+  const n=st,per=2*36*n*128*2;
+  txt(`32 个查询头，${n} 个 KV 头：每 ${32/n} 个查询头共用一份 K、V`,{x:340,y:28,'text-anchor':'middle',class:'cap'},sv);
+  const qx=i=>40+i*12.5,kx=j=>40+(j+0.5)*(400/n)-6;
+  for(let i=0;i<32;i++){const j=Math.floor(i/(32/n));el('line',{x1:qx(i)+5,y1:86,x2:kx(j)+6,y2:200,stroke:'var(--muted)','stroke-width':.7,opacity:.6},sv)}
+  for(let i=0;i<32;i++)el('rect',{x:qx(i),y:66,width:10,height:20,rx:2,fill:'var(--accent)',opacity:.8},sv);
+  for(let j=0;j<n;j++)el('rect',{x:kx(j),y:200,width:Math.max(12,Math.min(40,400/n-6)),height:24,rx:3,fill:'var(--teal)',opacity:.85},sv);
+  txt('查询头 ×32',{x:470,y:80,class:'m'},sv);txt(`KV 头 ×${n}`,{x:470,y:216,class:'m'},sv);
+  [['每 token 的 KV',(per/1024).toFixed(0)+' KiB'],['8K 上下文的 KV',(per*8192/2**20>=1024?(per*8192/2**30).toFixed(3)+' GiB':(per*8192/2**20).toFixed(0)+' MiB')],['注意力运算量（相对 MHA）','100%']].forEach(([a,b],i)=>{
+    const x=30+i*212;el('rect',{x,y:268,width:198,height:72,rx:8,fill:'none',stroke:'var(--line)'},sv);txt(a,{x:x+10,y:290,class:'m'},sv);txt(b,{x:x+10,y:324,class:'num'},sv)});
+}
+function reset(){k=0;custom=null;draw()}
+function next(){if(custom!==null){custom=null;draw();return true}if(k>=FR.length-1)return false;k++;draw();return true}
+$('k').oninput=e=>{ANIM.stop();custom=KS[+e.target.value];$('kv').textContent=custom;draw()};
+setupPlayer({captureSeed:1,reset,next},1500);
+</script><a href="https://wikieden.github.io/ai-books/" style="position:fixed;right:12px;bottom:12px;z-index:99;padding:4px 10px;border-radius:14px;background:rgba(127,127,127,.18);color:inherit;font:13px/1.6 system-ui,sans-serif;text-decoration:none">← 全部讲义书</a>
+</body></html>

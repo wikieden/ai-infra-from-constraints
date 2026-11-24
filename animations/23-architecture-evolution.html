@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>固定权重：HBM 读取随 batch 变化</title><link rel="stylesheet" href="anim.css">
+<style>svg text.cap{font-size:15px;font-weight:500}svg text.num{font-size:17px;font-weight:600}</style></head>
+<body><main>
+<h1>第 23 章 · 权重挪走之后，HBM 还剩多少要读</h1>
+<p class="sub">配套讲义：<a href="../lessons/23-architecture-evolution.html">第 23 章 · 架构演进与专用架构：每一代新增的东西，省掉了哪一笔</a>。Qwen3-8B：每步权重 W = 15.1 GB；每条 8K 请求 KV K = 1.21 GB，上下文翻倍 K 也翻倍。</p>
+<div class="panel"><svg id="sv" viewBox="0 0 680 360"></svg></div>
+<div class="row"><button id="play">▶ 播放</button><button id="step">→ 单步</button><button id="reset">↺ 从头开始</button></div>
+<div class="row"><label for="b">自己拖：batch</label><input type="range" id="b" min="1" max="32" step="1" value="1"><span id="bv">1</span><label for="c">上下文</label><select id="c"><option value="1">8K</option><option value="2">16K</option><option value="4">32K</option></select></div>
+<p class="note">看点：① 上面：权重（紫）和 KV（蓝）共用 HBM；② 下面：权重挪到 ROM，HBM 只剩 KV；③ 缩小倍数 = 1 + W/(BK)，batch 越大越接近 1；④ 播放时 batch 1 → 4 → 13 → 32，最后切到 32K、batch 4：交点提前到约 3。</p>
+</main>
+<script src="anim.js"></script>
+<script>
+const sv=$('sv');
+const F=[[1,1],[4,1],[13,1],[32,1],[4,4]];let k=0,custom=null;
+function draw(){clear(sv);const [B,c]=custom||F[k];$('b').value=B;$('bv').textContent=B;$('c').value=c;const W=15.1,K=1.21*c,kv=B*K,S=1+W/kv,max=Math.max(W+kv,60);
+ txt(`batch ${B}、${8*c}K：HBM 读取缩小 ${S.toFixed(1)} 倍；交点 batch ≈ ${(W/K).toFixed(1)}`,{x:340,y:30,'text-anchor':'middle',class:'cap'},sv);const X=v=>140+v/max*480;
+ txt('共用 HBM',{x:130,y:98,'text-anchor':'end',class:'cap'},sv);el('rect',{x:140,y:72,width:X(W)-140,height:40,fill:'var(--purple)',opacity:.7},sv);el('rect',{x:X(W),y:72,width:X(kv)-140,height:40,fill:'var(--accent)',opacity:.7},sv);
+ txt(`${(W+kv).toFixed(1)} GB`,{x:X(W+kv)+6,y:98,class:'num'},sv);
+ txt('权重放 ROM',{x:130,y:178,'text-anchor':'end',class:'cap'},sv);el('rect',{x:140,y:152,width:X(kv)-140,height:40,fill:'var(--accent)',opacity:.7},sv);txt(`${kv.toFixed(1)} GB`,{x:X(kv)+6,y:178,class:'num'},sv);
+ txt('紫 = 权重 15.1 GB · 蓝 = KV（B × K）',{x:140,y:226,class:'m'},sv);
+ const Y=v=>330-(v-1)/13*80,Xb=b=>140+(b-1)/31*480;el('line',{x1:140,y1:330,x2:620,y2:330,stroke:'var(--line)'},sv);txt('缩小倍数',{x:130,y:270,'text-anchor':'end',class:'m'},sv);
+ const pts=[];for(let b=1;b<=32;b++)pts.push(`${Xb(b)},${Y(Math.min(14,1+W/(b*K)))}`);el('polyline',{points:pts.join(' '),fill:'none',stroke:'var(--warm)','stroke-width':2.5},sv);
+ el('circle',{cx:Xb(B),cy:Y(Math.min(14,S)),r:6,fill:'var(--bad)'},sv);txt('1',{x:134,y:334,'text-anchor':'end',class:'m'},sv);txt('batch 32',{x:620,y:348,'text-anchor':'end',class:'m'},sv)}
+function reset(){k=0;custom=null;draw()}
+function next(){if(custom!==null){custom=null;draw();return true}if(k>=F.length-1)return false;k++;draw();return true}
+const f=()=>{ANIM.stop();custom=[+$('b').value,+$('c').value];draw()};$('b').oninput=f;$('c').onchange=f;
+setupPlayer({captureSeed:1,reset,next},1500);
+</script><a href="https://wikieden.github.io/ai-books/" style="position:fixed;right:12px;bottom:12px;z-index:99;padding:4px 10px;border-radius:14px;background:rgba(127,127,127,.18);color:inherit;font:13px/1.6 system-ui,sans-serif;text-decoration:none">← 全部讲义书</a>
+</body></html>

@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="360" viewBox="0 0 860 360">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="16.0" y="26.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="17" fill="#1f2937" text-anchor="start" font-weight="bold">分块：一个数从显存读一次，在近处被用 t 次</text>
+<text x="16.0" y="350.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">n = 4 的矩阵乘法 C = A × B；左边不分块，右边 t = 2。计数是远处（显存）读取次数。</text>
+<text x="200.0" y="70.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="13" fill="#1f2937" text-anchor="middle" font-weight="bold">不分块：C 的每个元素各读 2n 个数</text>
+<rect x="40.0" y="96.0" width="24.0" height="24.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<rect x="66.0" y="96.0" width="24.0" height="24.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<rect x="92.0" y="96.0" width="24.0" height="24.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<rect x="118.0" y="96.0" width="24.0" height="24.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<rect x="40.0" y="122.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="66.0" y="122.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="92.0" y="122.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="118.0" y="122.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="40.0" y="148.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="66.0" y="148.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="92.0" y="148.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="118.0" y="148.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="40.0" y="174.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="66.0" y="174.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="92.0" y="174.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="118.0" y="174.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<text x="92.0" y="222.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="middle" font-weight="normal">A 的一行</text>
+<rect x="160.0" y="96.0" width="24.0" height="24.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<rect x="186.0" y="96.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="212.0" y="96.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="238.0" y="96.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="160.0" y="122.0" width="24.0" height="24.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<rect x="186.0" y="122.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="212.0" y="122.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="238.0" y="122.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="160.0" y="148.0" width="24.0" height="24.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<rect x="186.0" y="148.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="212.0" y="148.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="238.0" y="148.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="160.0" y="174.0" width="24.0" height="24.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<rect x="186.0" y="174.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="212.0" y="174.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="238.0" y="174.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<text x="212.0" y="222.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="middle" font-weight="normal">B 的一列</text>
+<rect x="280.0" y="96.0" width="24.0" height="24.0" rx="2" fill="#dcfce7" stroke="#16a34a" stroke-width="1.4" opacity="1"/>
+<rect x="306.0" y="96.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="332.0" y="96.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="358.0" y="96.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="280.0" y="122.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="306.0" y="122.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="332.0" y="122.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="358.0" y="122.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="280.0" y="148.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="306.0" y="148.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="332.0" y="148.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="358.0" y="148.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="280.0" y="174.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="306.0" y="174.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="332.0" y="174.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="358.0" y="174.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<text x="332.0" y="222.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="middle" font-weight="normal">C 的 1 个元素</text>
+<text x="200.0" y="262.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="13" fill="#ea580c" text-anchor="middle" font-weight="bold">每个元素 2 × 4 = 8 次，16 个元素</text>
+<text x="200.0" y="279.6" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="13" fill="#ea580c" text-anchor="middle" font-weight="bold">远处读取 = 2n³ = 128</text>
+<line x1="430.0" y1="70.0" x2="430.0" y2="300.0" stroke="#e5e7eb" stroke-width="1.5"/>
+<text x="650.0" y="70.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="13" fill="#1f2937" text-anchor="middle" font-weight="bold">分块 t = 2：搬一块进近处，用 t 次</text>
+<rect x="470.0" y="96.0" width="24.0" height="24.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<rect x="496.0" y="96.0" width="24.0" height="24.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<rect x="522.0" y="96.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="548.0" y="96.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="470.0" y="122.0" width="24.0" height="24.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<rect x="496.0" y="122.0" width="24.0" height="24.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<rect x="522.0" y="122.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="548.0" y="122.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="470.0" y="148.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="496.0" y="148.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="522.0" y="148.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="548.0" y="148.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="470.0" y="174.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="496.0" y="174.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="522.0" y="174.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="548.0" y="174.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<text x="522.0" y="222.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="middle" font-weight="normal">A 的一块</text>
+<rect x="590.0" y="96.0" width="24.0" height="24.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<rect x="616.0" y="96.0" width="24.0" height="24.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<rect x="642.0" y="96.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="668.0" y="96.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="590.0" y="122.0" width="24.0" height="24.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<rect x="616.0" y="122.0" width="24.0" height="24.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<rect x="642.0" y="122.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="668.0" y="122.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="590.0" y="148.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="616.0" y="148.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="642.0" y="148.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="668.0" y="148.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="590.0" y="174.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="616.0" y="174.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="642.0" y="174.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="668.0" y="174.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<text x="642.0" y="222.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="middle" font-weight="normal">B 的一块</text>
+<rect x="710.0" y="96.0" width="24.0" height="24.0" rx="2" fill="#dcfce7" stroke="#16a34a" stroke-width="1.4" opacity="1"/>
+<rect x="736.0" y="96.0" width="24.0" height="24.0" rx="2" fill="#dcfce7" stroke="#16a34a" stroke-width="1.4" opacity="1"/>
+<rect x="762.0" y="96.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="788.0" y="96.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="710.0" y="122.0" width="24.0" height="24.0" rx="2" fill="#dcfce7" stroke="#16a34a" stroke-width="1.4" opacity="1"/>
+<rect x="736.0" y="122.0" width="24.0" height="24.0" rx="2" fill="#dcfce7" stroke="#16a34a" stroke-width="1.4" opacity="1"/>
+<rect x="762.0" y="122.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="788.0" y="122.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="710.0" y="148.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="736.0" y="148.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="762.0" y="148.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="788.0" y="148.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="710.0" y="174.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="736.0" y="174.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="762.0" y="174.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<rect x="788.0" y="174.0" width="24.0" height="24.0" rx="2" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<text x="762.0" y="222.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="middle" font-weight="normal">C 的一块</text>
+<text x="650.0" y="262.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="13" fill="#2563eb" text-anchor="middle" font-weight="bold">4 个 C 块 × 沿 K 滑 2 次 × 每次搬 8 个数</text>
+<text x="650.0" y="279.6" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="13" fill="#2563eb" text-anchor="middle" font-weight="bold">远处读取 = 2n³ / t = 64</text>
+</svg>

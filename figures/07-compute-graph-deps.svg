@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="370" viewBox="0 0 860 370">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="16.0" y="26.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="17" fill="#1f2937" text-anchor="start" font-weight="bold">两种依赖：RNN 同层要等前一个位置；因果 Transformer 只等上一层</text>
+<text x="16.0" y="360.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">4 个已知输入 token、3 层。圆点是一次计算，箭头指向要用这个结果的计算。</text>
+<text x="220.0" y="66.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="13.5" fill="#1f2937" text-anchor="middle" font-weight="bold">RNN：h_t = f(x_t, h_{t-1})</text>
+<line x1="101.0" y1="260.0" x2="169.0" y2="260.0" stroke="#ea580c" stroke-width="1.8"/>
+<polygon points="169.0,260.0 161.1,264.2 161.1,255.8" fill="#ea580c" stroke="#ea580c" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<line x1="191.0" y1="260.0" x2="259.0" y2="260.0" stroke="#ea580c" stroke-width="1.8"/>
+<polygon points="259.0,260.0 251.1,264.2 251.1,255.8" fill="#ea580c" stroke="#ea580c" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<line x1="281.0" y1="260.0" x2="349.0" y2="260.0" stroke="#ea580c" stroke-width="1.8"/>
+<polygon points="349.0,260.0 341.1,264.2 341.1,255.8" fill="#ea580c" stroke="#ea580c" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<line x1="90.0" y1="249.0" x2="90.0" y2="201.0" stroke="#6b7280" stroke-width="1.4"/>
+<polygon points="90.0,201.0 94.2,208.9 85.8,208.9" fill="#6b7280" stroke="#6b7280" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<line x1="101.0" y1="190.0" x2="169.0" y2="190.0" stroke="#ea580c" stroke-width="1.8"/>
+<polygon points="169.0,190.0 161.1,194.2 161.1,185.8" fill="#ea580c" stroke="#ea580c" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<line x1="180.0" y1="249.0" x2="180.0" y2="201.0" stroke="#6b7280" stroke-width="1.4"/>
+<polygon points="180.0,201.0 184.2,208.9 175.8,208.9" fill="#6b7280" stroke="#6b7280" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<line x1="191.0" y1="190.0" x2="259.0" y2="190.0" stroke="#ea580c" stroke-width="1.8"/>
+<polygon points="259.0,190.0 251.1,194.2 251.1,185.8" fill="#ea580c" stroke="#ea580c" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<line x1="270.0" y1="249.0" x2="270.0" y2="201.0" stroke="#6b7280" stroke-width="1.4"/>
+<polygon points="270.0,201.0 274.2,208.9 265.8,208.9" fill="#6b7280" stroke="#6b7280" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<line x1="281.0" y1="190.0" x2="349.0" y2="190.0" stroke="#ea580c" stroke-width="1.8"/>
+<polygon points="349.0,190.0 341.1,194.2 341.1,185.8" fill="#ea580c" stroke="#ea580c" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<line x1="360.0" y1="249.0" x2="360.0" y2="201.0" stroke="#6b7280" stroke-width="1.4"/>
+<polygon points="360.0,201.0 364.2,208.9 355.8,208.9" fill="#6b7280" stroke="#6b7280" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<line x1="90.0" y1="179.0" x2="90.0" y2="131.0" stroke="#6b7280" stroke-width="1.4"/>
+<polygon points="90.0,131.0 94.2,138.9 85.8,138.9" fill="#6b7280" stroke="#6b7280" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<line x1="101.0" y1="120.0" x2="169.0" y2="120.0" stroke="#ea580c" stroke-width="1.8"/>
+<polygon points="169.0,120.0 161.1,124.2 161.1,115.8" fill="#ea580c" stroke="#ea580c" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<line x1="180.0" y1="179.0" x2="180.0" y2="131.0" stroke="#6b7280" stroke-width="1.4"/>
+<polygon points="180.0,131.0 184.2,138.9 175.8,138.9" fill="#6b7280" stroke="#6b7280" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<line x1="191.0" y1="120.0" x2="259.0" y2="120.0" stroke="#ea580c" stroke-width="1.8"/>
+<polygon points="259.0,120.0 251.1,124.2 251.1,115.8" fill="#ea580c" stroke="#ea580c" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<line x1="270.0" y1="179.0" x2="270.0" y2="131.0" stroke="#6b7280" stroke-width="1.4"/>
+<polygon points="270.0,131.0 274.2,138.9 265.8,138.9" fill="#6b7280" stroke="#6b7280" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<line x1="281.0" y1="120.0" x2="349.0" y2="120.0" stroke="#ea580c" stroke-width="1.8"/>
+<polygon points="349.0,120.0 341.1,124.2 341.1,115.8" fill="#ea580c" stroke="#ea580c" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<line x1="360.0" y1="179.0" x2="360.0" y2="131.0" stroke="#6b7280" stroke-width="1.4"/>
+<polygon points="360.0,131.0 364.2,138.9 355.8,138.9" fill="#6b7280" stroke="#6b7280" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<circle cx="90.0" cy="260.0" r="10" fill="#dcfce7" stroke="#16a34a" stroke-width="1.6"/>
+<circle cx="180.0" cy="260.0" r="10" fill="#dcfce7" stroke="#16a34a" stroke-width="1.6"/>
+<circle cx="270.0" cy="260.0" r="10" fill="#dcfce7" stroke="#16a34a" stroke-width="1.6"/>
+<circle cx="360.0" cy="260.0" r="10" fill="#dcfce7" stroke="#16a34a" stroke-width="1.6"/>
+<circle cx="90.0" cy="190.0" r="10" fill="#dcfce7" stroke="#16a34a" stroke-width="1.6"/>
+<circle cx="180.0" cy="190.0" r="10" fill="#dcfce7" stroke="#16a34a" stroke-width="1.6"/>
+<circle cx="270.0" cy="190.0" r="10" fill="#dcfce7" stroke="#16a34a" stroke-width="1.6"/>
+<circle cx="360.0" cy="190.0" r="10" fill="#dcfce7" stroke="#16a34a" stroke-width="1.6"/>
+<circle cx="90.0" cy="120.0" r="10" fill="#dcfce7" stroke="#16a34a" stroke-width="1.6"/>
+<circle cx="180.0" cy="120.0" r="10" fill="#dcfce7" stroke="#16a34a" stroke-width="1.6"/>
+<circle cx="270.0" cy="120.0" r="10" fill="#dcfce7" stroke="#16a34a" stroke-width="1.6"/>
+<circle cx="360.0" cy="120.0" r="10" fill="#dcfce7" stroke="#16a34a" stroke-width="1.6"/>
+<text x="90.0" y="296.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">位置 1</text>
+<text x="180.0" y="296.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">位置 2</text>
+<text x="270.0" y="296.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">位置 3</text>
+<text x="360.0" y="296.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">位置 4</text>
+<text x="54.0" y="264.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#6b7280" text-anchor="end" font-weight="normal">层 1</text>
+<text x="54.0" y="194.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#6b7280" text-anchor="end" font-weight="normal">层 2</text>
+<text x="54.0" y="124.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#6b7280" text-anchor="end" font-weight="normal">层 3</text>
+<text x="650.0" y="66.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="13.5" fill="#1f2937" text-anchor="middle" font-weight="bold">因果 Transformer</text>
+<line x1="520.0" y1="249.0" x2="520.0" y2="201.0" stroke="#2563eb" stroke-width="1.3"/>
+<polygon points="520.0,201.0 524.2,208.9 515.8,208.9" fill="#2563eb" stroke="#2563eb" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<line x1="520.0" y1="249.0" x2="607.0" y2="201.0" stroke="#93c5fd" stroke-width="1.3"/>
+<polygon points="607.0,201.0 602.1,208.5 598.0,201.1" fill="#93c5fd" stroke="#93c5fd" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<line x1="610.0" y1="249.0" x2="610.0" y2="201.0" stroke="#2563eb" stroke-width="1.3"/>
+<polygon points="610.0,201.0 614.2,208.9 605.8,208.9" fill="#2563eb" stroke="#2563eb" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<line x1="520.0" y1="249.0" x2="694.0" y2="201.0" stroke="#93c5fd" stroke-width="1.3"/>
+<polygon points="694.0,201.0 687.5,207.2 685.2,199.0" fill="#93c5fd" stroke="#93c5fd" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<line x1="610.0" y1="249.0" x2="697.0" y2="201.0" stroke="#93c5fd" stroke-width="1.3"/>
+<polygon points="697.0,201.0 692.1,208.5 688.0,201.1" fill="#93c5fd" stroke="#93c5fd" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<line x1="700.0" y1="249.0" x2="700.0" y2="201.0" stroke="#2563eb" stroke-width="1.3"/>
+<polygon points="700.0,201.0 704.2,208.9 695.8,208.9" fill="#2563eb" stroke="#2563eb" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<line x1="520.0" y1="249.0" x2="781.0" y2="201.0" stroke="#93c5fd" stroke-width="1.3"/>
+<polygon points="781.0,201.0 773.9,206.6 772.4,198.3" fill="#93c5fd" stroke="#93c5fd" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<line x1="610.0" y1="249.0" x2="784.0" y2="201.0" stroke="#93c5fd" stroke-width="1.3"/>
+<polygon points="784.0,201.0 777.5,207.2 775.2,199.0" fill="#93c5fd" stroke="#93c5fd" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<line x1="700.0" y1="249.0" x2="787.0" y2="201.0" stroke="#93c5fd" stroke-width="1.3"/>
+<polygon points="787.0,201.0 782.1,208.5 778.0,201.1" fill="#93c5fd" stroke="#93c5fd" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<line x1="790.0" y1="249.0" x2="790.0" y2="201.0" stroke="#2563eb" stroke-width="1.3"/>
+<polygon points="790.0,201.0 794.2,208.9 785.8,208.9" fill="#2563eb" stroke="#2563eb" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<line x1="520.0" y1="179.0" x2="520.0" y2="131.0" stroke="#2563eb" stroke-width="1.3"/>
+<polygon points="520.0,131.0 524.2,138.9 515.8,138.9" fill="#2563eb" stroke="#2563eb" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<line x1="520.0" y1="179.0" x2="607.0" y2="131.0" stroke="#93c5fd" stroke-width="1.3"/>
+<polygon points="607.0,131.0 602.1,138.5 598.0,131.1" fill="#93c5fd" stroke="#93c5fd" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<line x1="610.0" y1="179.0" x2="610.0" y2="131.0" stroke="#2563eb" stroke-width="1.3"/>
+<polygon points="610.0,131.0 614.2,138.9 605.8,138.9" fill="#2563eb" stroke="#2563eb" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<line x1="520.0" y1="179.0" x2="694.0" y2="131.0" stroke="#93c5fd" stroke-width="1.3"/>
+<polygon points="694.0,131.0 687.5,137.2 685.2,129.0" fill="#93c5fd" stroke="#93c5fd" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<line x1="610.0" y1="179.0" x2="697.0" y2="131.0" stroke="#93c5fd" stroke-width="1.3"/>
+<polygon points="697.0,131.0 692.1,138.5 688.0,131.1" fill="#93c5fd" stroke="#93c5fd" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<line x1="700.0" y1="179.0" x2="700.0" y2="131.0" stroke="#2563eb" stroke-width="1.3"/>
+<polygon points="700.0,131.0 704.2,138.9 695.8,138.9" fill="#2563eb" stroke="#2563eb" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<line x1="520.0" y1="179.0" x2="781.0" y2="131.0" stroke="#93c5fd" stroke-width="1.3"/>
+<polygon points="781.0,131.0 773.9,136.6 772.4,128.3" fill="#93c5fd" stroke="#93c5fd" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<line x1="610.0" y1="179.0" x2="784.0" y2="131.0" stroke="#93c5fd" stroke-width="1.3"/>
+<polygon points="784.0,131.0 777.5,137.2 775.2,129.0" fill="#93c5fd" stroke="#93c5fd" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<line x1="700.0" y1="179.0" x2="787.0" y2="131.0" stroke="#93c5fd" stroke-width="1.3"/>
+<polygon points="787.0,131.0 782.1,138.5 778.0,131.1" fill="#93c5fd" stroke="#93c5fd" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<line x1="790.0" y1="179.0" x2="790.0" y2="131.0" stroke="#2563eb" stroke-width="1.3"/>
+<polygon points="790.0,131.0 794.2,138.9 785.8,138.9" fill="#2563eb" stroke="#2563eb" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<circle cx="520.0" cy="260.0" r="10" fill="#dcfce7" stroke="#16a34a" stroke-width="1.6"/>
+<circle cx="610.0" cy="260.0" r="10" fill="#dcfce7" stroke="#16a34a" stroke-width="1.6"/>
+<circle cx="700.0" cy="260.0" r="10" fill="#dcfce7" stroke="#16a34a" stroke-width="1.6"/>
+<circle cx="790.0" cy="260.0" r="10" fill="#dcfce7" stroke="#16a34a" stroke-width="1.6"/>
+<circle cx="520.0" cy="190.0" r="10" fill="#dcfce7" stroke="#16a34a" stroke-width="1.6"/>
+<circle cx="610.0" cy="190.0" r="10" fill="#dcfce7" stroke="#16a34a" stroke-width="1.6"/>
+<circle cx="700.0" cy="190.0" r="10" fill="#dcfce7" stroke="#16a34a" stroke-width="1.6"/>
+<circle cx="790.0" cy="190.0" r="10" fill="#dcfce7" stroke="#16a34a" stroke-width="1.6"/>
+<circle cx="520.0" cy="120.0" r="10" fill="#dcfce7" stroke="#16a34a" stroke-width="1.6"/>
+<circle cx="610.0" cy="120.0" r="10" fill="#dcfce7" stroke="#16a34a" stroke-width="1.6"/>
+<circle cx="700.0" cy="120.0" r="10" fill="#dcfce7" stroke="#16a34a" stroke-width="1.6"/>
+<circle cx="790.0" cy="120.0" r="10" fill="#dcfce7" stroke="#16a34a" stroke-width="1.6"/>
+<text x="520.0" y="296.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">位置 1</text>
+<text x="610.0" y="296.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">位置 2</text>
+<text x="700.0" y="296.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">位置 3</text>
+<text x="790.0" y="296.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">位置 4</text>
+<text x="484.0" y="264.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#6b7280" text-anchor="end" font-weight="normal">层 1</text>
+<text x="484.0" y="194.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#6b7280" text-anchor="end" font-weight="normal">层 2</text>
+<text x="484.0" y="124.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11" fill="#6b7280" text-anchor="end" font-weight="normal">层 3</text>
+<line x1="60.0" y1="314.0" x2="82.0" y2="314.0" stroke="#ea580c" stroke-width="2.5"/>
+<text x="88.0" y="318.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#1f2937" text-anchor="start" font-weight="normal">同层等前一个位置</text>
+<line x1="490.0" y1="314.0" x2="512.0" y2="314.0" stroke="#2563eb" stroke-width="2.5"/>
+<text x="518.0" y="318.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#1f2937" text-anchor="start" font-weight="normal">读上一层自己和之前的位置（同层可并行）</text>
+</svg>

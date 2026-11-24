@@ -1,0 +1,1152 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>附录 · 缩写与术语表 · 从约束推导 AI Infra</title>
+<script>(function(){try{var d=document.documentElement,t=localStorage.getItem("ab-theme"),f=localStorage.getItem("ab-fs");if(t)d.dataset.theme=t;if(f)d.dataset.fs=f}catch(e){}})();</script>
+<style>:root{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa;--fs:16px}
+@media (prefers-color-scheme:dark){:root:not([data-theme]){--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}}
+:root[data-theme="light"]{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa}
+:root[data-theme="dark"]{--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}
+:root[data-theme="sepia"]{--bg:#f6efe1;--fg:#3b3127;--mute:#7a6a58;--line:#e2d6bf;--card:#fbf6ec;--acc:#a0522d;--code:#ece2cd;--quote:#efe5d2}
+:root[data-theme="green"]{--bg:#e3eddf;--fg:#22301f;--mute:#566650;--line:#c9d8c3;--card:#eef5eb;--acc:#2e7d4f;--code:#d6e4d0;--quote:#dae7d5}
+:root[data-theme="navy"]{--bg:#0f1a2b;--fg:#dde6f3;--mute:#93a4bd;--line:#23324a;--card:#15233a;--acc:#6cc4ff;--code:#1a2a44;--quote:#16243b}
+:root[data-fs="s"]{--fs:15px}
+:root[data-fs="m"]{--fs:16px}
+:root[data-fs="l"]{--fs:18px}
+:root[data-fs="xl"]{--fs:20px}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:var(--fs)/1.75 -apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Helvetica Neue",sans-serif}
+a{color:var(--acc)}
+header.top{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+header.top .in{max-width:860px;margin:0 auto;padding:10px 16px;display:flex;gap:6px 16px;align-items:center;flex-wrap:wrap;font-size:14px}
+header.top .brand{font-weight:600;color:var(--fg);text-decoration:none;margin-right:auto}
+header.top a{text-decoration:none}
+.prefs{display:inline-flex;gap:4px;align-items:center}
+.prefs button,.prefs select,#nav-toggle{font:inherit;font-size:13px;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:2px 8px;cursor:pointer}
+main{max-width:860px;margin:0 auto;padding:24px 16px 72px;overflow-wrap:anywhere}
+h1{font-size:1.75em;line-height:1.35;margin:8px 0 16px} h2{font-size:1.375em;margin:40px 0 12px;padding-top:8px;border-top:1px solid var(--line)} h3{font-size:1.125em;margin:28px 0 8px}
+.layout{display:grid;grid-template-columns:260px minmax(0,1fr);max-width:1180px;margin:0 auto}
+.layout main{margin:0;max-width:880px}
+nav.side{position:sticky;top:49px;align-self:start;max-height:calc(100vh - 49px);overflow-y:auto;padding:20px 8px 40px 16px;border-right:1px solid var(--line);font-size:14px;line-height:1.5}
+nav.side .h{font-weight:600;color:var(--mute);margin:4px 8px 8px;font-size:13px}
+nav.side a{display:block;padding:5px 8px;border-radius:6px;color:var(--fg);text-decoration:none}
+nav.side a:hover{background:var(--code)} nav.side a.cur{background:var(--quote);color:var(--acc);font-weight:600}
+nav.side a .n{color:var(--mute);margin-right:6px;font-variant-numeric:tabular-nums}
+#nav-toggle{display:none}
+@media (max-width:960px){.layout{display:block} nav.side{display:none;position:fixed;z-index:6;top:49px;left:0;bottom:0;width:min(300px,85vw);max-height:none;background:var(--bg);box-shadow:2px 0 12px rgba(0,0,0,.2)} nav.side.open{display:block} #nav-toggle{display:inline-block}}
+.run{display:flex;flex-wrap:wrap;align-items:center;gap:4px 0;margin:4px 0 12px}
+.run details{flex-basis:100%;margin:6px 0 0;font-size:.94em}
+img{max-width:100%;height:auto;border-radius:8px;border:1px solid var(--line);background:#fff}
+blockquote{margin:16px 0;padding:10px 16px;background:var(--quote);border-left:3px solid var(--acc);border-radius:4px;color:var(--mute)}
+blockquote p{margin:4px 0}
+code{background:var(--code);padding:1px 5px;border-radius:4px;font-size:.9em}
+pre{background:var(--code);padding:12px 14px;border-radius:8px;overflow-x:auto} pre code{padding:0;background:none}
+table{border-collapse:collapse;display:block;overflow-x:auto;max-width:100%;margin:12px 0;font-size:.94em}
+th,td{border:1px solid var(--line);padding:6px 10px;vertical-align:top} th{background:var(--code)}
+details{border:1px solid var(--line);border-radius:8px;padding:6px 12px;margin:8px 0;background:var(--card)}
+details[open]{padding-bottom:10px} summary{cursor:pointer;color:var(--acc);font-weight:500}
+mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%}
+.btn{display:inline-block;margin:4px 8px 4px 0;padding:6px 14px;border:1px solid var(--acc);border-radius:999px;text-decoration:none;font-size:14px}
+.pager{display:flex;justify-content:space-between;gap:12px;margin-top:48px;padding-top:16px;border-top:1px solid var(--line);font-size:15px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin:16px 0}
+.card{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;color:inherit;text-decoration:none}
+.card:hover{border-color:var(--acc)} .card img{border:0;border-bottom:1px solid var(--line);border-radius:0;aspect-ratio:16/10;object-fit:contain;width:100%}
+.card .no{color:var(--mute);font-size:13px;padding:8px 12px 0} .card .t{padding:0 12px 12px;font-weight:500;line-height:1.5}
+.lead{font-size:1.06em;color:var(--mute)}
+footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-size:13px}
+</style>
+<script>window.MathJax={tex:{inlineMath:[["\\(","\\)"]],displayMath:[["\\[","\\]"],["$$","$$"]],processEscapes:true,processEnvironments:true}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"></script>
+</head><body>
+<header class="top"><div class="in">
+<button type="button" id="nav-toggle" aria-label="打开章节列表">☰ 章节</button><a class="brand" href="../index.html">从约束推导 AI Infra</a>
+<a href="../lessons/index.html">讲义目录</a>
+<a href="../animations/index.html">动画</a>
+<a href="../review.html">复习卡片</a>
+<a href="../lessons/appendix-glossary.html">缩写表</a>
+<a href="https://wikieden.github.io/ai-books/glossary.html">全局词汇</a>
+<a href="https://wikieden.github.io/ai-books/">← 全部讲义书</a>
+<span class="prefs" title="字号与主题"><button type="button" data-fs-step="-1" aria-label="字号变小">A−</button><button type="button" data-fs-step="1" aria-label="字号变大">A+</button><select id="ab-theme" aria-label="主题色"><option value="">跟随系统</option><option value="light">浅色</option><option value="dark">深色</option><option value="sepia">米黄护眼</option><option value="green">豆沙绿护眼</option><option value="navy">夜蓝</option></select></span>
+</div></header>
+<div class="layout"><nav class="side" aria-label="章节"><div class="h">从约束推导 AI Infra</div><a href="index.html">讲义目录</a><a href="01-six-layers.html"><span class="n">1</span>一次请求走过的六层（进行中）</a><a href="02-request-lifecycle.html"><span class="n">2</span>一次生成请求的处理过程：权重加载一次，每个 token 都要再读一遍</a><a href="03-dataflow-hierarchy.html"><span class="n">3</span>从存储程序到数据流执行：存储层次就像大楼里的厕所</a><a href="04-key-numbers.html"><span class="n">4</span>系统设计的关键数字：容量、算力、带宽、延迟</a><a href="05-estimate.html"><span class="n">5</span>用几个数字估算一次模型执行：算和读各要多久，实测为什么达不到</a><a href="06-architecture.html"><span class="n">6</span>需求如何推动架构：TPU、SmartNIC、Unified Bus</a><a href="07-compute-graph.html"><span class="n">7</span>计算图与张量结构：一个 token 经过一层要算多少</a><a href="08-generation-budget.html"><span class="n">8</span>自回归生成的资源账：存一次的、每步读的、用完就扔的</a><a href="09-kv-sharing.html"><span class="n">9</span>KV 怎么变小 ①：头共享与潜变量压缩</a><a href="10-kv-sparse-linear.html"><span class="n">10</span>KV 怎么变小 ②：窗口、稀疏、线性与混合注意力</a><a href="11-moe.html"><span class="n">11</span>MoE：专家路由与批内权重复用</a><a href="12-network-shape.html"><span class="n">12</span>网络形状：深宽、专家粒度、残差与多 token 预测</a><a href="13-model-comparison.html"><span class="n">13</span>整个模型的资源需求与比较：存多少、算多少、能放几条请求</a><a href="14-workload-arrival.html"><span class="n">14</span>从单次请求到持续到达的负载：什么时候来，比来多少更要紧</a><a href="15-agent-tasks.html"><span class="n">15</span>多轮交互与 Agent 任务：前缀、成功成本、关键路径</a><a href="16-multimodal-realtime.html"><span class="n">16</span>多模态与实时交互：数据换形状，时间有死线（略讲）</a><a href="17-training-rl.html"><span class="n">17</span>训练与强化学习的计算和状态：为什么训练要 6ND、要存 18 字节</a><a href="18-scaling-lifecycle.html"><span class="n">18</span>Scaling law 与全生命周期成本：训练多大、训练多久、服务多少次</a><a href="19-accelerator-basics.html"><span class="n">19</span>从矩阵乘法认识加速器：算多少、搬多少、耗多少电</a><a href="20-compute-units.html"><span class="n">20</span>计算单元：矩阵、向量、流水与低精度</a><a href="21-memory-movement.html"><span class="n">21</span>存储层次与数据搬移：放得下、取得到、来得及</a><a href="22-package-interconnect.html"><span class="n">22</span>多芯片封装与互联：计算放在哪，数据走哪条路</a><a href="23-architecture-evolution.html"><span class="n">23</span>架构演进与专用架构：每一代新增的东西，省掉了哪一笔</a><a href="24-choose-accelerator.html"><span class="n">24</span>根据架构选择加速器：先估下界，再找差距，最后算账</a><a href="appendix-glossary.html" class="cur">附录 · 缩写与术语表</a><a href="appendix-tp-pp-cp.html">附录 · 补充资料：TP、PP、CP，一个模型沿三个方向切给多张卡</a></nav><main>
+<h1 id="_1">附录 · 缩写与术语表</h1>
+<p>讲到一个缩写或术语就加一条，按字母排序。"首次出现"指讲义里第一次讲到它的章。</p>
+<h2 id="_2">缩写</h2>
+<table>
+<thead>
+<tr>
+<th>缩写</th>
+<th>英文全称</th>
+<th>逐词中文</th>
+<th>一句话意思</th>
+<th>首次出现</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AF</td>
+<td>Attention–FFN disaggregation</td>
+<td>注意力 / 前馈 / 分离</td>
+<td>把注意力和 FFN 交给不同资源执行（原书第 9 章）</td>
+<td><a href="../lessons/11-moe.html">11</a></td>
+</tr>
+<tr>
+<td>AI Infra</td>
+<td>AI Infrastructure</td>
+<td>人工智能 / 基础设施</td>
+<td>支撑 AI 训练和推理的计算设备、存储、互联，以及组织它们的软件</td>
+<td><a href="../lessons/01-six-layers.html">01</a></td>
+</tr>
+<tr>
+<td>AIC / AIV</td>
+<td>AI Cube core / AI Vector core</td>
+<td>AI / 矩阵核 / 向量核</td>
+<td>昇腾 910B 起把矩阵核和向量核分开控制，在不同数据块上交错推进</td>
+<td><a href="../lessons/23-architecture-evolution.html">23</a></td>
+</tr>
+<tr>
+<td>AII</td>
+<td>—</td>
+<td>—</td>
+<td>本专题主书《深入理解 AI Infra》（李博杰）的简称</td>
+<td><a href="../lessons/01-six-layers.html">01</a></td>
+</tr>
+<tr>
+<td>AISPE</td>
+<td>AI Systems Performance Engineering</td>
+<td>AI / 系统 / 性能 / 工程</td>
+<td>本专题配读书（Chris Fregly）的简称</td>
+<td><a href="../lessons/01-six-layers.html">01</a></td>
+</tr>
+<tr>
+<td>AttnRes</td>
+<td>Attention Residuals</td>
+<td>注意力 / 残差连接</td>
+<td>Kimi K3 沿网络深度用注意力挑选之前各层的表示</td>
+<td><a href="../lessons/12-network-shape.html">12</a></td>
+</tr>
+<tr>
+<td>BF16</td>
+<td>Brain Float 16</td>
+<td>Google Brain 提出的 / 浮点 / 16 位</td>
+<td>16 位浮点格式，每个参数 2 字节；原书 Qwen3-8B 的权重、KV 都按它算</td>
+<td><a href="../lessons/02-request-lifecycle.html">02</a></td>
+</tr>
+<tr>
+<td>CED</td>
+<td>Causal Encoder-Decoder</td>
+<td>因果 / 编码器 / 解码器</td>
+<td>DeepSeek V4.1 Flash 的架构：编码器整理上下文，解码器从中取信息，大量输入 token 不经过解码器主体</td>
+<td><a href="../lessons/02-request-lifecycle.html">02</a></td>
+</tr>
+<tr>
+<td>CFG</td>
+<td>Classifier-Free Guidance</td>
+<td>无 / 分类器 / 引导</td>
+<td>组合有条件和无条件两路预测；图像生成每步多一路前向</td>
+<td><a href="../lessons/16-multimodal-realtime.html">16</a></td>
+</tr>
+<tr>
+<td>CP</td>
+<td>Context Parallelism</td>
+<td>上下文 / 并行</td>
+<td>把一条长输入序列按位置切给多张卡；后面的卡要用前面卡的 k、v</td>
+<td><a href="../lessons/appendix-tp-pp-cp.html">补充 · TP/PP/CP</a></td>
+</tr>
+<tr>
+<td>CPU</td>
+<td>Central Processing Unit</td>
+<td>中央 / 处理 / 单元</td>
+<td>执行通用程序的处理器，在 AI 系统里负责调度和提交工作</td>
+<td><a href="../lessons/01-six-layers.html">01</a></td>
+</tr>
+<tr>
+<td>CSA</td>
+<td>Compressed Sparse Attention</td>
+<td>压缩 / 稀疏 / 注意力</td>
+<td>每 4 个 token 压成一条，先扫索引再读选中的最多 512 条</td>
+<td><a href="../lessons/10-kv-sparse-linear.html">10</a></td>
+</tr>
+<tr>
+<td>CV</td>
+<td>Cube–Vector</td>
+<td>矩阵单元 / 向量单元</td>
+<td>昇腾 950 在 Cube 的 L1 和 Vector 的 UB 之间加的直接通路，减少交接流量</td>
+<td><a href="../lessons/23-architecture-evolution.html">23</a></td>
+</tr>
+<tr>
+<td>D2H / H2D</td>
+<td>Device to Host / Host to Device</td>
+<td>设备到主机 / 主机到设备</td>
+<td>主机内存和加速器显存之间的复制方向</td>
+<td><a href="../lessons/22-package-interconnect.html">22</a></td>
+</tr>
+<tr>
+<td>DiT</td>
+<td>Diffusion Transformer</td>
+<td>扩散 / Transformer</td>
+<td>用 Transformer 做每一步去噪</td>
+<td><a href="../lessons/16-multimodal-realtime.html">16</a></td>
+</tr>
+<tr>
+<td>DMA</td>
+<td>Direct Memory Access</td>
+<td>直接 / 内存 / 访问</td>
+<td>传输硬件直接把数据写进指定内存，CPU 只负责发起和管理</td>
+<td><a href="../lessons/02-request-lifecycle.html">02</a></td>
+</tr>
+<tr>
+<td>DP</td>
+<td>Data Parallelism</td>
+<td>数据 / 并行</td>
+<td>每卡一份完整模型，切分样本；组合时放在最外层</td>
+<td><a href="../lessons/appendix-tp-pp-cp.html">补充 · TP/PP/CP</a></td>
+</tr>
+<tr>
+<td>DRAM</td>
+<td>Dynamic Random-Access Memory</td>
+<td>动态 / 随机访问 / 存储器</td>
+<td>靠电容存位、要定时刷新的内存；HBM、GDDR、LPDDR 都是 DRAM</td>
+<td><a href="../lessons/19-accelerator-basics.html">19</a></td>
+</tr>
+<tr>
+<td>EC</td>
+<td>Encoder Cache</td>
+<td>编码器 / 缓存</td>
+<td>视觉编码器的输出；图片和编码配置一致就能复用</td>
+<td><a href="../lessons/16-multimodal-realtime.html">16</a></td>
+</tr>
+<tr>
+<td>ECC</td>
+<td>Error-Correcting Code</td>
+<td>纠错 / 码</td>
+<td>显存里检测并纠正位翻转的校验，工作站和数据中心卡带</td>
+<td><a href="../lessons/23-architecture-evolution.html">23</a></td>
+</tr>
+<tr>
+<td>FFN</td>
+<td>Feed-Forward Network</td>
+<td>前馈 / 网络</td>
+<td>Transformer 每层里 attention 之后的两层大矩阵</td>
+<td><a href="../lessons/appendix-tp-pp-cp.html">补充 · TP/PP/CP</a></td>
+</tr>
+<tr>
+<td>FIFO</td>
+<td>First In, First Out</td>
+<td>先进 / 先出</td>
+<td>按进入次序取出的缓冲；TPU v1 的权重队列</td>
+<td><a href="../lessons/23-architecture-evolution.html">23</a></td>
+</tr>
+<tr>
+<td>FLOP</td>
+<td>FLoating-point OPeration</td>
+<td>浮点 / 运算</td>
+<td>一次浮点加法或乘法；FLOPs 是总次数，FLOP/s 是每秒次数</td>
+<td><a href="../lessons/04-key-numbers.html">04</a></td>
+</tr>
+<tr>
+<td>FMA</td>
+<td>Fused Multiply-Add</td>
+<td>融合 / 乘 / 加</td>
+<td>一次指令完成 <span class="arithmatex">\(a \times b + c\)</span>，算 2 次运算</td>
+<td><a href="../lessons/23-architecture-evolution.html">23</a></td>
+</tr>
+<tr>
+<td>FP32</td>
+<td>Floating Point 32</td>
+<td>浮点 / 32 位</td>
+<td>每个数 4 字节；矩阵乘法常用它保存累加结果</td>
+<td><a href="../lessons/04-key-numbers.html">04</a></td>
+</tr>
+<tr>
+<td>FP4 / FP8</td>
+<td>Floating Point 4 / 8</td>
+<td>4 位 / 8 位浮点</td>
+<td>低精度格式；V4.1 全局 KV 主记录用 FP4 + scale</td>
+<td><a href="../lessons/10-kv-sparse-linear.html">10</a></td>
+</tr>
+<tr>
+<td>FPGA</td>
+<td>Field-Programmable Gate Array</td>
+<td>现场 / 可编程 / 门阵列</td>
+<td>部署以后还能重新配置硬件逻辑的芯片；Azure 的 SmartNIC 用它</td>
+<td><a href="../lessons/06-architecture.html">06</a></td>
+</tr>
+<tr>
+<td>GDDR</td>
+<td>Graphics DDR</td>
+<td>图形 / 双倍数据速率内存</td>
+<td>消费级显卡用的显存，如 4090 的 GDDR6X、5090 的 GDDR7</td>
+<td><a href="../lessons/21-memory-movement.html">21</a></td>
+</tr>
+<tr>
+<td>GEMM</td>
+<td>GEneral Matrix Multiply</td>
+<td>通用 / 矩阵 / 乘</td>
+<td>通用矩阵乘法</td>
+<td><a href="../lessons/07-compute-graph.html">07</a></td>
+</tr>
+<tr>
+<td>GEMV</td>
+<td>GEneral Matrix-Vector multiply</td>
+<td>通用 / 矩阵 / 向量乘</td>
+<td>矩阵乘一个向量；单行投影常走这条路径</td>
+<td><a href="../lessons/20-compute-units.html">20</a></td>
+</tr>
+<tr>
+<td>GiB / MiB / KiB</td>
+<td>Gibibyte / Mebibyte / Kibibyte</td>
+<td>二进制的 G / M / K 字节</td>
+<td><span class="arithmatex">\(2^{30}\)</span> / <span class="arithmatex">\(2^{20}\)</span> / <span class="arithmatex">\(2^{10}\)</span> 字节；和十进制 GB / MB / KB 相减前要换算</td>
+<td><a href="../lessons/04-key-numbers.html">04</a></td>
+</tr>
+<tr>
+<td>GPC</td>
+<td>Graphics Processing Cluster</td>
+<td>图形 / 处理 / 簇</td>
+<td>若干 SM 组成的一组；Hopper 起同一 GPC 内可组线程块簇</td>
+<td><a href="../lessons/21-memory-movement.html">21</a></td>
+</tr>
+<tr>
+<td>GPU</td>
+<td>Graphics Processing Unit</td>
+<td>图形 / 处理 / 单元</td>
+<td>擅长并行做大量相似运算的处理器，现在主要用来算模型</td>
+<td><a href="../lessons/01-six-layers.html">01</a></td>
+</tr>
+<tr>
+<td>GQA</td>
+<td>Grouped-Query Attention</td>
+<td>分组 / 查询 / 注意力</td>
+<td>几个注意力头共用一套 k、v，KV 缓存变小</td>
+<td><a href="../lessons/01-six-layers.html">01</a></td>
+</tr>
+<tr>
+<td>HBM</td>
+<td>High Bandwidth Memory</td>
+<td>高 / 带宽 / 内存</td>
+<td>加速器常用的显存，通过宽接口持续给计算单元供数据</td>
+<td><a href="../lessons/02-request-lifecycle.html">02</a></td>
+</tr>
+<tr>
+<td>HCA</td>
+<td>Heavily Compressed Attention</td>
+<td>高度 / 压缩 / 注意力</td>
+<td>每 128 个 token 压成一条，读全部粗条目，不做 top-k</td>
+<td><a href="../lessons/10-kv-sparse-linear.html">10</a></td>
+</tr>
+<tr>
+<td>INT8</td>
+<td>8-bit Integer</td>
+<td>8 位 / 整数</td>
+<td>8 位整数格式，常用于量化推理</td>
+<td><a href="../lessons/20-compute-units.html">20</a></td>
+</tr>
+<tr>
+<td>IPU</td>
+<td>Intelligence Processing Unit</td>
+<td>智能 / 处理 / 单元</td>
+<td>Graphcore 的芯片，由许多带局部存储的 tile 组成</td>
+<td><a href="../lessons/23-architecture-evolution.html">23</a></td>
+</tr>
+<tr>
+<td>KDA</td>
+<td>Kimi Delta Attention</td>
+<td>Kimi 的 / 增量修正 / 注意力</td>
+<td>门控递推注意力，固定大小的关联矩阵，按预测误差写入修正</td>
+<td><a href="../lessons/10-kv-sparse-linear.html">10</a></td>
+</tr>
+<tr>
+<td>KV</td>
+<td>Key-Value</td>
+<td>键 / 值</td>
+<td>注意力里的 k 和 v；KV 缓存是前面所有词的 k、v 记录</td>
+<td><a href="../lessons/01-six-layers.html">01</a></td>
+</tr>
+<tr>
+<td>L1 / L2</td>
+<td>Level 1 / Level 2 cache</td>
+<td>一级 / 二级缓存</td>
+<td>离计算单元由近到远的缓存；H100 的 L2 全卡 50 MB</td>
+<td><a href="../lessons/03-dataflow-hierarchy.html">03</a></td>
+</tr>
+<tr>
+<td>L2</td>
+<td>Level 2 cache</td>
+<td>二级 / 缓存</td>
+<td>GPU 全部 SM 共享的缓存，片外数据入口，也是 SM 间交换数据的中转</td>
+<td><a href="../lessons/21-memory-movement.html">21</a></td>
+</tr>
+<tr>
+<td>LLC</td>
+<td>Last-Level Cache</td>
+<td>最后一级 / 缓存</td>
+<td>离计算最远、最大的那级片上缓存</td>
+<td><a href="../lessons/23-architecture-evolution.html">23</a></td>
+</tr>
+<tr>
+<td>LLM</td>
+<td>Large Language Model</td>
+<td>大 / 语言 / 模型</td>
+<td>大语言模型</td>
+<td><a href="../lessons/15-agent-tasks.html">15</a></td>
+</tr>
+<tr>
+<td>LPDDR</td>
+<td>Low-Power DDR</td>
+<td>低功耗 / 双倍数据速率内存</td>
+<td>手机和 Apple 统一内存用的 DRAM，每字节能耗较高</td>
+<td><a href="../lessons/19-accelerator-basics.html">19</a></td>
+</tr>
+<tr>
+<td>MBU</td>
+<td>Memory Bandwidth Utilization</td>
+<td>内存 / 带宽 / 利用率</td>
+<td>读写量 ÷（带宽 × 实际耗时），离带宽极限多远</td>
+<td><a href="../lessons/04-key-numbers.html">04</a></td>
+</tr>
+<tr>
+<td>MFU</td>
+<td>Model FLOPs Utilization</td>
+<td>模型 / 浮点运算 / 利用率</td>
+<td>运算量 ÷（峰值算力 × 实际耗时），离算力极限多远</td>
+<td><a href="../lessons/04-key-numbers.html">04</a></td>
+</tr>
+<tr>
+<td>MHA</td>
+<td>Multi-Head Attention</td>
+<td>多 / 头 / 注意力</td>
+<td>每个头各有一套自己的 q、k、v</td>
+<td><a href="../lessons/01-six-layers.html">01</a></td>
+</tr>
+<tr>
+<td>mHC</td>
+<td>Manifold-Constrained Hyper-Connections</td>
+<td>流形约束 / 超连接</td>
+<td>多路残差，混合矩阵非负、行列和接近 1（Sinkhorn 归一）</td>
+<td><a href="../lessons/12-network-shape.html">12</a></td>
+</tr>
+<tr>
+<td>MIG</td>
+<td>Multi-Instance GPU</td>
+<td>多 / 实例 / GPU</td>
+<td>把一块 GPU 分成资源相互隔离的几个实例</td>
+<td><a href="../lessons/23-architecture-evolution.html">23</a></td>
+</tr>
+<tr>
+<td>MLA</td>
+<td>Multi-head Latent Attention</td>
+<td>多头 / 潜变量 / 注意力</td>
+<td>只缓存低维潜变量，用结合律把上投影挪到查询一侧</td>
+<td><a href="../lessons/09-kv-sharing.html">09</a></td>
+</tr>
+<tr>
+<td>MMLU</td>
+<td>Massive Multitask Language Understanding</td>
+<td>大规模 / 多任务 / 语言理解</td>
+<td>覆盖多学科的选择题基准</td>
+<td><a href="../lessons/18-scaling-lifecycle.html">18</a></td>
+</tr>
+<tr>
+<td>MoE</td>
+<td>Mixture of Experts</td>
+<td>混合 / 专家</td>
+<td>每个 token 只送给少数几个"专家"子网络；各专家的复用不均匀</td>
+<td><a href="../lessons/03-dataflow-hierarchy.html">03</a></td>
+</tr>
+<tr>
+<td>MQA</td>
+<td>Multi-Query Attention</td>
+<td>多 / 查询 / 注意力</td>
+<td>所有查询头共用一份 K、V</td>
+<td><a href="../lessons/09-kv-sharing.html">09</a></td>
+</tr>
+<tr>
+<td>MTE</td>
+<td>Memory Transfer Engine</td>
+<td>存储 / 搬移 / 引擎</td>
+<td>昇腾按描述符在各级存储间搬数据的单元，还能做 img2col、转置</td>
+<td><a href="../lessons/19-accelerator-basics.html">19</a></td>
+</tr>
+<tr>
+<td>MTP</td>
+<td>Multi-Token Prediction</td>
+<td>多 / token / 预测</td>
+<td>主干末端预测后续多个 token；推理时可作推测解码的草稿</td>
+<td><a href="../lessons/12-network-shape.html">12</a></td>
+</tr>
+<tr>
+<td>MX</td>
+<td>Microscaling</td>
+<td>微 / 缩放</td>
+<td>每 32 个低精度值共享 1 字节 scale 的格式族，如 MXFP8、MXFP4</td>
+<td><a href="../lessons/23-architecture-evolution.html">23</a></td>
+</tr>
+<tr>
+<td>NDDMA</td>
+<td>N-Dimensional DMA</td>
+<td>多维 / 直接内存访问</td>
+<td>昇腾 950 按多维描述符生成地址的搬移单元</td>
+<td><a href="../lessons/21-memory-movement.html">21</a></td>
+</tr>
+<tr>
+<td>NIC</td>
+<td>Network Interface Card</td>
+<td>网络 / 接口 / 卡</td>
+<td>网卡：把一台机器（或计算托盘）接到网络上</td>
+<td><a href="../lessons/02-request-lifecycle.html">02</a></td>
+</tr>
+<tr>
+<td>NoPE</td>
+<td>No Positional Encoding</td>
+<td>不加 / 位置 / 编码</td>
+<td>查询和键不做位置编码；Kimi K3 的 MLA 层</td>
+<td><a href="../lessons/09-kv-sharing.html">09</a></td>
+</tr>
+<tr>
+<td>NV-HBI</td>
+<td>NVIDIA High-Bandwidth Interface</td>
+<td>NVIDIA / 高带宽 / 接口</td>
+<td>B200 两颗 die 之间的 10 TB/s 链路</td>
+<td><a href="../lessons/22-package-interconnect.html">22</a></td>
+</tr>
+<tr>
+<td>NVL72</td>
+<td>NVLink 72</td>
+<td>NVLink / 72 个 GPU</td>
+<td>GB200 NVL72：一个机柜 72 个 GPU 用 NVLink 连成同一个互联域</td>
+<td><a href="../lessons/02-request-lifecycle.html">02</a></td>
+</tr>
+<tr>
+<td>NVLink</td>
+<td>NVIDIA Link</td>
+<td>NVIDIA / 连接</td>
+<td>NVIDIA 的 GPU 之间高速直连</td>
+<td><a href="../lessons/01-six-layers.html">01</a></td>
+</tr>
+<tr>
+<td>OPD</td>
+<td>On-Policy Distillation</td>
+<td>同策略 / 蒸馏</td>
+<td>学生自己生成轨迹，教师在这些位置给出概率分布供学生学习</td>
+<td><a href="../lessons/17-training-rl.html">17</a></td>
+</tr>
+<tr>
+<td>p95</td>
+<td>95th percentile</td>
+<td>第 95 / 百分位数</td>
+<td>排序后取第 ⌈0.95n⌉ 个（最近秩法），看较慢的那部分</td>
+<td><a href="../lessons/14-workload-arrival.html">14</a></td>
+</tr>
+<tr>
+<td>PCIe</td>
+<td>Peripheral Component Interconnect Express</td>
+<td>外设 / 部件 / 互联 / 高速版</td>
+<td>CPU 和 GPU 等外设之间的通用连接</td>
+<td><a href="../lessons/01-six-layers.html">01</a></td>
+</tr>
+<tr>
+<td>PDL</td>
+<td>Programmatic Dependent Launch</td>
+<td>程序化 / 依赖 / 启动</td>
+<td>让下一个 kernel 提前启动、在依赖点再等前一个的机制</td>
+<td><a href="../lessons/21-memory-movement.html">21</a></td>
+</tr>
+<tr>
+<td>PP</td>
+<td>Pipeline Parallelism</td>
+<td>流水线 / 并行</td>
+<td>按层切成几段，每段放一组卡，段间交接中间结果</td>
+<td><a href="../lessons/appendix-tp-pp-cp.html">补充 · TP/PP/CP</a></td>
+</tr>
+<tr>
+<td>q / k / v</td>
+<td>query / key / value</td>
+<td>查询 / 键 / 值</td>
+<td>我要找什么 / 我是什么 / 我携带的信息</td>
+<td><a href="../lessons/01-six-layers.html">01</a></td>
+</tr>
+<tr>
+<td>QK Norm</td>
+<td>Query-Key Normalization</td>
+<td>查询与键 / 归一化</td>
+<td>点积前分别归一化各头的查询和键</td>
+<td><a href="../lessons/07-compute-graph.html">07</a></td>
+</tr>
+<tr>
+<td>RL</td>
+<td>Reinforcement Learning</td>
+<td>强化 / 学习</td>
+<td>靠奖励信号学习；原书第 11 章的 RL 沙箱负载</td>
+<td><a href="../lessons/06-architecture.html">06</a></td>
+</tr>
+<tr>
+<td>RNN</td>
+<td>Recurrent Neural Network</td>
+<td>循环 / 神经 / 网络</td>
+<td>同层沿位置逐个传状态，<span class="arithmatex">\(h_t = f(x_t, h_{t-1})\)</span></td>
+<td><a href="../lessons/07-compute-graph.html">07</a></td>
+</tr>
+<tr>
+<td>ROM</td>
+<td>Read-Only Memory</td>
+<td>只读 / 存储器</td>
+<td>内容写死的存储；掩模 ROM 在制造时就固定</td>
+<td><a href="../lessons/23-architecture-evolution.html">23</a></td>
+</tr>
+<tr>
+<td>RoPE</td>
+<td>Rotary Position Embedding</td>
+<td>旋转 / 位置 / 编码</td>
+<td>按位置旋转查询和键，让点积带上相对位置</td>
+<td><a href="../lessons/07-compute-graph.html">07</a></td>
+</tr>
+<tr>
+<td>SFT</td>
+<td>Supervised Fine-Tuning</td>
+<td>监督 / 微调</td>
+<td>用给定输入和目标回答继续训练，通常只对回答算损失</td>
+<td><a href="../lessons/17-training-rl.html">17</a></td>
+</tr>
+<tr>
+<td>SiLU</td>
+<td>Sigmoid Linear Unit</td>
+<td>S 形 / 线性 / 单元</td>
+<td><span class="arithmatex">\(x/(1+e^{-x})\)</span>，也叫 Swish</td>
+<td><a href="../lessons/07-compute-graph.html">07</a></td>
+</tr>
+<tr>
+<td>SIMD</td>
+<td>Single Instruction, Multiple Data</td>
+<td>单 / 指令 / 多 / 数据</td>
+<td>一条指令同时处理一组数据</td>
+<td><a href="../lessons/20-compute-units.html">20</a></td>
+</tr>
+<tr>
+<td>SIMT</td>
+<td>Single Instruction, Multiple Threads</td>
+<td>单 / 指令 / 多 / 线程</td>
+<td>一条指令由一组线程各自执行，GPU warp 的模型</td>
+<td><a href="../lessons/20-compute-units.html">20</a></td>
+</tr>
+<tr>
+<td>SM</td>
+<td>Streaming Multiprocessor</td>
+<td>流式 / 多处理器</td>
+<td>GPU 里的一组计算核心，H100 有 132 个</td>
+<td><a href="../lessons/03-dataflow-hierarchy.html">03</a></td>
+</tr>
+<tr>
+<td>SmartNIC</td>
+<td>Smart Network Interface Card</td>
+<td>智能 / 网卡</td>
+<td>能在网卡上做一部分数据处理（如包转发规则）的网卡</td>
+<td><a href="../lessons/06-architecture.html">06</a></td>
+</tr>
+<tr>
+<td>SRAM</td>
+<td>Static Random-Access Memory</td>
+<td>静态 / 随机访问 / 存储器</td>
+<td>不用刷新的片上存储，快但每比特面积大</td>
+<td><a href="../lessons/19-accelerator-basics.html">19</a></td>
+</tr>
+<tr>
+<td>STEM</td>
+<td>Science, Technology, Engineering, Mathematics</td>
+<td>科学 / 技术 / 工程 / 数学</td>
+<td>理工类数据</td>
+<td><a href="../lessons/17-training-rl.html">17</a></td>
+</tr>
+<tr>
+<td>SWA</td>
+<td>Sliding-Window Attention</td>
+<td>滑动 / 窗口 / 注意力</td>
+<td>只读最近一段位置（如 128 个）</td>
+<td><a href="../lessons/10-kv-sparse-linear.html">10</a></td>
+</tr>
+<tr>
+<td>SwiGLU</td>
+<td>Swish-Gated Linear Unit</td>
+<td>Swish 门控 / 线性 / 单元</td>
+<td>gate 过 SiLU 后逐元素调节 up，再 down 降维</td>
+<td><a href="../lessons/07-compute-graph.html">07</a></td>
+</tr>
+<tr>
+<td>SXM</td>
+<td>—</td>
+<td>NVIDIA 的 GPU 模块形态</td>
+<td>插在主板上的 GPU 模块，区别于 PCIe 插卡；H100 SXM 带宽 3.35 TB/s</td>
+<td><a href="../lessons/04-key-numbers.html">04</a></td>
+</tr>
+<tr>
+<td>TDP</td>
+<td>Thermal Design Power</td>
+<td>热 / 设计 / 功耗</td>
+<td>芯片持续功耗的上限，H100 SXM 700 W</td>
+<td><a href="../lessons/19-accelerator-basics.html">19</a></td>
+</tr>
+<tr>
+<td>TF32</td>
+<td>TensorFloat-32</td>
+<td>张量 / 浮点 32</td>
+<td>Tensor Core 用的 19 位格式：FP32 的指数范围、更短的尾数</td>
+<td><a href="../lessons/23-architecture-evolution.html">23</a></td>
+</tr>
+<tr>
+<td>TGP</td>
+<td>Total Graphics Power</td>
+<td>总 / 显卡 / 功耗</td>
+<td>消费级显卡的功耗上限，4090 450 W、5090 575 W</td>
+<td><a href="../lessons/24-choose-accelerator.html">24</a></td>
+</tr>
+<tr>
+<td>TMA</td>
+<td>Tensor Memory Accelerator</td>
+<td>张量 / 内存 / 加速器</td>
+<td>Hopper 起按描述符搬多维张量的硬件</td>
+<td><a href="../lessons/21-memory-movement.html">21</a></td>
+</tr>
+<tr>
+<td>TMEM</td>
+<td>Tensor Memory</td>
+<td>张量 / 存储</td>
+<td>Blackwell SM100 存矩阵累加结果的专用存储</td>
+<td><a href="../lessons/23-architecture-evolution.html">23</a></td>
+</tr>
+<tr>
+<td>TP</td>
+<td>Tensor Parallelism</td>
+<td>张量 / 并行</td>
+<td>把一层里的矩阵切给几张卡，每层都要把部分和加起来</td>
+<td><a href="../lessons/appendix-tp-pp-cp.html">补充 · TP/PP/CP</a></td>
+</tr>
+<tr>
+<td>TPOT</td>
+<td>Time Per Output Token</td>
+<td>每个 / 输出 / token 的时间</td>
+<td>用户看到的平均输出间隔；batch 越大往往越长</td>
+<td><a href="../lessons/05-estimate.html">05</a></td>
+</tr>
+<tr>
+<td>TPU</td>
+<td>Tensor Processing Unit</td>
+<td>张量 / 处理 / 单元</td>
+<td>Google 的专用神经网络芯片，TPU v1 2015 年部署</td>
+<td><a href="../lessons/06-architecture.html">06</a></td>
+</tr>
+<tr>
+<td>TSP</td>
+<td>Tensor Streaming Processor</td>
+<td>张量 / 流 / 处理器</td>
+<td>Groq 的芯片，编译器预排每个张量的生成、传输和使用时刻</td>
+<td><a href="../lessons/23-architecture-evolution.html">23</a></td>
+</tr>
+<tr>
+<td>TSV</td>
+<td>Through-Silicon Via</td>
+<td>硅 / 通孔</td>
+<td>穿过硅片的垂直导线，把 HBM 各层 DRAM 叠在一起</td>
+<td><a href="../lessons/19-accelerator-basics.html">19</a></td>
+</tr>
+<tr>
+<td>TTFT</td>
+<td>Time To First Token</td>
+<td>到 / 第一个 / token / 的时间</td>
+<td>首响应：从请求到达到首个 token 返回，含排队</td>
+<td><a href="../lessons/14-workload-arrival.html">14</a></td>
+</tr>
+<tr>
+<td>UB</td>
+<td>Unified Bus</td>
+<td>统一 / 总线</td>
+<td>华为的统一互联：设备直接访问其他设备的内存</td>
+<td><a href="../lessons/06-architecture.html">06</a></td>
+</tr>
+<tr>
+<td>UB（缓冲）</td>
+<td>Unified Buffer</td>
+<td>统一 / 缓冲</td>
+<td>昇腾 Vector 单元的片上缓冲（TPU v1 也有同名缓冲）；和互联的 Unified Bus 不是一回事</td>
+<td><a href="../lessons/19-accelerator-basics.html">19</a></td>
+</tr>
+<tr>
+<td>VAE</td>
+<td>Variational AutoEncoder</td>
+<td>变分 / 自编码器</td>
+<td>在像素和压缩的 latent 表示之间转换</td>
+<td><a href="../lessons/16-multimodal-realtime.html">16</a></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_3">术语</h2>
+<table>
+<thead>
+<tr>
+<th>术语</th>
+<th>意思</th>
+<th>首次出现</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AllReduce</td>
+<td>各卡把自己的部分结果相加，每张卡都拿到总和；TP 每层都要做</td>
+<td><a href="../lessons/appendix-tp-pp-cp.html">补充 · TP/PP/CP</a></td>
+</tr>
+<tr>
+<td>Amdahl 定律</td>
+<td>只加速比例 f 的部分 s 倍，总加速比 1/((1-f)+f/s)，上限 1/(1-f)</td>
+<td><a href="../lessons/04-key-numbers.html">04</a></td>
+</tr>
+<tr>
+<td>batch</td>
+<td>一批一起算的请求；batch size 是一批有几个</td>
+<td><a href="../lessons/01-six-layers.html">01</a></td>
+</tr>
+<tr>
+<td>bubble（气泡）</td>
+<td>流水线开头和结尾有卡在空等的时间</td>
+<td><a href="../lessons/appendix-tp-pp-cp.html">补充 · TP/PP/CP</a></td>
+</tr>
+<tr>
+<td>B_max</td>
+<td>一张卡扣掉权重和工作区后能同时驻留的请求数（向下取整）</td>
+<td><a href="../lessons/13-model-comparison.html">13</a></td>
+</tr>
+<tr>
+<td>Cube / Vector</td>
+<td>昇腾 DaVinci 的矩阵单元和向量单元</td>
+<td><a href="../lessons/19-accelerator-basics.html">19</a></td>
+</tr>
+<tr>
+<td>decode（解码）</td>
+<td>prefill 之后每步只送进 1 个新 token，读整份 KV、追加一份，得到下一个 token</td>
+<td><a href="../lessons/02-request-lifecycle.html">02</a></td>
+</tr>
+<tr>
+<td>die</td>
+<td>封装里的一颗硅片；B200、910C 各两颗</td>
+<td><a href="../lessons/19-accelerator-basics.html">19</a></td>
+</tr>
+<tr>
+<td>eager</td>
+<td>急切执行：算子逐个启动 kernel，不做图捕获或融合</td>
+<td><a href="../lessons/24-choose-accelerator.html">24</a></td>
+</tr>
+<tr>
+<td>Engram</td>
+<td>V4.1 按 n-gram 查表取附加表示的模块，参数多但每 token 只查表</td>
+<td><a href="../lessons/13-model-comparison.html">13</a></td>
+</tr>
+<tr>
+<td>fence</td>
+<td>内存栅栏：等之前的写对其他 SM 可见，再写完成标志</td>
+<td><a href="../lessons/21-memory-movement.html">21</a></td>
+</tr>
+<tr>
+<td>FlashAttention</td>
+<td>把 attention 分块计算、结果和原来完全一样的算法，少在显存和芯片间来回搬数据</td>
+<td><a href="../lessons/01-six-layers.html">01</a></td>
+</tr>
+<tr>
+<td>img2col</td>
+<td>把卷积窗口展开成矩阵行，好交给矩阵单元</td>
+<td><a href="../lessons/23-architecture-evolution.html">23</a></td>
+</tr>
+<tr>
+<td>KV 缓存（KV cache）</td>
+<td>生成时把前面所有词的 k、v 存起来，下一步直接用，不再重算</td>
+<td><a href="../lessons/01-six-layers.html">01</a></td>
+</tr>
+<tr>
+<td>master weight（主权重）</td>
+<td>混合精度训练里单独保存的 FP32 权重，用来做高精度更新</td>
+<td><a href="../lessons/17-training-rl.html">17</a></td>
+</tr>
+<tr>
+<td>micro-batch</td>
+<td>一批数据再切成的小份，让流水线各段同时有活干</td>
+<td><a href="../lessons/appendix-tp-pp-cp.html">补充 · TP/PP/CP</a></td>
+</tr>
+<tr>
+<td>micro-batch</td>
+<td>一次前向和反向实际处理的数据子集；累计若干个再更新一次</td>
+<td><a href="../lessons/17-training-rl.html">17</a></td>
+</tr>
+<tr>
+<td>prefill（预填充）</td>
+<td>一次前向处理全部输入 token，存下它们的 KV，并得到第一个输出 token</td>
+<td><a href="../lessons/02-request-lifecycle.html">02</a></td>
+</tr>
+<tr>
+<td>Ring Attention（环形注意力）</td>
+<td>CP 里让 k、v 在各卡之间轮流传一圈的做法</td>
+<td><a href="../lessons/appendix-tp-pp-cp.html">补充 · TP/PP/CP</a></td>
+</tr>
+<tr>
+<td>rollout</td>
+<td>RL 里用当前策略生成回答的过程</td>
+<td><a href="../lessons/17-training-rl.html">17</a></td>
+</tr>
+<tr>
+<td>roofline</td>
+<td>吞吐上界 <span class="arithmatex">\(\min(P, RI)\)</span> 的折线；交点 <span class="arithmatex">\(I^* = P/R\)</span></td>
+<td><a href="../lessons/24-choose-accelerator.html">24</a></td>
+</tr>
+<tr>
+<td>scale-out（横向扩展）</td>
+<td>超节点之间经网卡和交换网络相连，用来扩大集群范围</td>
+<td><a href="../lessons/02-request-lifecycle.html">02</a></td>
+</tr>
+<tr>
+<td>scale-up（纵向扩展）</td>
+<td>超节点内部的高带宽互联，让一组加速器以低通信开销一起算</td>
+<td><a href="../lessons/02-request-lifecycle.html">02</a></td>
+</tr>
+<tr>
+<td>Scaling law</td>
+<td>用实验拟合模型规模、数据量和损失的关系，L = E + A/N^α + B/D^β</td>
+<td><a href="../lessons/18-scaling-lifecycle.html">18</a></td>
+</tr>
+<tr>
+<td>Sinkhorn 迭代</td>
+<td>交替把矩阵每行、每列除以各自的和，逼近行列和都为 1</td>
+<td><a href="../lessons/12-network-shape.html">12</a></td>
+</tr>
+<tr>
+<td>split-K</td>
+<td>沿内积维 K 切给多个计算块，各算部分和再归约</td>
+<td><a href="../lessons/24-choose-accelerator.html">24</a></td>
+</tr>
+<tr>
+<td>tile（分块）</td>
+<td>把矩阵切成小块搬进近处存储反复用，远处读取降到 1/t</td>
+<td><a href="../lessons/03-dataflow-hierarchy.html">03</a></td>
+</tr>
+<tr>
+<td>token（词元）</td>
+<td>模型处理文本的基本单位：一个字、半个词或其他片段，个数由分词结果决定</td>
+<td><a href="../lessons/02-request-lifecycle.html">02</a></td>
+</tr>
+<tr>
+<td>top-k 路由</td>
+<td>路由器给每个 token 选分数最高的 k 个专家</td>
+<td><a href="../lessons/11-moe.html">11</a></td>
+</tr>
+<tr>
+<td>上下文状态</td>
+<td>处理过的上下文留下、供后续复用的表示：逐 token 的 KV 或固定大小的递推状态</td>
+<td><a href="../lessons/09-kv-sharing.html">09</a></td>
+</tr>
+<tr>
+<td>专家粒度</td>
+<td>同样的 3Edf 和 6k·d·f 下，专家切大切小</td>
+<td><a href="../lessons/12-network-shape.html">12</a></td>
+</tr>
+<tr>
+<td>中间张量</td>
+<td>运算产生、交给后续运算的多维数组；多卡实例里要在卡之间传</td>
+<td><a href="../lessons/02-request-lifecycle.html">02</a></td>
+</tr>
+<tr>
+<td>优势（advantage）</td>
+<td>某个回答相对于基准好多少；组内奖励全相同时为 0</td>
+<td><a href="../lessons/17-training-rl.html">17</a></td>
+</tr>
+<tr>
+<td>全生命周期成本</td>
+<td>训练投入 + 服务次数 × 每次成本</td>
+<td><a href="../lessons/18-scaling-lifecycle.html">18</a></td>
+</tr>
+<tr>
+<td>关键路径</td>
+<td>依赖图里从开始到结束累计耗时最长的路径</td>
+<td><a href="../lessons/15-agent-tasks.html">15</a></td>
+</tr>
+<tr>
+<td>决策请求</td>
+<td>只做 prefill、直接读出选项概率的请求，没有 decode</td>
+<td><a href="../lessons/15-agent-tasks.html">15</a></td>
+</tr>
+<tr>
+<td>包率</td>
+<td>每秒到达的网络包数；最小帧时 = 比特率 ÷ (84 × 8)</td>
+<td><a href="../lessons/06-architecture.html">06</a></td>
+</tr>
+<tr>
+<td>复用次数</td>
+<td>一份数据参与的运算次数 ÷ 从远处读它的次数</td>
+<td><a href="../lessons/03-dataflow-hierarchy.html">03</a></td>
+</tr>
+<tr>
+<td>外积</td>
+<td>k vᵀ：键的每个元素乘值的每个元素，得到 d_k × d_v 的关联表</td>
+<td><a href="../lessons/10-kv-sparse-linear.html">10</a></td>
+</tr>
+<tr>
+<td>存储量 vs 访问量</td>
+<td>某一时刻要留着的数据 vs 执行中累计读写的数据</td>
+<td><a href="../lessons/08-generation-budget.html">08</a></td>
+</tr>
+<tr>
+<td>实例调度器</td>
+<td>实例内部把请求排队、编 batch、分配状态空间，持续推进生成循环</td>
+<td><a href="../lessons/02-request-lifecycle.html">02</a></td>
+</tr>
+<tr>
+<td>容量预算</td>
+<td>权重 + 上下文状态 + 工作区 ≤ 卡的容量，多卡逐卡算</td>
+<td><a href="../lessons/04-key-numbers.html">04</a></td>
+</tr>
+<tr>
+<td>成功任务成本</td>
+<td>所有尝试的成本 ÷ 成功任务数，c/p</td>
+<td><a href="../lessons/15-agent-tasks.html">15</a></td>
+</tr>
+<tr>
+<td>批内复用</td>
+<td>batch 里的请求共用一次权重读取；吞吐上涨，每个请求的等待不缩短</td>
+<td><a href="../lessons/05-estimate.html">05</a></td>
+</tr>
+<tr>
+<td>抖动缓冲</td>
+<td>先暂存到达的音频、吸收到达时间波动的缓冲区</td>
+<td><a href="../lessons/16-multimodal-realtime.html">16</a></td>
+</tr>
+<tr>
+<td>抢占</td>
+<td>KV 空间不够时暂停已开始的请求、释放它的 KV，之后恢复或重算</td>
+<td><a href="../lessons/14-workload-arrival.html">14</a></td>
+</tr>
+<tr>
+<td>推测解码</td>
+<td>先便宜地生成草稿，再让目标模型一次验证多个 token</td>
+<td><a href="../lessons/12-network-shape.html">12</a></td>
+</tr>
+<tr>
+<td>推理实例</td>
+<td>能独立完成一个模型请求的一组执行资源，可以是 1 张卡或多张卡</td>
+<td><a href="../lessons/02-request-lifecycle.html">02</a></td>
+</tr>
+<tr>
+<td>时间下界</td>
+<td>用峰值算力或峰值带宽算出的最短时间，硬件的物理极限</td>
+<td><a href="../lessons/04-key-numbers.html">04</a></td>
+</tr>
+<tr>
+<td>查询—键配对（N_pair）</td>
+<td>B(PS + P(P+1)/2)：长方形是新读旧，三角形是新输入内部</td>
+<td><a href="../lessons/07-compute-graph.html">07</a></td>
+</tr>
+<tr>
+<td>潜变量</td>
+<td>MLA 缓存的低维表示，用时再上投影</td>
+<td><a href="../lessons/09-kv-sharing.html">09</a></td>
+</tr>
+<tr>
+<td>状态占用（GiB·s）</td>
+<td>状态大小对时间的积分；等待中的请求也占容量</td>
+<td><a href="../lessons/14-workload-arrival.html">14</a></td>
+</tr>
+<tr>
+<td>留出检验</td>
+<td>把一部分观测不参与拟合，用来检验预测</td>
+<td><a href="../lessons/18-scaling-lifecycle.html">18</a></td>
+</tr>
+<tr>
+<td>积压（backlog）</td>
+<td>到达快于处理时留在队列里的工作；Q_{k+1} = max(0, Q_k + A_k − μΔt)</td>
+<td><a href="../lessons/14-workload-arrival.html">14</a></td>
+</tr>
+<tr>
+<td>算子（operator）</td>
+<td>矩阵乘法、归一化这类基本运算</td>
+<td><a href="../lessons/01-six-layers.html">01</a></td>
+</tr>
+<tr>
+<td>算术强度</td>
+<td>每读一个字节做几次运算，I = F/R；和 Π/β 比决定谁说了算</td>
+<td><a href="../lessons/05-estimate.html">05</a></td>
+</tr>
+<tr>
+<td>索引 K / 候选池</td>
+<td>先给条目打分用的小表示；V4.1 首个 Full 层选出的最多 16384 个候选条目</td>
+<td><a href="../lessons/10-kv-sparse-linear.html">10</a></td>
+</tr>
+<tr>
+<td>线程块簇</td>
+<td>Hopper 起同一 GPC 里几个 SM 组成的簇，簇内能互读共享内存</td>
+<td><a href="../lessons/21-memory-movement.html">21</a></td>
+</tr>
+<tr>
+<td>线速</td>
+<td>链路的标称传输速率</td>
+<td><a href="../lessons/04-key-numbers.html">04</a></td>
+</tr>
+<tr>
+<td>计算图</td>
+<td>节点是运算，边是传递的张量，箭头方向决定先后</td>
+<td><a href="../lessons/07-compute-graph.html">07</a></td>
+</tr>
+<tr>
+<td>计算托盘</td>
+<td>机柜里装有 CPU 与加速器的可插拔单元</td>
+<td><a href="../lessons/02-request-lifecycle.html">02</a></td>
+</tr>
+<tr>
+<td>词表头 / logits</td>
+<td>把末层向量投影成每个候选 token 的分数；只预测下一个 token 时每请求只算最后一个</td>
+<td><a href="../lessons/07-compute-graph.html">07</a></td>
+</tr>
+<tr>
+<td>负载</td>
+<td>一段时间内到达系统、等待和执行的工作集合</td>
+<td><a href="../lessons/14-workload-arrival.html">14</a></td>
+</tr>
+<tr>
+<td>负载（workload）</td>
+<td>活怎么来：来多少请求、每个多长、什么时候来</td>
+<td><a href="../lessons/01-six-layers.html">01</a></td>
+</tr>
+<tr>
+<td>超节点</td>
+<td>一组靠高带宽互联紧密协作的加速器，可以跨多个托盘或服务器</td>
+<td><a href="../lessons/02-request-lifecycle.html">02</a></td>
+</tr>
+<tr>
+<td>路由专家 / 共享专家</td>
+<td>只处理被路由到的 token 的专家 / 所有 token 都过的专家</td>
+<td><a href="../lessons/11-moe.html">11</a></td>
+</tr>
+<tr>
+<td>路由器（服务路由器）</td>
+<td>按目标模型、各实例负载等条件，选一个实例来处理请求</td>
+<td><a href="../lessons/02-request-lifecycle.html">02</a></td>
+</tr>
+<tr>
+<td>转折点 B*</td>
+<td>计算时间追上权重读取时间的 batch，b_W Π / (2β)</td>
+<td><a href="../lessons/05-estimate.html">05</a></td>
+</tr>
+<tr>
+<td>逐级传递</td>
+<td>一个设计部署后带来新约束，变化沿系统一层层传下去</td>
+<td><a href="../lessons/06-architecture.html">06</a></td>
+</tr>
+<tr>
+<td>驻留</td>
+<td>权重加载进显存后一直放着，供多次请求反复使用</td>
+<td><a href="../lessons/02-request-lifecycle.html">02</a></td>
+</tr>
+</tbody>
+</table>
+</main></div>
+<footer>来自个人学习仓库的对话讲义，含练习作答记录。源码：<a href="https://github.com/wikieden/ai-infra-from-constraints">github.com/wikieden/ai-infra-from-constraints</a>。更多讲义书：<a href="https://wikieden.github.io/ai-books/">Physical AI 0-1-♾️（合集）</a></footer>
+<script>(function(){var d=document.documentElement,K=["s","m","l","xl"];
+function save(k,v){try{v?localStorage.setItem(k,v):localStorage.removeItem(k)}catch(e){}}
+var s=document.getElementById("ab-theme");if(s){s.value=d.dataset.theme||"";s.onchange=function(){if(s.value)d.dataset.theme=s.value;else delete d.dataset.theme;save("ab-theme",s.value)}}
+document.querySelectorAll("[data-fs-step]").forEach(function(b){b.onclick=function(){var i=K.indexOf(d.dataset.fs||"m")+(+b.dataset.fsStep);i=Math.max(0,Math.min(K.length-1,i));d.dataset.fs=K[i];save("ab-fs",K[i])}});
+var nb=document.getElementById("nav-toggle"),side=document.querySelector("nav.side");if(nb&&side){nb.onclick=function(){side.classList.toggle("open")}}
+var cur=side&&side.querySelector(".cur");if(cur)cur.scrollIntoView({block:"center"});
+})();</script>
+</body></html>

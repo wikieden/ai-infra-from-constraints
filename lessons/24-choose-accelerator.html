@@ -1,0 +1,494 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>第 24 章 · 根据架构选择加速器：先估下界，再找差距，最后算账 · 从约束推导 AI Infra</title>
+<script>(function(){try{var d=document.documentElement,t=localStorage.getItem("ab-theme"),f=localStorage.getItem("ab-fs");if(t)d.dataset.theme=t;if(f)d.dataset.fs=f}catch(e){}})();</script>
+<style>:root{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa;--fs:16px}
+@media (prefers-color-scheme:dark){:root:not([data-theme]){--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}}
+:root[data-theme="light"]{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa}
+:root[data-theme="dark"]{--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}
+:root[data-theme="sepia"]{--bg:#f6efe1;--fg:#3b3127;--mute:#7a6a58;--line:#e2d6bf;--card:#fbf6ec;--acc:#a0522d;--code:#ece2cd;--quote:#efe5d2}
+:root[data-theme="green"]{--bg:#e3eddf;--fg:#22301f;--mute:#566650;--line:#c9d8c3;--card:#eef5eb;--acc:#2e7d4f;--code:#d6e4d0;--quote:#dae7d5}
+:root[data-theme="navy"]{--bg:#0f1a2b;--fg:#dde6f3;--mute:#93a4bd;--line:#23324a;--card:#15233a;--acc:#6cc4ff;--code:#1a2a44;--quote:#16243b}
+:root[data-fs="s"]{--fs:15px}
+:root[data-fs="m"]{--fs:16px}
+:root[data-fs="l"]{--fs:18px}
+:root[data-fs="xl"]{--fs:20px}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:var(--fs)/1.75 -apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Helvetica Neue",sans-serif}
+a{color:var(--acc)}
+header.top{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+header.top .in{max-width:860px;margin:0 auto;padding:10px 16px;display:flex;gap:6px 16px;align-items:center;flex-wrap:wrap;font-size:14px}
+header.top .brand{font-weight:600;color:var(--fg);text-decoration:none;margin-right:auto}
+header.top a{text-decoration:none}
+.prefs{display:inline-flex;gap:4px;align-items:center}
+.prefs button,.prefs select,#nav-toggle{font:inherit;font-size:13px;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:2px 8px;cursor:pointer}
+main{max-width:860px;margin:0 auto;padding:24px 16px 72px;overflow-wrap:anywhere}
+h1{font-size:1.75em;line-height:1.35;margin:8px 0 16px} h2{font-size:1.375em;margin:40px 0 12px;padding-top:8px;border-top:1px solid var(--line)} h3{font-size:1.125em;margin:28px 0 8px}
+.layout{display:grid;grid-template-columns:260px minmax(0,1fr);max-width:1180px;margin:0 auto}
+.layout main{margin:0;max-width:880px}
+nav.side{position:sticky;top:49px;align-self:start;max-height:calc(100vh - 49px);overflow-y:auto;padding:20px 8px 40px 16px;border-right:1px solid var(--line);font-size:14px;line-height:1.5}
+nav.side .h{font-weight:600;color:var(--mute);margin:4px 8px 8px;font-size:13px}
+nav.side a{display:block;padding:5px 8px;border-radius:6px;color:var(--fg);text-decoration:none}
+nav.side a:hover{background:var(--code)} nav.side a.cur{background:var(--quote);color:var(--acc);font-weight:600}
+nav.side a .n{color:var(--mute);margin-right:6px;font-variant-numeric:tabular-nums}
+#nav-toggle{display:none}
+@media (max-width:960px){.layout{display:block} nav.side{display:none;position:fixed;z-index:6;top:49px;left:0;bottom:0;width:min(300px,85vw);max-height:none;background:var(--bg);box-shadow:2px 0 12px rgba(0,0,0,.2)} nav.side.open{display:block} #nav-toggle{display:inline-block}}
+.run{display:flex;flex-wrap:wrap;align-items:center;gap:4px 0;margin:4px 0 12px}
+.run details{flex-basis:100%;margin:6px 0 0;font-size:.94em}
+img{max-width:100%;height:auto;border-radius:8px;border:1px solid var(--line);background:#fff}
+blockquote{margin:16px 0;padding:10px 16px;background:var(--quote);border-left:3px solid var(--acc);border-radius:4px;color:var(--mute)}
+blockquote p{margin:4px 0}
+code{background:var(--code);padding:1px 5px;border-radius:4px;font-size:.9em}
+pre{background:var(--code);padding:12px 14px;border-radius:8px;overflow-x:auto} pre code{padding:0;background:none}
+table{border-collapse:collapse;display:block;overflow-x:auto;max-width:100%;margin:12px 0;font-size:.94em}
+th,td{border:1px solid var(--line);padding:6px 10px;vertical-align:top} th{background:var(--code)}
+details{border:1px solid var(--line);border-radius:8px;padding:6px 12px;margin:8px 0;background:var(--card)}
+details[open]{padding-bottom:10px} summary{cursor:pointer;color:var(--acc);font-weight:500}
+mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%}
+.btn{display:inline-block;margin:4px 8px 4px 0;padding:6px 14px;border:1px solid var(--acc);border-radius:999px;text-decoration:none;font-size:14px}
+.pager{display:flex;justify-content:space-between;gap:12px;margin-top:48px;padding-top:16px;border-top:1px solid var(--line);font-size:15px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin:16px 0}
+.card{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;color:inherit;text-decoration:none}
+.card:hover{border-color:var(--acc)} .card img{border:0;border-bottom:1px solid var(--line);border-radius:0;aspect-ratio:16/10;object-fit:contain;width:100%}
+.card .no{color:var(--mute);font-size:13px;padding:8px 12px 0} .card .t{padding:0 12px 12px;font-weight:500;line-height:1.5}
+.lead{font-size:1.06em;color:var(--mute)}
+footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-size:13px}
+</style>
+<script>window.MathJax={tex:{inlineMath:[["\\(","\\)"]],displayMath:[["\\[","\\]"],["$$","$$"]],processEscapes:true,processEnvironments:true}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"></script>
+</head><body>
+<header class="top"><div class="in">
+<button type="button" id="nav-toggle" aria-label="打开章节列表">☰ 章节</button><a class="brand" href="../index.html">从约束推导 AI Infra</a>
+<a href="../lessons/index.html">讲义目录</a>
+<a href="../animations/index.html">动画</a>
+<a href="../review.html">复习卡片</a>
+<a href="../lessons/appendix-glossary.html">缩写表</a>
+<a href="https://wikieden.github.io/ai-books/glossary.html">全局词汇</a>
+<a href="https://wikieden.github.io/ai-books/">← 全部讲义书</a>
+<span class="prefs" title="字号与主题"><button type="button" data-fs-step="-1" aria-label="字号变小">A−</button><button type="button" data-fs-step="1" aria-label="字号变大">A+</button><select id="ab-theme" aria-label="主题色"><option value="">跟随系统</option><option value="light">浅色</option><option value="dark">深色</option><option value="sepia">米黄护眼</option><option value="green">豆沙绿护眼</option><option value="navy">夜蓝</option></select></span>
+</div></header>
+<div class="layout"><nav class="side" aria-label="章节"><div class="h">从约束推导 AI Infra</div><a href="index.html">讲义目录</a><a href="01-six-layers.html"><span class="n">1</span>一次请求走过的六层（进行中）</a><a href="02-request-lifecycle.html"><span class="n">2</span>一次生成请求的处理过程：权重加载一次，每个 token 都要再读一遍</a><a href="03-dataflow-hierarchy.html"><span class="n">3</span>从存储程序到数据流执行：存储层次就像大楼里的厕所</a><a href="04-key-numbers.html"><span class="n">4</span>系统设计的关键数字：容量、算力、带宽、延迟</a><a href="05-estimate.html"><span class="n">5</span>用几个数字估算一次模型执行：算和读各要多久，实测为什么达不到</a><a href="06-architecture.html"><span class="n">6</span>需求如何推动架构：TPU、SmartNIC、Unified Bus</a><a href="07-compute-graph.html"><span class="n">7</span>计算图与张量结构：一个 token 经过一层要算多少</a><a href="08-generation-budget.html"><span class="n">8</span>自回归生成的资源账：存一次的、每步读的、用完就扔的</a><a href="09-kv-sharing.html"><span class="n">9</span>KV 怎么变小 ①：头共享与潜变量压缩</a><a href="10-kv-sparse-linear.html"><span class="n">10</span>KV 怎么变小 ②：窗口、稀疏、线性与混合注意力</a><a href="11-moe.html"><span class="n">11</span>MoE：专家路由与批内权重复用</a><a href="12-network-shape.html"><span class="n">12</span>网络形状：深宽、专家粒度、残差与多 token 预测</a><a href="13-model-comparison.html"><span class="n">13</span>整个模型的资源需求与比较：存多少、算多少、能放几条请求</a><a href="14-workload-arrival.html"><span class="n">14</span>从单次请求到持续到达的负载：什么时候来，比来多少更要紧</a><a href="15-agent-tasks.html"><span class="n">15</span>多轮交互与 Agent 任务：前缀、成功成本、关键路径</a><a href="16-multimodal-realtime.html"><span class="n">16</span>多模态与实时交互：数据换形状，时间有死线（略讲）</a><a href="17-training-rl.html"><span class="n">17</span>训练与强化学习的计算和状态：为什么训练要 6ND、要存 18 字节</a><a href="18-scaling-lifecycle.html"><span class="n">18</span>Scaling law 与全生命周期成本：训练多大、训练多久、服务多少次</a><a href="19-accelerator-basics.html"><span class="n">19</span>从矩阵乘法认识加速器：算多少、搬多少、耗多少电</a><a href="20-compute-units.html"><span class="n">20</span>计算单元：矩阵、向量、流水与低精度</a><a href="21-memory-movement.html"><span class="n">21</span>存储层次与数据搬移：放得下、取得到、来得及</a><a href="22-package-interconnect.html"><span class="n">22</span>多芯片封装与互联：计算放在哪，数据走哪条路</a><a href="23-architecture-evolution.html"><span class="n">23</span>架构演进与专用架构：每一代新增的东西，省掉了哪一笔</a><a href="24-choose-accelerator.html" class="cur"><span class="n">24</span>根据架构选择加速器：先估下界，再找差距，最后算账</a><a href="appendix-glossary.html">附录 · 缩写与术语表</a><a href="appendix-tp-pp-cp.html">附录 · 补充资料：TP、PP、CP，一个模型沿三个方向切给多张卡</a></nav><main>
+<h1 id="24">第 24 章 · 根据架构选择加速器：先估下界，再找差距，最后算账</h1><div class="run"><a class="btn" href="../animations/24-choose-accelerator.html">▶ 打开本章可交互动画</a><a class="btn" href="https://colab.research.google.com/github/wikieden/ai-infra-from-constraints/blob/main/code/notebooks/ch24_choose_accelerator.ipynb" target="_blank" rel="noopener">在 Colab 运行本章代码</a><a class="btn" href="../code/notebooks/ch24_choose_accelerator.ipynb" download>下载 notebook</a><details><summary>本地运行</summary><pre><code>git clone https://github.com/wikieden/ai-infra-from-constraints
+cd ai-infra-from-constraints/code/notebooks
+pip install jupyterlab torch numpy
+jupyter lab ch24_choose_accelerator.ipynb</code></pre><p>也可以下载后直接用 VS Code 打开 .ipynb 运行。需要 GPU 的章节在 Colab 里选「代码执行程序 → 更改运行时类型 → GPU」。</p></details></div>
+<blockquote>
+<p>本章回答：一段程序在一张卡上要跑多久，怎么从资源表估出来？同一个模型放到 4090、5090、H100、H200 上，哪张卡赢在哪个阶段？实测比估算慢三倍时，慢在哪？专用芯片要卖多少 token 才回本？<br />
+讲解日期：2026-11-24 · 上一章：<a href="../lessons/23-architecture-evolution.html">第 23 章 架构演进与专用架构</a> · 下一章：第 25 章（待写，第五部分 算子与编译）<br />
+对应原文：<code>materials/ai-infra-book/manuscripts/04-加速器架构.md</code> §4.8 L960–L1259（图 4-39 到 4-42，例 4-3）及本章小结<br />
+本章缩写：eager = 急切执行模式（逐个 kernel 启动、不做图捕获）· GEMM = General Matrix Multiply（通用 / 矩阵 / 乘法）· GEMV = General Matrix-Vector multiply（通用 / 矩阵 / 向量乘法）· MBU = Memory Bandwidth Utilization（内存 / 带宽 / 利用率）· MFU = Model FLOPs Utilization（模型 / 浮点运算 / 利用率）· split-K = 沿内积维 K 切分再归约 · TGP = Total Graphics Power（显卡总功耗）。全部缩写见 <a href="../lessons/appendix-glossary.html">缩写与术语表</a></p>
+</blockquote>
+<p>第四部分前五章讲的是硬件有什么。本章把它们收成一套方法：<strong>估时间 → 比设备 → 对实测 → 算成本</strong>。</p>
+<h2 id="_1">讲解</h2>
+<h3 id="2026-11-24">第一步：执行时间模型：同一资源相加，不同资源取最大，依赖串起来（2026-11-24）</h3>
+<p><strong>类比：做一顿饭。</strong> 同一个灶上炒的菜，时间相加；灶和烤箱能同时开，看哪个久；可是汤要等肉炖好才能下锅，这两步只能先后来。</p>
+<p><strong>三条关系</strong>（原文 L970–L982）：</p>
+<div class="arithmatex">\[T_r = \sum_i \frac{w_{r,i}}{p_{r,i}}, \qquad T \ge \max_r T_r, \qquad T = \sum_{\text{阶段}} \max_r T_{r,\text{阶段}}\]</div>
+<ul>
+<li><strong>共享资源相加</strong>：权重和 KV 共用内存接口，流量相加；QK 和 PV 共用矩阵单元，时间相加。</li>
+<li><strong>独立资源取最大</strong>：矩阵和搬移同时推进，最慢的那个决定下限。</li>
+<li><strong>依赖要分阶段</strong>：第一阶段矩阵 10 μs、内存 1 μs，第二阶段反过来，阶段之间必须先后：<span class="arithmatex">\(10 + 10 = 20\)</span> μs。只看合计，矩阵和内存各 11 μs，会少算 9 μs。</li>
+</ul>
+<p><img alt="两阶段依赖：每阶段内重叠，阶段之间串行；只看资源合计会估成 11 μs" src="../figures/24-choose-accelerator-stages.png" /></p>
+<p><em>图 24-1 · 差出的 9 μs 是第一阶段的矩阵和第二阶段的内存没法重叠。</em></p>
+<p><strong>速率要选对</strong>：RTX 4090 的 Tensor Core，FP16 累加约 330 TFLOP/s，FP32 累加约 165 TFLOP/s。8.59 GFLOPs 按两种算是 26 μs 和 52 μs，而读取约 37 μs：选哪个速率，直接决定谁是瓶颈。</p>
+<p><strong>Roofline 转折点</strong>（原文 L986–L1013）：<span class="arithmatex">\(P_{\mathrm{attainable}} \le \min(P, RI)\)</span>，交点 <span class="arithmatex">\(I^* = P/R\)</span>。代入第 19 章的投影强度 <span class="arithmatex">\(I(M) = Md/(d + 2M)\)</span>：</p>
+<div class="arithmatex">\[M^* = \frac{I^* d}{d - 2 I^*}\]</div>
+<p>4090 BF16 / FP32 累加：<span class="arithmatex">\(I^* = 165.2 / 1.008 \approx 164\)</span> FLOPs/B，<span class="arithmatex">\(M^* \approx 178.1\)</span>。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;"><span class="arithmatex">\(M\)</span></th>
+<th style="text-align: right;">矩阵</th>
+<th style="text-align: right;">读写</th>
+<th>主导</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.20 μs</td>
+<td style="text-align: right;">33.3 μs</td>
+<td>内存</td>
+</tr>
+<tr>
+<td style="text-align: right;">256</td>
+<td style="text-align: right;">52 μs</td>
+<td style="text-align: right;">37.4 μs</td>
+<td>矩阵</td>
+</tr>
+</tbody>
+</table>
+<p><img alt="Q 投影的计算时间和读写时间随行数变化，179 行起计算更长" src="../figures/24-choose-accelerator-roofline.png" /></p>
+<p><em>图 24-2 · 低于转折点用 MBU 衡量，高于转折点用 MFU 衡量（第 4 章）。roofline 的推导见<a href="https://wikieden.github.io/cuda-to-tensor-core/lessons/09-roofline-profiling.html">《CUDA 从线程到 Tensor Core》第 9 章</a>。</em></p>
+<p><strong>一句话</strong>：同一资源相加，不同资源取最大，阶段依赖串联；速率要按实际精度选。</p>
+<h3 id="decode-prefill-2026-11-24">第二步：同一个模型比较设备：decode 看带宽，prefill 看矩阵（2026-11-24）</h3>
+<p><strong>类比：选车。</strong> 天天在市区堵车（decode：每步读完整权重），看起步和变道；跑长途（prefill：一次算几千个 token），看发动机功率。</p>
+<p>原文 L1021–L1048：Qwen3-8B、BF16、单请求、8K 上下文：</p>
+<ul>
+<li>每步 decode 读 16.345 GB；矩阵工作 13.89（线性层）+ 4.832（QK / PV）+ 1.245（输出头）≈ 19.97 GFLOPs。</li>
+<li>4K prefill：线性层按 4,096 个 token、因果注意力 <span class="arithmatex">\(4096 \times 4097 / 2\)</span> 对，合计约 61.85 TFLOPs。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>卡</th>
+<th style="text-align: right;">容量</th>
+<th style="text-align: right;">decode 读取下界</th>
+<th style="text-align: right;">读取上限</th>
+<th style="text-align: right;">4K prefill 矩阵</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RTX 3090</td>
+<td style="text-align: right;">24 GB</td>
+<td style="text-align: right;">17.46 ms</td>
+<td style="text-align: right;">57.3 token/s</td>
+<td style="text-align: right;">871 ms</td>
+</tr>
+<tr>
+<td>RTX 4090</td>
+<td style="text-align: right;">24 GB</td>
+<td style="text-align: right;">16.22 ms</td>
+<td style="text-align: right;">61.7 token/s</td>
+<td style="text-align: right;">374 ms</td>
+</tr>
+<tr>
+<td>RTX 5090</td>
+<td style="text-align: right;">32 GB</td>
+<td style="text-align: right;">9.12 ms</td>
+<td style="text-align: right;">109.6 token/s</td>
+<td style="text-align: right;">295 ms</td>
+</tr>
+<tr>
+<td>RTX PRO 6000</td>
+<td style="text-align: right;">96 GB</td>
+<td style="text-align: right;">9.12 ms</td>
+<td style="text-align: right;">109.6 token/s</td>
+<td style="text-align: right;">123 ms</td>
+</tr>
+<tr>
+<td>A100 80GB</td>
+<td style="text-align: right;">80 GB</td>
+<td style="text-align: right;">8.02 ms</td>
+<td style="text-align: right;">124.7 token/s</td>
+<td style="text-align: right;">198 ms</td>
+</tr>
+<tr>
+<td>H100 SXM</td>
+<td style="text-align: right;">80 GB</td>
+<td style="text-align: right;">4.88 ms</td>
+<td style="text-align: right;">205.0 token/s</td>
+<td style="text-align: right;">62.5 ms</td>
+</tr>
+<tr>
+<td>H200 SXM</td>
+<td style="text-align: right;">141 GB</td>
+<td style="text-align: right;">3.41 ms</td>
+<td style="text-align: right;">293.7 token/s</td>
+<td style="text-align: right;">62.5 ms</td>
+</tr>
+</tbody>
+</table>
+<p><img alt="同一 Qwen3-8B：左边 decode 读取时间，右边 4K prefill 矩阵时间" src="../figures/24-choose-accelerator-devices.png" /></p>
+<p><em>图 24-3 · 3090 → 4090：decode 只快 7.1%，prefill 快 57.0%。A100 → H100：decode 快 39.1%，prefill 快 68.5%；H100 → H200 只快 decode。</em></p>
+<p><strong>容量先筛掉一批</strong>：单请求预算约 19.737 GB，24 GB 卡装得下；八条 8K 请求约 28.193 GB，就要 5090 以上。</p>
+<p><strong>Qwen3-235B-A22B（4-bit、单请求）</strong>：需要约 126.9 GB，消费级卡单卡都装不下；M3 Ultra 256 GB 和 H200 141 GB 可以。每步读 13.697 GB：M3 Ultra 约 16.72 ms（59.8 token/s），H200 约 2.85 ms（350.4 token/s）。Ultra 让它能在一台本地机器上跑，H200 把每步缩到约 1/6。</p>
+<p><strong>一句话</strong>：先按容量筛，再按阶段看：长输入看矩阵速率，持续生成看带宽。</p>
+<h3 id="2026-11-24_1">第三步：预测和实测差在哪：先修口径，再去开销（2026-11-24）</h3>
+<p><strong>类比：导航说 20 分钟，实际开了 55 分钟。</strong> 先看是不是导航算错了路（口径），再看是不是一路等红灯（开销）。</p>
+<p><strong>一次真实生成</strong>（原文 L1054–L1060）：RTX PRO 6000、vLLM、eager、batch 1、8K。读取下界 9.12 ms，实测三轮中位数 25.83 ms，下界只占 35.3%（这就是 MBU），多出约 16.7 ms。</p>
+<ul>
+<li><strong>不是读取慢</strong>：2K 上下文每步少读 0.906 GB，应省约 0.51 ms，实测 26.26 ms 反而没变短。</li>
+<li><strong>batch 一大就回来了</strong>：batch 64、2K 每步读 34.46 GB，下界 19.23 ms，实测 29.63 ms，等效 1.16 TB/s，MBU 65%。</li>
+<li>所以 batch 1 时主要是一段和读取量无关的固定工作：kernel 逐个启动、向量运算、采样、同步。要减它靠 kernel 融合和少启动（第 5 部分），不是提高带宽利用率。</li>
+</ul>
+<p><strong>一次投影的实测</strong>（原文 L1064–L1087）：RTX PRO 6000，16 份内容相同、地址不同的 32 MiB 权重：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;"><span class="arithmatex">\(M\)</span></th>
+<th style="text-align: right;">复用同一地址</th>
+<th style="text-align: right;">轮换不同地址</th>
+<th>DRAM 读取</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">42.9 μs</td>
+<td style="text-align: right;">51.9 μs</td>
+<td>都约 32 MiB</td>
+</tr>
+<tr>
+<td style="text-align: right;">256</td>
+<td style="text-align: right;">32.6 μs</td>
+<td style="text-align: right;">33.5 μs</td>
+<td>复用 256 B / 轮换 32.1 MiB</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>单行慢 21% <strong>不是</strong>缓存省了 DRAM：两种情况 DRAM 都读了 32 MiB。差别要到提交、执行、等待里去找。</li>
+<li>256 行时缓存把 DRAM 读取几乎降到 0，时间却没变：L2 请求仍有约 147 MiB，片上一样要搬。</li>
+<li>库把一次乘法拆成了多个 kernel：单行是 GEMV，256 行是 GEMM + split-K 归约。按"全部从片外读"的模型，下界只有 18.7 / 21.1 μs。</li>
+</ul>
+<p><strong>拆差距的公式</strong>（原文 L1089–L1097）：</p>
+<div class="arithmatex">\[\frac{S_r}{T} = \underbrace{\frac{S_r}{A_r}}_{\text{工作时快不快}} \times \underbrace{\frac{A_r}{T}}_{\text{有多少时间在工作}}\]</div>
+<p>两个任务都是 100 μs、理想计算 40 μs：一个工作 40 μs、等 60 μs（该补的是数据准备和重叠，像第 21 章两槽变三槽）；另一个工作 80 μs、速率只有一半（该改的是粒度和访问，像第 20 章补齐和分组）。比值都是 40%，药方相反。</p>
+<p><strong>场景代码</strong>：用 PyTorch Profiler 看一次投影到底拆成了哪几个 kernel、各占多久（真实 API）：</p>
+<pre><code class="language-python">import torch
+from torch.profiler import profile, ProfilerActivity
+
+x = torch.randn(256, 4096, device=&quot;cuda&quot;, dtype=torch.bfloat16)
+w = torch.randn(4096, 4096, device=&quot;cuda&quot;, dtype=torch.bfloat16)
+with profile(activities=[ProfilerActivity.CUDA]) as prof:
+    for _ in range(16):
+        y = x @ w.T
+    torch.cuda.synchronize()
+print(prof.key_averages().table(sort_by=&quot;cuda_time_total&quot;, row_limit=5))  # 看 gemm 与 splitK reduce
+</code></pre>
+<p><strong>一句话</strong>：实测比下界慢时，先查模型口径（缓存、kernel 拆分），再查实现开销（启动、同步）；把"工作时快不快"和"有多少时间在工作"分开看。</p>
+<h3 id="2026-11-24_2">第四步：算账：每任务成本、能耗、专用化回本（2026-11-24）</h3>
+<p><strong>类比：打车。</strong> 贵一倍的车如果快一倍以上，这一趟反而便宜；买一辆专车，要跑够多少趟才比打车划算。</p>
+<p><strong>每任务成本</strong>（原文 L1107–L1113）：按时间计费，</p>
+<div class="arithmatex">\[K_A &lt; K_B \iff \frac{c_A}{c_B} &lt; \frac{t_B}{t_A}\]</div>
+<p>把小时成本换成功率，比的就是每任务能耗。RTX PRO 6000 按 600 W 上限：单行一次约 25.8 mJ，256 行约 19.6 mJ。Mac 要在能耗上赢，单行时平均功率得低于约 155 W，256 行时得低于约 10.7 W：同一台机器，只是矩阵变大，门槛降了十几倍。</p>
+<p><strong>每步能耗</strong>：4090 450 W × 16.22 ms ≈ 7.30 J；5090 575 W × 9.12 ms ≈ 5.24 J。功率高 28%，每步能耗反而低 28%。长期服务要用总耗电 ÷ 有效产出，把空闲和预热都算进去；生成速度翻倍、利用率减半，每 token 成本不变（<span class="arithmatex">\(c / (3600 u q)\)</span>）。</p>
+<p><strong>专用化回本</strong>（例 4-3）：</p>
+<div class="arithmatex">\[V^* = \frac{F_0}{\Delta c}\]</div>
+<p>固定投入 2,000 万美元，每百万 token 省 0.50 美元：回本要 <span class="arithmatex">\(4 \times 10^{13}\)</span> token。100 台、每台 10,000 token/s、利用率 50%，一年产出约 <span class="arithmatex">\(1.58 \times 10^{13}\)</span>，只有回本量的 39%。</p>
+<table>
+<thead>
+<tr>
+<th>条件</th>
+<th style="text-align: right;">一年内回本至少要</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>寿命一年、利用率 50%</td>
+<td style="text-align: right;">254 台</td>
+</tr>
+<tr>
+<td>寿命半年</td>
+<td style="text-align: right;">508 台</td>
+</tr>
+<tr>
+<td>利用率降到 25%</td>
+<td style="text-align: right;">508 台</td>
+</tr>
+</tbody>
+</table>
+<p><img alt="回本量与模型寿命内的累计产出：100 台需要约 2.54 年，超过一年寿命" src="../figures/24-choose-accelerator-breakeven.png" /></p>
+<p><em>图 24-4 · 100 台每年约省 788 万美元，要约 2.54 年才回本，而模型一年就换了。</em></p>
+<p><strong>一句话</strong>：快的贵卡不一定贵；专用化要在模型寿命内卖够 <span class="arithmatex">\(F_0/\Delta c\)</span> 个 token。</p>
+<h2 id="_2">动画演示：同一个模型，挑一张卡</h2>
+<p><img alt="同一模型在七张卡上的 decode 与 prefill" src="../animations/24-choose-accelerator.gif" /></p>
+<p>可交互版：<a href="../animations/24-choose-accelerator.html">animations/24-choose-accelerator.html</a>（切换：Qwen3-8B / 235B-A22B 4-bit；滑块：并发请求 1–16）。</p>
+<p><strong>怎么看</strong>：</p>
+<ol>
+<li>七张卡各一行，左段是 decode 每步读取下界，右段是 4K prefill 矩阵时间（第二步）；</li>
+<li>容量不够的卡变灰，标"放不下"；</li>
+<li>并发请求变多，KV 和预算一起涨，24 GB 卡最先变灰；</li>
+<li>切到 235B，只有 H200 和 M3 Ultra 还亮着。</li>
+</ol>
+<h2 id="_3">练习与作答记录</h2>
+<p><strong>题 1</strong>（第一步）：三个阶段：(矩阵 4、内存 6)、(矩阵 8、内存 2)、(矩阵 3、内存 3) μs，阶段内可重叠、阶段之间串行。总时间多少？只看资源合计会估成多少？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p><strong>题 2</strong>（第一步）：一张卡矩阵 400 TFLOP/s、带宽 2 TB/s，<span class="arithmatex">\(d = 4096\)</span> 的 BF16 投影，转折点 <span class="arithmatex">\(M^*\)</span> 是多少？带宽翻倍后呢？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p><strong>题 3</strong>（第二步）：一个模型 decode 每步读 30 GB、4K prefill 要 120 TFLOPs。在 H100 和 H200 上各要多久？哪个阶段换 H200 有收益？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p><strong>题 4</strong>（第四步）：固定投入 500 万美元，每百万 token 省 0.20 美元；每台 5,000 token/s、利用率 40%、模型寿命 9 个月（按 273 天）。至少要多少台才能在寿命内回本？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p>原书实验 4-5 到 4-8（L1015、L1099、L1145、L1149）是扩展的推导和测量题，想多练可以做。</p>
+<h2 id="_4">口诀</h2>
+<blockquote>
+<p>同一个灶相加，灶和烤箱取最大，汤等肉就串着来；<br />
+堵车看起步（带宽），长途看马力（矩阵）；<br />
+导航不准先改路，再数红灯；<br />
+贵车快一倍就不贵，专车要跑够趟数才回本。</p>
+</blockquote>
+<h2 id="_5">本章复习卡片</h2>
+<p><a href="../review.html">I92</a>（相加、取最大、阶段串联：20 vs 11 μs）、<a href="../review.html">I93</a>（<span class="arithmatex">\(M^* = I^* d / (d - 2I^*)\)</span>，4090 是 178.1）、<a href="../review.html">I94</a>（decode 看带宽、prefill 看矩阵的设备对比）、<a href="../review.html">I95</a>（MBU 35.3% vs 65% 与 <span class="arithmatex">\(S/T = S/A \times A/T\)</span>）、<a href="../review.html">I96</a>（<span class="arithmatex">\(c_A/c_B &lt; t_B/t_A\)</span> 与回本 <span class="arithmatex">\(F_0/\Delta c\)</span>）。练习做完后，按答错、卡住的地方再补。</p>
+<h2 id="_6">附录 · 延伸阅读</h2>
+<blockquote>
+<p>留给以后深入学习用，不影响本章主线。★ 是建议先读的。</p>
+</blockquote>
+<h3 id="_7">推荐阅读</h3>
+<table>
+<thead>
+<tr>
+<th>读什么</th>
+<th>读哪里</th>
+<th>读它为了什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>★ AII 第 4 章</td>
+<td>§4.8 L960–L1259、本章小结</td>
+<td>本章原文，图 4-39 到 4-42</td>
+</tr>
+<tr>
+<td><a href="https://wikieden.github.io/cuda-to-tensor-core/lessons/09-roofline-profiling.html">《CUDA 从线程到 Tensor Core》第 9、27 章</a></td>
+<td>roofline、Nsight 方法论</td>
+<td>实测拆分的工具</td>
+</tr>
+<tr>
+<td>Williams、Waterman、Patterson，Roofline，CACM 2009</td>
+<td>全文</td>
+<td>roofline 原始出处</td>
+</tr>
+<tr>
+<td>AII 第 8 章 实验 8-1</td>
+<td>batch 扫描</td>
+<td>第三步 vLLM 实测的来源</td>
+</tr>
+<tr>
+<td>AII 第 1 章 §1.2.2、§1.3.4</td>
+<td>MFU / MBU、两类差距</td>
+<td>利用率的定义</td>
+</tr>
+<tr>
+<td><a href="../lessons/18-scaling-lifecycle.html">第 18 章 规模与生命周期</a></td>
+<td>生命周期成本</td>
+<td>回本账的前置</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_8">数学原理</h3>
+<ul>
+<li><strong>max-plus</strong>：阶段内 <span class="arithmatex">\(\max\)</span>，阶段间 <span class="arithmatex">\(\sum\)</span>；只算 <span class="arithmatex">\(\max_r \sum\)</span> 会低估。</li>
+<li><strong>Roofline 反解</strong>：<span class="arithmatex">\(I(M) = Md/(d + 2M) = I^*\)</span> 解出 <span class="arithmatex">\(M\)</span>。</li>
+<li><strong>比值分解</strong>：<span class="arithmatex">\(S/T = (S/A)(A/T)\)</span>，把效率拆成"速率"和"占空"。</li>
+<li><strong>回本</strong>：<span class="arithmatex">\(V^* = F_0/\Delta c\)</span>，寿命内产出 <span class="arithmatex">\(D u q L \ge V^*\)</span> 解出 <span class="arithmatex">\(D\)</span>。</li>
+</ul>
+<h3 id="_9">公式清单</h3>
+<table>
+<thead>
+<tr>
+<th>公式</th>
+<th>意思</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\(T_r = \sum_i w_{r,i}/p_{r,i}\)</span></td>
+<td>同一资源相加</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(T = \sum_{\text{阶段}} \max_r T_{r}\)</span></td>
+<td>阶段依赖</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(M^* = I^* d / (d - 2 I^*)\)</span>，<span class="arithmatex">\(I^* = P/R\)</span></td>
+<td>投影转折行数</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(S_r / T = (S_r/A_r)(A_r/T)\)</span></td>
+<td>差距拆分</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(K_A &lt; K_B \iff c_A/c_B &lt; t_B/t_A\)</span></td>
+<td>每任务成本</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(V^* = F_0 / \Delta c\)</span>，<span class="arithmatex">\(D \ge V^* / (u q L)\)</span></td>
+<td>专用化回本</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_10">代码对照：把本章的数字用代码算一遍</h3>
+<blockquote>
+<p>纯 Python，不需要 GPU。代码在仓库本地 <code>ai-infra/solutions/chapter-code/ch24_choose_accelerator.py</code>，配套测试 <code>tests/test_ch24.py</code>：</p>
+<p><code>bash  
+cd ai-infra/solutions/chapter-code  
+uv run python ch24_choose_accelerator.py   # 一步一步打印  
+uv run pytest tests/test_ch24.py</code></p>
+</blockquote>
+<p><strong>讲义 ↔ 代码</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>讲义</th>
+<th>公式</th>
+<th>写法</th>
+<th>跑出来</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第一步 阶段</td>
+<td><span class="arithmatex">\(\sum \max\)</span></td>
+<td><code>staged_time(stages)</code></td>
+<td>20 μs vs 合计 11 μs</td>
+</tr>
+<tr>
+<td>第一步 转折</td>
+<td><span class="arithmatex">\(I^* d / (d - 2I^*)\)</span></td>
+<td><code>turning_rows(165.2e12, 1.008e12)</code></td>
+<td>178.1</td>
+</tr>
+<tr>
+<td>第二步 设备</td>
+<td><span class="arithmatex">\(V/R\)</span>、<span class="arithmatex">\(F/P\)</span></td>
+<td><code>device_table()</code></td>
+<td>16.22 / 9.12 ms；7.1 / 57.0 / 39.1 / 68.5%</td>
+</tr>
+<tr>
+<td>第四步 成本</td>
+<td><span class="arithmatex">\(c_A/c_B &lt; t_B/t_A\)</span></td>
+<td><code>cheaper(...)</code></td>
+<td></td>
+</tr>
+<tr>
+<td>第四步 回本</td>
+<td><span class="arithmatex">\(F_0/\Delta c\)</span></td>
+<td><code>breakeven(20e6, 0.5, 100, 10_000, 0.5)</code></td>
+<td><span class="arithmatex">\(4 \times 10^{13}\)</span>、254 台、508 台</td>
+</tr>
+</tbody>
+</table>
+<p><strong>关键几行</strong>：</p>
+<pre><code class="language-python">def staged_time(stages):
+    total = sum(max(s.values()) for s in stages)   # 阶段内并行取最大，阶段间串行相加
+    ...
+
+def turning_rows(p, r, d=4096):
+    i = p / r                                      # I* = P/R
+    return i * d / (d - 2 * i)
+</code></pre>
+<p><strong>代码里才看得到的 3 件事</strong>：</p>
+<ol>
+<li><code>decode_flops</code> 的每层参数 <span class="arithmatex">\(2 \cdot 4096^2 + 2 \cdot 4096 \cdot 1024 + 3 \cdot 4096 \cdot 12288\)</span>：K、V 只有 8 个头 × 128 = 1,024 宽（第 9 章 GQA）。</li>
+<li>600 W × 42.9 μs 代码得 25.7 mJ，原文 25.8 mJ：原文用的是未取整的实测时间。</li>
+<li>回本的机器数用上取整：<span class="arithmatex">\(4 \times 10^{13} / 1.577 \times 10^{11} = 253.7\)</span>，所以是 254 台。</li>
+</ol>
+<p><strong>自己改一改</strong>（不影响练习答案）：</p>
+<ul>
+<li>给 <code>DEVICES</code> 加一行 B200（180 GB、8 TB/s、约 2.25 PFLOP/s BF16 稠密），看 decode 和 prefill 各排第几。</li>
+<li>把 <code>staged_time</code> 的第二阶段改成可以和第一阶段部分重叠，总时间怎么变？</li>
+<li>改 <code>breakeven</code> 的利用率，画出机器数随利用率的曲线。</li>
+</ul><nav class="pager"><a href="23-architecture-evolution.html">← 第 23 章 · 架构演进与专用架构：每一代新增的东西，省掉了哪一笔</a><span></span></nav>
+</main></div>
+<footer>来自个人学习仓库的对话讲义，含练习作答记录。源码：<a href="https://github.com/wikieden/ai-infra-from-constraints">github.com/wikieden/ai-infra-from-constraints</a>。更多讲义书：<a href="https://wikieden.github.io/ai-books/">Physical AI 0-1-♾️（合集）</a></footer>
+<script>(function(){var d=document.documentElement,K=["s","m","l","xl"];
+function save(k,v){try{v?localStorage.setItem(k,v):localStorage.removeItem(k)}catch(e){}}
+var s=document.getElementById("ab-theme");if(s){s.value=d.dataset.theme||"";s.onchange=function(){if(s.value)d.dataset.theme=s.value;else delete d.dataset.theme;save("ab-theme",s.value)}}
+document.querySelectorAll("[data-fs-step]").forEach(function(b){b.onclick=function(){var i=K.indexOf(d.dataset.fs||"m")+(+b.dataset.fsStep);i=Math.max(0,Math.min(K.length-1,i));d.dataset.fs=K[i];save("ab-fs",K[i])}});
+var nb=document.getElementById("nav-toggle"),side=document.querySelector("nav.side");if(nb&&side){nb.onclick=function(){side.classList.toggle("open")}}
+var cur=side&&side.querySelector(".cur");if(cur)cur.scrollIntoView({block:"center"});
+})();</script>
+</body></html>

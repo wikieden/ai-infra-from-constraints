@@ -1,0 +1,518 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>第 10 章 · KV 怎么变小 ②：窗口、稀疏、线性与混合注意力 · 从约束推导 AI Infra</title>
+<script>(function(){try{var d=document.documentElement,t=localStorage.getItem("ab-theme"),f=localStorage.getItem("ab-fs");if(t)d.dataset.theme=t;if(f)d.dataset.fs=f}catch(e){}})();</script>
+<style>:root{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa;--fs:16px}
+@media (prefers-color-scheme:dark){:root:not([data-theme]){--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}}
+:root[data-theme="light"]{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa}
+:root[data-theme="dark"]{--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}
+:root[data-theme="sepia"]{--bg:#f6efe1;--fg:#3b3127;--mute:#7a6a58;--line:#e2d6bf;--card:#fbf6ec;--acc:#a0522d;--code:#ece2cd;--quote:#efe5d2}
+:root[data-theme="green"]{--bg:#e3eddf;--fg:#22301f;--mute:#566650;--line:#c9d8c3;--card:#eef5eb;--acc:#2e7d4f;--code:#d6e4d0;--quote:#dae7d5}
+:root[data-theme="navy"]{--bg:#0f1a2b;--fg:#dde6f3;--mute:#93a4bd;--line:#23324a;--card:#15233a;--acc:#6cc4ff;--code:#1a2a44;--quote:#16243b}
+:root[data-fs="s"]{--fs:15px}
+:root[data-fs="m"]{--fs:16px}
+:root[data-fs="l"]{--fs:18px}
+:root[data-fs="xl"]{--fs:20px}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:var(--fs)/1.75 -apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Helvetica Neue",sans-serif}
+a{color:var(--acc)}
+header.top{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+header.top .in{max-width:860px;margin:0 auto;padding:10px 16px;display:flex;gap:6px 16px;align-items:center;flex-wrap:wrap;font-size:14px}
+header.top .brand{font-weight:600;color:var(--fg);text-decoration:none;margin-right:auto}
+header.top a{text-decoration:none}
+.prefs{display:inline-flex;gap:4px;align-items:center}
+.prefs button,.prefs select,#nav-toggle{font:inherit;font-size:13px;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:2px 8px;cursor:pointer}
+main{max-width:860px;margin:0 auto;padding:24px 16px 72px;overflow-wrap:anywhere}
+h1{font-size:1.75em;line-height:1.35;margin:8px 0 16px} h2{font-size:1.375em;margin:40px 0 12px;padding-top:8px;border-top:1px solid var(--line)} h3{font-size:1.125em;margin:28px 0 8px}
+.layout{display:grid;grid-template-columns:260px minmax(0,1fr);max-width:1180px;margin:0 auto}
+.layout main{margin:0;max-width:880px}
+nav.side{position:sticky;top:49px;align-self:start;max-height:calc(100vh - 49px);overflow-y:auto;padding:20px 8px 40px 16px;border-right:1px solid var(--line);font-size:14px;line-height:1.5}
+nav.side .h{font-weight:600;color:var(--mute);margin:4px 8px 8px;font-size:13px}
+nav.side a{display:block;padding:5px 8px;border-radius:6px;color:var(--fg);text-decoration:none}
+nav.side a:hover{background:var(--code)} nav.side a.cur{background:var(--quote);color:var(--acc);font-weight:600}
+nav.side a .n{color:var(--mute);margin-right:6px;font-variant-numeric:tabular-nums}
+#nav-toggle{display:none}
+@media (max-width:960px){.layout{display:block} nav.side{display:none;position:fixed;z-index:6;top:49px;left:0;bottom:0;width:min(300px,85vw);max-height:none;background:var(--bg);box-shadow:2px 0 12px rgba(0,0,0,.2)} nav.side.open{display:block} #nav-toggle{display:inline-block}}
+.run{display:flex;flex-wrap:wrap;align-items:center;gap:4px 0;margin:4px 0 12px}
+.run details{flex-basis:100%;margin:6px 0 0;font-size:.94em}
+img{max-width:100%;height:auto;border-radius:8px;border:1px solid var(--line);background:#fff}
+blockquote{margin:16px 0;padding:10px 16px;background:var(--quote);border-left:3px solid var(--acc);border-radius:4px;color:var(--mute)}
+blockquote p{margin:4px 0}
+code{background:var(--code);padding:1px 5px;border-radius:4px;font-size:.9em}
+pre{background:var(--code);padding:12px 14px;border-radius:8px;overflow-x:auto} pre code{padding:0;background:none}
+table{border-collapse:collapse;display:block;overflow-x:auto;max-width:100%;margin:12px 0;font-size:.94em}
+th,td{border:1px solid var(--line);padding:6px 10px;vertical-align:top} th{background:var(--code)}
+details{border:1px solid var(--line);border-radius:8px;padding:6px 12px;margin:8px 0;background:var(--card)}
+details[open]{padding-bottom:10px} summary{cursor:pointer;color:var(--acc);font-weight:500}
+mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%}
+.btn{display:inline-block;margin:4px 8px 4px 0;padding:6px 14px;border:1px solid var(--acc);border-radius:999px;text-decoration:none;font-size:14px}
+.pager{display:flex;justify-content:space-between;gap:12px;margin-top:48px;padding-top:16px;border-top:1px solid var(--line);font-size:15px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin:16px 0}
+.card{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;color:inherit;text-decoration:none}
+.card:hover{border-color:var(--acc)} .card img{border:0;border-bottom:1px solid var(--line);border-radius:0;aspect-ratio:16/10;object-fit:contain;width:100%}
+.card .no{color:var(--mute);font-size:13px;padding:8px 12px 0} .card .t{padding:0 12px 12px;font-weight:500;line-height:1.5}
+.lead{font-size:1.06em;color:var(--mute)}
+footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-size:13px}
+</style>
+<script>window.MathJax={tex:{inlineMath:[["\\(","\\)"]],displayMath:[["\\[","\\]"],["$$","$$"]],processEscapes:true,processEnvironments:true}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"></script>
+</head><body>
+<header class="top"><div class="in">
+<button type="button" id="nav-toggle" aria-label="打开章节列表">☰ 章节</button><a class="brand" href="../index.html">从约束推导 AI Infra</a>
+<a href="../lessons/index.html">讲义目录</a>
+<a href="../animations/index.html">动画</a>
+<a href="../review.html">复习卡片</a>
+<a href="../lessons/appendix-glossary.html">缩写表</a>
+<a href="https://wikieden.github.io/ai-books/glossary.html">全局词汇</a>
+<a href="https://wikieden.github.io/ai-books/">← 全部讲义书</a>
+<span class="prefs" title="字号与主题"><button type="button" data-fs-step="-1" aria-label="字号变小">A−</button><button type="button" data-fs-step="1" aria-label="字号变大">A+</button><select id="ab-theme" aria-label="主题色"><option value="">跟随系统</option><option value="light">浅色</option><option value="dark">深色</option><option value="sepia">米黄护眼</option><option value="green">豆沙绿护眼</option><option value="navy">夜蓝</option></select></span>
+</div></header>
+<div class="layout"><nav class="side" aria-label="章节"><div class="h">从约束推导 AI Infra</div><a href="index.html">讲义目录</a><a href="01-six-layers.html"><span class="n">1</span>一次请求走过的六层（进行中）</a><a href="02-request-lifecycle.html"><span class="n">2</span>一次生成请求的处理过程：权重加载一次，每个 token 都要再读一遍</a><a href="03-dataflow-hierarchy.html"><span class="n">3</span>从存储程序到数据流执行：存储层次就像大楼里的厕所</a><a href="04-key-numbers.html"><span class="n">4</span>系统设计的关键数字：容量、算力、带宽、延迟</a><a href="05-estimate.html"><span class="n">5</span>用几个数字估算一次模型执行：算和读各要多久，实测为什么达不到</a><a href="06-architecture.html"><span class="n">6</span>需求如何推动架构：TPU、SmartNIC、Unified Bus</a><a href="07-compute-graph.html"><span class="n">7</span>计算图与张量结构：一个 token 经过一层要算多少</a><a href="08-generation-budget.html"><span class="n">8</span>自回归生成的资源账：存一次的、每步读的、用完就扔的</a><a href="09-kv-sharing.html"><span class="n">9</span>KV 怎么变小 ①：头共享与潜变量压缩</a><a href="10-kv-sparse-linear.html" class="cur"><span class="n">10</span>KV 怎么变小 ②：窗口、稀疏、线性与混合注意力</a><a href="11-moe.html"><span class="n">11</span>MoE：专家路由与批内权重复用</a><a href="12-network-shape.html"><span class="n">12</span>网络形状：深宽、专家粒度、残差与多 token 预测</a><a href="13-model-comparison.html"><span class="n">13</span>整个模型的资源需求与比较：存多少、算多少、能放几条请求</a><a href="14-workload-arrival.html"><span class="n">14</span>从单次请求到持续到达的负载：什么时候来，比来多少更要紧</a><a href="15-agent-tasks.html"><span class="n">15</span>多轮交互与 Agent 任务：前缀、成功成本、关键路径</a><a href="16-multimodal-realtime.html"><span class="n">16</span>多模态与实时交互：数据换形状，时间有死线（略讲）</a><a href="17-training-rl.html"><span class="n">17</span>训练与强化学习的计算和状态：为什么训练要 6ND、要存 18 字节</a><a href="18-scaling-lifecycle.html"><span class="n">18</span>Scaling law 与全生命周期成本：训练多大、训练多久、服务多少次</a><a href="19-accelerator-basics.html"><span class="n">19</span>从矩阵乘法认识加速器：算多少、搬多少、耗多少电</a><a href="20-compute-units.html"><span class="n">20</span>计算单元：矩阵、向量、流水与低精度</a><a href="21-memory-movement.html"><span class="n">21</span>存储层次与数据搬移：放得下、取得到、来得及</a><a href="22-package-interconnect.html"><span class="n">22</span>多芯片封装与互联：计算放在哪，数据走哪条路</a><a href="23-architecture-evolution.html"><span class="n">23</span>架构演进与专用架构：每一代新增的东西，省掉了哪一笔</a><a href="24-choose-accelerator.html"><span class="n">24</span>根据架构选择加速器：先估下界，再找差距，最后算账</a><a href="appendix-glossary.html">附录 · 缩写与术语表</a><a href="appendix-tp-pp-cp.html">附录 · 补充资料：TP、PP、CP，一个模型沿三个方向切给多张卡</a></nav><main>
+<h1 id="10-kv-2">第 10 章 · KV 怎么变小 ②：窗口、稀疏、线性与混合注意力</h1><div class="run"><a class="btn" href="../animations/10-kv-sparse-linear.html">▶ 打开本章可交互动画</a><a class="btn" href="https://colab.research.google.com/github/wikieden/ai-infra-from-constraints/blob/main/code/notebooks/ch10_kv_sparse_linear.ipynb" target="_blank" rel="noopener">在 Colab 运行本章代码</a><a class="btn" href="../code/notebooks/ch10_kv_sparse_linear.ipynb" download>下载 notebook</a><details><summary>本地运行</summary><pre><code>git clone https://github.com/wikieden/ai-infra-from-constraints
+cd ai-infra-from-constraints/code/notebooks
+pip install jupyterlab torch numpy
+jupyter lab ch10_kv_sparse_linear.ipynb</code></pre><p>也可以下载后直接用 VS Code 打开 .ipynb 运行。需要 GPU 的章节在 Colab 里选「代码执行程序 → 更改运行时类型 → GPU」。</p></details></div>
+<blockquote>
+<p>本章回答：不再给每个 token 都存一份、每步都全读，有哪些办法？局部窗口、压缩、稀疏索引、线性注意力各省了什么，又多了什么工作？混合模型的状态什么时候由"固定部分"说了算，什么时候由"随上下文增长的部分"说了算？<br />
+讲解日期：2026-11-24 · 上一章：<a href="../lessons/09-kv-sharing.html">第 09 章 KV 怎么变小 ①</a> · 下一章：<a href="../lessons/11-moe.html">第 11 章 MoE</a><br />
+对应原文：<code>materials/ai-infra-book/manuscripts/02-模型架构.md</code> §2.3.3–§2.3.6 L358–L523（图 2-13 到 2-22，表 L458–L468）<br />
+本章缩写：BF16 = Brain Float 16（Google Brain 提出的 / 浮点 / 16 位）· CED = Causal Encoder-Decoder（因果 / 编码器 / 解码器）· CSA = Compressed Sparse Attention（压缩 / 稀疏 / 注意力）· FP32 / FP8 / FP4 = 32 / 8 / 4 位浮点 · HCA = Heavily Compressed Attention（高度 / 压缩 / 注意力）· KDA = Kimi Delta Attention（Kimi 的 / 增量修正 / 注意力）· KV = Key-Value（键 / 值）· MLA = Multi-head Latent Attention（多头 / 潜变量 / 注意力）· MoE = Mixture of Experts（混合 / 专家）· SWA = Sliding-Window Attention（滑动 / 窗口 / 注意力）。全部缩写见 <a href="../lessons/appendix-glossary.html">缩写与术语表</a></p>
+</blockquote>
+<p>上一章让每个 token 存得更瘦。本章改另外两个旋钮：<strong>存多少条</strong>（窗口、压缩、稀疏选择），以及<strong>根本不按 token 存</strong>（线性注意力的固定状态）。然后把它们组合成混合模型，算整个模型的状态。</p>
+<h2 id="_1">讲解</h2>
+<h3 id="2026-11-24">第一步：窗口、压缩、索引：读最近的、读汇总的、先挑再读（2026-11-24）</h3>
+<p><strong>类比：查资料的三种办法。</strong> 只看最近几页的笔记（窗口）；看每章写好的小结（压缩）；先翻目录挑出相关的章节，再去读那几章（索引选择）。翻目录本身也要花时间。</p>
+<p>原文 L360–L364 区分三样东西：</p>
+<table>
+<thead>
+<tr>
+<th>对象</th>
+<th>是什么</th>
+<th>读的时候</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>局部滑动窗口（SWA）</td>
+<td>最近 128 个位置，较早的退出窗口</td>
+<td>直接读</td>
+</tr>
+<tr>
+<td>全局主 KV</td>
+<td>覆盖较长历史的长期表示，可能多个位置合成一条</td>
+<td>不一定全读</td>
+</tr>
+<tr>
+<td>索引 K</td>
+<td>用来检索的一份更小的表示</td>
+<td>先用它给条目打分，选中的再去读主 KV</td>
+</tr>
+</tbody>
+</table>
+<p><strong>DeepSeek V4-Flash</strong>（原文 L366–L372）：43 个主干层 = 2 个纯窗口层 + 21 个 CSA 层 + 20 个 HCA 层，窗口长 128。</p>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>怎么压缩</th>
+<th>怎么读</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CSA（压缩稀疏）</td>
+<td>每 4 个 token 生成一条 512 维主记录 + 128 维索引</td>
+<td>扫描全部索引，选最多 512 条主记录 + 窗口</td>
+</tr>
+<tr>
+<td>HCA（高度压缩）</td>
+<td>每 128 个 token 生成一条</td>
+<td>读全部已完成的粗条目 + 窗口，不做 top-k</td>
+</tr>
+</tbody>
+</table>
+<p><img alt="先压缩成条目，再用索引挑出要读的条目" src="../figures/10-kv-sparse-linear-index.png" /></p>
+<p><em>图 10-1 · 上：8 个 token 压成 2 条记录（只示意数量关系，省略 V4 的重叠投影）。下：一次查询先扫描全部索引条目打分，再只读选中的主记录。</em></p>
+<p><strong>例子</strong>（原文 L372–L374，BF16 参考格式，<span class="arithmatex">\(S = 8192\)</span>）：</p>
+<table>
+<thead>
+<tr>
+<th>一层</th>
+<th>保存</th>
+<th>每步读取</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CSA</td>
+<td>2048 条：主状态 2 MiB + 索引 0.5 MiB + 窗口 0.125 MiB</td>
+<td>索引扫描 0.5 MiB + 选中 ≤ 512 条 0.5 MiB + 窗口 0.125 MiB</td>
+</tr>
+<tr>
+<td>HCA</td>
+<td>64 条：0.0625 MiB + 窗口 0.125 MiB</td>
+<td>全部 64 条 + 窗口</td>
+</tr>
+</tbody>
+</table>
+<p>43 层合计：保存 59.125 MiB（另有约 11.6 MiB 的 FP32 压缩缓冲），最后一次查询读 27.625 MiB。对比 Qwen3-8B 同样 8K 要存、要读各 1152 MiB（第 08 章）。</p>
+<p><strong>注意节奏</strong>（原文 L384）：压缩块凑满才生成条目，CSA 每 4 个 token、HCA 每 128 个 token；没凑满的块要单独缓冲。</p>
+<p><strong>一句话</strong>：窗口管近期、压缩管远期、索引管挑选；省下的读取要和索引扫描、压缩器更新一起算。</p>
+<h3 id="2026-11-24_1">第二步：线性注意力：一张固定大小的摘要卡（2026-11-24）</h3>
+<p><strong>类比：第 09 章开头的"摘要卡"。</strong> 不管书多厚，卡片就那么大；每读一页就把要点改写进去。查的时候只看卡片。</p>
+<p><strong>公式</strong>（原文 L401）：键值外积累加成一个矩阵</p>
+<div class="arithmatex">\[\mathcal{S}_t = \mathcal{S}_{t-1} + k_t v_t^{\mathsf T}, \qquad o_t = q_t^{\mathsf T}\,\mathcal{S}_t\]</div>
+<ul>
+<li>外积 <span class="arithmatex">\(k_t v_t^{\mathsf T}\)</span>：键向量的每个元素乘值向量的每个元素，得到一张 <span class="arithmatex">\(d_k \times d_v\)</span> 的关联表。</li>
+<li>状态永远是 <span class="arithmatex">\(d_k d_v\)</span> 个数：新 token 改的是内容，不是大小。</li>
+</ul>
+<p><strong>例子</strong>（编的，<span class="arithmatex">\(d_k = d_v = 2\)</span>）：<span class="arithmatex">\(k_1 = [1, 0]\)</span>，<span class="arithmatex">\(v_1 = [2, 3]\)</span>；<span class="arithmatex">\(k_2 = [0, 1]\)</span>，<span class="arithmatex">\(v_2 = [1, 1]\)</span>。</p>
+<div class="arithmatex">\[\mathcal{S}_2 = \begin{bmatrix}2 &amp; 3\\ 0 &amp; 0\end{bmatrix} + \begin{bmatrix}0 &amp; 0\\ 1 &amp; 1\end{bmatrix} = \begin{bmatrix}2 &amp; 3\\ 1 &amp; 1\end{bmatrix}\]</div>
+<p>查询 <span class="arithmatex">\(q = [1, 0]\)</span> 时，<span class="arithmatex">\(o = q^{\mathsf T}\mathcal{S}_2 = [2, 3]\)</span>（正好取回了 <span class="arithmatex">\(v_1\)</span>）。来了 1000 个 token，状态还是 2×2。</p>
+<p><img alt="固定大小的状态矩阵：每步加一个外积，形状不变" src="../figures/10-kv-sparse-linear-recurrence.png" /></p>
+<p><em>图 10-2 · 新的键、值做外积，加进旧状态；查询直接从状态读出结果。本图是最简单的累加；KDA 还加了门控与修正。</em></p>
+<p><strong>KDA</strong>（原文 L410–L412）：Kimi 的门控递推注意力，不只累加，还用当前键检验旧状态的预测、按误差写入修正（delta），衰减门决定旧信息留多少。</p>
+<ul>
+<li>Kimi K3 每个 KDA 层 96 个头，每头 128×128，FP32：<span class="arithmatex">\(96 \times 128 \times 128 \times 4\)</span> 字节 = 6 MiB；69 层共 414 MiB。</li>
+<li>每步 decode 读一遍、写一遍：828 MiB，<strong>不随上下文长度变化</strong>。短上下文时这是一笔显著的固定开销，长上下文时则避免了"越长读越多"。</li>
+</ul>
+<p><strong>一句话</strong>：线性注意力把上下文压进固定大小的矩阵，存储和每步读写都不随长度增长，但每一步都要整块读写一遍。</p>
+<h3 id="2026-11-24_2">第三步：混合模型：固定部分 + 随上下文增长的部分（2026-11-24）</h3>
+<p><strong>类比：手机套餐。</strong> 月租固定（递推状态），流量按用量算（逐 token 的全局 KV）。用得少时主要付月租，用得多时主要付流量；两者相等的那个用量是分界点。</p>
+<p><strong>公式</strong>（原文 L441）：</p>
+<div class="arithmatex">\[M_{\mathrm{state}}(H) = M_{\mathrm{fixed}} + c_{\mathrm{state}}\,H, \qquad H_* = \frac{M_{\mathrm{fixed}}}{c_{\mathrm{state}}}\]</div>
+<p><strong>例子</strong>（原文 L420–L444）：</p>
+<table>
+<thead>
+<tr>
+<th>模型</th>
+<th>结构</th>
+<th><span class="arithmatex">\(M_{\mathrm{fixed}}\)</span></th>
+<th><span class="arithmatex">\(c_{\mathrm{state}}\)</span></th>
+<th><span class="arithmatex">\(H_*\)</span></th>
+<th>8K 时总状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Qwen3.6-35B-A3B</td>
+<td>30 个线性注意力层 + 10 个完整注意力层</td>
+<td>61.875 MiB</td>
+<td>20 KiB / token</td>
+<td>3168</td>
+<td>221.9 MiB</td>
+</tr>
+<tr>
+<td>Kimi K3</td>
+<td>69 个 KDA 层 + 24 个 MLA 层（紧凑）</td>
+<td>约 433.4 MiB</td>
+<td>27 KiB / token</td>
+<td>约 16.4K</td>
+<td>约 649.4 MiB</td>
+</tr>
+<tr>
+<td>Qwen3-8B（对照）</td>
+<td>36 个 GQA 层</td>
+<td>0</td>
+<td>144 KiB / token</td>
+<td>—</td>
+<td>1152 MiB</td>
+</tr>
+</tbody>
+</table>
+<p><img alt="上下文增长时各模型的状态：直线、先平后升、阶梯" src="../figures/10-kv-sparse-linear-growth.png" /></p>
+<p><em>图 10-3 · 横纵轴都是对数刻度。Qwen3-8B 一路按 144 KiB 增长；Qwen3.6、Kimi K3 先由固定状态撑着，过了 <span class="arithmatex">\(H_*\)</span> 才由逐 token 部分主导。</em></p>
+<ul>
+<li>低于 <span class="arithmatex">\(H_*\)</span>：缩短上下文省得不多，固定部分占大头。</li>
+<li>远高于 <span class="arithmatex">\(H_*\)</span>：减小每个 token 的表示宽度更有效。</li>
+</ul>
+<p><strong>一句话</strong>：混合模型的状态 = 月租 + 按量；<span class="arithmatex">\(H_* = M_{\mathrm{fixed}} / c_{\mathrm{state}}\)</span> 是两者相等的上下文长度。</p>
+<h3 id="token-decode-2026-11-24">第四步：每个 token 存多少，每次 decode 读多少（2026-11-24）</h3>
+<p><strong>类比：比较几种存储方案，要同时看三个数</strong>：平均每页多占多少空间、存满一本书一共多大、每次查一次要翻多少页。只看其中一个会误判。</p>
+<p>原文 L454：同时给出三个量，<strong>每 token 平均增量</strong>、<strong>长度为 <span class="arithmatex">\(N\)</span> 时实际保存</strong>、<strong>一次 decode 要读的历史</strong>。</p>
+<p><strong>表</strong>（原文 L458–L468，<span class="arithmatex">\(N = 8192\)</span>，单请求）：</p>
+<table>
+<thead>
+<tr>
+<th>模型与缓存路径</th>
+<th style="text-align: right;">每 token 增量（B）</th>
+<th style="text-align: right;">8K 全局历史（MiB）</th>
+<th style="text-align: right;">每次 decode 读（MiB）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Qwen3-8B，BF16 GQA</td>
+<td style="text-align: right;">147,456</td>
+<td style="text-align: right;">1,152</td>
+<td style="text-align: right;">1,152</td>
+</tr>
+<tr>
+<td>Qwen3-32B，BF16 GQA</td>
+<td style="text-align: right;">262,144</td>
+<td style="text-align: right;">2,048</td>
+<td style="text-align: right;">2,048</td>
+</tr>
+<tr>
+<td>Qwen3-30B-A3B，BF16 GQA</td>
+<td style="text-align: right;">98,304</td>
+<td style="text-align: right;">768</td>
+<td style="text-align: right;">768</td>
+</tr>
+<tr>
+<td>Qwen3-235B-A22B，BF16 GQA</td>
+<td style="text-align: right;">192,512</td>
+<td style="text-align: right;">1,504</td>
+<td style="text-align: right;">1,504</td>
+</tr>
+<tr>
+<td>Qwen3.6，BF16 全注意力部分</td>
+<td style="text-align: right;">20,480</td>
+<td style="text-align: right;">160</td>
+<td style="text-align: right;">160</td>
+</tr>
+<tr>
+<td>Kimi K3，BF16 紧凑 MLA</td>
+<td style="text-align: right;">27,648</td>
+<td style="text-align: right;">216</td>
+<td style="text-align: right;">216</td>
+</tr>
+<tr>
+<td>DeepSeek V4-Flash，生产混合格式</td>
+<td style="text-align: right;">3,514.25</td>
+<td style="text-align: right;">27.455</td>
+<td style="text-align: right;">12.556</td>
+</tr>
+<tr>
+<td>DeepSeek V4.1 Flash，生产混合格式</td>
+<td style="text-align: right;">890</td>
+<td style="text-align: right;">6.953</td>
+<td style="text-align: right;">11.375</td>
+</tr>
+</tbody>
+</table>
+<p>混合模型还要加上第三步的固定状态（每步还要读写一遍）。</p>
+<p><strong>V4.1 Flash：跨层共享</strong>（原文 L476–L512）：</p>
+<ul>
+<li>CED 把 40 层分成前 20 层因果编码器、后 20 层解码器（第 06 章第六步提过）。</li>
+<li>只有 4 层有自己的全局 KV：第 2、8、14 层每 2 个 token 一条，第 20 层每个 token 一条，其他层共用。</li>
+<li>每条主记录 FP4：<span class="arithmatex">\(512/2 + 512/16 = 288\)</span> 字节；索引 <span class="arithmatex">\(128/2 + 128/32 = 68\)</span> 字节。</li>
+</ul>
+<div class="arithmatex">\[\text{V4.1：}\left(\tfrac{3}{2} + 1\right)(288 + 68) = 890\ \text{B/token}\]</div>
+<div class="arithmatex">\[\text{V4：}21 \times \frac{584 + 68}{4} + 20 \times \frac{584}{128} = 3514.25\ \text{B/token}\]</div>
+<p>相差约 3.95 倍。V4.1 没有提高压缩比，而是靠<strong>跨层共享 + 更低精度</strong>省空间。</p>
+<p><strong>共享以后还要读</strong>（原文 L512–L518）：V4.1 的 38 个全局注意力层分成 4 个 Full（完整扫描、选择）、4 个 Reindex（在候选池里重选 512 条）、30 个 Reuse（直接复用选择）。8K 时 V4.1 每步读 11.375 MiB，和 V4 的 12.556 MiB 接近：<strong>跨层共享主要省的是保存，不是读取</strong>。</p>
+<p><img alt="8K 上下文下，每 token 增量和每步读取：两个数不一定同向" src="../figures/10-kv-sparse-linear-table.png" /></p>
+<p><em>图 10-4 · 左：每 token 平均增量（对数刻度）。右：一次 decode 要读的历史。V4.1 存得比 V4 少约 4 倍，读得只少约 10%。</em></p>
+<p><strong>场景代码</strong>：Hugging Face 模型的 <code>config.json</code> 里能直接看出用的是哪种注意力（以 Qwen3.6 这类混合模型为例，字段名以模型自己的配置为准）：</p>
+<pre><code class="language-python">from transformers import AutoConfig
+
+cfg = AutoConfig.from_pretrained(&quot;Qwen/Qwen3-8B&quot;)
+print(cfg.num_hidden_layers, cfg.num_attention_heads, cfg.num_key_value_heads, cfg.head_dim)  # 36 32 8 128
+kv_per_token = 2 * cfg.num_hidden_layers * cfg.num_key_value_heads * cfg.head_dim * 2        # BF16
+print(kv_per_token)                                                                         # 147456
+# 混合模型常见的字段：layer_types（每层是 linear_attention 还是 full_attention）、sliding_window 等
+print(getattr(cfg, &quot;layer_types&quot;, None), getattr(cfg, &quot;sliding_window&quot;, None))
+</code></pre>
+<p><strong>一句话</strong>：比较上下文成本要同时看三个数：每 token 增量、实际保存、每步读取；跨层共享省保存，稀疏选择省读取，递推状态把两者都变成常数但每步都要读写。</p>
+<h2 id="_2">动画演示：上下文变长时，各模型的状态怎么涨</h2>
+<p><img alt="状态容量随上下文增长" src="../animations/10-kv-sparse-linear.gif" /></p>
+<p>可交互版：<a href="../animations/10-kv-sparse-linear.html">animations/10-kv-sparse-linear.html</a>（滑块：上下文长度，1K–128K，对数刻度）。</p>
+<p><strong>怎么看</strong>：</p>
+<ol>
+<li>四根柱子：Qwen3-8B（全 GQA）、Qwen3.6（30 线性 + 10 完整）、Kimi K3（69 KDA + 24 MLA）、V4.1 Flash（890 B/token 的全局 KV，另加 2.578 MiB 窗口）；</li>
+<li>每根柱子分成两段：浅色是固定部分，深色是随上下文增长的部分（第三步）；</li>
+<li>播放时上下文从 1K 涨到 128K：Qwen3-8B 一路线性涨；Qwen3.6 过了 3168 才明显上涨；Kimi K3 到 16K 左右才由逐 token 部分主导；</li>
+<li>右上角显示各模型的 <span class="arithmatex">\(H_*\)</span>。</li>
+</ol>
+<h2 id="_3">练习与作答记录</h2>
+<p><strong>题 1</strong>（第一步）：V4-Flash 的一个 CSA 层，上下文 <span class="arithmatex">\(S = 4096\)</span>。保存多少条压缩条目？索引扫描多少条？主注意力最多读多少条？按 BF16 参考格式，主状态和索引各多少 MiB？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p><strong>题 2</strong>（第二步）：一个假想模型 48 个递推层，每层 64 个头，每头状态 128×128，FP32。递推状态一共多大？每步 decode 读写多少？上下文从 8K 涨到 64K，这两个数变不变？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p><strong>题 3</strong>（第三步）：一个混合模型固定状态 100 MiB，每 token 增加 40 KiB。<span class="arithmatex">\(H_*\)</span> 是多少？上下文 32K 时总状态多大，其中固定部分占多少？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p>原书练习 2-4 后半（L390–L392：CSA 层上下文从 8192 增到 16384）、练习 2-5（L448–L450：Qwen3.6 与 Kimi K3 的交点、32K / 128K 总容量、256 MiB 预算）。想多练可以做。</p>
+<h2 id="_4">口诀</h2>
+<blockquote>
+<p>近的看窗口，远的看小结，挑之前先翻目录；<br />
+摘要一张卡，读写都定额；<br />
+月租加流量，交点 H* 定谁说了算；<br />
+存的少不等于读的少，三个数一起看。</p>
+</blockquote>
+<h2 id="_5">本章复习卡片</h2>
+<p><a href="../review.html">I34</a>（窗口、压缩、索引三样东西）、<a href="../review.html">I35</a>（线性注意力的固定状态）、<a href="../review.html">I36</a>（混合模型的 <span class="arithmatex">\(H_*\)</span>）、<a href="../review.html">I37</a>（比较上下文成本的三个数，V4.1 的跨层共享）。练习做完后，按答错、卡住的地方再补。</p>
+<h2 id="_6">附录 · 延伸阅读</h2>
+<blockquote>
+<p>留给以后深入学习用，不影响本章主线。★ 是建议先读的。</p>
+</blockquote>
+<h3 id="_7">推荐阅读</h3>
+<table>
+<thead>
+<tr>
+<th>读什么</th>
+<th>读哪里</th>
+<th>读它为了什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>★ AII 第 2 章</td>
+<td>§2.3.3–§2.3.6 L358–L523</td>
+<td>本章原文，图 2-13 到 2-22 和每 token 比较表</td>
+</tr>
+<tr>
+<td>AII 计算结果 <code>calculations/results/state-deepseek-v4-flash-n8192-b1-native.md</code></td>
+<td>全文（原文 L374 链接）</td>
+<td>V4-Flash 8K 状态的逐项分解</td>
+</tr>
+<tr>
+<td>AII 计算结果 <code>calculations/results/kv-comparison-n8192-b1.md</code></td>
+<td>全文（原文 L470 链接）</td>
+<td>各模型每 token 增量与读取量的精确字节数</td>
+</tr>
+<tr>
+<td>DeepSeek V4.1 Flash 技术报告</td>
+<td>第 2 节（CED、CSA2、候选池）</td>
+<td>跨层共享与分层选择的原始描述</td>
+</tr>
+<tr>
+<td>Katharopoulos 等, Transformers are RNNs（2020）</td>
+<td>第 3 节</td>
+<td>线性注意力为什么等价于固定状态递推</td>
+</tr>
+<tr>
+<td>Kimi Linear / KDA 技术报告</td>
+<td>KDA 一节</td>
+<td>门控与 delta 更新</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_8">数学原理</h3>
+<ul>
+<li><strong>外积</strong>：<span class="arithmatex">\(k v^{\mathsf T}\)</span> 是 <span class="arithmatex">\(d_k \times d_v\)</span> 矩阵，第 <span class="arithmatex">\((i, j)\)</span> 个元素是 <span class="arithmatex">\(k_i v_j\)</span>。累加外积就是在一张固定大小的表里叠加"键—值"关联。</li>
+<li><strong>一次函数的交点</strong>：<span class="arithmatex">\(M_{\mathrm{fixed}} + cH\)</span> 里两项相等时 <span class="arithmatex">\(H = M_{\mathrm{fixed}} / c\)</span>。</li>
+<li><strong>向下取整</strong>：已完成的压缩条目数 <span class="arithmatex">\(\lfloor S / r \rfloor\)</span>，<span class="arithmatex">\(r\)</span> 是压缩比。</li>
+</ul>
+<h3 id="_9">公式清单</h3>
+<table>
+<thead>
+<tr>
+<th>公式</th>
+<th>意思</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CSA 条目数 <span class="arithmatex">\(= \lfloor S / 4 \rfloor\)</span>，HCA <span class="arithmatex">\(= \lfloor S / 128 \rfloor\)</span></td>
+<td>V4-Flash 的压缩条目</td>
+</tr>
+<tr>
+<td>CSA 每步读 <span class="arithmatex">\(=\)</span> 全部索引 <span class="arithmatex">\(+ \min(512, \text{条目数})\)</span> 条主记录 <span class="arithmatex">\(+\)</span> 窗口</td>
+<td>先挑再读</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\mathcal{S}_t = \mathcal{S}_{t-1} + k_t v_t^{\mathsf T}\)</span>，<span class="arithmatex">\(o_t = q_t^{\mathsf T}\mathcal{S}_t\)</span></td>
+<td>线性注意力</td>
+</tr>
+<tr>
+<td>递推状态 <span class="arithmatex">\(= L \times n_h \times d_k \times d_v \times b\)</span></td>
+<td>不随上下文变</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(M_{\mathrm{state}}(H) = M_{\mathrm{fixed}} + c_{\mathrm{state}} H\)</span>，<span class="arithmatex">\(H_* = M_{\mathrm{fixed}} / c_{\mathrm{state}}\)</span></td>
+<td>混合模型</td>
+</tr>
+<tr>
+<td>V4.1：<span class="arithmatex">\((3/2 + 1)(288 + 68) = 890\)</span> B/token</td>
+<td>跨层共享 + FP4</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_10">代码对照：把本章的数字用代码算一遍</h3>
+<blockquote>
+<p>纯 Python，不需要 GPU。代码在仓库本地 <code>ai-infra/solutions/chapter-code/ch10_kv_sparse_linear.py</code>，配套测试 <code>tests/test_ch10.py</code>：</p>
+<p><code>bash  
+cd ai-infra/solutions/chapter-code  
+uv run python ch10_kv_sparse_linear.py   # 一步一步打印  
+uv run pytest tests/test_ch10.py</code></p>
+</blockquote>
+<p><strong>讲义 ↔ 代码</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>讲义</th>
+<th>公式</th>
+<th>写法</th>
+<th>跑出来</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第一步 V4-Flash 8K</td>
+<td>逐层加</td>
+<td><code>v4_flash_state(8192)</code></td>
+<td>保存 59.125 MiB，读 27.625 MiB</td>
+</tr>
+<tr>
+<td>第二步 小例子</td>
+<td>外积累加</td>
+<td><code>linear_attention([...])</code></td>
+<td><span class="arithmatex">\(\mathcal{S}_2 = [[2,3],[1,1]]\)</span>，<span class="arithmatex">\(o = [2,3]\)</span></td>
+</tr>
+<tr>
+<td>第二步 Kimi K3 KDA</td>
+<td><span class="arithmatex">\(69 \times 96 \times 128^2 \times 4\)</span></td>
+<td><code>recurrent_mib(69, 96, 128)</code></td>
+<td>414 MiB，读写 828 MiB</td>
+</tr>
+<tr>
+<td>第三步 交点</td>
+<td><span class="arithmatex">\(M / c\)</span></td>
+<td><code>h_star(61.875 * 2**20, 20 * 1024)</code></td>
+<td>3168</td>
+</tr>
+<tr>
+<td>第四步 V4.1 / V4</td>
+<td>两个式子</td>
+<td><code>v41_bytes_per_token()</code>、<code>v4_bytes_per_token()</code></td>
+<td>890、3514.25</td>
+</tr>
+</tbody>
+</table>
+<p><strong>关键几行</strong>：</p>
+<pre><code class="language-python">def v4_flash_state(S, win=128, d=512, d_idx=128, b=2):
+    csa = S // 4; hca = S // 128; w = min(S, win)
+    keep = 43 * w * d * b + 21 * csa * (d + d_idx) * b + 20 * hca * d * b
+    read = 43 * w * d * b + 21 * (csa * d_idx + min(512, csa) * d) * b + 20 * hca * d * b
+    return keep / 2**20, read / 2**20     # MiB：窗口 + CSA + HCA
+</code></pre>
+<p><strong>代码里才看得到的 3 件事</strong>：</p>
+<ol>
+<li><code>v4_flash_state</code> 只算 BF16 参考格式；表里 V4-Flash 的 27.455 / 12.556 MiB 是生产混合格式（FP8/BF16 主记录 584 B、MXFP4 索引），数值接近但不是同一个量。</li>
+<li>压缩器的 FP32 缓冲（约 11.6 MiB）没算进 <code>keep</code>，和原文 59.125 MiB 的口径一致。</li>
+<li><code>linear_attention</code> 的状态在循环里只有一个 2×2 列表，不管输入多长都不变大，这就是"固定状态"。</li>
+</ol>
+<p><strong>自己改一改</strong>（不影响练习答案）：</p>
+<ul>
+<li>用 <code>v4_flash_state</code> 扫 <span class="arithmatex">\(S\)</span> = 1024、8192、65536，看保存和读取的比值怎么变。</li>
+<li>给 <code>linear_attention</code> 喂 1000 个随机 token，确认状态还是 2×2。</li>
+<li>把 <code>h_star</code> 的每 token 增量减半，看交点往哪边移。</li>
+</ul><nav class="pager"><a href="09-kv-sharing.html">← 第 09 章 · KV 怎么变小 ①：头共享与潜变量压缩</a><a href="11-moe.html">第 11 章 · MoE：专家路由与批内权重复用 →</a></nav>
+</main></div>
+<footer>来自个人学习仓库的对话讲义，含练习作答记录。源码：<a href="https://github.com/wikieden/ai-infra-from-constraints">github.com/wikieden/ai-infra-from-constraints</a>。更多讲义书：<a href="https://wikieden.github.io/ai-books/">Physical AI 0-1-♾️（合集）</a></footer>
+<script>(function(){var d=document.documentElement,K=["s","m","l","xl"];
+function save(k,v){try{v?localStorage.setItem(k,v):localStorage.removeItem(k)}catch(e){}}
+var s=document.getElementById("ab-theme");if(s){s.value=d.dataset.theme||"";s.onchange=function(){if(s.value)d.dataset.theme=s.value;else delete d.dataset.theme;save("ab-theme",s.value)}}
+document.querySelectorAll("[data-fs-step]").forEach(function(b){b.onclick=function(){var i=K.indexOf(d.dataset.fs||"m")+(+b.dataset.fsStep);i=Math.max(0,Math.min(K.length-1,i));d.dataset.fs=K[i];save("ab-fs",K[i])}});
+var nb=document.getElementById("nav-toggle"),side=document.querySelector("nav.side");if(nb&&side){nb.onclick=function(){side.classList.toggle("open")}}
+var cur=side&&side.querySelector(".cur");if(cur)cur.scrollIntoView({block:"center"});
+})();</script>
+</body></html>

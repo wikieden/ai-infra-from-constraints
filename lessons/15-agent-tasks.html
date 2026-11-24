@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>第 15 章 · 多轮交互与 Agent 任务：前缀、成功成本、关键路径 · 从约束推导 AI Infra</title>
+<script>(function(){try{var d=document.documentElement,t=localStorage.getItem("ab-theme"),f=localStorage.getItem("ab-fs");if(t)d.dataset.theme=t;if(f)d.dataset.fs=f}catch(e){}})();</script>
+<style>:root{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa;--fs:16px}
+@media (prefers-color-scheme:dark){:root:not([data-theme]){--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}}
+:root[data-theme="light"]{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa}
+:root[data-theme="dark"]{--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}
+:root[data-theme="sepia"]{--bg:#f6efe1;--fg:#3b3127;--mute:#7a6a58;--line:#e2d6bf;--card:#fbf6ec;--acc:#a0522d;--code:#ece2cd;--quote:#efe5d2}
+:root[data-theme="green"]{--bg:#e3eddf;--fg:#22301f;--mute:#566650;--line:#c9d8c3;--card:#eef5eb;--acc:#2e7d4f;--code:#d6e4d0;--quote:#dae7d5}
+:root[data-theme="navy"]{--bg:#0f1a2b;--fg:#dde6f3;--mute:#93a4bd;--line:#23324a;--card:#15233a;--acc:#6cc4ff;--code:#1a2a44;--quote:#16243b}
+:root[data-fs="s"]{--fs:15px}
+:root[data-fs="m"]{--fs:16px}
+:root[data-fs="l"]{--fs:18px}
+:root[data-fs="xl"]{--fs:20px}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:var(--fs)/1.75 -apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Helvetica Neue",sans-serif}
+a{color:var(--acc)}
+header.top{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+header.top .in{max-width:860px;margin:0 auto;padding:10px 16px;display:flex;gap:6px 16px;align-items:center;flex-wrap:wrap;font-size:14px}
+header.top .brand{font-weight:600;color:var(--fg);text-decoration:none;margin-right:auto}
+header.top a{text-decoration:none}
+.prefs{display:inline-flex;gap:4px;align-items:center}
+.prefs button,.prefs select,#nav-toggle{font:inherit;font-size:13px;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:2px 8px;cursor:pointer}
+main{max-width:860px;margin:0 auto;padding:24px 16px 72px;overflow-wrap:anywhere}
+h1{font-size:1.75em;line-height:1.35;margin:8px 0 16px} h2{font-size:1.375em;margin:40px 0 12px;padding-top:8px;border-top:1px solid var(--line)} h3{font-size:1.125em;margin:28px 0 8px}
+.layout{display:grid;grid-template-columns:260px minmax(0,1fr);max-width:1180px;margin:0 auto}
+.layout main{margin:0;max-width:880px}
+nav.side{position:sticky;top:49px;align-self:start;max-height:calc(100vh - 49px);overflow-y:auto;padding:20px 8px 40px 16px;border-right:1px solid var(--line);font-size:14px;line-height:1.5}
+nav.side .h{font-weight:600;color:var(--mute);margin:4px 8px 8px;font-size:13px}
+nav.side a{display:block;padding:5px 8px;border-radius:6px;color:var(--fg);text-decoration:none}
+nav.side a:hover{background:var(--code)} nav.side a.cur{background:var(--quote);color:var(--acc);font-weight:600}
+nav.side a .n{color:var(--mute);margin-right:6px;font-variant-numeric:tabular-nums}
+#nav-toggle{display:none}
+@media (max-width:960px){.layout{display:block} nav.side{display:none;position:fixed;z-index:6;top:49px;left:0;bottom:0;width:min(300px,85vw);max-height:none;background:var(--bg);box-shadow:2px 0 12px rgba(0,0,0,.2)} nav.side.open{display:block} #nav-toggle{display:inline-block}}
+.run{display:flex;flex-wrap:wrap;align-items:center;gap:4px 0;margin:4px 0 12px}
+.run details{flex-basis:100%;margin:6px 0 0;font-size:.94em}
+img{max-width:100%;height:auto;border-radius:8px;border:1px solid var(--line);background:#fff}
+blockquote{margin:16px 0;padding:10px 16px;background:var(--quote);border-left:3px solid var(--acc);border-radius:4px;color:var(--mute)}
+blockquote p{margin:4px 0}
+code{background:var(--code);padding:1px 5px;border-radius:4px;font-size:.9em}
+pre{background:var(--code);padding:12px 14px;border-radius:8px;overflow-x:auto} pre code{padding:0;background:none}
+table{border-collapse:collapse;display:block;overflow-x:auto;max-width:100%;margin:12px 0;font-size:.94em}
+th,td{border:1px solid var(--line);padding:6px 10px;vertical-align:top} th{background:var(--code)}
+details{border:1px solid var(--line);border-radius:8px;padding:6px 12px;margin:8px 0;background:var(--card)}
+details[open]{padding-bottom:10px} summary{cursor:pointer;color:var(--acc);font-weight:500}
+mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%}
+.btn{display:inline-block;margin:4px 8px 4px 0;padding:6px 14px;border:1px solid var(--acc);border-radius:999px;text-decoration:none;font-size:14px}
+.pager{display:flex;justify-content:space-between;gap:12px;margin-top:48px;padding-top:16px;border-top:1px solid var(--line);font-size:15px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin:16px 0}
+.card{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;color:inherit;text-decoration:none}
+.card:hover{border-color:var(--acc)} .card img{border:0;border-bottom:1px solid var(--line);border-radius:0;aspect-ratio:16/10;object-fit:contain;width:100%}
+.card .no{color:var(--mute);font-size:13px;padding:8px 12px 0} .card .t{padding:0 12px 12px;font-weight:500;line-height:1.5}
+.lead{font-size:1.06em;color:var(--mute)}
+footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-size:13px}
+</style>
+<script>window.MathJax={tex:{inlineMath:[["\\(","\\)"]],displayMath:[["\\[","\\]"],["$$","$$"]],processEscapes:true,processEnvironments:true}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"></script>
+</head><body>
+<header class="top"><div class="in">
+<button type="button" id="nav-toggle" aria-label="打开章节列表">☰ 章节</button><a class="brand" href="../index.html">从约束推导 AI Infra</a>
+<a href="../lessons/index.html">讲义目录</a>
+<a href="../animations/index.html">动画</a>
+<a href="../review.html">复习卡片</a>
+<a href="../lessons/appendix-glossary.html">缩写表</a>
+<a href="https://wikieden.github.io/ai-books/glossary.html">全局词汇</a>
+<a href="https://wikieden.github.io/ai-books/">← 全部讲义书</a>
+<span class="prefs" title="字号与主题"><button type="button" data-fs-step="-1" aria-label="字号变小">A−</button><button type="button" data-fs-step="1" aria-label="字号变大">A+</button><select id="ab-theme" aria-label="主题色"><option value="">跟随系统</option><option value="light">浅色</option><option value="dark">深色</option><option value="sepia">米黄护眼</option><option value="green">豆沙绿护眼</option><option value="navy">夜蓝</option></select></span>
+</div></header>
+<div class="layout"><nav class="side" aria-label="章节"><div class="h">从约束推导 AI Infra</div><a href="index.html">讲义目录</a><a href="01-six-layers.html"><span class="n">1</span>一次请求走过的六层（进行中）</a><a href="02-request-lifecycle.html"><span class="n">2</span>一次生成请求的处理过程：权重加载一次，每个 token 都要再读一遍</a><a href="03-dataflow-hierarchy.html"><span class="n">3</span>从存储程序到数据流执行：存储层次就像大楼里的厕所</a><a href="04-key-numbers.html"><span class="n">4</span>系统设计的关键数字：容量、算力、带宽、延迟</a><a href="05-estimate.html"><span class="n">5</span>用几个数字估算一次模型执行：算和读各要多久，实测为什么达不到</a><a href="06-architecture.html"><span class="n">6</span>需求如何推动架构：TPU、SmartNIC、Unified Bus</a><a href="07-compute-graph.html"><span class="n">7</span>计算图与张量结构：一个 token 经过一层要算多少</a><a href="08-generation-budget.html"><span class="n">8</span>自回归生成的资源账：存一次的、每步读的、用完就扔的</a><a href="09-kv-sharing.html"><span class="n">9</span>KV 怎么变小 ①：头共享与潜变量压缩</a><a href="10-kv-sparse-linear.html"><span class="n">10</span>KV 怎么变小 ②：窗口、稀疏、线性与混合注意力</a><a href="11-moe.html"><span class="n">11</span>MoE：专家路由与批内权重复用</a><a href="12-network-shape.html"><span class="n">12</span>网络形状：深宽、专家粒度、残差与多 token 预测</a><a href="13-model-comparison.html"><span class="n">13</span>整个模型的资源需求与比较：存多少、算多少、能放几条请求</a><a href="14-workload-arrival.html"><span class="n">14</span>从单次请求到持续到达的负载：什么时候来，比来多少更要紧</a><a href="15-agent-tasks.html" class="cur"><span class="n">15</span>多轮交互与 Agent 任务：前缀、成功成本、关键路径</a><a href="16-multimodal-realtime.html"><span class="n">16</span>多模态与实时交互：数据换形状，时间有死线（略讲）</a><a href="17-training-rl.html"><span class="n">17</span>训练与强化学习的计算和状态：为什么训练要 6ND、要存 18 字节</a><a href="18-scaling-lifecycle.html"><span class="n">18</span>Scaling law 与全生命周期成本：训练多大、训练多久、服务多少次</a><a href="19-accelerator-basics.html"><span class="n">19</span>从矩阵乘法认识加速器：算多少、搬多少、耗多少电</a><a href="20-compute-units.html"><span class="n">20</span>计算单元：矩阵、向量、流水与低精度</a><a href="21-memory-movement.html"><span class="n">21</span>存储层次与数据搬移：放得下、取得到、来得及</a><a href="22-package-interconnect.html"><span class="n">22</span>多芯片封装与互联：计算放在哪，数据走哪条路</a><a href="23-architecture-evolution.html"><span class="n">23</span>架构演进与专用架构：每一代新增的东西，省掉了哪一笔</a><a href="24-choose-accelerator.html"><span class="n">24</span>根据架构选择加速器：先估下界，再找差距，最后算账</a><a href="appendix-glossary.html">附录 · 缩写与术语表</a><a href="appendix-tp-pp-cp.html">附录 · 补充资料：TP、PP、CP，一个模型沿三个方向切给多张卡</a></nav><main>
+<h1 id="15-agent">第 15 章 · 多轮交互与 Agent 任务：前缀、成功成本、关键路径</h1><div class="run"><a class="btn" href="../animations/15-agent-tasks.html">▶ 打开本章可交互动画</a><a class="btn" href="https://colab.research.google.com/github/wikieden/ai-infra-from-constraints/blob/main/code/notebooks/ch15_agent_tasks.ipynb" target="_blank" rel="noopener">在 Colab 运行本章代码</a><a class="btn" href="../code/notebooks/ch15_agent_tasks.ipynb" download>下载 notebook</a><details><summary>本地运行</summary><pre><code>git clone https://github.com/wikieden/ai-infra-from-constraints
+cd ai-infra-from-constraints/code/notebooks
+pip install jupyterlab torch numpy
+jupyter lab ch15_agent_tasks.ipynb</code></pre><p>也可以下载后直接用 VS Code 打开 .ipynb 运行。需要 GPU 的章节在 Colab 里选「代码执行程序 → 更改运行时类型 → GPU」。</p></details></div>
+<blockquote>
+<p>本章回答：多轮对话里，每轮真正要重新算的输入有多少？多花算力让模型"多想想"，什么时候划算？一个代码 Agent 的时间都花在哪，优化哪一段最有用？工具并行能省多少时间，又会多占多少状态？<br />
+讲解日期：2026-11-24 · 上一章：<a href="../lessons/14-workload-arrival.html">第 14 章 从单次请求到持续到达的负载</a> · 下一章：<a href="../lessons/16-multimodal-realtime.html">第 16 章 多模态与实时交互</a><br />
+对应原文：<code>materials/ai-infra-book/manuscripts/03-推理与训练负载.md</code> §3.2 L147–L279（例题 3-2、图 3-9 到 3-15）<br />
+本章缩写：CED = Causal Encoder-Decoder（因果 / 编码器 / 解码器）· KV = Key-Value（键 / 值）· LLM = Large Language Model（大 / 语言 / 模型）· RLCD / RLCR = 在强化学习奖励里加入 Brier 分数、让概率和实际正确率相符的训练方法（原文 L268）· SWA = Sliding-Window Attention（滑动 / 窗口 / 注意力）。全部缩写见 <a href="../lessons/appendix-glossary.html">缩写与术语表</a></p>
+</blockquote>
+<p>第 14 章把每个请求当成独立调用。对话和 Agent 任务里，同一个任务的多次调用前后相连：上一轮的回答、工具的输出都成了下一轮的输入。</p>
+<h2 id="_1">讲解</h2>
+<h3 id="2026-11-24">第一步：多轮对话：每轮真正要重算的输入（2026-11-24）</h3>
+<p><strong>类比：开连续剧的会。</strong> 每次开会都要先把前情提要过一遍。如果大家还记得上次的讨论（缓存命中），就只需要讲新内容；但新内容讨论时仍然要对照着前情（注意力仍要访问完整前缀）。</p>
+<p><strong>公式</strong>（原文 L156）：第 <span class="arithmatex">\(i\)</span> 轮输入长度 <span class="arithmatex">\(I_i\)</span>，可复用前缀长度 <span class="arithmatex">\(K_i\)</span>：</p>
+<div class="arithmatex">\[P_i = I_i - K_i, \qquad S_i = K_i\]</div>
+<p>代进第 07 章的公式：投影和 FFN 只处理新增的 <span class="arithmatex">\(P_i\)</span> 个 token，注意力还要让新查询访问完整前缀。<strong>缓存减少重算，但没有把旧上下文从计算里删掉</strong>，还要一直保存它。</p>
+<p><strong>例子</strong>（原文 L161）：一个四轮代码修复任务，累计输入 5,297 个 token，命中 4,480 个，未命中 817 个。</p>
+<table>
+<thead>
+<tr>
+<th>方式</th>
+<th>prefill 矩阵运算（四轮合计）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>每轮都重算全部输入</td>
+<td>76.196 TFLOPs</td>
+</tr>
+<tr>
+<td>复用已命中的前缀</td>
+<td>11.976 TFLOPs</td>
+</tr>
+</tbody>
+</table>
+<p>第二轮输入 1,443 个、命中 1,392 个，只需处理 51 个新 token。</p>
+<p><strong>改哪里比改多少更要紧</strong>（原文 L163–L167）：</p>
+<table>
+<thead>
+<tr>
+<th>编辑方式</th>
+<th>已有 2000 个 token 时，最长可直接复用的前缀</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>在末尾追加 100 个 token</td>
+<td>2000（只新增 100 行）</td>
+</tr>
+<tr>
+<td>改动第 501 个 token</td>
+<td>500（后面的表示全变）</td>
+</tr>
+<tr>
+<td>换工具定义或模板</td>
+<td>可能从很靠前的位置就失效</td>
+</tr>
+</tbody>
+</table>
+<p><img alt="末尾追加保住整段前缀；中间改一个 token，后面全部重算" src="../figures/15-agent-tasks-prefix.png" /></p>
+<p><em>图 15-1 · 两种编辑同样只动了少量 token，可复用前缀相差 4 倍。负载记录要包括稳定前缀、改写位置、分支依赖和复用间隔（原书第 8 章用）。</em></p>
+<p><strong>一句话</strong>：每轮要重算的是 <span class="arithmatex">\(I_i - K_i\)</span>；能复用多少取决于改动发生在哪，而不只是改了多少字。</p>
+<h3 id="2026-11-24_1">第二步：多花算力多想想，按成功任务算账（2026-11-24）</h3>
+<p><strong>类比：考驾照。</strong> 便宜的驾校报一次 1 万元、通过率 50%；贵的驾校 1.5 万元、通过率 90%。算"拿到驾照平均要花多少"，贵的反而更省。</p>
+<p><strong>公式</strong>（原文 L178–L181）：每次尝试平均成本 <span class="arithmatex">\(c\)</span>、成功率 <span class="arithmatex">\(p\)</span>，重复尝试期望 <span class="arithmatex">\(1/p\)</span> 次：</p>
+<div class="arithmatex">\[C_{\mathrm{success}} = \frac{c}{p}, \qquad \text{新方法更省} \iff \frac{p_2}{p_1} &gt; \frac{c_2}{c_1}\]</div>
+<p>所有生成、验证、失败尝试的成本都要计入 <span class="arithmatex">\(c\)</span>。</p>
+<p><strong>例子</strong>（原文 L187，简单假设）：新系统 token 单价降到 1/10，每任务用量涨到 20 倍，成功率从 50% 升到 80%。每个成功任务的成本比 <span class="arithmatex">\(= 20 \times \frac{1}{10} \times \frac{0.5}{0.8} = 1.25\)</span>。<strong>单价下降、质量上升、成功任务成本上升，可以同时发生。</strong></p>
+<p><img alt="各尝试 100 次：所有尝试的成本进分子，成功数进分母" src="../figures/15-agent-tasks-success.png" /></p>
+<p><em>图 15-2 · 原文的教学比较：两种策略的成功任务成本分别为 2 和 2.5 单位。只看单次成本或只看成功率都会选错。</em></p>
+<p>原文 L183–L185 还提醒两件事：数学题实验里把输出上限从 1024 提到 4096，两轮尝试仍没有一道通过评分，<strong>多生成不自动带来正确答案</strong>；检查答案要分开"格式对不对"和"内容对不对"。</p>
+<p><strong>一句话</strong>：比较推理策略要看每个成功任务的成本 <span class="arithmatex">\(c/p\)</span>；成功率的相对提升要超过成本的相对增长才划算。</p>
+<h3 id="agent-2026-11-24">第三步：一个代码 Agent 的时间花在哪（2026-11-24）</h3>
+<p><strong>类比：修车。</strong> 师傅看车、想办法（模型），助手拧螺丝、试车（工具），试车结果再告诉师傅。如果试车只要几秒，大部分时间都花在师傅"想"上。</p>
+<p>原文 L211–L220：同一个代码修复任务（修区间合并函数），思考模式关和开：</p>
+<table>
+<thead>
+<tr>
+<th>观察</th>
+<th style="text-align: right;">思考关闭</th>
+<th style="text-align: right;">思考开启</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>模型调用轮数</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr>
+<td>总输出 token</td>
+<td style="text-align: right;">765</td>
+<td style="text-align: right;">2,733</td>
+</tr>
+<tr>
+<td>模型耗时合计</td>
+<td style="text-align: right;">13.156 s</td>
+<td style="text-align: right;">76.294 s</td>
+</tr>
+<tr>
+<td>工具耗时合计</td>
+<td style="text-align: right;">0.476 s</td>
+<td style="text-align: right;">0.078 s</td>
+</tr>
+<tr>
+<td>返回值正确且输入不变</td>
+<td style="text-align: right;">315 / 1013</td>
+<td style="text-align: right;">1013 / 1013</td>
+</tr>
+<tr>
+<td>额外检查：子列表无别名</td>
+<td style="text-align: right;">1 / 1013</td>
+<td style="text-align: right;">710 / 1013</td>
+</tr>
+</tbody>
+</table>
+<p>开启思考后 2,733 个输出里 2,553 个是思考 token。模型时间多了，但任务修好了。完成标准要具体到可执行的检查：多加一项"无别名"检查，结论就不一样。</p>
+<p><strong>例题 3-2</strong>（原文 L228–L230，Amdahl 定律，第 04 章）：总时间 76.510 秒，首轮模型 36.375 秒。把首轮减半，其余不变：</p>
+<div class="arithmatex">\[f = \frac{36.375}{76.510} \approx 0.475, \quad s = 2, \quad \text{总时间 } 76.510 \to 58.323\ \text{s}, \quad \text{加速比} \approx 1.31\]</div>
+<p><img alt="代码任务的时间构成：首轮模型约占一半，工具只是零头" src="../figures/15-agent-tasks-rounds.png" /></p>
+<p><em>图 15-3 · 总时间 76.510 秒：首轮模型 36.375 秒，其余三轮模型合计 39.919 秒，工具约 0.078 秒，控制与交接约 0.138 秒（各轮明细见原文图 3-10）。</em></p>
+<p><strong>一句话</strong>：代码 Agent 的时间主要花在模型推理上，工具只占零头；优化收益取决于被缩短的那段原来占多少。</p>
+<h3 id="2026-11-24_2">第四步：工具依赖、并行与分支的状态（2026-11-24）</h3>
+<p><strong>类比：做饭时同时烧水和切菜。</strong> 两件事互不依赖就可以并行，总时间由慢的那件决定；但两件事的总工作量没少，而且灶台和砧板同时被占着。</p>
+<p><strong>例子</strong>（原文 L232）：模型算 2 秒 → 两个工具（6 秒、10 秒）→ 模型再算 3 秒。</p>
+<table>
+<thead>
+<tr>
+<th>工具关系</th>
+<th>总时间</th>
+<th>工具工作量</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第二个依赖第一个（串行）</td>
+<td><span class="arithmatex">\(2 + 6 + 10 + 3 = 21\)</span> 秒</td>
+<td>16 秒</td>
+</tr>
+<tr>
+<td>互相独立（并行）</td>
+<td><span class="arithmatex">\(2 + \max(6, 10) + 3 = 15\)</span> 秒</td>
+<td>16 秒</td>
+</tr>
+</tbody>
+</table>
+<p>关键路径：从开始到结束累计耗时最长的那条路径，决定任务最早何时完成。</p>
+<p><img alt="串行 21 秒 vs 并行 15 秒：关键路径变短，工具总工作不变" src="../figures/15-agent-tasks-tools.png" /></p>
+<p><em>图 15-4 · 同一时间尺度的两条时间线。并行省的是等待，不是工作。</em></p>
+<p><strong>分支的状态</strong>（原文 L246）：共享前缀 <span class="arithmatex">\(H_0\)</span>，第 <span class="arithmatex">\(i\)</span> 个分支新增 <span class="arithmatex">\(h_i\)</span> 个 token：</p>
+<div class="arithmatex">\[M = c_{\mathrm{KV}}\left(H_0 + \sum_i h_i\right)\]</div>
+<p>共享前缀只算一份（第 08 章的 KV）。并行缩短了关键路径，也让更多分支的状态<strong>同时</strong>占着内存；工具等待越久，状态驻留越久（第 14 章的 <span class="arithmatex">\(\lambda M_0 \tau\)</span>）。</p>
+<p><strong>一句话</strong>：独立的工具可以并行缩短关键路径，但工作总量不变，同时占用的状态还变多。</p>
+<h3 id="ced-prefill-2026-11-24">第五步：负载反过来改模型：CED 和只做 prefill 的决策请求（2026-11-24）</h3>
+<p><strong>类比：如果客人大多是"把一大摞材料交给你、只要一句结论"，就该把力气花在快速读材料上，而不是写长篇回复。</strong></p>
+<p><strong>V4.1 Flash 的 CED</strong>（原文 L256–L258）：Agent 常常输入多、输出少。按专家层数计的工作量（从空状态输入 <span class="arithmatex">\(P\)</span> 个 token）：</p>
+<div class="arithmatex">\[\text{普通 40 层：} 40P, \qquad \text{CED：} 20P + 20\min(P, 128)\]</div>
+<p><span class="arithmatex">\(P = 8192\)</span> 时 327,680 vs 166,400，约 50.8%；<span class="arithmatex">\(P \le 128\)</span> 时没减少。</p>
+<p><strong>决策请求</strong>（原文 L266–L278，Jev 的例子）：调用方给一段状态和几个选择题，模型直接返回各选项的概率，<strong>只有 prefill，没有 decode</strong>。</p>
+<table>
+<thead>
+<tr>
+<th>同一条 1929 token 的请求（Qwen3-8B，H100 SXM）</th>
+<th>耗时</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>决策请求：一次前向约 28 TFLOPs，按 40% 算力效率</td>
+<td>约 70 ms</td>
+</tr>
+<tr>
+<td>普通 LLM：prefill 后每步 decode 约 9 ms（50% 带宽效率），生成 64 个 token</td>
+<td>约 0.65 s</td>
+</tr>
+</tbody>
+</table>
+<p>省掉的是串行生成：延迟是 9 倍，但因为 decode 可以合批，GPU 时间只多约 28%。</p>
+<p><strong>转交的成本</strong>（原文 L278）：决策模型没把握的请求要转交 LLM，转交比例 <span class="arithmatex">\(e\)</span>，每条平均费用 <span class="arithmatex">\(c_{\mathrm{dec}} + e\,c_{\mathrm{LLM}}\)</span>。按演示的 0.000081 美元和 0.013880 美元，<span class="arithmatex">\(e\)</span> 超过约 0.58%，转交费用就超过决策模型本身。</p>
+<p><strong>场景代码</strong>：只做 prefill 的"选择题"请求，用一次前向读出每个选项的概率（Hugging Face，示意）：</p>
+<pre><code class="language-python">import torch
+from transformers import AutoModelForCausalLM, AutoTokenizer
+
+tok = AutoTokenizer.from_pretrained(&quot;Qwen/Qwen3-0.6B&quot;)
+model = AutoModelForCausalLM.from_pretrained(&quot;Qwen/Qwen3-0.6B&quot;)
+prompt = &quot;工单：用户无法登录，已重置密码。\n问题：是否需要升级给二线？选项 A 是 B 否\n答案：&quot;
+ids = tok(prompt, return_tensors=&quot;pt&quot;).input_ids
+with torch.no_grad():
+    logits = model(ids).logits[0, -1]                       # 只做一次前向，看最后一个位置
+choices = [tok.encode(c, add_special_tokens=False)[0] for c in (&quot;A&quot;, &quot;B&quot;)]
+print(torch.softmax(logits[choices], dim=-1))               # 两个选项的概率，没有 decode
+</code></pre>
+<p><strong>一句话</strong>：输入多、输出少的负载推动了 CED 这类"省 prefill"的结构；只要分类结果的任务可以完全省掉串行 decode，但转交比例要计入成本。</p>
+<h2 id="vs">动画演示：工具串行 vs 并行，关键路径和状态占用</h2>
+<p><img alt="关键路径与状态占用" src="../animations/15-agent-tasks.gif" /></p>
+<p>可交互版：<a href="../animations/15-agent-tasks.html">animations/15-agent-tasks.html</a>（滑块：两个工具各自的耗时；开关：工具之间有没有依赖）。</p>
+<p><strong>怎么看</strong>：</p>
+<ol>
+<li>上面是时间线：模型 2 秒 → 工具 A、B → 模型 3 秒（第四步）；</li>
+<li>有依赖时 A、B 首尾相接；独立时并排，汇合点等慢的那个；</li>
+<li>下面是同一时刻占着的状态：等待工具时 1 GiB；两个分支并行时，各自的尾部状态叠加；</li>
+<li>右边显示总时间、工具工作量和状态占用的 GiB·s。</li>
+</ol>
+<h2 id="_2">练习与作答记录</h2>
+<p><strong>题 1</strong>（第一步）：第 3 轮输入 3,200 个 token，其中前 2,950 个命中缓存。这一轮 prefill 要处理几个 token？如果用户把第 1,000 个 token 改了，最长可复用前缀和新输入各是多少？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p><strong>题 2</strong>（第二步）：策略 A 每次尝试 3 单位、成功率 60%；策略 B 每次 5 单位、成功率 90%。哪个每个成功任务更便宜？B 的成功率至少要多高才不比 A 贵？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p><strong>题 3</strong>（第三、四步）：一个任务：模型 4 秒 → 工具 A 8 秒、工具 B 5 秒、工具 C 3 秒（A 和 B 独立，C 要等 B）→ 模型 2 秒。总时间是多少？关键路径经过哪几个工具？把工具 B 加速一倍，总时间变多少？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p>原书练习 3-3（L193–L197：成本 1 / 2 单位、成功率 50% / 80%，以及决策模型转交 1% / 5% 的费用）、练习 3-4（L250–L254：工具并行的 GiB·s，首轮 4 倍加速 vs 工具 2 倍加速）。想多练可以做。</p>
+<h2 id="_3">口诀</h2>
+<blockquote>
+<p>前情提要记得住，新内容才要算；改中间一个字，后面全重来；<br />
+驾照算总账，花费除以通过率；<br />
+修车师傅想得久，助手拧螺丝几秒钟；<br />
+烧水切菜可并行，工作不少灶台全占。</p>
+</blockquote>
+<h2 id="_4">本章复习卡片</h2>
+<p><a href="../review.html">I53</a>（多轮前缀 <span class="arithmatex">\(P_i = I_i - K_i\)</span> 与改写位置）、<a href="../review.html">I54</a>（成功任务成本 <span class="arithmatex">\(c/p\)</span>）、<a href="../review.html">I55</a>（关键路径与工具并行）、<a href="../review.html">I56</a>（CED 与只做 prefill 的决策请求）。练习做完后，按答错、卡住的地方再补。</p>
+<h2 id="_5">附录 · 延伸阅读</h2>
+<blockquote>
+<p>留给以后深入学习用，不影响本章主线。★ 是建议先读的。</p>
+</blockquote>
+<h3 id="_6">推荐阅读</h3>
+<table>
+<thead>
+<tr>
+<th>读什么</th>
+<th>读哪里</th>
+<th>读它为了什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>★ AII 第 3 章</td>
+<td>§3.2 L147–L279</td>
+<td>本章原文，例题 3-2、图 3-9 到 3-15</td>
+</tr>
+<tr>
+<td>★ AII 第 3 章"代码任务轨迹"</td>
+<td>L711 起</td>
+<td>代码修复任务每次工具调用的明细</td>
+</tr>
+<tr>
+<td>AII 计算结果（原文 <code>[^agent-calc]</code>、<code>[^decision-calc]</code>）</td>
+<td>脚注链接</td>
+<td>76.196 / 11.976 TFLOPs 和决策请求算例的逐项数据</td>
+</tr>
+<tr>
+<td>Snell 等, Scaling LLM Test-Time Compute Optimally（2024）</td>
+<td>第 3 节</td>
+<td>推理时增加计算量的几种方式和收益</td>
+</tr>
+<tr>
+<td>RLCR 论文（原文 <code>[^rlcr]</code>）</td>
+<td>方法一节</td>
+<td>奖励里加 Brier 分数，让输出概率可以当置信度</td>
+</tr>
+<tr>
+<td>AII 第 8 章 §8.3.3</td>
+<td>前缀复用</td>
+<td>对话与 Agent 的前缀缓存怎么管</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_7">数学原理</h3>
+<ul>
+<li><strong>几何分布的期望</strong>：成功率 <span class="arithmatex">\(p\)</span> 的独立重复尝试，期望 <span class="arithmatex">\(1/p\)</span> 次成功一次。</li>
+<li><strong>关键路径</strong>：依赖图里从起点到终点累计耗时最长的路径；串行相加，并行取最大。</li>
+<li><strong>Amdahl 定律</strong>（第 04 章）：<span class="arithmatex">\(1/((1-f) + f/s)\)</span>。</li>
+</ul>
+<h3 id="_8">公式清单</h3>
+<table>
+<thead>
+<tr>
+<th>公式</th>
+<th>意思</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\(P_i = I_i - K_i\)</span>，<span class="arithmatex">\(S_i = K_i\)</span></td>
+<td>多轮前缀复用</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(C_{\mathrm{success}} = c/p\)</span>；更省 <span class="arithmatex">\(\iff p_2/p_1 &gt; c_2/c_1\)</span></td>
+<td>成功任务成本</td>
+</tr>
+<tr>
+<td>串行 <span class="arithmatex">\(\sum t\)</span>，并行 <span class="arithmatex">\(\max t\)</span></td>
+<td>关键路径</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(M = c_{\mathrm{KV}}(H_0 + \sum_i h_i)\)</span></td>
+<td>分支共享前缀的状态</td>
+</tr>
+<tr>
+<td>CED 专家工作 <span class="arithmatex">\(= 20P + 20\min(P, 128)\)</span> vs <span class="arithmatex">\(40P\)</span></td>
+<td>V4.1 的输入处理</td>
+</tr>
+<tr>
+<td>平均费用 <span class="arithmatex">\(= c_{\mathrm{dec}} + e\,c_{\mathrm{LLM}}\)</span></td>
+<td>决策请求加转交</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_9">代码对照：把本章的数字用代码算一遍</h3>
+<blockquote>
+<p>纯 Python，不需要 GPU。代码在仓库本地 <code>ai-infra/solutions/chapter-code/ch15_agent_tasks.py</code>，配套测试 <code>tests/test_ch15.py</code>：</p>
+<p><code>bash  
+cd ai-infra/solutions/chapter-code  
+uv run python ch15_agent_tasks.py   # 一步一步打印  
+uv run pytest tests/test_ch15.py</code></p>
+</blockquote>
+<p><strong>讲义 ↔ 代码</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>讲义</th>
+<th>公式</th>
+<th>写法</th>
+<th>跑出来</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第一步 改写位置</td>
+<td>第一个不同的 token 之前</td>
+<td><code>reusable_prefix(old, new)</code></td>
+<td>追加 100 → 2000；改第 501 个 → 500</td>
+</tr>
+<tr>
+<td>第二步 价格例子</td>
+<td><span class="arithmatex">\(20 \times 0.1 \times 0.5 / 0.8\)</span></td>
+<td><code>success_cost_ratio(...)</code></td>
+<td>1.25</td>
+</tr>
+<tr>
+<td>第三步 例题 3-2</td>
+<td>Amdahl</td>
+<td><code>amdahl_task(76.510, 36.375, 2)</code></td>
+<td>58.323 s，1.31 倍</td>
+</tr>
+<tr>
+<td>第四步 工具</td>
+<td>串行和 / 并行最大</td>
+<td><code>task_time([2, (6, 10), 3], parallel=...)</code></td>
+<td>21 s、15 s</td>
+</tr>
+<tr>
+<td>第五步 CED</td>
+<td><span class="arithmatex">\(40P\)</span> vs <span class="arithmatex">\(20P + 20\min(P,128)\)</span></td>
+<td><code>ced_work(8192)</code></td>
+<td>327,680 vs 166,400（50.8%）</td>
+</tr>
+<tr>
+<td>第五步 转交阈值</td>
+<td><span class="arithmatex">\(c_{\mathrm{dec}} / c_{\mathrm{LLM}}\)</span></td>
+<td><code>handoff_breakeven()</code></td>
+<td>约 0.58%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>关键几行</strong>：</p>
+<pre><code class="language-python">def reusable_prefix(old, new):
+    n = 0
+    for a, b in zip(old, new):
+        if a != b: break                # 第一个不同的位置之后全部失效
+        n += 1
+    return n
+</code></pre>
+<p><strong>代码里才看得到的 3 件事</strong>：</p>
+<ol>
+<li><code>reusable_prefix</code> 逐个比 token：改动之后哪怕内容一样，位置变了也算不同（真实缓存按 token 序列的哈希块判断，原书第 8 章）。</li>
+<li>例题 3-2 用的总时间 76.510 秒包含控制和交接时间，比模型 + 工具的 76.372 秒多一点。</li>
+<li><code>task_time</code> 只处理"一段并行工具夹在两段模型之间"这种简单图；一般的依赖图要按拓扑顺序算最长路径。</li>
+</ol>
+<p><strong>自己改一改</strong>（不影响练习答案）：</p>
+<ul>
+<li>把首轮加速从 2 倍改成 10 倍、无穷大，看总加速比的上限。</li>
+<li>用 <code>ced_work</code> 扫 <span class="arithmatex">\(P\)</span> = 64、128、512、8192、131072，看 CED 的节省比例怎么变。</li>
+<li>把转交比例 <span class="arithmatex">\(e\)</span> 设成 1%、5%，算每条请求的平均费用。</li>
+</ul><nav class="pager"><a href="14-workload-arrival.html">← 第 14 章 · 从单次请求到持续到达的负载：什么时候来，比来多少更要紧</a><a href="16-multimodal-realtime.html">第 16 章 · 多模态与实时交互：数据换形状，时间有死线（略讲） →</a></nav>
+</main></div>
+<footer>来自个人学习仓库的对话讲义，含练习作答记录。源码：<a href="https://github.com/wikieden/ai-infra-from-constraints">github.com/wikieden/ai-infra-from-constraints</a>。更多讲义书：<a href="https://wikieden.github.io/ai-books/">Physical AI 0-1-♾️（合集）</a></footer>
+<script>(function(){var d=document.documentElement,K=["s","m","l","xl"];
+function save(k,v){try{v?localStorage.setItem(k,v):localStorage.removeItem(k)}catch(e){}}
+var s=document.getElementById("ab-theme");if(s){s.value=d.dataset.theme||"";s.onchange=function(){if(s.value)d.dataset.theme=s.value;else delete d.dataset.theme;save("ab-theme",s.value)}}
+document.querySelectorAll("[data-fs-step]").forEach(function(b){b.onclick=function(){var i=K.indexOf(d.dataset.fs||"m")+(+b.dataset.fsStep);i=Math.max(0,Math.min(K.length-1,i));d.dataset.fs=K[i];save("ab-fs",K[i])}});
+var nb=document.getElementById("nav-toggle"),side=document.querySelector("nav.side");if(nb&&side){nb.onclick=function(){side.classList.toggle("open")}}
+var cur=side&&side.querySelector(".cur");if(cur)cur.scrollIntoView({block:"center"});
+})();</script>
+</body></html>

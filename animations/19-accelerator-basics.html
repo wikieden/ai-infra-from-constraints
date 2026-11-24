@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>算术强度与每 token 能耗</title><link rel="stylesheet" href="anim.css">
+<style>svg text.cap{font-size:15px;font-weight:500}svg text.num{font-size:17px;font-weight:600}</style></head>
+<body><main>
+<h1>第 19 章 · batch 从 1 涨到 4096：算术强度与每 token 能耗</h1>
+<p class="sub">配套讲义：<a href="../lessons/19-accelerator-basics.html">第 19 章 · 从矩阵乘法认识加速器：算多少、搬多少、耗多少电</a>。Q 投影 K = N = 4096、BF16；能耗借用 Qwen3-8B 单请求 8K decode 一步的账：权重 0.481 J，KV + 计算 0.053 J。</p>
+<div class="panel"><svg id="sv" viewBox="0 0 680 360"></svg></div>
+<div class="row"><button id="play">▶ 播放</button><button id="step">→ 单步</button><button id="reset">↺ 从头开始</button></div>
+<div class="row"><label for="m">自己拖：行数 M（2 的幂）</label><input type="range" id="m" min="0" max="12" step="1" value="0"><span id="mv">1</span></div>
+<p class="note">看点：① 左边权重 32 MiB 不变，输入输出随 M 变长；② 中间算术强度先几乎和 M 成正比，再逼近 2048；③ 右边每 token 能量 = 0.481/M + 0.053 J，M 超过 32 后权重搬移那段比 KV + 计算短；④ 播放时 M = 1 → 8 → 32 → 256 → 4096。</p>
+</main>
+<script src="anim.js"></script>
+<script>
+const sv=$('sv');
+const F=[1,8,32,256,4096];let k=0,custom=null;
+function draw(){clear(sv);const M=custom||F[k];const io=M*16/1024, I=2*M*4096*4096/(2*4096*4096+2*M*8192), ew=0.481/M, eo=0.053;
+ txt(`M = ${M}：算术强度 ≈ ${I<10?I.toFixed(1):I.toFixed(0)} FLOPs/B，每 token ≈ ${(ew+eo).toFixed(3)} J`,{x:340,y:26,'text-anchor':'middle',class:'cap'},sv);
+ // 左：读写量
+ txt('读写量（MiB）',{x:110,y:62,'text-anchor':'middle',class:'m'},sv);const sc=v=>v/100*220;
+ el('rect',{x:50,y:300-sc(32),width:50,height:sc(32),fill:'var(--purple)',opacity:.75},sv);txt('权重 32',{x:75,y:316,'text-anchor':'middle',class:'m'},sv);
+ el('rect',{x:120,y:300-sc(Math.min(io,100)),width:50,height:Math.max(sc(Math.min(io,100)),1),fill:'var(--accent)',opacity:.75},sv);txt(`入出 ${io<1?io.toFixed(3):io.toFixed(0)}`,{x:145,y:316,'text-anchor':'middle',class:'m'},sv);
+ if(io>100)txt('↑ 超出画幅',{x:145,y:72,'text-anchor':'middle',class:'m'},sv);
+ // 中：强度
+ txt('算术强度',{x:340,y:62,'text-anchor':'middle',class:'m'},sv);
+ el('rect',{x:310,y:80,width:60,height:220,fill:'none',stroke:'var(--line)'},sv);el('rect',{x:310,y:300-I/2048*220,width:60,height:Math.max(I/2048*220,1),fill:'var(--warm)',opacity:.8},sv);
+ txt('2048',{x:378,y:86,class:'m'},sv);txt(I<10?I.toFixed(1):I.toFixed(0),{x:340,y:316,'text-anchor':'middle',class:'num'},sv);
+ // 右：能量
+ txt('每 token 能量（J）',{x:560,y:62,'text-anchor':'middle',class:'m'},sv);const se=v=>v/0.55*220;
+ el('rect',{x:530,y:300-se(eo),width:60,height:se(eo),fill:'var(--teal)',opacity:.8},sv);
+ el('rect',{x:530,y:300-se(eo)-se(ew),width:60,height:Math.max(se(ew),1),fill:'var(--purple)',opacity:.75},sv);
+ txt(`权重 ${ew.toFixed(3)}`,{x:600,y:300-se(eo)-se(ew)/2,class:'m'},sv);txt('KV + 算 0.053',{x:600,y:300-se(eo)/2+4,class:'m'},sv);
+ el('line',{x1:20,y1:300,x2:660,y2:300,stroke:'var(--line)'},sv)}
+function reset(){k=0;custom=null;draw()}
+function next(){if(custom!==null){custom=null;draw();return true}if(k>=F.length-1)return false;k++;draw();return true}
+$('m').oninput=()=>{ANIM.stop();custom=2**+$('m').value;$('mv').textContent=custom;draw()};
+setupPlayer({captureSeed:1,reset,next},1500);
+</script><a href="https://wikieden.github.io/ai-books/" style="position:fixed;right:12px;bottom:12px;z-index:99;padding:4px 10px;border-radius:14px;background:rgba(127,127,127,.18);color:inherit;font:13px/1.6 system-ui,sans-serif;text-decoration:none">← 全部讲义书</a>
+</body></html>

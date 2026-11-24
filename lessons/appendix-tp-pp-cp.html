@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>附录 · 补充资料：TP、PP、CP，一个模型沿三个方向切给多张卡 · 从约束推导 AI Infra</title>
+<script>(function(){try{var d=document.documentElement,t=localStorage.getItem("ab-theme"),f=localStorage.getItem("ab-fs");if(t)d.dataset.theme=t;if(f)d.dataset.fs=f}catch(e){}})();</script>
+<style>:root{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa;--fs:16px}
+@media (prefers-color-scheme:dark){:root:not([data-theme]){--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}}
+:root[data-theme="light"]{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa}
+:root[data-theme="dark"]{--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}
+:root[data-theme="sepia"]{--bg:#f6efe1;--fg:#3b3127;--mute:#7a6a58;--line:#e2d6bf;--card:#fbf6ec;--acc:#a0522d;--code:#ece2cd;--quote:#efe5d2}
+:root[data-theme="green"]{--bg:#e3eddf;--fg:#22301f;--mute:#566650;--line:#c9d8c3;--card:#eef5eb;--acc:#2e7d4f;--code:#d6e4d0;--quote:#dae7d5}
+:root[data-theme="navy"]{--bg:#0f1a2b;--fg:#dde6f3;--mute:#93a4bd;--line:#23324a;--card:#15233a;--acc:#6cc4ff;--code:#1a2a44;--quote:#16243b}
+:root[data-fs="s"]{--fs:15px}
+:root[data-fs="m"]{--fs:16px}
+:root[data-fs="l"]{--fs:18px}
+:root[data-fs="xl"]{--fs:20px}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:var(--fs)/1.75 -apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Helvetica Neue",sans-serif}
+a{color:var(--acc)}
+header.top{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+header.top .in{max-width:860px;margin:0 auto;padding:10px 16px;display:flex;gap:6px 16px;align-items:center;flex-wrap:wrap;font-size:14px}
+header.top .brand{font-weight:600;color:var(--fg);text-decoration:none;margin-right:auto}
+header.top a{text-decoration:none}
+.prefs{display:inline-flex;gap:4px;align-items:center}
+.prefs button,.prefs select,#nav-toggle{font:inherit;font-size:13px;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:2px 8px;cursor:pointer}
+main{max-width:860px;margin:0 auto;padding:24px 16px 72px;overflow-wrap:anywhere}
+h1{font-size:1.75em;line-height:1.35;margin:8px 0 16px} h2{font-size:1.375em;margin:40px 0 12px;padding-top:8px;border-top:1px solid var(--line)} h3{font-size:1.125em;margin:28px 0 8px}
+.layout{display:grid;grid-template-columns:260px minmax(0,1fr);max-width:1180px;margin:0 auto}
+.layout main{margin:0;max-width:880px}
+nav.side{position:sticky;top:49px;align-self:start;max-height:calc(100vh - 49px);overflow-y:auto;padding:20px 8px 40px 16px;border-right:1px solid var(--line);font-size:14px;line-height:1.5}
+nav.side .h{font-weight:600;color:var(--mute);margin:4px 8px 8px;font-size:13px}
+nav.side a{display:block;padding:5px 8px;border-radius:6px;color:var(--fg);text-decoration:none}
+nav.side a:hover{background:var(--code)} nav.side a.cur{background:var(--quote);color:var(--acc);font-weight:600}
+nav.side a .n{color:var(--mute);margin-right:6px;font-variant-numeric:tabular-nums}
+#nav-toggle{display:none}
+@media (max-width:960px){.layout{display:block} nav.side{display:none;position:fixed;z-index:6;top:49px;left:0;bottom:0;width:min(300px,85vw);max-height:none;background:var(--bg);box-shadow:2px 0 12px rgba(0,0,0,.2)} nav.side.open{display:block} #nav-toggle{display:inline-block}}
+.run{display:flex;flex-wrap:wrap;align-items:center;gap:4px 0;margin:4px 0 12px}
+.run details{flex-basis:100%;margin:6px 0 0;font-size:.94em}
+img{max-width:100%;height:auto;border-radius:8px;border:1px solid var(--line);background:#fff}
+blockquote{margin:16px 0;padding:10px 16px;background:var(--quote);border-left:3px solid var(--acc);border-radius:4px;color:var(--mute)}
+blockquote p{margin:4px 0}
+code{background:var(--code);padding:1px 5px;border-radius:4px;font-size:.9em}
+pre{background:var(--code);padding:12px 14px;border-radius:8px;overflow-x:auto} pre code{padding:0;background:none}
+table{border-collapse:collapse;display:block;overflow-x:auto;max-width:100%;margin:12px 0;font-size:.94em}
+th,td{border:1px solid var(--line);padding:6px 10px;vertical-align:top} th{background:var(--code)}
+details{border:1px solid var(--line);border-radius:8px;padding:6px 12px;margin:8px 0;background:var(--card)}
+details[open]{padding-bottom:10px} summary{cursor:pointer;color:var(--acc);font-weight:500}
+mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%}
+.btn{display:inline-block;margin:4px 8px 4px 0;padding:6px 14px;border:1px solid var(--acc);border-radius:999px;text-decoration:none;font-size:14px}
+.pager{display:flex;justify-content:space-between;gap:12px;margin-top:48px;padding-top:16px;border-top:1px solid var(--line);font-size:15px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin:16px 0}
+.card{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;color:inherit;text-decoration:none}
+.card:hover{border-color:var(--acc)} .card img{border:0;border-bottom:1px solid var(--line);border-radius:0;aspect-ratio:16/10;object-fit:contain;width:100%}
+.card .no{color:var(--mute);font-size:13px;padding:8px 12px 0} .card .t{padding:0 12px 12px;font-weight:500;line-height:1.5}
+.lead{font-size:1.06em;color:var(--mute)}
+footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-size:13px}
+</style>
+<script>window.MathJax={tex:{inlineMath:[["\\(","\\)"]],displayMath:[["\\[","\\]"],["$$","$$"]],processEscapes:true,processEnvironments:true}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"></script>
+</head><body>
+<header class="top"><div class="in">
+<button type="button" id="nav-toggle" aria-label="打开章节列表">☰ 章节</button><a class="brand" href="../index.html">从约束推导 AI Infra</a>
+<a href="../lessons/index.html">讲义目录</a>
+<a href="../animations/index.html">动画</a>
+<a href="../review.html">复习卡片</a>
+<a href="../lessons/appendix-glossary.html">缩写表</a>
+<a href="https://wikieden.github.io/ai-books/glossary.html">全局词汇</a>
+<a href="https://wikieden.github.io/ai-books/">← 全部讲义书</a>
+<span class="prefs" title="字号与主题"><button type="button" data-fs-step="-1" aria-label="字号变小">A−</button><button type="button" data-fs-step="1" aria-label="字号变大">A+</button><select id="ab-theme" aria-label="主题色"><option value="">跟随系统</option><option value="light">浅色</option><option value="dark">深色</option><option value="sepia">米黄护眼</option><option value="green">豆沙绿护眼</option><option value="navy">夜蓝</option></select></span>
+</div></header>
+<div class="layout"><nav class="side" aria-label="章节"><div class="h">从约束推导 AI Infra</div><a href="index.html">讲义目录</a><a href="01-six-layers.html"><span class="n">1</span>一次请求走过的六层（进行中）</a><a href="02-request-lifecycle.html"><span class="n">2</span>一次生成请求的处理过程：权重加载一次，每个 token 都要再读一遍</a><a href="03-dataflow-hierarchy.html"><span class="n">3</span>从存储程序到数据流执行：存储层次就像大楼里的厕所</a><a href="04-key-numbers.html"><span class="n">4</span>系统设计的关键数字：容量、算力、带宽、延迟</a><a href="05-estimate.html"><span class="n">5</span>用几个数字估算一次模型执行：算和读各要多久，实测为什么达不到</a><a href="06-architecture.html"><span class="n">6</span>需求如何推动架构：TPU、SmartNIC、Unified Bus</a><a href="07-compute-graph.html"><span class="n">7</span>计算图与张量结构：一个 token 经过一层要算多少</a><a href="08-generation-budget.html"><span class="n">8</span>自回归生成的资源账：存一次的、每步读的、用完就扔的</a><a href="09-kv-sharing.html"><span class="n">9</span>KV 怎么变小 ①：头共享与潜变量压缩</a><a href="10-kv-sparse-linear.html"><span class="n">10</span>KV 怎么变小 ②：窗口、稀疏、线性与混合注意力</a><a href="11-moe.html"><span class="n">11</span>MoE：专家路由与批内权重复用</a><a href="12-network-shape.html"><span class="n">12</span>网络形状：深宽、专家粒度、残差与多 token 预测</a><a href="13-model-comparison.html"><span class="n">13</span>整个模型的资源需求与比较：存多少、算多少、能放几条请求</a><a href="14-workload-arrival.html"><span class="n">14</span>从单次请求到持续到达的负载：什么时候来，比来多少更要紧</a><a href="15-agent-tasks.html"><span class="n">15</span>多轮交互与 Agent 任务：前缀、成功成本、关键路径</a><a href="16-multimodal-realtime.html"><span class="n">16</span>多模态与实时交互：数据换形状，时间有死线（略讲）</a><a href="17-training-rl.html"><span class="n">17</span>训练与强化学习的计算和状态：为什么训练要 6ND、要存 18 字节</a><a href="18-scaling-lifecycle.html"><span class="n">18</span>Scaling law 与全生命周期成本：训练多大、训练多久、服务多少次</a><a href="19-accelerator-basics.html"><span class="n">19</span>从矩阵乘法认识加速器：算多少、搬多少、耗多少电</a><a href="20-compute-units.html"><span class="n">20</span>计算单元：矩阵、向量、流水与低精度</a><a href="21-memory-movement.html"><span class="n">21</span>存储层次与数据搬移：放得下、取得到、来得及</a><a href="22-package-interconnect.html"><span class="n">22</span>多芯片封装与互联：计算放在哪，数据走哪条路</a><a href="23-architecture-evolution.html"><span class="n">23</span>架构演进与专用架构：每一代新增的东西，省掉了哪一笔</a><a href="24-choose-accelerator.html"><span class="n">24</span>根据架构选择加速器：先估下界，再找差距，最后算账</a><a href="appendix-glossary.html">附录 · 缩写与术语表</a><a href="appendix-tp-pp-cp.html" class="cur">附录 · 补充资料：TP、PP、CP，一个模型沿三个方向切给多张卡</a></nav><main>
+<h1 id="tpppcp">附录 · 补充资料：TP、PP、CP，一个模型沿三个方向切给多张卡</h1>
+<blockquote>
+<p>本篇回答：模型太大、一张卡放不下时，TP、PP、CP 分别把什么切开？各要付出什么代价？实际训练怎么把它们组合起来？<br />
+讲解日期：2026-11-15（对话里应提问讲解）· 属于 AII 第 6 章的内容，提前写成补充资料，讲到第 6 章时再并入正文。<br />
+对应原文：<code>materials/ai-infra-book/manuscripts/06-超节点.md</code> §6.1.4 L78–L127（六种并行一览表、图 6-3）；§6.2.2 L143–L254（TP，图 6-5）；§6.2.4 L267–L294（CP，图 6-11、6-12）；§6.2.5 L295–L323（PP，图 6-13、6-14）<br />
+本篇缩写：TP = Tensor Parallelism（张量 / 并行）· PP = Pipeline Parallelism（流水线 / 并行）· CP = Context Parallelism（上下文 / 并行）· DP = Data Parallelism（数据 / 并行）· FFN = Feed-Forward Network（前馈 / 网络）· q / k / v = query / key / value（查询 / 键 / 值）· NVLink = NVIDIA Link（NVIDIA 的卡间直连）· AII = 本专题主书《深入理解 AI Infra》；全部缩写见<a href="../lessons/appendix-glossary.html">缩写与术语表</a></p>
+</blockquote>
+<h2 id="_1">讲解</h2>
+<h3 id="2026-11-15">第一步：一个模型有三样东西可以切（2026-11-15）</h3>
+<p><strong>先回想模型在处理什么。</strong> 以 AII 反复用的 Qwen3-32B 为例：</p>
+<table>
+<thead>
+<tr>
+<th>东西</th>
+<th>是什么</th>
+<th>谁来切它</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>① 层</td>
+<td>64 层，一层一层往下算</td>
+<td>PP</td>
+</tr>
+<tr>
+<td>② 层里的矩阵</td>
+<td>每层里几个大矩阵乘法，加上 attention</td>
+<td>TP</td>
+</tr>
+<tr>
+<td>③ 输入序列</td>
+<td>一段文字，可能 4k 个 token，也可能 128k 个</td>
+<td>CP</td>
+</tr>
+</tbody>
+</table>
+<p>原文 §6.1.4 的并行方式一览表（L88–L95）用"切分的维度"来分：PP 切层 <span class="arithmatex">\(L\)</span>，TP 切特征 <span class="arithmatex">\(H\)</span>（权重的列或行、注意力头），CP 切注意力的序列位置 <span class="arithmatex">\(S\)</span>。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>切什么</th>
+<th>每张卡负责</th>
+<th>卡之间要交换什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>PP</strong></td>
+<td>层</td>
+<td>一段连续的层</td>
+<td>前一段算完的中间结果，交给下一段</td>
+</tr>
+<tr>
+<td><strong>TP</strong></td>
+<td>一层里的矩阵</td>
+<td>同一个矩阵的一部分</td>
+<td>每层都要把各卡的部分结果加起来</td>
+</tr>
+<tr>
+<td><strong>CP</strong></td>
+<td>输入序列</td>
+<td>序列的一段位置</td>
+<td>attention 要用的、别的卡上那段的 k、v</td>
+</tr>
+</tbody>
+</table>
+<p><strong>一句话</strong>：PP 切层，TP 切层里的矩阵，CP 切输入序列。</p>
+<h3 id="pp2026-11-15">第二步：PP，按层切，像工厂流水线（2026-11-15）</h3>
+<p><strong>类比：工厂流水线。</strong> 64 道工序一个工人做不完。工人甲做前 32 道，做完把半成品递给工人乙，乙做后 32 道。</p>
+<p>原文图 6-13（L301）：Qwen3-32B 的 64 层分成两段，卡 0 存第 1–32 层，卡 1 存第 33–64 层。每张卡只存自己那些层的权重，段与段之间只传中间结果（激活）。</p>
+<ul>
+<li><strong>好处</strong>：权重直接分走一半；卡之间只在交接处传一次，传得少，可以跨机器。</li>
+<li><strong>代价：bubble（气泡）</strong>。卡 1 要等卡 0 算完第一份才有活干，结尾卡 0 又闲着。</li>
+</ul>
+<p><strong>公式</strong>（原文式 6-7，L313–L316）：</p>
+<div class="arithmatex">\[
+\eta_{\mathrm{PP}}=\frac{b}{q+b-1}
+\]</div>
+<ul>
+<li><span class="arithmatex">\(\eta\)</span> 读作 eta，这里表示<strong>利用率</strong>：卡在干活的时间占总时间的比例。</li>
+<li><span class="arithmatex">\(q\)</span>：流水线分成几段（几个阶段）。</li>
+<li><span class="arithmatex">\(b\)</span>：一批数据切成几个 micro-batch（小批次）。切得越多，流水线越能一直有活。</li>
+<li>分母 <span class="arithmatex">\(q+b-1\)</span>：第一个 micro-batch 要走完全部 <span class="arithmatex">\(q\)</span> 段，之后每多一个只多一格时间。</li>
+</ul>
+<p><strong>算一遍</strong>（原文 L318 的例子）：</p>
+<table>
+<thead>
+<tr>
+<th>段数 <span class="arithmatex">\(q\)</span></th>
+<th>micro-batch 数 <span class="arithmatex">\(b\)</span></th>
+<th>利用率</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>4</td>
+<td>4</td>
+<td><span class="arithmatex">\(4 \div 7 \approx 57\%\)</span></td>
+</tr>
+<tr>
+<td>4</td>
+<td>16</td>
+<td><span class="arithmatex">\(16 \div 19 \approx 84\%\)</span></td>
+</tr>
+</tbody>
+</table>
+<p><strong>一句话</strong>：PP 按层分段，传得少能跨机器；代价是开头结尾空等，micro-batch 越多，空等占比越小。</p>
+<h3 id="tp2026-11-15">第三步：TP，切一层里的矩阵，每层都要合并（2026-11-15）</h3>
+<p><strong>类比：一道工序本身太大，几个工人同时做这一道。</strong> 一张大表格，几个人各算几列，最后要当场把结果合起来，才能进下一道工序。</p>
+<p>原文图 6-5（L149）的两处切法：</p>
+<ul>
+<li>attention 按<strong>头</strong>分（多头注意力，Transformer 第 13 章），每张卡算几个头；</li>
+<li>FFN 的大矩阵按中间维度切开，每张卡算一部分。</li>
+</ul>
+<p>两处最后都只得到<strong>部分和</strong>，必须把各卡的部分和<strong>加起来</strong>才是这一层的结果。这个"各卡结果相加、每张卡都拿到总和"的操作叫 <strong>AllReduce</strong>。</p>
+<p><strong>数字</strong>（原文 L176）：Qwen3-32B 每层要做 2 次 AllReduce，64 层共 <strong>128 次</strong>，而且每次都要等合并完才能算下一步。</p>
+<p><strong>为什么非切不可</strong>（原文 L151 的例子）：Qwen3-32B 的 BF16 权重约 65.52 GB，加上一个 128K 会话的 KV 约 34.36 GB 和 2 GiB 工作区，单卡共约 102.03 GB，超过 H100 的 80 GB；切到两张卡，每卡约 52.09 GB，就放得下了。</p>
+<ul>
+<li><strong>好处</strong>：同一层的权重和计算都分摊，单个请求也能算得更快。</li>
+<li><strong>代价</strong>：通信次数多，而且在计算的关键路径上，躲不开。所以 TP 必须放在<strong>同一台机器内</strong>、用 NVLink 直连的卡上，一般不超过 8 张。</li>
+</ul>
+<p><strong>一句话</strong>：TP 把一层的矩阵切给几张卡，每层都要把部分和加起来，所以只能放在离得最近的卡上。</p>
+<h3 id="cpkv-2026-11-15">第四步：CP，切输入序列，k、v 要跨卡传（2026-11-15）</h3>
+<p><strong>类比：一本书太厚，按章节分给几个人读。</strong> 但每句话都要联系前文，后面的人要不时向前面的人要前文的要点。</p>
+<p>原文图 6-11（L273）：长序列的位置分给多张卡，每张卡只存自己那段位置的 q、k、v。</p>
+<p><strong>为什么要跨卡传</strong>：因果 mask（Transformer 第 17 章）规定每个词要看<strong>自己和前面所有的词</strong>。卡 1 上的词，要用卡 0 那段的 k、v，所以 k、v 必须传过去。常见做法是让 k、v 在各卡之间轮流传一圈，叫 Ring Attention（环形注意力）。</p>
+<p><strong>工作量不均</strong>（原文 L283）：8 个 token 的因果注意力，一共要算 <span class="arithmatex">\(1+2+\cdots+8=36\)</span> 对"谁看谁"。</p>
+<table>
+<thead>
+<tr>
+<th>分法</th>
+<th>卡 0</th>
+<th>卡 1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>连续切半</td>
+<td>位置 1–4：<span class="arithmatex">\(1+2+3+4=10\)</span> 对</td>
+<td>位置 5–8：<span class="arithmatex">\(5+6+7+8=26\)</span> 对（差 2.6 倍）</td>
+</tr>
+<tr>
+<td>前后搭配</td>
+<td>位置 1、2、7、8：<span class="arithmatex">\(1+2+7+8=18\)</span> 对</td>
+<td>位置 3–6：<span class="arithmatex">\(3+4+5+6=18\)</span> 对</td>
+</tr>
+</tbody>
+</table>
+<p>第 <span class="arithmatex">\(i\)</span> 个位置要看 <span class="arithmatex">\(i\)</span> 个词（自己和前面 <span class="arithmatex">\(i-1\)</span> 个），所以它贡献 <span class="arithmatex">\(i\)</span> 对。实际实现用分块交错的"之"字形布局，但原始位置和因果 mask 都要保留。</p>
+<ul>
+<li><strong>好处</strong>：长序列的激活和 KV 分摊开，序列很长时才值得用（约 32k token 以上）。</li>
+<li><strong>代价</strong>：要在卡之间传 k、v，还要处理工作量不均。</li>
+</ul>
+<p><strong>一句话</strong>：CP 把长序列按位置切开，因果 mask 让后面的卡要用前面卡的 k、v，还要前后搭配着分才均匀。</p>
+<h3 id="2026-11-15_1">第五步：三者怎么组合（2026-11-15）</h3>
+<p>从里到外（分布式训练工程报告 §3.2）：</p>
+<ol>
+<li><strong>TP 在最里面</strong>：同一台机器的 8 张卡，靠 NVLink 每层合并；</li>
+<li><strong>CP</strong> 在序列很长时加上；</li>
+<li><strong>PP 跨机器</strong>：机器 A 前几十层，机器 B 后几十层；</li>
+<li><strong>DP 在最外面</strong>：整套复制几份，各自处理不同的数据。</li>
+</ol>
+<p><strong>例子</strong>（工程报告 §3.4，框架选型图里"70B · 64 卡"）：TP=8 × PP=3 × DP=2，即 8 张卡一起切每层的矩阵，3 台机器分层，整套复制 2 份。</p>
+<p><strong>一句话</strong>：切得越细，卡之间要说的话越多，所以说话最频繁的 TP 放最近，说话最少的 DP 放最远。</p>
+<h3 id="_2">动画演示：一个模型沿三个方向切给多张卡</h3>
+<p><img alt="TP、PP、CP 三种切法" src="../animations/appendix-tp-pp-cp.gif" /></p>
+<p>可交互版：<a href="../animations/appendix-tp-pp-cp.html">animations/appendix-tp-pp-cp.html</a>（滑块：流水线里有几个 micro-batch，看利用率 <span class="arithmatex">\(b \div (4+b-1)\)</span> 怎么变）</p>
+<p><strong>怎么看</strong>：
+1. 第一帧：层、层里的矩阵、输入序列三样东西（第一步）；
+2. 蓝红两段层、四段流水线格子图（第二步）：空白格就是 bubble；
+3. 矩阵切两半、部分和相加（第三步）；
+4. 8×8 的因果三角形，蓝色归卡 0、红色归卡 1，粗框是要跨卡传 k、v 的格子（第四步）；
+5. 三台机器 × 8 卡 × 两份副本（第五步）。</p>
+<h2 id="_3">练习与作答记录</h2>
+<p><strong>题 1</strong>（第二到第四步）：一个模型层数很多、每层不算大，序列只有 4k 个 token，只是总权重一台机器放不下。你会先用 TP、PP、CP 里的哪一种？为什么？</p>
+<blockquote>
+<p>作答：（待作答）</p>
+</blockquote>
+<h2 id="_4">口诀</h2>
+<blockquote>
+<p>层多切层走流水，传得最少能跨机；<br />
+层大切阵靠直连，每层合并不能离；<br />
+序列太长切上下文，k、v 跨卡前后齐。</p>
+</blockquote>
+<h2 id="_5">本篇复习卡片</h2>
+<p>练习做完后，按答错、卡住的地方补上。</p>
+<h2 id="_6">附录 · 延伸阅读</h2>
+<blockquote>
+<p>留给以后深入学习用。★ 是建议先读的。</p>
+</blockquote>
+<h3 id="_7">推荐阅读</h3>
+<table>
+<thead>
+<tr>
+<th>读什么</th>
+<th>读哪里</th>
+<th>读它为了什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>★ AII 第 6 章</td>
+<td>§6.1.4 L78–L127（六种并行一览、套娃比喻）</td>
+<td>一张表看清每种并行切哪个维度、交换什么</td>
+</tr>
+<tr>
+<td>AII 第 6 章</td>
+<td>§6.2.2 L143–L254</td>
+<td>TP 为什么一种切法只需拼接、另一种必须求和（L176 起的最小矩阵乘例子）</td>
+</tr>
+<tr>
+<td>AII 第 6 章</td>
+<td>§6.2.4 L267–L294</td>
+<td>CP 的 decode 情形：各卡统计量怎么合并成全局 softmax（L287 起的公式）</td>
+</tr>
+<tr>
+<td>AII 第 6 章</td>
+<td>§6.2.5 L295–L323</td>
+<td>PP 各段耗时不均时为什么会积压</td>
+</tr>
+<tr>
+<td>★ 分布式训练工程报告</td>
+<td><code>distributed-pretraining/notes/03-engineering-report.md</code> §2.2–§2.4、§2.6、§3.2</td>
+<td>训练视角：通信量、放置规则、一张表看完</td>
+</tr>
+<tr>
+<td>Ultra-Scale Playbook</td>
+<td><code>distributed-pretraining/materials/text/ultrascale-playbook.md</code> L1032（TP）、L1412（CP，L1514 Zig-Zag Ring Attention）、L1565（PP）</td>
+<td>带 benchmark 的原始推导</td>
+</tr>
+<tr>
+<td>框架选型图</td>
+<td><code>distributed-pretraining/interactive/framework-choice.html</code></td>
+<td>填模型大小和卡数，看推荐的 TP × PP × DP</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_8">数学原理</h3>
+<ul>
+<li><strong>流水线利用率</strong>：<span class="arithmatex">\(q\)</span> 段、<span class="arithmatex">\(b\)</span> 个 micro-batch，总时间 <span class="arithmatex">\((q+b-1)t\)</span>，干活时间 <span class="arithmatex">\(q\cdot b\cdot t\)</span>，比值化简为 <span class="arithmatex">\(b/(q+b-1)\)</span>。<span class="arithmatex">\(b\)</span> 远大于 <span class="arithmatex">\(q\)</span> 时趋近 1。</li>
+<li><strong>部分和</strong>：矩阵乘 <span class="arithmatex">\(y = xW\)</span> 按 <span class="arithmatex">\(W\)</span> 的行切开时，每张卡只算出 <span class="arithmatex">\(y\)</span> 的一部分加数，必须相加；按列切开时，每张卡算出 <span class="arithmatex">\(y\)</span> 的不同列，只需拼接。</li>
+<li><strong>等差数列求和</strong>：<span class="arithmatex">\(1+2+\cdots+n = n(n+1)/2\)</span>，8 个 token 共 36 对。</li>
+</ul>
+<h3 id="_9">公式清单</h3>
+<table>
+<thead>
+<tr>
+<th>公式</th>
+<th>意思</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\(\eta_{\mathrm{PP}}=b/(q+b-1)\)</span></td>
+<td>流水线利用率：<span class="arithmatex">\(q\)</span> 段、<span class="arithmatex">\(b\)</span> 个 micro-batch</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(T_{\mathrm{PP}}=(q+b-1)t\)</span></td>
+<td>流水线处理完全部 micro-batch 的时间，<span class="arithmatex">\(t\)</span> 是每段耗时</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(1+2+\cdots+n=n(n+1)/2\)</span></td>
+<td>因果注意力里 <span class="arithmatex">\(n\)</span> 个 token 要算的"谁看谁"对数</td>
+</tr>
+</tbody>
+</table>
+</main></div>
+<footer>来自个人学习仓库的对话讲义，含练习作答记录。源码：<a href="https://github.com/wikieden/ai-infra-from-constraints">github.com/wikieden/ai-infra-from-constraints</a>。更多讲义书：<a href="https://wikieden.github.io/ai-books/">Physical AI 0-1-♾️（合集）</a></footer>
+<script>(function(){var d=document.documentElement,K=["s","m","l","xl"];
+function save(k,v){try{v?localStorage.setItem(k,v):localStorage.removeItem(k)}catch(e){}}
+var s=document.getElementById("ab-theme");if(s){s.value=d.dataset.theme||"";s.onchange=function(){if(s.value)d.dataset.theme=s.value;else delete d.dataset.theme;save("ab-theme",s.value)}}
+document.querySelectorAll("[data-fs-step]").forEach(function(b){b.onclick=function(){var i=K.indexOf(d.dataset.fs||"m")+(+b.dataset.fsStep);i=Math.max(0,Math.min(K.length-1,i));d.dataset.fs=K[i];save("ab-fs",K[i])}});
+var nb=document.getElementById("nav-toggle"),side=document.querySelector("nav.side");if(nb&&side){nb.onclick=function(){side.classList.toggle("open")}}
+var cur=side&&side.querySelector(".cur");if(cur)cur.scrollIntoView({block:"center"});
+})();</script>
+</body></html>

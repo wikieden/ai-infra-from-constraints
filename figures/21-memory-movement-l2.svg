@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="820" height="360" viewBox="0 0 820 360">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="16.0" y="26.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="17" fill="#1f2937" text-anchor="start" font-weight="bold">SM 私有存储、簇内互访，其余经交叉互连和 L2 中转</text>
+<text x="16.0" y="350.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">示意。簇内 SM 可以直接读彼此的共享内存；簇外 SM 交换数据要写到 L2 再读回。</text>
+<rect x="20.0" y="40.0" width="380.0" height="130.0" rx="10" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" stroke-dasharray="5 4" opacity="0.55"/>
+<text x="30.0" y="58.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#2563eb" text-anchor="start" font-weight="bold">线程块簇</text>
+<rect x="40.0" y="80.0" width="100.0" height="70.0" rx="8" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<text x="90.0" y="111.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="middle" font-weight="bold">SM 0</text>
+<text x="90.0" y="127.2" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#4b5563" text-anchor="middle" font-weight="normal">寄存器 · 共享内存</text>
+<rect x="160.0" y="80.0" width="100.0" height="70.0" rx="8" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<text x="210.0" y="111.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="middle" font-weight="bold">SM 1</text>
+<text x="210.0" y="127.2" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#4b5563" text-anchor="middle" font-weight="normal">寄存器 · 共享内存</text>
+<rect x="280.0" y="80.0" width="100.0" height="70.0" rx="8" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<text x="330.0" y="111.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="middle" font-weight="bold">SM 2</text>
+<text x="330.0" y="127.2" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#4b5563" text-anchor="middle" font-weight="normal">寄存器 · 共享内存</text>
+<line x1="140.0" y1="115.0" x2="160.0" y2="115.0" stroke="#2563eb" stroke-width="1.6"/>
+<polygon points="160.0,115.0 152.1,119.2 152.1,110.8" fill="#2563eb" stroke="#2563eb" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<polygon points="140.0,115.0 147.9,110.8 147.9,119.2" fill="#2563eb" stroke="#2563eb" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<line x1="260.0" y1="115.0" x2="280.0" y2="115.0" stroke="#2563eb" stroke-width="1.6"/>
+<polygon points="280.0,115.0 272.1,119.2 272.1,110.8" fill="#2563eb" stroke="#2563eb" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<polygon points="260.0,115.0 267.9,110.8 267.9,119.2" fill="#2563eb" stroke="#2563eb" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<rect x="440.0" y="80.0" width="100.0" height="70.0" rx="8" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<text x="490.0" y="111.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="middle" font-weight="bold">SM 3</text>
+<text x="490.0" y="127.2" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#4b5563" text-anchor="middle" font-weight="normal">簇外</text>
+<rect x="580.0" y="80.0" width="100.0" height="70.0" rx="8" fill="#ffffff" stroke="#9ca3af" stroke-width="1.4" opacity="1"/>
+<text x="630.0" y="118.8" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="middle" font-weight="bold">SM …</text>
+<rect x="40.0" y="210.0" width="640.0" height="40.0" rx="8" fill="#f3f4f6" stroke="#6b7280" stroke-width="1.4" opacity="1"/>
+<text x="360.0" y="233.8" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="middle" font-weight="bold">交叉互连</text>
+<rect x="200.0" y="280.0" width="320.0" height="50.0" rx="8" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<text x="360.0" y="301.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="middle" font-weight="bold">L2 缓存</text>
+<text x="360.0" y="317.2" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#4b5563" text-anchor="middle" font-weight="normal">片外数据入口 · SM 间中转</text>
+<rect x="700.0" y="280.0" width="100.0" height="50.0" rx="8" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.4" opacity="1"/>
+<text x="750.0" y="308.8" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="middle" font-weight="bold">HBM</text>
+<line x1="90.0" y1="150.0" x2="90.0" y2="210.0" stroke="#6b7280" stroke-width="1.6"/>
+<polygon points="90.0,210.0 85.8,202.1 94.2,202.1" fill="#6b7280" stroke="#6b7280" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<line x1="210.0" y1="150.0" x2="210.0" y2="210.0" stroke="#6b7280" stroke-width="1.6"/>
+<polygon points="210.0,210.0 205.8,202.1 214.2,202.1" fill="#6b7280" stroke="#6b7280" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<line x1="330.0" y1="150.0" x2="330.0" y2="210.0" stroke="#6b7280" stroke-width="1.6"/>
+<polygon points="330.0,210.0 325.8,202.1 334.2,202.1" fill="#6b7280" stroke="#6b7280" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<line x1="490.0" y1="150.0" x2="490.0" y2="210.0" stroke="#6b7280" stroke-width="1.6"/>
+<polygon points="490.0,210.0 485.8,202.1 494.2,202.1" fill="#6b7280" stroke="#6b7280" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<line x1="630.0" y1="150.0" x2="630.0" y2="210.0" stroke="#6b7280" stroke-width="1.6"/>
+<polygon points="630.0,210.0 625.8,202.1 634.2,202.1" fill="#6b7280" stroke="#6b7280" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<line x1="360.0" y1="250.0" x2="360.0" y2="280.0" stroke="#6b7280" stroke-width="1.6"/>
+<polygon points="360.0,280.0 355.8,272.1 364.2,272.1" fill="#6b7280" stroke="#6b7280" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<polygon points="360.0,250.0 364.2,257.9 355.8,257.9" fill="#6b7280" stroke="#6b7280" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<line x1="520.0" y1="305.0" x2="700.0" y2="305.0" stroke="#4b5563" stroke-width="1.6"/>
+<polygon points="700.0,305.0 692.1,309.2 692.1,300.8" fill="#4b5563" stroke="#4b5563" stroke-width="1" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+</svg>

@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>全生命周期成本</title><link rel="stylesheet" href="anim.css">
+<style>svg text.cap{font-size:15px;font-weight:500}svg text.num{font-size:19px;font-weight:600}</style></head>
+<body><main>
+<h1>第 18 章 · 训练投入 vs 服务次数：什么时候小模型更省</h1>
+<p class="sub">配套讲义：<a href="../lessons/18-scaling-lifecycle.html">第 18 章 · Scaling law 与全生命周期成本：训练多大、训练多久、服务多少次</a>。两条直线：截距是训练投入，斜率是每次服务的成本。大模型每次服务按 2 GPU 秒示意。</p>
+<div class="panel"><svg id="sv" viewBox="0 0 680 360"></svg></div>
+<div class="row"><button id="play">▶ 播放</button><button id="step">→ 单步</button><button id="reset">↺ 从头开始</button></div>
+<div class="row"><label for="c">自己拖：小模型多投入的训练（千 GPU 小时）</label><input type="range" id="c" min="10" max="300" step="10" value="100"><span id="cv">100</span></div><div class="row"><label for="s">每次服务节省（GPU 秒）</label><input type="range" id="s" min="0.1" max="1.5" step="0.02" value="0.72"><span id="sv2">0.72</span></div>
+<p class="note">看点：① 灰线是大模型，紫线是小模型：小模型截距高（训练多），斜率低（每次便宜）；② 交点 Q* = 多投入的训练 ÷ 每次节省；③ 播放时演示原文例子：10 万 GPU 小时 / 0.72 秒 → 5 亿次；④ 交点左边选大模型更省，右边选小模型更省。</p>
+</main>
+<script src="anim.js"></script>
+<script>
+const sv=$('sv');
+function box3(items,y){items.forEach(([a,b],i)=>{const x=20+i*(640/items.length);el('rect',{x,y,width:640/items.length-14,height:70,rx:8,fill:'none',stroke:'var(--line)'},sv);txt(a,{x:x+10,y:y+22,class:'m'},sv);txt(b,{x:x+10,y:y+54,class:'num'},sv)})}
+const F=[{c:100,s:0.72},{c:100,s:0.72},{c:50,s:0.72},{c:100,s:0.36}];let k=0,custom=null;
+function draw(){clear(sv);const {c,s}=custom||F[k];const q=c*3.6e6/s/1e8;const SB=2;
+ txt(`多投入 ${c} 千 GPU 小时、每次省 ${s} GPU 秒 → Q* = ${q.toFixed(2)} 亿次`,{x:340,y:24,'text-anchor':'middle',class:'cap'},sv);
+ const qmax=Math.max(10,Math.ceil(q*1.6)),L=x=>50+x*1e8*SB/3.6e6,S=x=>50+c+x*1e8*(SB-s)/3.6e6,ymax=Math.max(L(qmax),S(qmax));
+ const X=x=>60+x/qmax*580,Y=v=>300-v/ymax*250;
+ el('line',{x1:X(0),y1:Y(L(0)),x2:X(qmax),y2:Y(L(qmax)),stroke:'var(--muted)','stroke-width':2.5},sv);
+ el('line',{x1:X(0),y1:Y(S(0)),x2:X(qmax),y2:Y(S(qmax)),stroke:'var(--purple)','stroke-width':2.5},sv);
+ el('circle',{cx:X(q),cy:Y(L(q)),r:6,fill:'var(--warm)'},sv);el('line',{x1:X(q),y1:Y(L(q)),x2:X(q),y2:300,stroke:'var(--warm)','stroke-dasharray':'4 4'},sv);
+ el('line',{x1:60,y1:300,x2:640,y2:300,stroke:'var(--line)'},sv);txt('0',{x:60,y:318,'text-anchor':'middle',class:'m'},sv);txt(qmax+' 亿次',{x:640,y:318,'text-anchor':'end',class:'m'},sv);
+ txt('大模型',{x:X(qmax)-4,y:Y(L(qmax))-8,'text-anchor':'end',class:'m'},sv);txt('小模型',{x:X(qmax)-4,y:Y(S(qmax))+16,'text-anchor':'end',class:'m'},sv);
+ txt(`Q* ≈ ${q.toFixed(2)} 亿`,{x:X(q)+8,y:Y(L(q))-10,class:'m'},sv)}
+function reset(){k=0;custom=null;draw()}
+function next(){if(custom!==null){custom=null;draw();return true}if(k>=F.length-1)return false;k++;draw();return true}
+function fs(){ANIM.stop();custom={c:+$('c').value,s:+$('s').value};$('cv').textContent=custom.c;$('sv2').textContent=custom.s;draw()}
+$('c').oninput=fs;$('s').oninput=fs;
+setupPlayer({captureSeed:1,reset,next},1500);
+</script><a href="https://wikieden.github.io/ai-books/" style="position:fixed;right:12px;bottom:12px;z-index:99;padding:4px 10px;border-radius:14px;background:rgba(127,127,127,.18);color:inherit;font:13px/1.6 system-ui,sans-serif;text-decoration:none">← 全部讲义书</a>
+</body></html>

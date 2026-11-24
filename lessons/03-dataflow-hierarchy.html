@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>第 03 章 · 从存储程序到数据流执行：存储层次就像大楼里的厕所 · 从约束推导 AI Infra</title>
+<script>(function(){try{var d=document.documentElement,t=localStorage.getItem("ab-theme"),f=localStorage.getItem("ab-fs");if(t)d.dataset.theme=t;if(f)d.dataset.fs=f}catch(e){}})();</script>
+<style>:root{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa;--fs:16px}
+@media (prefers-color-scheme:dark){:root:not([data-theme]){--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}}
+:root[data-theme="light"]{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa}
+:root[data-theme="dark"]{--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}
+:root[data-theme="sepia"]{--bg:#f6efe1;--fg:#3b3127;--mute:#7a6a58;--line:#e2d6bf;--card:#fbf6ec;--acc:#a0522d;--code:#ece2cd;--quote:#efe5d2}
+:root[data-theme="green"]{--bg:#e3eddf;--fg:#22301f;--mute:#566650;--line:#c9d8c3;--card:#eef5eb;--acc:#2e7d4f;--code:#d6e4d0;--quote:#dae7d5}
+:root[data-theme="navy"]{--bg:#0f1a2b;--fg:#dde6f3;--mute:#93a4bd;--line:#23324a;--card:#15233a;--acc:#6cc4ff;--code:#1a2a44;--quote:#16243b}
+:root[data-fs="s"]{--fs:15px}
+:root[data-fs="m"]{--fs:16px}
+:root[data-fs="l"]{--fs:18px}
+:root[data-fs="xl"]{--fs:20px}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:var(--fs)/1.75 -apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Helvetica Neue",sans-serif}
+a{color:var(--acc)}
+header.top{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+header.top .in{max-width:860px;margin:0 auto;padding:10px 16px;display:flex;gap:6px 16px;align-items:center;flex-wrap:wrap;font-size:14px}
+header.top .brand{font-weight:600;color:var(--fg);text-decoration:none;margin-right:auto}
+header.top a{text-decoration:none}
+.prefs{display:inline-flex;gap:4px;align-items:center}
+.prefs button,.prefs select,#nav-toggle{font:inherit;font-size:13px;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:2px 8px;cursor:pointer}
+main{max-width:860px;margin:0 auto;padding:24px 16px 72px;overflow-wrap:anywhere}
+h1{font-size:1.75em;line-height:1.35;margin:8px 0 16px} h2{font-size:1.375em;margin:40px 0 12px;padding-top:8px;border-top:1px solid var(--line)} h3{font-size:1.125em;margin:28px 0 8px}
+.layout{display:grid;grid-template-columns:260px minmax(0,1fr);max-width:1180px;margin:0 auto}
+.layout main{margin:0;max-width:880px}
+nav.side{position:sticky;top:49px;align-self:start;max-height:calc(100vh - 49px);overflow-y:auto;padding:20px 8px 40px 16px;border-right:1px solid var(--line);font-size:14px;line-height:1.5}
+nav.side .h{font-weight:600;color:var(--mute);margin:4px 8px 8px;font-size:13px}
+nav.side a{display:block;padding:5px 8px;border-radius:6px;color:var(--fg);text-decoration:none}
+nav.side a:hover{background:var(--code)} nav.side a.cur{background:var(--quote);color:var(--acc);font-weight:600}
+nav.side a .n{color:var(--mute);margin-right:6px;font-variant-numeric:tabular-nums}
+#nav-toggle{display:none}
+@media (max-width:960px){.layout{display:block} nav.side{display:none;position:fixed;z-index:6;top:49px;left:0;bottom:0;width:min(300px,85vw);max-height:none;background:var(--bg);box-shadow:2px 0 12px rgba(0,0,0,.2)} nav.side.open{display:block} #nav-toggle{display:inline-block}}
+.run{display:flex;flex-wrap:wrap;align-items:center;gap:4px 0;margin:4px 0 12px}
+.run details{flex-basis:100%;margin:6px 0 0;font-size:.94em}
+img{max-width:100%;height:auto;border-radius:8px;border:1px solid var(--line);background:#fff}
+blockquote{margin:16px 0;padding:10px 16px;background:var(--quote);border-left:3px solid var(--acc);border-radius:4px;color:var(--mute)}
+blockquote p{margin:4px 0}
+code{background:var(--code);padding:1px 5px;border-radius:4px;font-size:.9em}
+pre{background:var(--code);padding:12px 14px;border-radius:8px;overflow-x:auto} pre code{padding:0;background:none}
+table{border-collapse:collapse;display:block;overflow-x:auto;max-width:100%;margin:12px 0;font-size:.94em}
+th,td{border:1px solid var(--line);padding:6px 10px;vertical-align:top} th{background:var(--code)}
+details{border:1px solid var(--line);border-radius:8px;padding:6px 12px;margin:8px 0;background:var(--card)}
+details[open]{padding-bottom:10px} summary{cursor:pointer;color:var(--acc);font-weight:500}
+mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%}
+.btn{display:inline-block;margin:4px 8px 4px 0;padding:6px 14px;border:1px solid var(--acc);border-radius:999px;text-decoration:none;font-size:14px}
+.pager{display:flex;justify-content:space-between;gap:12px;margin-top:48px;padding-top:16px;border-top:1px solid var(--line);font-size:15px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin:16px 0}
+.card{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;color:inherit;text-decoration:none}
+.card:hover{border-color:var(--acc)} .card img{border:0;border-bottom:1px solid var(--line);border-radius:0;aspect-ratio:16/10;object-fit:contain;width:100%}
+.card .no{color:var(--mute);font-size:13px;padding:8px 12px 0} .card .t{padding:0 12px 12px;font-weight:500;line-height:1.5}
+.lead{font-size:1.06em;color:var(--mute)}
+footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-size:13px}
+</style>
+<script>window.MathJax={tex:{inlineMath:[["\\(","\\)"]],displayMath:[["\\[","\\]"],["$$","$$"]],processEscapes:true,processEnvironments:true}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"></script>
+</head><body>
+<header class="top"><div class="in">
+<button type="button" id="nav-toggle" aria-label="打开章节列表">☰ 章节</button><a class="brand" href="../index.html">从约束推导 AI Infra</a>
+<a href="../lessons/index.html">讲义目录</a>
+<a href="../animations/index.html">动画</a>
+<a href="../review.html">复习卡片</a>
+<a href="../lessons/appendix-glossary.html">缩写表</a>
+<a href="https://wikieden.github.io/ai-books/glossary.html">全局词汇</a>
+<a href="https://wikieden.github.io/ai-books/">← 全部讲义书</a>
+<span class="prefs" title="字号与主题"><button type="button" data-fs-step="-1" aria-label="字号变小">A−</button><button type="button" data-fs-step="1" aria-label="字号变大">A+</button><select id="ab-theme" aria-label="主题色"><option value="">跟随系统</option><option value="light">浅色</option><option value="dark">深色</option><option value="sepia">米黄护眼</option><option value="green">豆沙绿护眼</option><option value="navy">夜蓝</option></select></span>
+</div></header>
+<div class="layout"><nav class="side" aria-label="章节"><div class="h">从约束推导 AI Infra</div><a href="index.html">讲义目录</a><a href="01-six-layers.html"><span class="n">1</span>一次请求走过的六层（进行中）</a><a href="02-request-lifecycle.html"><span class="n">2</span>一次生成请求的处理过程：权重加载一次，每个 token 都要再读一遍</a><a href="03-dataflow-hierarchy.html" class="cur"><span class="n">3</span>从存储程序到数据流执行：存储层次就像大楼里的厕所</a><a href="04-key-numbers.html"><span class="n">4</span>系统设计的关键数字：容量、算力、带宽、延迟</a><a href="05-estimate.html"><span class="n">5</span>用几个数字估算一次模型执行：算和读各要多久，实测为什么达不到</a><a href="06-architecture.html"><span class="n">6</span>需求如何推动架构：TPU、SmartNIC、Unified Bus</a><a href="07-compute-graph.html"><span class="n">7</span>计算图与张量结构：一个 token 经过一层要算多少</a><a href="08-generation-budget.html"><span class="n">8</span>自回归生成的资源账：存一次的、每步读的、用完就扔的</a><a href="09-kv-sharing.html"><span class="n">9</span>KV 怎么变小 ①：头共享与潜变量压缩</a><a href="10-kv-sparse-linear.html"><span class="n">10</span>KV 怎么变小 ②：窗口、稀疏、线性与混合注意力</a><a href="11-moe.html"><span class="n">11</span>MoE：专家路由与批内权重复用</a><a href="12-network-shape.html"><span class="n">12</span>网络形状：深宽、专家粒度、残差与多 token 预测</a><a href="13-model-comparison.html"><span class="n">13</span>整个模型的资源需求与比较：存多少、算多少、能放几条请求</a><a href="14-workload-arrival.html"><span class="n">14</span>从单次请求到持续到达的负载：什么时候来，比来多少更要紧</a><a href="15-agent-tasks.html"><span class="n">15</span>多轮交互与 Agent 任务：前缀、成功成本、关键路径</a><a href="16-multimodal-realtime.html"><span class="n">16</span>多模态与实时交互：数据换形状，时间有死线（略讲）</a><a href="17-training-rl.html"><span class="n">17</span>训练与强化学习的计算和状态：为什么训练要 6ND、要存 18 字节</a><a href="18-scaling-lifecycle.html"><span class="n">18</span>Scaling law 与全生命周期成本：训练多大、训练多久、服务多少次</a><a href="19-accelerator-basics.html"><span class="n">19</span>从矩阵乘法认识加速器：算多少、搬多少、耗多少电</a><a href="20-compute-units.html"><span class="n">20</span>计算单元：矩阵、向量、流水与低精度</a><a href="21-memory-movement.html"><span class="n">21</span>存储层次与数据搬移：放得下、取得到、来得及</a><a href="22-package-interconnect.html"><span class="n">22</span>多芯片封装与互联：计算放在哪，数据走哪条路</a><a href="23-architecture-evolution.html"><span class="n">23</span>架构演进与专用架构：每一代新增的东西，省掉了哪一笔</a><a href="24-choose-accelerator.html"><span class="n">24</span>根据架构选择加速器：先估下界，再找差距，最后算账</a><a href="appendix-glossary.html">附录 · 缩写与术语表</a><a href="appendix-tp-pp-cp.html">附录 · 补充资料：TP、PP、CP，一个模型沿三个方向切给多张卡</a></nav><main>
+<h1 id="03">第 03 章 · 从存储程序到数据流执行：存储层次就像大楼里的厕所</h1><div class="run"><a class="btn" href="../animations/03-dataflow-hierarchy.html">▶ 打开本章可交互动画</a><a class="btn" href="https://colab.research.google.com/github/wikieden/ai-infra-from-constraints/blob/main/code/notebooks/ch03_dataflow_hierarchy.ipynb" target="_blank" rel="noopener">在 Colab 运行本章代码</a><a class="btn" href="../code/notebooks/ch03_dataflow_hierarchy.ipynb" download>下载 notebook</a><details><summary>本地运行</summary><pre><code>git clone https://github.com/wikieden/ai-infra-from-constraints
+cd ai-infra-from-constraints/code/notebooks
+pip install jupyterlab torch numpy
+jupyter lab ch03_dataflow_hierarchy.ipynb</code></pre><p>也可以下载后直接用 VS Code 打开 .ipynb 运行。需要 GPU 的章节在 Colab 里选「代码执行程序 → 更改运行时类型 → GPU」。</p></details></div>
+<blockquote>
+<p>本章回答：为什么处理器旁边要摆一层又一层的存储？GPU 和 AI 加速器比 CPU 多做了什么，让数据"读一次、用很多次"？为什么 Transformer 的几种访问不能交给同一套自动缓存？<br />
+讲解日期：2026-11-24 · 上一章：<a href="../lessons/02-request-lifecycle.html">第 02 章 一次生成请求的处理过程</a> · 下一章：<a href="../lessons/04-key-numbers.html">第 04 章 系统设计的关键数字</a><br />
+对应原文：<code>materials/ai-infra-book/manuscripts/01-初识 AI Infra.md</code> §1.1.4 L97–L103<br />
+本章缩写：CPU = Central Processing Unit（中央 / 处理 / 单元）· GPU = Graphics Processing Unit（图形 / 处理 / 单元）· HBM = High Bandwidth Memory（高 / 带宽 / 内存）· KV = Key-Value（键 / 值）· L1 / L2 = Level 1 / Level 2 cache（一级 / 二级缓存）· MoE = Mixture of Experts（混合 / 专家）· SM = Streaming Multiprocessor（流式 / 多处理器，GPU 里的一组计算核心）。全部缩写见 <a href="../lessons/appendix-glossary.html">缩写与术语表</a></p>
+</blockquote>
+<p>第 02 章说"权重每步都要从显存读到计算单元"。本章往里看一层：显存和计算单元之间不是一步就到，中间隔着好几层存储；越近越快、越小、越贵。</p>
+<h2 id="_1">讲解</h2>
+<h3 id="2026-11-24">第一步：存储层次就像大楼里的厕所（2026-11-24）</h3>
+<p><strong>类比：大楼里的厕所。</strong>（原文 L99）所有厕所都集中在一楼，楼上的人每次都要下楼：走得远，还要排队，整座楼的效率被拖慢。每层都建厕所，走几步就到，但要占更多面积，还要铺管道、做维护、定容量。</p>
+<p>存储也一样。寄存器、缓存、片上缓冲、显存、主存，就是<strong>不同距离、不同容量、不同成本</strong>的"数据访问点"：</p>
+<p><img alt="从寄存器到主存，越往下容量越大、离计算单元越远" src="../figures/03-dataflow-hierarchy-levels.png" /></p>
+<p><em>图 3-1 · H100 SXM 的存储层次（每 SM = 每个流式多处理器，全卡 132 个）。条长是容量，对数刻度；越往下越大、越远、越慢。</em></p>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>H100 SXM 的容量</th>
+<th>大楼里对应</th>
+<th>谁来管</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>寄存器</td>
+<td>每 SM 256 KB</td>
+<td>办公桌抽屉，伸手就拿</td>
+<td>编译器</td>
+</tr>
+<tr>
+<td>shared memory + L1</td>
+<td>每 SM 256 KB</td>
+<td>本层的厕所</td>
+<td>shared 程序员管，L1 硬件管</td>
+</tr>
+<tr>
+<td>L2 缓存</td>
+<td>全卡 50 MB</td>
+<td>楼里的公共大厕所，所有楼层共用</td>
+<td>硬件</td>
+</tr>
+<tr>
+<td>显存（HBM）</td>
+<td>80 GB</td>
+<td>楼外的公共设施，要走出大楼</td>
+<td>程序员（分配、拷贝、怎么读）</td>
+</tr>
+<tr>
+<td>主存（CPU 那边）</td>
+<td>一台服务器常见几百 GB 到几 TB（量级示意）</td>
+<td>隔壁街区</td>
+<td>要经过 PCIe</td>
+</tr>
+</tbody>
+</table>
+<p>H100 的数字和<a href="https://wikieden.github.io/cuda-to-tensor-core/lessons/05-memory-hierarchy.html">《CUDA 从线程到 Tensor Core》第 5 章</a>一致，那里逐层讲了延迟和作用域。</p>
+<p><strong>例子</strong>：权重一步要读 15.14 GB（第 02 章 Qwen3-8B）。它放得进 80 GB 的显存，但远远放不进 50 MB 的 L2，更放不进每 SM 256 KB 的片上存储。所以每一步，权重都必须从"楼外"一块一块搬进来，用完就让位给下一块。</p>
+<p><strong>一句话</strong>：存储分层是在"近"和"大"之间折中：越近越快，但越小、越贵。</p>
+<h3 id="2026-11-24_1">第二步：从存储程序到数据流执行：把"复用"写进执行结构（2026-11-24）</h3>
+<p><strong>类比：从"想用就下楼"到"提前把要用的东西搬上来"。</strong> 早期的楼只有一楼有厕所；后来每层加了厕所（缓存），还学会提前预约（预取）、几个人结伴去（向量指令）。AI 加速器更进一步：<strong>把"谁什么时候用什么"排成固定流程</strong>，东西按流程送到每个人手边，用完再换下一批。</p>
+<p>原文 L101 的三段演进：</p>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>做了什么</th>
+<th>目的</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>存储程序计算机</td>
+<td>用可寻址存储器保存指令和数据</td>
+<td>程序和数据都放在存储里，按地址取</td>
+</tr>
+<tr>
+<td>CPU 提速以后</td>
+<td>寄存器、多级缓存、预取、向量指令、并行执行</td>
+<td>用<strong>更近的存储</strong>和<strong>更多在途请求</strong>减少等待</td>
+</tr>
+<tr>
+<td>GPU 和 AI 加速器</td>
+<td>线程协作用共享内存；矩阵单元沿固定路径复用操作数；搬移引擎和计算单元并行工作；编译器安排分块、布局和缓冲</td>
+<td>把<strong>数据复用变成显式的执行结构</strong>，不再只靠缓存碰运气</td>
+</tr>
+</tbody>
+</table>
+<p><strong>公式</strong>：最典型的显式复用是矩阵乘法分块（tiling）。<span class="arithmatex">\(C = A \times B\)</span>，三个都是 <span class="arithmatex">\(n \times n\)</span> 矩阵：</p>
+<div class="arithmatex">\[\text{不分块：远处读取次数} = 2n^3 \qquad \text{分块（边长 } t\text{）：} \frac{2n^3}{t}\]</div>
+<ul>
+<li><span class="arithmatex">\(n\)</span>：矩阵边长；<span class="arithmatex">\(t\)</span>：tile（块）边长。</li>
+<li>不分块时，<span class="arithmatex">\(C\)</span> 的每个元素都要从显存读 <span class="arithmatex">\(A\)</span> 的一行和 <span class="arithmatex">\(B\)</span> 的一列，共 <span class="arithmatex">\(2n\)</span> 个数，<span class="arithmatex">\(n^2\)</span> 个元素就是 <span class="arithmatex">\(2n^3\)</span> 次。</li>
+<li>分块后，一个 <span class="arithmatex">\(t \times t\)</span> 的块先搬进 shared memory（近处），在里面被用 <span class="arithmatex">\(t\)</span> 次，所以远处读取降到 <span class="arithmatex">\(1/t\)</span>。</li>
+</ul>
+<p><img alt="不分块时每个数从显存读很多遍；分块后读一次进 shared memory，在近处用 t 次" src="../figures/03-dataflow-hierarchy-tiling.png" /></p>
+<p><em>图 3-2 · <span class="arithmatex">\(n = 4\)</span>、<span class="arithmatex">\(t = 2\)</span>：不分块要从显存读 128 次，分块后 64 次。tile 越大，远处读取越少，但近处存储要放得下。</em></p>
+<p><strong>例子</strong>：<span class="arithmatex">\(n = 4\)</span>。</p>
+<table>
+<thead>
+<tr>
+<th>做法</th>
+<th>远处（显存）读取次数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>不分块</td>
+<td><span class="arithmatex">\(2 \times 4^3 = 128\)</span></td>
+</tr>
+<tr>
+<td>分块 <span class="arithmatex">\(t = 2\)</span></td>
+<td><span class="arithmatex">\(128 / 2 = 64\)</span></td>
+</tr>
+<tr>
+<td>分块 <span class="arithmatex">\(t = 4\)</span>（整个矩阵一块）</td>
+<td><span class="arithmatex">\(128 / 4 = 32\)</span></td>
+</tr>
+</tbody>
+</table>
+<p><strong>场景代码</strong>：CUDA 里的 shared memory 分块，核心就这几行（完整推导见<a href="https://wikieden.github.io/cuda-to-tensor-core/lessons/13-sgemm-tiling.html">《CUDA 从线程到 Tensor Core》第 13 章</a>）：</p>
+<pre><code class="language-cpp">__shared__ float As[T][T], Bs[T][T];                 // 近处的小仓库：本层的厕所
+for (int k0 = 0; k0 &lt; n; k0 += T) {                  // 沿 K 方向一块一块滑
+    As[ty][tx] = A[row * n + (k0 + tx)];             // 每个数从显存读 1 次……
+    Bs[ty][tx] = B[(k0 + ty) * n + col];
+    __syncthreads();                                 // 整块到齐再算
+    for (int k = 0; k &lt; T; ++k)
+        acc += As[ty][k] * Bs[k][tx];                // ……在近处被用 T 次
+    __syncthreads();                                 // 用完再换下一块
+}
+</code></pre>
+<p><strong>一句话</strong>：CPU 靠缓存"猜"哪些数据会再用；AI 加速器把"读一次、用多次"直接排进执行流程：分块、缓冲、搬移和计算并行。</p>
+<h3 id="transformer-2026-11-24">第三步：Transformer 的几种访问，复用范围各不相同（2026-11-24）</h3>
+<p><strong>类比：不同的人用厕所的习惯完全不同。</strong> 开大会时几百人同时要用（集中、可预测）；平时一个人一会儿去一趟（零散）；还有人只用某一层的某一间（固定分配）。一套统一的管理办法照顾不了所有情况。</p>
+<p>原文 L103：prefill、decode、KV 访问和专家路由的<strong>复用范围</strong>不同，不能只靠一套自动缓存策略。</p>
+<p><strong>公式</strong>：用"一份数据读一次，被用几次"衡量复用：</p>
+<div class="arithmatex">\[\text{复用次数} = \frac{\text{这份数据参与的运算次数}}{\text{从远处读它的次数}}\]</div>
+<p><strong>例子</strong>（权重按"每读一遍，被几个 token 用"算；MoE 的数是编的）：</p>
+<table>
+<thead>
+<tr>
+<th>访问</th>
+<th>一次读进来的数据被谁用</th>
+<th>每读一遍权重被几个 token 用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>prefill，2048 个输入 token</td>
+<td>同一次调用里所有输入 token</td>
+<td>2048</td>
+</tr>
+<tr>
+<td>decode，batch = 1</td>
+<td>只有 1 个新 token</td>
+<td>1</td>
+</tr>
+<tr>
+<td>decode，batch = 8</td>
+<td>8 个请求各 1 个新 token</td>
+<td>8</td>
+</tr>
+<tr>
+<td>KV 访问</td>
+<td>只服务自己这个请求，每步整份读一遍</td>
+<td>每份 KV 每步只被本请求的 1 个新 token 用</td>
+</tr>
+<tr>
+<td>MoE 专家路由：64 个 token，8 个专家，每个 token 选 2 个</td>
+<td>只有被路由到这个专家的 token</td>
+<td>平均 <span class="arithmatex">\(64 \times 2 / 8 = 16\)</span>，但各专家多少不均</td>
+</tr>
+</tbody>
+</table>
+<p><img alt="几种访问的复用次数差了三个数量级" src="../figures/03-dataflow-hierarchy-reuse.png" /></p>
+<p><em>图 3-3 · 每读一遍权重被几个 token 用（对数刻度）。prefill 天然复用很高；单请求 decode 只有 1；batch 和 MoE 介于中间，而且 MoE 各专家并不均匀。</em></p>
+<p>所以加速器要<strong>把计算单元、局部存储和数据通路一起设计</strong>：prefill 要的是算力，decode 要的是带宽和 batch，KV 要的是容量和按请求管理，MoE 还要处理不均匀。第 05 章会把这些差别换算成时间。</p>
+<p><strong>补基础</strong>：MoE 是什么、为什么只激活一部分参数，见<a href="https://wikieden.github.io/beyond-transformer/lessons/index.html">《超越 Transformer》目录</a>里的 MoE 阶段。</p>
+<p><strong>一句话</strong>：同一个模型里，不同访问的复用次数能差三个数量级，所以加速器不能只靠一套缓存，要把计算、存储、数据通路按这些访问一起设计。</p>
+<h2 id="1t">动画演示：分块让远处读取降到 1/t</h2>
+<p><img alt="矩阵乘法分块" src="../animations/03-dataflow-hierarchy.gif" /></p>
+<p>可交互版：<a href="../animations/03-dataflow-hierarchy.html">animations/03-dataflow-hierarchy.html</a>（滑块：tile 边长 <span class="arithmatex">\(t\)</span> = 1 / 2 / 4 / 8，矩阵边长固定 <span class="arithmatex">\(n = 8\)</span>，看远处读取次数怎么变）。</p>
+<p><strong>怎么看</strong>：</p>
+<ol>
+<li>左边是 <span class="arithmatex">\(C = A \times B\)</span>；每一帧，<span class="arithmatex">\(A\)</span> 的一个横条块和 <span class="arithmatex">\(B\)</span> 的一个竖条块被搬进近处（闪一下），对应第二步；</li>
+<li>计数器"远处读取"每搬一块加 <span class="arithmatex">\(2t^2\)</span>，"近处使用"每算一次加一次；</li>
+<li><span class="arithmatex">\(t = 1\)</span> 就是不分块；<span class="arithmatex">\(t\)</span> 每翻一倍，远处读取减半（第二步的公式）。</li>
+</ol>
+<h2 id="_2">练习与作答记录</h2>
+<p><strong>题 1</strong>（第一步）：下面三样数据，在一次 decode 里最可能放在哪一层？为什么？（a）这一步正在被矩阵单元乘的一小块权重；（b）这个请求已经存下的整份 KV 缓存；（c）实例还没启动时的模型文件。</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p><strong>题 2</strong>（第二步）：<span class="arithmatex">\(n = 6\)</span>，tile 边长 <span class="arithmatex">\(t = 3\)</span>。不分块和分块各要从显存读多少次？如果 <span class="arithmatex">\(t\)</span> 一直加大到 <span class="arithmatex">\(n\)</span>，还有什么限制？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p><strong>题 3</strong>（第三步）：一个 MoE 层有 16 个专家，每个 token 选 4 个，一批 32 个 token。平均每个专家分到几个 token？如果其中一个专家分到了 20 个，另一个只分到 1 个，对"读一遍专家权重、被用几次"意味着什么？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<h2 id="_3">口诀</h2>
+<blockquote>
+<p>厕所修在楼层边，近的小来远的宽；<br />
+读一次来用多遍，分块缓冲写成链；<br />
+prefill、decode、KV、专家，复用各不同，一套缓存管不全。</p>
+</blockquote>
+<h2 id="_4">本章复习卡片</h2>
+<p><a href="../review.html">I07</a>（存储层次的折中）、<a href="../review.html">I08</a>（分块的远处读取公式）、<a href="../review.html">I09</a>（四种访问的复用范围）。练习做完后，按答错、卡住的地方再补。</p>
+<h2 id="_5">附录 · 延伸阅读</h2>
+<blockquote>
+<p>留给以后深入学习用，不影响本章主线。★ 是建议先读的。</p>
+</blockquote>
+<h3 id="_6">推荐阅读</h3>
+<table>
+<thead>
+<tr>
+<th>读什么</th>
+<th>读哪里</th>
+<th>读它为了什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>★ AII 第 1 章</td>
+<td>§1.1.4 L97–L103</td>
+<td>本章原文，三段话</td>
+</tr>
+<tr>
+<td>★ <a href="https://wikieden.github.io/cuda-to-tensor-core/lessons/05-memory-hierarchy.html">《CUDA 从线程到 Tensor Core》第 5 章</a></td>
+<td>全章</td>
+<td>H100 每层存储的容量、延迟、作用域和谁来管</td>
+</tr>
+<tr>
+<td><a href="https://wikieden.github.io/cuda-to-tensor-core/lessons/13-sgemm-tiling.html">《CUDA 从线程到 Tensor Core》第 13 章</a></td>
+<td>第三、四步</td>
+<td>分块怎么让每个数从显存读一次、用 32 次</td>
+</tr>
+<tr>
+<td>AII 第 4 章</td>
+<td>加速器架构</td>
+<td>矩阵单元、片上缓冲、搬移引擎的具体设计（原书后续章节）</td>
+</tr>
+<tr>
+<td>AISPE 第 7 章</td>
+<td>中英对照 <code>materials/ai-systems-performance-engineering/docs/chapters/</code></td>
+<td>GPU 内存访问模式的分析与调优</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_7">数学原理</h3>
+<ul>
+<li><strong>计数</strong>：不分块时 <span class="arithmatex">\(C\)</span> 的 <span class="arithmatex">\(n^2\)</span> 个元素各读 <span class="arithmatex">\(2n\)</span> 个数，共 <span class="arithmatex">\(2n^3\)</span>；分块后每个读进来的数在近处被用 <span class="arithmatex">\(t\)</span> 次，远处读取除以 <span class="arithmatex">\(t\)</span>。</li>
+<li><strong>平均与不均匀</strong>：MoE 平均每专家 token 数 = token 数 × 每 token 选几个 ÷ 专家数；平均数掩盖了各专家之间的差异。</li>
+</ul>
+<h3 id="_8">公式清单</h3>
+<table>
+<thead>
+<tr>
+<th>公式</th>
+<th>意思</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>远处读取（不分块）<span class="arithmatex">\(= 2n^3\)</span></td>
+<td><span class="arithmatex">\(n \times n\)</span> 矩阵乘法</td>
+</tr>
+<tr>
+<td>远处读取（分块）<span class="arithmatex">\(= 2n^3 / t\)</span></td>
+<td><span class="arithmatex">\(t\)</span>：tile 边长，近处要放得下两个 <span class="arithmatex">\(t \times t\)</span> 块</td>
+</tr>
+<tr>
+<td>复用次数 <span class="arithmatex">\(=\)</span> 运算次数 <span class="arithmatex">\(/\)</span> 远处读取次数</td>
+<td>衡量"读一次、用几次"</td>
+</tr>
+<tr>
+<td>MoE 平均 <span class="arithmatex">\(= \text{tokens} \times k / E\)</span></td>
+<td><span class="arithmatex">\(k\)</span>：每 token 选几个专家；<span class="arithmatex">\(E\)</span>：专家数</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_9">代码对照：把本章的数字用代码算一遍</h3>
+<blockquote>
+<p>纯 Python，不需要 GPU。代码在仓库本地 <code>ai-infra/solutions/chapter-code/ch03_dataflow_hierarchy.py</code>，配套测试 <code>tests/test_ch03.py</code>：</p>
+<p><code>bash  
+cd ai-infra/solutions/chapter-code  
+uv run python ch03_dataflow_hierarchy.py   # 一步一步打印  
+uv run pytest tests/test_ch03.py</code></p>
+</blockquote>
+<p><strong>讲义 ↔ 代码</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>讲义</th>
+<th>公式</th>
+<th>写法</th>
+<th>跑出来</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第一步 H100 存储层次</td>
+<td>容量对比</td>
+<td><code>LEVELS</code></td>
+<td>每 SM 256 KB … 显存 80 GB</td>
+</tr>
+<tr>
+<td>第二步 <span class="arithmatex">\(n = 4\)</span> 不分块</td>
+<td><span class="arithmatex">\(2n^3\)</span></td>
+<td><code>far_reads(4)</code></td>
+<td>128</td>
+</tr>
+<tr>
+<td>第二步 <span class="arithmatex">\(n = 4\)</span>、<span class="arithmatex">\(t = 2\)</span> / <span class="arithmatex">\(t = 4\)</span></td>
+<td><span class="arithmatex">\(2n^3 / t\)</span></td>
+<td><code>far_reads(4, 2)</code>、<code>far_reads(4, 4)</code></td>
+<td>64、32</td>
+</tr>
+<tr>
+<td>第二步 逐块模拟核对公式</td>
+<td>一块块数</td>
+<td><code>simulate_tiled(4, 2)</code></td>
+<td>64</td>
+</tr>
+<tr>
+<td>第三步 MoE 平均</td>
+<td><span class="arithmatex">\(64 \times 2 / 8\)</span></td>
+<td><code>moe_avg(64, 8, 2)</code></td>
+<td>16</td>
+</tr>
+</tbody>
+</table>
+<p><strong>关键几行</strong>：</p>
+<pre><code class="language-python">def simulate_tiled(n, t):
+    reads = 0
+    for _ in range(n // t):          # C 的块行
+        for _ in range(n // t):      # C 的块列
+            for _ in range(n // t):  # 沿 K 方向滑动
+                reads += 2 * t * t   # A、B 各搬一个 t×t 块进近处
+    return reads                     # = (n/t)^3 × 2t² = 2n³/t
+</code></pre>
+<p><strong>代码里才看得到的 3 件事</strong>：</p>
+<ol>
+<li><code>simulate_tiled</code> 是三重循环一块块数出来的，和公式 <span class="arithmatex">\(2n^3/t\)</span> 对上，说明公式没有漏算；要求 <span class="arithmatex">\(n\)</span> 能被 <span class="arithmatex">\(t\)</span> 整除，否则边缘块要单独处理。</li>
+<li><span class="arithmatex">\(t = n\)</span> 时远处读取最少，但近处要同时放下两个 <span class="arithmatex">\(n \times n\)</span> 块；真实 kernel 的 <span class="arithmatex">\(t\)</span> 受 shared memory 容量限制（每 SM 最多 228 KB）。</li>
+<li>MoE 的 <code>moe_avg</code> 只给平均数；真实路由的分布要看具体 token，代码里没有模拟不均匀。</li>
+</ol>
+<p><strong>自己改一改</strong>（不影响练习答案）：</p>
+<ul>
+<li>把 <code>far_reads(8, t)</code> 的 <span class="arithmatex">\(t\)</span> 依次取 1、2、4、8，看远处读取怎么减半。</li>
+<li>算一算 <span class="arithmatex">\(t = 32\)</span> 时，两个 float32 的 <span class="arithmatex">\(t \times t\)</span> 块要多少 KB，和每 SM 的 shared memory 比一比。</li>
+<li>把 <code>moe_avg</code> 的专家数从 8 改成 64，看平均每个专家还剩几个 token。</li>
+</ul><nav class="pager"><a href="02-request-lifecycle.html">← 第 02 章 · 一次生成请求的处理过程：权重加载一次，每个 token 都要再读一遍</a><a href="04-key-numbers.html">第 04 章 · 系统设计的关键数字：容量、算力、带宽、延迟 →</a></nav>
+</main></div>
+<footer>来自个人学习仓库的对话讲义，含练习作答记录。源码：<a href="https://github.com/wikieden/ai-infra-from-constraints">github.com/wikieden/ai-infra-from-constraints</a>。更多讲义书：<a href="https://wikieden.github.io/ai-books/">Physical AI 0-1-♾️（合集）</a></footer>
+<script>(function(){var d=document.documentElement,K=["s","m","l","xl"];
+function save(k,v){try{v?localStorage.setItem(k,v):localStorage.removeItem(k)}catch(e){}}
+var s=document.getElementById("ab-theme");if(s){s.value=d.dataset.theme||"";s.onchange=function(){if(s.value)d.dataset.theme=s.value;else delete d.dataset.theme;save("ab-theme",s.value)}}
+document.querySelectorAll("[data-fs-step]").forEach(function(b){b.onclick=function(){var i=K.indexOf(d.dataset.fs||"m")+(+b.dataset.fsStep);i=Math.max(0,Math.min(K.length-1,i));d.dataset.fs=K[i];save("ab-fs",K[i])}});
+var nb=document.getElementById("nav-toggle"),side=document.querySelector("nav.side");if(nb&&side){nb.onclick=function(){side.classList.toggle("open")}}
+var cur=side&&side.querySelector(".cur");if(cur)cur.scrollIntoView({block:"center"});
+})();</script>
+</body></html>

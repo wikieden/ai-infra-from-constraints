@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>查询—键配对：长方形 + 三角形</title><link rel="stylesheet" href="anim.css">
+<style>svg text.big{font-size:15px}svg text.cap{font-size:15px;font-weight:500}svg text.num{font-size:19px;font-weight:600}</style></head>
+<body><main>
+<h1>第 07 章 · 查询—键配对：长方形 + 三角形</h1>
+<p class="sub">配套讲义：<a href="../lessons/07-compute-graph.html">第 07 章 · 计算图与张量结构：一个 token 经过一层要算多少</a>。每行是一个新输入的查询，每列是一个可以被读的 token；B = 1。右边的运算量按 Qwen3-8B 单层算。</p>
+<div class="panel"><svg id="sv" viewBox="0 0 680 400"></svg></div>
+<div class="row"><button id="play">▶ 播放</button><button id="step">→ 单步</button><button id="reset">↺ 从头开始</button></div>
+<div class="row"><label for="s">自己拖：已有上下文 S</label><input type="range" id="s" min="0" max="12" step="1" value="6"><span id="svv">6</span></div>
+<div class="row"><label for="p">本次新输入 P</label><input type="range" id="p" min="1" max="12" step="1" value="4"><span id="pv">4</span></div>
+<p class="note">看点：① 没有旧上下文时只有三角形 P(P+1)/2；② 加上旧上下文，多出一块长方形 PS；③ 投影和 FFN 只按新输入的行数 P 算，注意力按配对数算；④ decode 就是 P = 1：只剩一行，长度 S + 1。</p>
+</main>
+<script src="anim.js"></script>
+<script>
+const sv=$('sv');
+const SEQ=[{S:0,P:3,cap:'prefill，没有旧上下文：只有三角形'},{S:0,P:6,cap:'输入翻倍：行数 ×2，配对数约 ×4'},{S:4,P:6,cap:'前面加 4 个旧 token：多出一块长方形'},{S:9,P:1,cap:'decode：P = 1，只剩一行，长度 S + 1'}];
+const FR=[];SEQ.forEach(x=>{FR.push(x);FR.push(x)});
+let k=0,custom=null;
+function draw(){
+  clear(sv);const st=custom||FR[k];const {S,P}=st;const np=P*S+P*(P+1)/2;
+  txt(st.cap||`S = ${S}，P = ${P}`,{x:340,y:28,'text-anchor':'middle',class:'cap'},sv);
+  const n=S+P,c=Math.min(30,300/Math.max(n,1)),x0=60,y0=60;
+  for(let j=0;j<n;j++)txt(j<S?'旧':'新',{x:x0+j*c+c/2-1,y:y0-6,'text-anchor':'middle',class:'m'},sv);
+  for(let i=0;i<P;i++){for(let j=0;j<n;j++){const old=j<S,ok=old||j-S<=i;
+    el('rect',{x:x0+j*c,y:y0+i*c,width:c-3,height:c-3,rx:3,fill:old?'var(--accent)':(ok?'var(--teal)':'none'),stroke:ok?'none':'var(--line)',opacity:ok?.7:1},sv)}}
+  const lin=385875968*P,att=16384*np;
+  [['N_pair = PS + P(P+1)/2',`${P*S} + ${P*(P+1)/2} = ${np}`],['投影 + FFN（单层）',(lin/1e9).toFixed(2)+' GFLOPs'],['注意力（单层）',(att/1e6).toFixed(2)+' MFLOPs']].forEach(([a,b],i)=>{
+    const y=70+i*84;el('rect',{x:420,y,width:240,height:70,rx:8,fill:'none',stroke:'var(--line)'},sv);txt(a,{x:432,y:y+22,class:'m'},sv);txt(b,{x:432,y:y+54,class:'num'},sv)});
+  txt('蓝：新读旧（长方形）  绿：新输入内部（三角形）',{x:60,y:390,class:'m'},sv);
+}
+function reset(){k=0;custom=null;draw()}
+function next(){if(custom!==null){custom=null;draw();return true}if(k>=FR.length-1)return false;k++;draw();return true}
+function fs(){ANIM.stop();const S=+$('s').value,P=+$('p').value;$('svv').textContent=S;$('pv').textContent=P;custom={S,P};draw()}
+$('s').oninput=fs;$('p').oninput=fs;
+setupPlayer({captureSeed:1,reset,next},1500);
+</script><a href="https://wikieden.github.io/ai-books/" style="position:fixed;right:12px;bottom:12px;z-index:99;padding:4px 10px;border-radius:14px;background:rgba(127,127,127,.18);color:inherit;font:13px/1.6 system-ui,sans-serif;text-decoration:none">← 全部讲义书</a>
+</body></html>

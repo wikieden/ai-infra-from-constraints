@@ -1,0 +1,557 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>第 19 章 · 从矩阵乘法认识加速器：算多少、搬多少、耗多少电 · 从约束推导 AI Infra</title>
+<script>(function(){try{var d=document.documentElement,t=localStorage.getItem("ab-theme"),f=localStorage.getItem("ab-fs");if(t)d.dataset.theme=t;if(f)d.dataset.fs=f}catch(e){}})();</script>
+<style>:root{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa;--fs:16px}
+@media (prefers-color-scheme:dark){:root:not([data-theme]){--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}}
+:root[data-theme="light"]{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa}
+:root[data-theme="dark"]{--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}
+:root[data-theme="sepia"]{--bg:#f6efe1;--fg:#3b3127;--mute:#7a6a58;--line:#e2d6bf;--card:#fbf6ec;--acc:#a0522d;--code:#ece2cd;--quote:#efe5d2}
+:root[data-theme="green"]{--bg:#e3eddf;--fg:#22301f;--mute:#566650;--line:#c9d8c3;--card:#eef5eb;--acc:#2e7d4f;--code:#d6e4d0;--quote:#dae7d5}
+:root[data-theme="navy"]{--bg:#0f1a2b;--fg:#dde6f3;--mute:#93a4bd;--line:#23324a;--card:#15233a;--acc:#6cc4ff;--code:#1a2a44;--quote:#16243b}
+:root[data-fs="s"]{--fs:15px}
+:root[data-fs="m"]{--fs:16px}
+:root[data-fs="l"]{--fs:18px}
+:root[data-fs="xl"]{--fs:20px}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:var(--fs)/1.75 -apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Helvetica Neue",sans-serif}
+a{color:var(--acc)}
+header.top{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+header.top .in{max-width:860px;margin:0 auto;padding:10px 16px;display:flex;gap:6px 16px;align-items:center;flex-wrap:wrap;font-size:14px}
+header.top .brand{font-weight:600;color:var(--fg);text-decoration:none;margin-right:auto}
+header.top a{text-decoration:none}
+.prefs{display:inline-flex;gap:4px;align-items:center}
+.prefs button,.prefs select,#nav-toggle{font:inherit;font-size:13px;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:2px 8px;cursor:pointer}
+main{max-width:860px;margin:0 auto;padding:24px 16px 72px;overflow-wrap:anywhere}
+h1{font-size:1.75em;line-height:1.35;margin:8px 0 16px} h2{font-size:1.375em;margin:40px 0 12px;padding-top:8px;border-top:1px solid var(--line)} h3{font-size:1.125em;margin:28px 0 8px}
+.layout{display:grid;grid-template-columns:260px minmax(0,1fr);max-width:1180px;margin:0 auto}
+.layout main{margin:0;max-width:880px}
+nav.side{position:sticky;top:49px;align-self:start;max-height:calc(100vh - 49px);overflow-y:auto;padding:20px 8px 40px 16px;border-right:1px solid var(--line);font-size:14px;line-height:1.5}
+nav.side .h{font-weight:600;color:var(--mute);margin:4px 8px 8px;font-size:13px}
+nav.side a{display:block;padding:5px 8px;border-radius:6px;color:var(--fg);text-decoration:none}
+nav.side a:hover{background:var(--code)} nav.side a.cur{background:var(--quote);color:var(--acc);font-weight:600}
+nav.side a .n{color:var(--mute);margin-right:6px;font-variant-numeric:tabular-nums}
+#nav-toggle{display:none}
+@media (max-width:960px){.layout{display:block} nav.side{display:none;position:fixed;z-index:6;top:49px;left:0;bottom:0;width:min(300px,85vw);max-height:none;background:var(--bg);box-shadow:2px 0 12px rgba(0,0,0,.2)} nav.side.open{display:block} #nav-toggle{display:inline-block}}
+.run{display:flex;flex-wrap:wrap;align-items:center;gap:4px 0;margin:4px 0 12px}
+.run details{flex-basis:100%;margin:6px 0 0;font-size:.94em}
+img{max-width:100%;height:auto;border-radius:8px;border:1px solid var(--line);background:#fff}
+blockquote{margin:16px 0;padding:10px 16px;background:var(--quote);border-left:3px solid var(--acc);border-radius:4px;color:var(--mute)}
+blockquote p{margin:4px 0}
+code{background:var(--code);padding:1px 5px;border-radius:4px;font-size:.9em}
+pre{background:var(--code);padding:12px 14px;border-radius:8px;overflow-x:auto} pre code{padding:0;background:none}
+table{border-collapse:collapse;display:block;overflow-x:auto;max-width:100%;margin:12px 0;font-size:.94em}
+th,td{border:1px solid var(--line);padding:6px 10px;vertical-align:top} th{background:var(--code)}
+details{border:1px solid var(--line);border-radius:8px;padding:6px 12px;margin:8px 0;background:var(--card)}
+details[open]{padding-bottom:10px} summary{cursor:pointer;color:var(--acc);font-weight:500}
+mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%}
+.btn{display:inline-block;margin:4px 8px 4px 0;padding:6px 14px;border:1px solid var(--acc);border-radius:999px;text-decoration:none;font-size:14px}
+.pager{display:flex;justify-content:space-between;gap:12px;margin-top:48px;padding-top:16px;border-top:1px solid var(--line);font-size:15px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin:16px 0}
+.card{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;color:inherit;text-decoration:none}
+.card:hover{border-color:var(--acc)} .card img{border:0;border-bottom:1px solid var(--line);border-radius:0;aspect-ratio:16/10;object-fit:contain;width:100%}
+.card .no{color:var(--mute);font-size:13px;padding:8px 12px 0} .card .t{padding:0 12px 12px;font-weight:500;line-height:1.5}
+.lead{font-size:1.06em;color:var(--mute)}
+footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-size:13px}
+</style>
+<script>window.MathJax={tex:{inlineMath:[["\\(","\\)"]],displayMath:[["\\[","\\]"],["$$","$$"]],processEscapes:true,processEnvironments:true}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"></script>
+</head><body>
+<header class="top"><div class="in">
+<button type="button" id="nav-toggle" aria-label="打开章节列表">☰ 章节</button><a class="brand" href="../index.html">从约束推导 AI Infra</a>
+<a href="../lessons/index.html">讲义目录</a>
+<a href="../animations/index.html">动画</a>
+<a href="../review.html">复习卡片</a>
+<a href="../lessons/appendix-glossary.html">缩写表</a>
+<a href="https://wikieden.github.io/ai-books/glossary.html">全局词汇</a>
+<a href="https://wikieden.github.io/ai-books/">← 全部讲义书</a>
+<span class="prefs" title="字号与主题"><button type="button" data-fs-step="-1" aria-label="字号变小">A−</button><button type="button" data-fs-step="1" aria-label="字号变大">A+</button><select id="ab-theme" aria-label="主题色"><option value="">跟随系统</option><option value="light">浅色</option><option value="dark">深色</option><option value="sepia">米黄护眼</option><option value="green">豆沙绿护眼</option><option value="navy">夜蓝</option></select></span>
+</div></header>
+<div class="layout"><nav class="side" aria-label="章节"><div class="h">从约束推导 AI Infra</div><a href="index.html">讲义目录</a><a href="01-six-layers.html"><span class="n">1</span>一次请求走过的六层（进行中）</a><a href="02-request-lifecycle.html"><span class="n">2</span>一次生成请求的处理过程：权重加载一次，每个 token 都要再读一遍</a><a href="03-dataflow-hierarchy.html"><span class="n">3</span>从存储程序到数据流执行：存储层次就像大楼里的厕所</a><a href="04-key-numbers.html"><span class="n">4</span>系统设计的关键数字：容量、算力、带宽、延迟</a><a href="05-estimate.html"><span class="n">5</span>用几个数字估算一次模型执行：算和读各要多久，实测为什么达不到</a><a href="06-architecture.html"><span class="n">6</span>需求如何推动架构：TPU、SmartNIC、Unified Bus</a><a href="07-compute-graph.html"><span class="n">7</span>计算图与张量结构：一个 token 经过一层要算多少</a><a href="08-generation-budget.html"><span class="n">8</span>自回归生成的资源账：存一次的、每步读的、用完就扔的</a><a href="09-kv-sharing.html"><span class="n">9</span>KV 怎么变小 ①：头共享与潜变量压缩</a><a href="10-kv-sparse-linear.html"><span class="n">10</span>KV 怎么变小 ②：窗口、稀疏、线性与混合注意力</a><a href="11-moe.html"><span class="n">11</span>MoE：专家路由与批内权重复用</a><a href="12-network-shape.html"><span class="n">12</span>网络形状：深宽、专家粒度、残差与多 token 预测</a><a href="13-model-comparison.html"><span class="n">13</span>整个模型的资源需求与比较：存多少、算多少、能放几条请求</a><a href="14-workload-arrival.html"><span class="n">14</span>从单次请求到持续到达的负载：什么时候来，比来多少更要紧</a><a href="15-agent-tasks.html"><span class="n">15</span>多轮交互与 Agent 任务：前缀、成功成本、关键路径</a><a href="16-multimodal-realtime.html"><span class="n">16</span>多模态与实时交互：数据换形状，时间有死线（略讲）</a><a href="17-training-rl.html"><span class="n">17</span>训练与强化学习的计算和状态：为什么训练要 6ND、要存 18 字节</a><a href="18-scaling-lifecycle.html"><span class="n">18</span>Scaling law 与全生命周期成本：训练多大、训练多久、服务多少次</a><a href="19-accelerator-basics.html" class="cur"><span class="n">19</span>从矩阵乘法认识加速器：算多少、搬多少、耗多少电</a><a href="20-compute-units.html"><span class="n">20</span>计算单元：矩阵、向量、流水与低精度</a><a href="21-memory-movement.html"><span class="n">21</span>存储层次与数据搬移：放得下、取得到、来得及</a><a href="22-package-interconnect.html"><span class="n">22</span>多芯片封装与互联：计算放在哪，数据走哪条路</a><a href="23-architecture-evolution.html"><span class="n">23</span>架构演进与专用架构：每一代新增的东西，省掉了哪一笔</a><a href="24-choose-accelerator.html"><span class="n">24</span>根据架构选择加速器：先估下界，再找差距，最后算账</a><a href="appendix-glossary.html">附录 · 缩写与术语表</a><a href="appendix-tp-pp-cp.html">附录 · 补充资料：TP、PP、CP，一个模型沿三个方向切给多张卡</a></nav><main>
+<h1 id="19">第 19 章 · 从矩阵乘法认识加速器：算多少、搬多少、耗多少电</h1><div class="run"><a class="btn" href="../animations/19-accelerator-basics.html">▶ 打开本章可交互动画</a><a class="btn" href="https://colab.research.google.com/github/wikieden/ai-infra-from-constraints/blob/main/code/notebooks/ch19_accelerator_basics.ipynb" target="_blank" rel="noopener">在 Colab 运行本章代码</a><a class="btn" href="../code/notebooks/ch19_accelerator_basics.ipynb" download>下载 notebook</a><details><summary>本地运行</summary><pre><code>git clone https://github.com/wikieden/ai-infra-from-constraints
+cd ai-infra-from-constraints/code/notebooks
+pip install jupyterlab torch numpy
+jupyter lab ch19_accelerator_basics.ipynb</code></pre><p>也可以下载后直接用 VS Code 打开 .ipynb 运行。需要 GPU 的章节在 Colab 里选「代码执行程序 → 更改运行时类型 → GPU」。</p></details></div>
+<blockquote>
+<p>本章回答：一次 Q 投影要算多少、读写多少？batch 越大为什么越"划算"，又为什么有上限？加速器里矩阵单元、缓存、搬移引擎各管什么？芯片面积、功耗和封装怎么限制设计？为什么说单请求 decode 的能量几乎全花在搬移上？<br />
+讲解日期：2026-11-24 · 上一章：<a href="../lessons/18-scaling-lifecycle.html">第 18 章 Scaling law 与全生命周期成本</a> · 下一章：<a href="../lessons/20-compute-units.html">第 20 章 计算单元</a><br />
+对应原文：<code>materials/ai-infra-book/manuscripts/04-加速器架构.md</code> 章首 L1–L11、§4.1 L13–L222（图 4-1 到 4-7）<br />
+本章缩写：DRAM = Dynamic Random-Access Memory（动态 / 随机访问 / 存储器）· HBM = High Bandwidth Memory（高 / 带宽 / 内存）· LPDDR = Low-Power DDR（低功耗 / 双倍数据速率内存）· MTE = Memory Transfer Engine（存储 / 搬移 / 引擎，昇腾）· SM = Streaming Multiprocessor（流式 / 多处理器）· SRAM = Static RAM（静态 / 随机访问存储器）· TDP = Thermal Design Power（热 / 设计 / 功耗）· TPU = Tensor Processing Unit（张量 / 处理 / 单元）· TSV = Through-Silicon Via（硅 / 通孔）· UB = Unified Buffer（统一 / 缓冲）。全部缩写见 <a href="../lessons/appendix-glossary.html">缩写与术语表</a></p>
+</blockquote>
+<p>第 2、3 部分算的是"要做多少工作"。第 4 部分看硬件怎么把这些工作做出来。每个部件都要回答三个问题（原文 L11）：<strong>数据离计算单元多远，能复用多少次，下一步何时可以读</strong>。</p>
+<h2 id="_1">讲解</h2>
+<h3 id="q-2026-11-24">第一步：一次 Q 投影：算多少、读写多少、算术强度（2026-11-24）</h3>
+<p><strong>类比：一位老师批改作业。</strong> 标准答案（权重）只有一份，每多一个学生（一行输入）就多批一份，但标准答案不用多印。学生越多，每份标准答案"摊到每个学生头上"的成本越低；可每个学生自己的作业本（输入和输出）还得一本本收发。</p>
+<p><strong>公式</strong>（原文 L22–L39）：Qwen3-8B 的 Q 投影 <span class="arithmatex">\(Y = XW_Q\)</span>，<span class="arithmatex">\(X\)</span> 是 <span class="arithmatex">\(M \times 4096\)</span>，<span class="arithmatex">\(W_Q\)</span> 是 <span class="arithmatex">\(4096 \times 4096\)</span>，BF16：</p>
+<div class="arithmatex">\[F = 2MKN = 33{,}554{,}432\,M\ \text{FLOPs}, \qquad V = 2MK + 2KN + 2MN = 33{,}554{,}432 + 16{,}384\,M\ \text{bytes}\]</div>
+<ul>
+<li><span class="arithmatex">\(M\)</span>：本次处理的 token 行数（prefill 是 <span class="arithmatex">\(BP\)</span>，decode 是 <span class="arithmatex">\(B\)</span>）；<span class="arithmatex">\(K = N = 4096\)</span>。</li>
+<li><span class="arithmatex">\(V\)</span> 的第一项是固定的 32 MiB 权重，第二项随行数增长（输入和输出）。</li>
+<li>算术强度 <span class="arithmatex">\(I = F/V\)</span>：每读写一个字节做几次运算（第 05 章）。</li>
+</ul>
+<p><strong>例子</strong>（原文 L41–L47）：</p>
+<table>
+<thead>
+<tr>
+<th>一次 Q 投影</th>
+<th style="text-align: right;"><span class="arithmatex">\(M = 1\)</span></th>
+<th style="text-align: right;"><span class="arithmatex">\(M = 256\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>运算</td>
+<td style="text-align: right;">约 33.6 MFLOPs</td>
+<td style="text-align: right;">约 8.59 GFLOPs</td>
+</tr>
+<tr>
+<td>权重读取</td>
+<td style="text-align: right;">32 MiB</td>
+<td style="text-align: right;">32 MiB</td>
+</tr>
+<tr>
+<td>输入 + 输出</td>
+<td style="text-align: right;">16 KiB</td>
+<td style="text-align: right;">4 MiB</td>
+</tr>
+<tr>
+<td>总访问</td>
+<td style="text-align: right;">约 32 MiB</td>
+<td style="text-align: right;">36 MiB</td>
+</tr>
+<tr>
+<td>算术强度</td>
+<td style="text-align: right;">约 1 FLOP/byte</td>
+<td style="text-align: right;">约 228 FLOPs/byte</td>
+</tr>
+</tbody>
+</table>
+<p>行数 ×256，运算 ×256，访问只多约 1/8。</p>
+<p><strong>极限</strong>（原文 L60–L63）：分子分母同除以 <span class="arithmatex">\(M\)</span>，</p>
+<div class="arithmatex">\[I(M) = \frac{2KN}{2KN/M + 2(K + N)} \xrightarrow{M \to \infty} \frac{KN}{K + N} = 2048\]</div>
+<p>batch 越大，每行分摊的权重越少，但每行自己的输入输出还得读写，所以收益递减。</p>
+<p><img alt="batch 越大，算术强度越高，但趋近 2048 的上限" src="../figures/19-accelerator-basics-intensity.png" /></p>
+<p><em>图 19-1 · 横轴是行数 <span class="arithmatex">\(M\)</span>（对数），纵轴是算术强度。前段几乎和 <span class="arithmatex">\(M\)</span> 成正比，后段逼近 2048。</em></p>
+<p><strong>一句话</strong>：一个投影的运算随行数线性增长，权重读取不变；算术强度随 batch 上升，但被每行的输入输出封顶在 <span class="arithmatex">\(KN/(K + N)\)</span>。</p>
+<h3 id="2026-11-24">第二步：加速器的组成：谁算、谁搬、谁管同步（2026-11-24）</h3>
+<p><strong>类比：一家工厂。</strong> 办公室（主机 CPU）下订单；仓库（片外内存）存原料；车间门口的暂存区（共享缓存）放最近用过的料；工位旁的料架（局部缓冲）放手头这批；机床（矩阵单元）加工；质检台（向量单元）做后处理；叉车（搬移引擎）在各处之间运料。</p>
+<p>原文 L69–L75：主机准备输入、提交算子和参数；设备执行。一次矩阵乘法：片外内存 → 共享缓存 → 局部缓冲 → 矩阵单元沿 K 维反复乘加，部分和留在片上 → 交给向量单元或写回。</p>
+<p><img alt="主机提交，设备搬移、计算、处理结果；部分和留在片上" src="../figures/19-accelerator-basics-components.png" /></p>
+<p><em>图 19-2 · 部分和留在片上，就不用反复写回内存。</em></p>
+<p><strong>两种架构怎么分工</strong>（原文 L83–L90）：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>NVIDIA GPU</th>
+<th>昇腾 DaVinci</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>矩阵计算</td>
+<td>SM 里的 Tensor Core，线程束协作</td>
+<td>Cube 算矩阵，Vector / Scalar 算逐元素、归约和控制</td>
+</tr>
+<tr>
+<td>全局内存到片上</td>
+<td>L2 / L1 硬件管；高性能路径显式用 shared memory、异步拷贝或 TMA</td>
+<td>MTE 按描述符在 Global Memory、L1 / UB、L0 之间搬，路径由算子或编译器规划</td>
+</tr>
+<tr>
+<td>部分和</td>
+<td>寄存器、shared memory 或新一代专用矩阵存储</td>
+<td>L0C</td>
+</tr>
+<tr>
+<td>搬移与计算重叠</td>
+<td><code>memcpy_async</code>、TMA、barrier、pipeline</td>
+<td>MTE 与 Cube / Vector 通过 flag、event 交接</td>
+</tr>
+<tr>
+<td>程序员要管的</td>
+<td>普通 load 可交给缓存；高性能路径要安排 tile、布局、异步依赖</td>
+<td>更早面对 L1 / UB / L0 的容量、布局和搬移阶段</td>
+</tr>
+</tbody>
+</table>
+<p>DaVinci 上的注意力（原文 L92）：Cube 用 L0A / L0B 算 QK，在 L0C 累加 → Vector 在 UB 上做 Softmax → Cube 算 PV；MTE 在各级之间搬，Scalar 发指令、处理依赖。</p>
+<p><strong>补基础</strong>：GPU 的 SM、warp、shared memory 见<a href="https://wikieden.github.io/cuda-to-tensor-core/lessons/index.html">《CUDA 从线程到 Tensor Core》第 1–5 章</a>。</p>
+<p><strong>一句话</strong>：加速器用专用单元分担矩阵、向量和搬移；GPU 更多交给缓存和程序员两头管，DaVinci 更早要求软件规划片上存储。</p>
+<h3 id="2026-11-24_1">第三步：面积有限：加速哪部分最划算（2026-11-24）</h3>
+<p><strong>类比：一家餐厅只有这么大地方，多摆一台炒锅，就少一个备菜台。</strong> 炒锅再多，备菜跟不上也是白搭。</p>
+<p><strong>例子</strong>（原文 L3、L108–L112，Amdahl 定律，第 04 章）：一段计算 100 μs，矩阵 60 μs，其余 40 μs。</p>
+<table>
+<thead>
+<tr>
+<th>矩阵加速</th>
+<th>总时间</th>
+<th>加速比</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1 倍</td>
+<td>100 μs</td>
+<td>1</td>
+</tr>
+<tr>
+<td>2 倍</td>
+<td>70 μs</td>
+<td>≈ 1.43</td>
+</tr>
+<tr>
+<td>4 倍</td>
+<td>55 μs</td>
+<td>≈ 1.82</td>
+</tr>
+<tr>
+<td>无穷</td>
+<td>40 μs</td>
+<td>2.5（上限）</td>
+</tr>
+</tbody>
+</table>
+<p>第一次翻倍省 30 μs，第二次只省 15 μs。</p>
+<p><strong>TPU v1 的面积分配</strong>（原文 L114）：<span class="arithmatex">\(256 \times 256\)</span> 个 8 位乘加单元、24 MiB 统一缓冲、4 MiB 累加存储；面积里数据缓冲约 37%，计算单元约 30%，控制约 2%。<strong>缓冲占的面积比计算还多</strong>：阵列要反复用输入、权重和部分和，每次都去片外取，乘加器就会一直等。</p>
+<p><strong>一句话</strong>：面积和功耗是共享预算；加速一部分的收益受剩下部分封顶，缓冲小了会让多加的乘加器等数据。</p>
+<h3 id="2026-11-24_2">第四步：功耗：搬得越远越耗电（2026-11-24）</h3>
+<p><strong>类比：用水管灌水。</strong> 每次把一根水管从空灌满要用的水（能量）和水管长度（电容）、水压（电压）的平方成正比；水管越长，灌一次越费水。</p>
+<p><strong>公式</strong>（原文 L125）：</p>
+<div class="arithmatex">\[P_{\mathrm{dyn}} \approx \alpha\,C\,V^2 f\]</div>
+<ul>
+<li><span class="arithmatex">\(\alpha\)</span>：每周期翻转的信号比例；<span class="arithmatex">\(C\)</span>：要充放电的电容（先进工艺里主要是连线，越长越大）；<span class="arithmatex">\(V\)</span>：电压；<span class="arithmatex">\(f\)</span>：频率。</li>
+</ul>
+<p><strong>例子 1</strong>（原文 L130–L136，LogicFolding 论文的 NPU）：同样 29 TOPS，电压 0.85 V → 0.55 V，<span class="arithmatex">\((0.55/0.85)^2 \approx 0.42\)</span>；频率降 63%，乘 0.37，得 0.16。但报告的总功耗比是 0.34：折叠后从 1 大 2 小核换成 4 大核，翻转的电容 <span class="arithmatex">\(\alpha C\)</span> 变多了。</p>
+<p><strong>例子 2</strong>（原文 L138–L144，DSP）：功耗降到 0.75，面积降到 0.60，<strong>功率密度</strong> <span class="arithmatex">\(0.75/0.60 = 1.25\)</span>，反而高 25%。总功耗降了，散热压力未必减小。</p>
+<p><strong>每搬一个字节的能量</strong>（原文 L154–L161）：</p>
+<table>
+<thead>
+<tr>
+<th>层次</th>
+<th style="text-align: right;">每 byte 能耗</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>KB 级局部 SRAM</td>
+<td style="text-align: right;">1.25 pJ</td>
+</tr>
+<tr>
+<td>MB 级片上 SRAM</td>
+<td style="text-align: right;">12.5 pJ</td>
+</tr>
+<tr>
+<td>NVLink-C2C 链路</td>
+<td style="text-align: right;">10.4 pJ</td>
+</tr>
+<tr>
+<td>HBM2</td>
+<td style="text-align: right;">31.76 pJ</td>
+</tr>
+<tr>
+<td>LPDDR DRAM</td>
+<td style="text-align: right;">160 pJ</td>
+</tr>
+<tr>
+<td>16 位浮点乘加</td>
+<td style="text-align: right;">0.75 pJ / FLOP</td>
+</tr>
+</tbody>
+</table>
+<p><strong>单请求 decode 的能量账</strong>（原文 L165–L181）：Qwen3-8B、8K 上下文，一步读权重 15.137 GB、KV 1.208 GB，运算 19.97 GFLOPs：</p>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th style="text-align: right;">能量</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>读权重（HBM）</td>
+<td style="text-align: right;">≈ 0.481 J</td>
+</tr>
+<tr>
+<td>读 KV（HBM）</td>
+<td style="text-align: right;">≈ 0.038 J</td>
+</tr>
+<tr>
+<td>计算</td>
+<td style="text-align: right;">≈ 0.015 J</td>
+</tr>
+<tr>
+<td><strong>合计</strong></td>
+<td style="text-align: right;"><strong>0.534 J</strong>，权重读取占 90%</td>
+</tr>
+</tbody>
+</table>
+<p><img alt="能量阶梯：同一字节从越远的地方取，越耗电；decode 一步的能量几乎全在搬移" src="../figures/19-accelerator-basics-energy.png" /></p>
+<p><em>图 19-3 · 上：各级每 byte 能耗（对数）。下：Qwen3-8B 单请求 8K decode 一步的能量分账。</em></p>
+<ul>
+<li><strong>带宽只决定快慢，不改变能量</strong>：HBM 带宽翻倍，这一步时间减半，0.534 J 不变。</li>
+<li>降能量只有两条路：<strong>从更近的地方取</strong>，或<strong>让同一份字节服务更多 token</strong>。batch 为 <span class="arithmatex">\(B\)</span> 时每 token 能量 <span class="arithmatex">\(0.481/B + 0.053\)</span> J，<span class="arithmatex">\(B = 32\)</span> 时约 0.068 J；<span class="arithmatex">\(B &gt; 32\)</span> 后每 token 的权重搬移能耗才低于计算能耗。</li>
+</ul>
+<p><strong>一句话</strong>：搬移的能耗和距离成正比；单请求 decode 的能量 90% 花在读权重上，数据复用首先是能耗问题。</p>
+<h3 id="hbm-2026-11-24">第五步：光罩、HBM 堆与功率封顶（2026-11-24）</h3>
+<p><strong>类比：一块地皮能盖多大的楼有上限（光罩）；楼周围能接几条水管（HBM 堆）看楼的周长；整栋楼的总电闸（TDP）限制同时开几台机器。</strong></p>
+<p><strong>光罩上限</strong>（原文 L183）：单颗 die 不能超过一次曝光的范围；H100 die 814 mm²，A100 826 mm²，都贴近上限。Blackwell 用两颗光罩上限的 die，经 10 TB/s 的 NV-HBI 连成一颗芯片。</p>
+<p><strong>HBM 堆</strong>（原文 L187–L199）：每堆 1024 根数据引脚，</p>
+<div class="arithmatex">\[R_{\mathrm{stack}} = \frac{1024\,r}{8}, \qquad C_{\mathrm{stack}} = \text{层数} \times \text{每层容量}\]</div>
+<table>
+<thead>
+<tr>
+<th>GPU</th>
+<th style="text-align: right;">容量</th>
+<th style="text-align: right;">带宽</th>
+<th>堆数 × 每堆</th>
+<th style="text-align: right;">引脚速率</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>H100 SXM5</td>
+<td style="text-align: right;">80 GB</td>
+<td style="text-align: right;">3,350 GB/s</td>
+<td>5 × 16 GB，每堆 670 GB/s</td>
+<td style="text-align: right;">5.24 Gbit/s</td>
+</tr>
+<tr>
+<td>H200 SXM</td>
+<td style="text-align: right;">141 GB</td>
+<td style="text-align: right;">4,800 GB/s</td>
+<td>6 × 24 GB</td>
+<td style="text-align: right;">6.25 Gbit/s（推算）</td>
+</tr>
+<tr>
+<td>B200（HGX）</td>
+<td style="text-align: right;">180 GB</td>
+<td style="text-align: right;">8,000 GB/s</td>
+<td>8 × 24 GB</td>
+<td style="text-align: right;">7.81 Gbit/s（推算）</td>
+</tr>
+</tbody>
+</table>
+<p>H100：<span class="arithmatex">\(5 \times 1024 \times 5.24 / 8 \approx 3350\)</span> GB/s。</p>
+<p><strong>功率封顶</strong>（原文 L207–L215）：H100 TDP 700 W。HBM 满带宽约 <span class="arithmatex">\(3.35\ \text{TB/s} \times 31.76\ \text{pJ/byte} \approx 106\)</span> W，留给计算 594 W，峰值速率下每 FLOP 的能量预算</p>
+<div class="arithmatex">\[b = \frac{700 - 106\ \text{W}}{989.4\ \text{TFLOP/s}} \approx 0.60\ \text{pJ/FLOP}\]</div>
+<p>实际每 FLOP 能耗 <span class="arithmatex">\(e &gt; b\)</span> 时，功率控制器降频：电压不变时持续频率是峰值的 <span class="arithmatex">\(b/e\)</span>；电压随频率下降时是 <span class="arithmatex">\((b/e)^{1/3}\)</span>。<span class="arithmatex">\(e/b = 1.5\)</span> 时分别 0.67 和 0.87。</p>
+<p><img alt="每 FLOP 能耗超出预算越多，持续频率越低" src="../figures/19-accelerator-basics-powercap.png" /></p>
+<p><em>图 19-4 · 两条曲线：电压不变（<span class="arithmatex">\(b/e\)</span>）和电压随频率下降（<span class="arithmatex">\((b/e)^{1/3}\)</span>）。功率封顶时，衡量利用率应该用持续算力做分母。</em></p>
+<p><strong>场景代码</strong>：<code>nvidia-smi</code> 能直接看到功率上限和当前时钟，判断是否在降频（真实命令）：</p>
+<pre><code class="language-bash">nvidia-smi --query-gpu=name,power.draw,power.limit,clocks.sm,clocks.max.sm,clocks_throttle_reasons.active --format=csv
+# power.draw 接近 power.limit 且 clocks.sm 低于 clocks.max.sm：正在因功率封顶降频
+</code></pre>
+<p><strong>一句话</strong>：一颗 die 的大小受光罩限制，带宽和容量看接几堆 HBM，持续算力还要受 TDP 封顶。</p>
+<h2 id="batch-1-4096-token">动画演示：batch 从 1 涨到 4096：算术强度与每 token 能耗</h2>
+<p><img alt="算术强度与能耗" src="../animations/19-accelerator-basics.gif" /></p>
+<p>可交互版：<a href="../animations/19-accelerator-basics.html">animations/19-accelerator-basics.html</a>（滑块：行数 <span class="arithmatex">\(M\)</span>，1–4096，对数）。</p>
+<p><strong>怎么看</strong>：</p>
+<ol>
+<li>左边：Q 投影的权重（32 MiB，固定）和输入输出（随 <span class="arithmatex">\(M\)</span> 增长）两段读写量（第一步）；</li>
+<li>中间：算术强度 <span class="arithmatex">\(I(M)\)</span>，逐渐逼近 2048；</li>
+<li>右边：decode 一步每 token 的能量 <span class="arithmatex">\(0.481/M + 0.053\)</span> J（第四步借用 Qwen3-8B 的账），<span class="arithmatex">\(M\)</span> 超过 32 后权重搬移能耗低于计算能耗；</li>
+<li>播放时 <span class="arithmatex">\(M\)</span> = 1 → 8 → 32 → 256 → 4096。</li>
+</ol>
+<h2 id="_2">练习与作答记录</h2>
+<p><strong>题 1</strong>（第一步）：Qwen3-8B 的 Q 投影，<span class="arithmatex">\(M = 24\)</span>。运算量、总访问量、算术强度各是多少？如果 <span class="arithmatex">\(K = N = 8192\)</span>，算术强度的上限是多少？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p><strong>题 2</strong>（第四步）：沿用正文的 decode 能量账，batch 为 12 时每 token 能量是多少？如果权重改成每参数 1 字节（读取减半），batch 1 时一步多少焦耳？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p><strong>题 3</strong>（第五步）：一种 HBM 每堆 12 层、每层 3 GB，引脚速率 9.2 Gbit/s。每堆容量和带宽各多少？接 6 堆呢？如果实际每 FLOP 能耗是预算的 1.2 倍，电压不变和电压同步下降两种情况下持续频率各是峰值的多少？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p>原书"思考"（L118：矩阵从 2 倍提到 4 倍 vs 其余工作从 40 μs 降到 25 μs）。想多练可以做。</p>
+<h2 id="_3">口诀</h2>
+<blockquote>
+<p>标准答案一份，学生越多摊得越薄，作业本还得一本本收；<br />
+工厂里下单、仓库、料架、机床、质检、叉车，各管一段；<br />
+炒锅多了备菜跟不上，缓冲比计算还占地；<br />
+水管越长灌水越费，decode 的电九成花在搬权重；<br />
+地皮有上限，水管看周长，总电闸限开机。</p>
+</blockquote>
+<h2 id="_4">本章复习卡片</h2>
+<p><a href="../review.html">I69</a>（Q 投影的运算、访问与算术强度上限）、<a href="../review.html">I70</a>（加速器各部件分工，GPU vs DaVinci）、<a href="../review.html">I71</a>（面积取舍与 TPU v1 的缓冲面积）、<a href="../review.html">I72</a>（搬移能耗与 decode 能量账）、<a href="../review.html">I73</a>（HBM 堆与功率封顶）。练习做完后，按答错、卡住的地方再补。</p>
+<h2 id="_5">附录 · 延伸阅读</h2>
+<blockquote>
+<p>留给以后深入学习用，不影响本章主线。★ 是建议先读的。</p>
+</blockquote>
+<h3 id="_6">推荐阅读</h3>
+<table>
+<thead>
+<tr>
+<th>读什么</th>
+<th>读哪里</th>
+<th>读它为了什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>★ AII 第 4 章</td>
+<td>章首 L1–L11、§4.1 L13–L222</td>
+<td>本章原文，图 4-1 到 4-7</td>
+</tr>
+<tr>
+<td>★ Horowitz, Computing's Energy Problem（ISSCC 2014）</td>
+<td>能耗表</td>
+<td>每字节、每次运算的能量从哪来</td>
+</tr>
+<tr>
+<td>Dally, Hot Chips 2023 主题演讲</td>
+<td>第 52 页前后</td>
+<td>片上 SRAM 与指令开销的能量</td>
+</tr>
+<tr>
+<td>Jouppi 等, TPU v1（ISCA 2017）</td>
+<td>面积分配一节</td>
+<td>缓冲为什么比计算占地多</td>
+</tr>
+<tr>
+<td>O'Connor 等, Fine-Grained DRAM（MICRO 2017）</td>
+<td>HBM 能耗分解</td>
+<td>3.97 pJ/bit 主要花在 DRAM 内部</td>
+</tr>
+<tr>
+<td><a href="https://wikieden.github.io/cuda-to-tensor-core/lessons/index.html">《CUDA 从线程到 Tensor Core》第 5、9 章</a></td>
+<td>内存层级、roofline</td>
+<td>GPU 一侧的同一套概念</td>
+</tr>
+<tr>
+<td>AISPE 第 2 章</td>
+<td>§2.3–§2.5</td>
+<td>Blackwell、Tensor Core 与 SM 的工程描述</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_7">数学原理</h3>
+<ul>
+<li><strong>算术强度的极限</strong>：分子分母同除以 <span class="arithmatex">\(M\)</span>，<span class="arithmatex">\(M \to \infty\)</span> 时只剩 <span class="arithmatex">\(2KN / 2(K + N)\)</span>。</li>
+<li><strong>动态功耗</strong>：每次翻转给电容充电 <span class="arithmatex">\(CV^2\)</span>，每秒翻转 <span class="arithmatex">\(\alpha f\)</span> 次。</li>
+<li><strong>功率随频率</strong>：电压不变时 <span class="arithmatex">\(P \propto f\)</span>；电压与频率同比下降时 <span class="arithmatex">\(P \propto f^3\)</span>，所以降频比例取立方根。</li>
+</ul>
+<h3 id="_8">公式清单</h3>
+<table>
+<thead>
+<tr>
+<th>公式</th>
+<th>意思</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\(F = 2MKN\)</span>，<span class="arithmatex">\(V = 2MK + 2KN + 2MN\)</span></td>
+<td>矩阵乘法的运算与访问（BF16）</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(I(M) = 2KN / (2KN/M + 2(K + N))\)</span>，上限 <span class="arithmatex">\(KN/(K+N)\)</span></td>
+<td>算术强度</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(P_{\mathrm{dyn}} \approx \alpha C V^2 f\)</span></td>
+<td>动态功耗</td>
+</tr>
+<tr>
+<td>每 token 能量 <span class="arithmatex">\(= E_W / B + E_{\mathrm{KV}} + E_{\mathrm{compute}}\)</span></td>
+<td>batch 摊薄权重搬移</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(R_{\mathrm{stack}} = 1024r/8\)</span></td>
+<td>每堆 HBM 带宽</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(b = (\mathrm{TDP} - P_{\mathrm{mem}}) / F_{\mathrm{peak}}\)</span>；持续频率 <span class="arithmatex">\(b/e\)</span> 或 <span class="arithmatex">\((b/e)^{1/3}\)</span></td>
+<td>功率封顶</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_9">代码对照：把本章的数字用代码算一遍</h3>
+<blockquote>
+<p>纯 Python，不需要 GPU。代码在仓库本地 <code>ai-infra/solutions/chapter-code/ch19_accelerator_basics.py</code>，配套测试 <code>tests/test_ch19.py</code>：</p>
+<p><code>bash  
+cd ai-infra/solutions/chapter-code  
+uv run python ch19_accelerator_basics.py   # 一步一步打印  
+uv run pytest tests/test_ch19.py</code></p>
+</blockquote>
+<p><strong>讲义 ↔ 代码</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>讲义</th>
+<th>公式</th>
+<th>写法</th>
+<th>跑出来</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第一步 Q 投影</td>
+<td><span class="arithmatex">\(F\)</span>、<span class="arithmatex">\(V\)</span>、<span class="arithmatex">\(I\)</span></td>
+<td><code>proj_cost(1)</code>、<code>proj_cost(256)</code></td>
+<td>约 1、约 228 FLOPs/byte；上限 2048</td>
+</tr>
+<tr>
+<td>第三步 Amdahl</td>
+<td>60 / 40 μs</td>
+<td><code>amdahl_us(60, 40, s)</code></td>
+<td>70、55、40 μs</td>
+</tr>
+<tr>
+<td>第四步 电压与功率密度</td>
+<td>平方、比值</td>
+<td><code>(0.55/0.85)**2</code>、<code>0.75/0.60</code></td>
+<td>0.42、1.25</td>
+</tr>
+<tr>
+<td>第四步 decode 能量</td>
+<td>字节 × pJ</td>
+<td><code>decode_energy()</code></td>
+<td>0.481 + 0.038 + 0.015 = 0.534 J</td>
+</tr>
+<tr>
+<td>第五步 HBM</td>
+<td><span class="arithmatex">\(1024r/8\)</span></td>
+<td><code>hbm_stack_gbs(5.24)</code></td>
+<td>约 670 GB/s；5 堆约 3350</td>
+</tr>
+<tr>
+<td>第五步 功率封顶</td>
+<td><span class="arithmatex">\(b\)</span>、<span class="arithmatex">\(b/e\)</span></td>
+<td><code>power_budget()</code>、<code>sustained(1.5)</code></td>
+<td>0.60 pJ/FLOP；0.67 / 0.87</td>
+</tr>
+</tbody>
+</table>
+<p><strong>关键几行</strong>：</p>
+<pre><code class="language-python">def proj_cost(M, K=4096, N=4096, b=2):
+    F = 2 * M * K * N                         # 运算
+    V = b * (M * K + K * N + M * N)           # 输入 + 权重 + 输出，各读写一次
+    return F, V, F / V                        # 算术强度
+</code></pre>
+<p><strong>代码里才看得到的 3 件事</strong>：</p>
+<ol>
+<li><code>proj_cost</code> 假设权重只从片外读一次；如果分块太小，权重会被读多次，真实访问量比 <span class="arithmatex">\(V\)</span> 大（第 26 章）。</li>
+<li>能量账里 HBM 用的是 28 nm HBM2 模型、乘加用的是 45 nm 数据，两者工艺不同，所以只用来比量级（原文 L173）。</li>
+<li><code>sustained</code> 两种情况：电压不变时功率随频率线性降，所以是 <span class="arithmatex">\(b/e\)</span>；电压同步降时功率是频率的三次方，才取立方根。</li>
+</ol>
+<p><strong>自己改一改</strong>（不影响练习答案）：</p>
+<ul>
+<li>用 <code>proj_cost</code> 扫 <span class="arithmatex">\(M\)</span> = 1、4、16、64、256、1024、4096，画出 <span class="arithmatex">\(I(M)\)</span>。</li>
+<li>把 <code>decode_energy</code> 的 HBM 换成 LPDDR（160 pJ/byte），看一步多少焦耳。</li>
+<li>用 <code>hbm_stack_gbs</code> 算一算 HBM3E 9.6 Gbit/s 的每堆带宽。</li>
+</ul><nav class="pager"><a href="18-scaling-lifecycle.html">← 第 18 章 · Scaling law 与全生命周期成本：训练多大、训练多久、服务多少次</a><a href="20-compute-units.html">第 20 章 · 计算单元：矩阵、向量、流水与低精度 →</a></nav>
+</main></div>
+<footer>来自个人学习仓库的对话讲义，含练习作答记录。源码：<a href="https://github.com/wikieden/ai-infra-from-constraints">github.com/wikieden/ai-infra-from-constraints</a>。更多讲义书：<a href="https://wikieden.github.io/ai-books/">Physical AI 0-1-♾️（合集）</a></footer>
+<script>(function(){var d=document.documentElement,K=["s","m","l","xl"];
+function save(k,v){try{v?localStorage.setItem(k,v):localStorage.removeItem(k)}catch(e){}}
+var s=document.getElementById("ab-theme");if(s){s.value=d.dataset.theme||"";s.onchange=function(){if(s.value)d.dataset.theme=s.value;else delete d.dataset.theme;save("ab-theme",s.value)}}
+document.querySelectorAll("[data-fs-step]").forEach(function(b){b.onclick=function(){var i=K.indexOf(d.dataset.fs||"m")+(+b.dataset.fsStep);i=Math.max(0,Math.min(K.length-1,i));d.dataset.fs=K[i];save("ab-fs",K[i])}});
+var nb=document.getElementById("nav-toggle"),side=document.querySelector("nav.side");if(nb&&side){nb.onclick=function(){side.classList.toggle("open")}}
+var cur=side&&side.querySelector(".cur");if(cur)cur.scrollIntoView({block:"center"});
+})();</script>
+</body></html>

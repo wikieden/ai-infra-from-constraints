@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SmartNIC 与 CPU 核数</title><link rel="stylesheet" href="anim.css">
+<style>svg text.big{font-size:15px}svg text.cap{font-size:15px;font-weight:500}svg text.num{font-size:22px;font-weight:600}</style></head>
+<body><main>
+<h1>第 06 章 · 网速越高，光转发就要越多 CPU 核：SmartNIC 把它们还给应用</h1>
+<p class="sub">配套讲义：<a href="../lessons/06-architecture.html">第 06 章 · 需求如何推动架构：TPU、SmartNIC、Unified Bus</a>。最小帧每包在线路上占 84 字节；包率 λ = 链路速率 ÷ 672 bit；要的核数 n = λ ÷ μ（向上取整）。</p>
+<div class="panel"><svg id="sv" viewBox="0 0 680 360"></svg></div>
+<div class="row"><button id="play">▶ 播放</button><button id="step">→ 单步</button><button id="reset">↺ 从头开始</button></div>
+<div class="row"><label for="g">自己拖：链路速率</label><input type="range" id="g" min="0" max="3" step="1" value="2"><span id="gv">40 Gbit/s</span></div>
+<div class="row"><label for="mu">单核处理能力（百万包/秒）</label><input type="range" id="mu" min="10" max="20" step="1" value="20"><span id="muv">20</span></div>
+<p class="note">看点：① 左边包流越密，λ 越大；② 中间 16 个 CPU 核，被转发占用的亮成橙色，其余留给租户的应用；③ 播放时 10 → 25 → 40 Gbit/s，橙色核越来越多；④ 最后一帧把重复的包处理交给 SmartNIC（FPGA），CPU 核全部还给应用，策略仍由主机软件管。滑块：链路 10 / 25 / 40 / 400 Gbit/s。</p>
+</main>
+<script src="anim.js"></script>
+<script>
+const sv=$('sv');const GS=[10,25,40,400];
+const FR=[];[10,25,40].forEach(g=>{FR.push({g,mu:20,nic:false});FR.push({g,mu:20,nic:false})});FR.push({g:40,mu:20,nic:true});FR.push({g:40,mu:20,nic:true});
+let k=0,custom=null;
+function draw(){
+  clear(sv);const {g,mu,nic}=custom||FR[k];const lam=g*1e9/672,need=Math.ceil(lam/(mu*1e6));
+  txt(nic?`${g} Gbit/s：包处理交给 SmartNIC，CPU 核全部还给应用`:`${g} Gbit/s：λ ≈ ${(lam/1e6).toFixed(1)} 百万包/秒，单核 ${mu} 百万 → 要 ${need} 个核`,{x:340,y:28,'text-anchor':'middle',class:'cap'},sv);
+  // 包流
+  txt('到达的包',{x:20,y:66,class:'m'},sv);const dens=Math.min(60,Math.round(lam/2.5e6));
+  for(let i=0;i<dens;i++){const x=20+(i*37)%170,y=80+Math.floor(i*37/170)*14;el('rect',{x,y,width:8,height:8,rx:2,fill:'var(--accent)',opacity:.75},sv)}
+  // 网卡
+  el('rect',{x:200,y:70,width:110,height:150,rx:8,fill:nic?'var(--warm)':'none',stroke:nic?'var(--warm)':'var(--line)',opacity:nic?.25:1},sv);
+  txt(nic?'SmartNIC':'普通网卡',{x:255,y:140,'text-anchor':'middle'},sv);txt(nic?'FPGA 做包处理':'只收发',{x:255,y:160,'text-anchor':'middle',class:'m'},sv);
+  el('line',{x1:190,y1:145,x2:200,y2:145,stroke:'var(--accent)','stroke-width':3},sv);el('line',{x1:310,y1:145,x2:340,y2:145,stroke:'var(--accent)','stroke-width':3},sv);
+  // CPU 核
+  txt('主机 CPU（16 个核）',{x:350,y:66,class:'m'},sv);
+  for(let i=0;i<16;i++){const x=350+(i%4)*76,y=76+Math.floor(i/4)*38,busy=!nic&&i<need;
+    el('rect',{x,y,width:68,height:30,rx:5,fill:busy?'var(--warm)':'var(--teal)',opacity:busy?.85:.35},sv);txt(busy?'转发':'应用',{x:x+34,y:y+20,'text-anchor':'middle',class:'m'},sv)}
+  if(need>16&&!nic)txt(`16 个核都不够：还差 ${need-16} 个`,{x:500,y:250,'text-anchor':'middle',class:'big'},sv).style.fill='var(--warm)';
+  [['包率 λ',(lam/1e6).toFixed(1)+' 百万/秒'],['转发占用的核',nic?'0':String(need)],['留给应用的核',String(nic?16:Math.max(0,16-need))]].forEach(([a,b],i)=>{
+    const x=30+i*210;el('rect',{x,y:268,width:195,height:70,rx:8,fill:'none',stroke:'var(--line)'},sv);txt(a,{x:x+10,y:290,class:'m'},sv);txt(b,{x:x+10,y:324,class:'num'},sv)});
+}
+function reset(){k=0;custom=null;draw()}
+function next(){if(custom!==null){custom=null;draw();return true}if(k>=FR.length-1)return false;k++;draw();return true}
+function fromSliders(){ANIM.stop();const g=GS[+$('g').value],mu=+$('mu').value;$('gv').textContent=g+' Gbit/s';$('muv').textContent=mu;custom={g,mu,nic:false};draw()}
+$('g').oninput=fromSliders;$('mu').oninput=fromSliders;
+setupPlayer({captureSeed:1,reset,next},1500);
+</script><a href="https://wikieden.github.io/ai-books/" style="position:fixed;right:12px;bottom:12px;z-index:99;padding:4px 10px;border-radius:14px;background:rgba(127,127,127,.18);color:inherit;font:13px/1.6 system-ui,sans-serif;text-decoration:none">← 全部讲义书</a>
+</body></html>

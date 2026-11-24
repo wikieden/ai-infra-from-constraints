@@ -1,0 +1,492 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>第 06 章 · 需求如何推动架构：TPU、SmartNIC、Unified Bus · 从约束推导 AI Infra</title>
+<script>(function(){try{var d=document.documentElement,t=localStorage.getItem("ab-theme"),f=localStorage.getItem("ab-fs");if(t)d.dataset.theme=t;if(f)d.dataset.fs=f}catch(e){}})();</script>
+<style>:root{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa;--fs:16px}
+@media (prefers-color-scheme:dark){:root:not([data-theme]){--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}}
+:root[data-theme="light"]{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa}
+:root[data-theme="dark"]{--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}
+:root[data-theme="sepia"]{--bg:#f6efe1;--fg:#3b3127;--mute:#7a6a58;--line:#e2d6bf;--card:#fbf6ec;--acc:#a0522d;--code:#ece2cd;--quote:#efe5d2}
+:root[data-theme="green"]{--bg:#e3eddf;--fg:#22301f;--mute:#566650;--line:#c9d8c3;--card:#eef5eb;--acc:#2e7d4f;--code:#d6e4d0;--quote:#dae7d5}
+:root[data-theme="navy"]{--bg:#0f1a2b;--fg:#dde6f3;--mute:#93a4bd;--line:#23324a;--card:#15233a;--acc:#6cc4ff;--code:#1a2a44;--quote:#16243b}
+:root[data-fs="s"]{--fs:15px}
+:root[data-fs="m"]{--fs:16px}
+:root[data-fs="l"]{--fs:18px}
+:root[data-fs="xl"]{--fs:20px}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:var(--fs)/1.75 -apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Helvetica Neue",sans-serif}
+a{color:var(--acc)}
+header.top{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+header.top .in{max-width:860px;margin:0 auto;padding:10px 16px;display:flex;gap:6px 16px;align-items:center;flex-wrap:wrap;font-size:14px}
+header.top .brand{font-weight:600;color:var(--fg);text-decoration:none;margin-right:auto}
+header.top a{text-decoration:none}
+.prefs{display:inline-flex;gap:4px;align-items:center}
+.prefs button,.prefs select,#nav-toggle{font:inherit;font-size:13px;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:2px 8px;cursor:pointer}
+main{max-width:860px;margin:0 auto;padding:24px 16px 72px;overflow-wrap:anywhere}
+h1{font-size:1.75em;line-height:1.35;margin:8px 0 16px} h2{font-size:1.375em;margin:40px 0 12px;padding-top:8px;border-top:1px solid var(--line)} h3{font-size:1.125em;margin:28px 0 8px}
+.layout{display:grid;grid-template-columns:260px minmax(0,1fr);max-width:1180px;margin:0 auto}
+.layout main{margin:0;max-width:880px}
+nav.side{position:sticky;top:49px;align-self:start;max-height:calc(100vh - 49px);overflow-y:auto;padding:20px 8px 40px 16px;border-right:1px solid var(--line);font-size:14px;line-height:1.5}
+nav.side .h{font-weight:600;color:var(--mute);margin:4px 8px 8px;font-size:13px}
+nav.side a{display:block;padding:5px 8px;border-radius:6px;color:var(--fg);text-decoration:none}
+nav.side a:hover{background:var(--code)} nav.side a.cur{background:var(--quote);color:var(--acc);font-weight:600}
+nav.side a .n{color:var(--mute);margin-right:6px;font-variant-numeric:tabular-nums}
+#nav-toggle{display:none}
+@media (max-width:960px){.layout{display:block} nav.side{display:none;position:fixed;z-index:6;top:49px;left:0;bottom:0;width:min(300px,85vw);max-height:none;background:var(--bg);box-shadow:2px 0 12px rgba(0,0,0,.2)} nav.side.open{display:block} #nav-toggle{display:inline-block}}
+.run{display:flex;flex-wrap:wrap;align-items:center;gap:4px 0;margin:4px 0 12px}
+.run details{flex-basis:100%;margin:6px 0 0;font-size:.94em}
+img{max-width:100%;height:auto;border-radius:8px;border:1px solid var(--line);background:#fff}
+blockquote{margin:16px 0;padding:10px 16px;background:var(--quote);border-left:3px solid var(--acc);border-radius:4px;color:var(--mute)}
+blockquote p{margin:4px 0}
+code{background:var(--code);padding:1px 5px;border-radius:4px;font-size:.9em}
+pre{background:var(--code);padding:12px 14px;border-radius:8px;overflow-x:auto} pre code{padding:0;background:none}
+table{border-collapse:collapse;display:block;overflow-x:auto;max-width:100%;margin:12px 0;font-size:.94em}
+th,td{border:1px solid var(--line);padding:6px 10px;vertical-align:top} th{background:var(--code)}
+details{border:1px solid var(--line);border-radius:8px;padding:6px 12px;margin:8px 0;background:var(--card)}
+details[open]{padding-bottom:10px} summary{cursor:pointer;color:var(--acc);font-weight:500}
+mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%}
+.btn{display:inline-block;margin:4px 8px 4px 0;padding:6px 14px;border:1px solid var(--acc);border-radius:999px;text-decoration:none;font-size:14px}
+.pager{display:flex;justify-content:space-between;gap:12px;margin-top:48px;padding-top:16px;border-top:1px solid var(--line);font-size:15px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin:16px 0}
+.card{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;color:inherit;text-decoration:none}
+.card:hover{border-color:var(--acc)} .card img{border:0;border-bottom:1px solid var(--line);border-radius:0;aspect-ratio:16/10;object-fit:contain;width:100%}
+.card .no{color:var(--mute);font-size:13px;padding:8px 12px 0} .card .t{padding:0 12px 12px;font-weight:500;line-height:1.5}
+.lead{font-size:1.06em;color:var(--mute)}
+footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-size:13px}
+</style>
+<script>window.MathJax={tex:{inlineMath:[["\\(","\\)"]],displayMath:[["\\[","\\]"],["$$","$$"]],processEscapes:true,processEnvironments:true}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"></script>
+</head><body>
+<header class="top"><div class="in">
+<button type="button" id="nav-toggle" aria-label="打开章节列表">☰ 章节</button><a class="brand" href="../index.html">从约束推导 AI Infra</a>
+<a href="../lessons/index.html">讲义目录</a>
+<a href="../animations/index.html">动画</a>
+<a href="../review.html">复习卡片</a>
+<a href="../lessons/appendix-glossary.html">缩写表</a>
+<a href="https://wikieden.github.io/ai-books/glossary.html">全局词汇</a>
+<a href="https://wikieden.github.io/ai-books/">← 全部讲义书</a>
+<span class="prefs" title="字号与主题"><button type="button" data-fs-step="-1" aria-label="字号变小">A−</button><button type="button" data-fs-step="1" aria-label="字号变大">A+</button><select id="ab-theme" aria-label="主题色"><option value="">跟随系统</option><option value="light">浅色</option><option value="dark">深色</option><option value="sepia">米黄护眼</option><option value="green">豆沙绿护眼</option><option value="navy">夜蓝</option></select></span>
+</div></header>
+<div class="layout"><nav class="side" aria-label="章节"><div class="h">从约束推导 AI Infra</div><a href="index.html">讲义目录</a><a href="01-six-layers.html"><span class="n">1</span>一次请求走过的六层（进行中）</a><a href="02-request-lifecycle.html"><span class="n">2</span>一次生成请求的处理过程：权重加载一次，每个 token 都要再读一遍</a><a href="03-dataflow-hierarchy.html"><span class="n">3</span>从存储程序到数据流执行：存储层次就像大楼里的厕所</a><a href="04-key-numbers.html"><span class="n">4</span>系统设计的关键数字：容量、算力、带宽、延迟</a><a href="05-estimate.html"><span class="n">5</span>用几个数字估算一次模型执行：算和读各要多久，实测为什么达不到</a><a href="06-architecture.html" class="cur"><span class="n">6</span>需求如何推动架构：TPU、SmartNIC、Unified Bus</a><a href="07-compute-graph.html"><span class="n">7</span>计算图与张量结构：一个 token 经过一层要算多少</a><a href="08-generation-budget.html"><span class="n">8</span>自回归生成的资源账：存一次的、每步读的、用完就扔的</a><a href="09-kv-sharing.html"><span class="n">9</span>KV 怎么变小 ①：头共享与潜变量压缩</a><a href="10-kv-sparse-linear.html"><span class="n">10</span>KV 怎么变小 ②：窗口、稀疏、线性与混合注意力</a><a href="11-moe.html"><span class="n">11</span>MoE：专家路由与批内权重复用</a><a href="12-network-shape.html"><span class="n">12</span>网络形状：深宽、专家粒度、残差与多 token 预测</a><a href="13-model-comparison.html"><span class="n">13</span>整个模型的资源需求与比较：存多少、算多少、能放几条请求</a><a href="14-workload-arrival.html"><span class="n">14</span>从单次请求到持续到达的负载：什么时候来，比来多少更要紧</a><a href="15-agent-tasks.html"><span class="n">15</span>多轮交互与 Agent 任务：前缀、成功成本、关键路径</a><a href="16-multimodal-realtime.html"><span class="n">16</span>多模态与实时交互：数据换形状，时间有死线（略讲）</a><a href="17-training-rl.html"><span class="n">17</span>训练与强化学习的计算和状态：为什么训练要 6ND、要存 18 字节</a><a href="18-scaling-lifecycle.html"><span class="n">18</span>Scaling law 与全生命周期成本：训练多大、训练多久、服务多少次</a><a href="19-accelerator-basics.html"><span class="n">19</span>从矩阵乘法认识加速器：算多少、搬多少、耗多少电</a><a href="20-compute-units.html"><span class="n">20</span>计算单元：矩阵、向量、流水与低精度</a><a href="21-memory-movement.html"><span class="n">21</span>存储层次与数据搬移：放得下、取得到、来得及</a><a href="22-package-interconnect.html"><span class="n">22</span>多芯片封装与互联：计算放在哪，数据走哪条路</a><a href="23-architecture-evolution.html"><span class="n">23</span>架构演进与专用架构：每一代新增的东西，省掉了哪一笔</a><a href="24-choose-accelerator.html"><span class="n">24</span>根据架构选择加速器：先估下界，再找差距，最后算账</a><a href="appendix-glossary.html">附录 · 缩写与术语表</a><a href="appendix-tp-pp-cp.html">附录 · 补充资料：TP、PP、CP，一个模型沿三个方向切给多张卡</a></nav><main>
+<h1 id="06-tpusmartnicunified-bus">第 06 章 · 需求如何推动架构：TPU、SmartNIC、Unified Bus</h1><div class="run"><a class="btn" href="../animations/06-architecture.html">▶ 打开本章可交互动画</a><a class="btn" href="https://colab.research.google.com/github/wikieden/ai-infra-from-constraints/blob/main/code/notebooks/ch06_architecture.ipynb" target="_blank" rel="noopener">在 Colab 运行本章代码</a><a class="btn" href="../code/notebooks/ch06_architecture.ipynb" download>下载 notebook</a><details><summary>本地运行</summary><pre><code>git clone https://github.com/wikieden/ai-infra-from-constraints
+cd ai-infra-from-constraints/code/notebooks
+pip install jupyterlab torch numpy
+jupyter lab ch06_architecture.ipynb</code></pre><p>也可以下载后直接用 VS Code 打开 .ipynb 运行。需要 GPU 的章节在 Colab 里选「代码执行程序 → 更改运行时类型 → GPU」。</p></details></div>
+<blockquote>
+<p>本章回答：硬件为什么会长成现在的样子？Google 为什么要自己造 TPU，微软为什么把网络处理搬到网卡上，华为为什么要做统一互联？这些设计背后有没有一个共同的规律？<br />
+讲解日期：2026-11-24 · 上一章：<a href="../lessons/05-estimate.html">第 05 章 用几个数字估算一次模型执行</a> · 下一章：第 07 章 计算图与张量结构（待写）<br />
+对应原文：<code>materials/ai-infra-book/manuscripts/01-初识 AI Infra.md</code> §1.4 L367–L443（图 1-15 到 1-17，逐级传递表 L427–L436）、"谬误与陷阱" L444–L454<br />
+本章缩写：CPU = Central Processing Unit（中央 / 处理 / 单元）· FPGA = Field-Programmable Gate Array（现场 / 可编程 / 门阵列：部署以后还能改硬件逻辑的芯片）· KV = Key-Value（键 / 值）· NIC = Network Interface Card（网络 / 接口 / 卡）· PCIe = Peripheral Component Interconnect Express（外设 / 部件 / 互联 / 高速版）· RL = Reinforcement Learning（强化 / 学习）· SmartNIC = Smart Network Interface Card（智能 / 网卡）· TPU = Tensor Processing Unit（张量 / 处理 / 单元）· UB = Unified Bus（统一 / 总线，华为的统一互联）。全部缩写见 <a href="../lessons/appendix-glossary.html">缩写与术语表</a></p>
+</blockquote>
+<p>第 02–05 章把硬件当成给定条件来估算。本章反过来问：这些硬件本身是怎么来的？</p>
+<h2 id="_1">讲解</h2>
+<h3 id="2026-11-24">第一步：推动架构变化的，是比例（2026-11-24）</h3>
+<p><strong>类比：一家小饭馆。</strong> 一天 20 个客人时，老板一个人又炒菜又收钱正合适。客人涨到 500 个，收钱开始占掉老板一半的时间，这时专门请一个收银员就划算了。不是收钱这件事变了，而是"收钱时间 : 炒菜时间"这个<strong>比例</strong>变了。</p>
+<p>原文 L369：推动架构变化的因素有两类，最后都体现为<strong>比例的改变</strong>。</p>
+<table>
+<thead>
+<tr>
+<th>变化</th>
+<th>例子</th>
+<th>改变了哪个比例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>需求变化</td>
+<td>业务规模扩大、出现新负载</td>
+<td>需求增长 : 单芯片能力</td>
+</tr>
+<tr>
+<td>硬件变化</td>
+<td>某类器件的性能提升快于其他器件</td>
+<td>带宽 : 处理能力；计算量 : 数据读取量</td>
+</tr>
+</tbody>
+</table>
+<p>比例一变，原来合理的分工就可能不再合算。本章三个案例：</p>
+<p><img alt="三个案例：哪个比例变了，于是改了什么" src="../figures/06-architecture-cases.png" /></p>
+<p><em>图 6-1 · 三个案例分别落在第 01 章六层的不同位置：TPU 改处理器，SmartNIC 改服务器里的网卡，UB 改设备之间的互联。</em></p>
+<p><strong>一句话</strong>：架构跟着比例走；比例变了，原来合理的分工就要重新划分。</p>
+<h3 id="tpu2026-11-24">第二步：TPU：语音搜索的需求让数据中心要翻倍（2026-11-24）</h3>
+<p><strong>类比：一个城市的人口快速增长，原来的公交跑不过来。</strong> 一直加公交车也行，但如果客流大到一定程度，修一条地铁虽然前期投入大，算下来每位乘客更便宜。</p>
+<p>原文 L373：Google 很早就讨论过 GPU、FPGA 或专用芯片，但早期数据中心的空闲资源够用。2013 年的一项预测改变了讨论：<strong>如果每位用户每天用三分钟语音搜索，数据中心规模可能要翻倍</strong>。于是 Google 推进专用推理芯片，TPU v1 于 2015 年部署，2017 年发表论文。</p>
+<p><strong>公式</strong>（原文 L375）：</p>
+<div class="arithmatex">\[\text{每日总需求} = Q \times F_1\]</div>
+<ul>
+<li><span class="arithmatex">\(Q\)</span>：每天的请求量；<span class="arithmatex">\(F_1\)</span>：每个请求要的计算量（下标 1 = 单个请求）。</li>
+<li><span class="arithmatex">\(Q\)</span> 一直涨，现有设备的空闲能力迟早用完。这时可以加通用服务器，也可以做专用芯片：后者有一笔前期开发成本，但每个请求花的设备时间和能耗更少。规模越大，越容易回本。</li>
+</ul>
+<p><strong>例子</strong>（数字是编的，只为演示"回本"怎么算）：专用芯片前期投入 5000 万元，每 1000 次请求比通用服务器省 0.01 元。</p>
+<div class="arithmatex">\[\text{回本请求数} = \frac{5000\ \text{万元}}{0.01\ \text{元} / 1000\ \text{次}} = 5 \times 10^{12}\ \text{次}\]</div>
+<p>一天 <span class="arithmatex">\(10^{10}\)</span> 次请求，要 500 天回本；一天 <span class="arithmatex">\(10^{11}\)</span> 次，只要 50 天。</p>
+<p><img alt="规模越大，专用芯片越早回本" src="../figures/06-architecture-breakeven.png" /></p>
+<p><em>图 6-2 · 横轴是累计请求量。通用方案从零开始按单价增长；专用方案起点高、斜率低，两线交点就是回本点（数字是编的）。</em></p>
+<p>专用芯片怎么设计（原文 L377）：为反复出现的矩阵运算配更多计算单元，用片上缓冲和数据通路给它们喂数据（第 03 章的"把复用写进执行结构"）。原书第 4 章会讲 TPU 的矩阵阵列。</p>
+<p><strong>一句话</strong>：需求 <span class="arithmatex">\(QF_1\)</span> 涨到接近数据中心的空闲算力时，一次性投入的专用芯片就可能比一直加通用服务器更合算。</p>
+<h3 id="smartniccpu-2026-11-24">第三步：SmartNIC：网速涨了，CPU 处理包的速度没跟上（2026-11-24）</h3>
+<p><strong>类比：快递站。</strong> 每天的包裹从 1000 件涨到 6000 件，分拣员一个人每天只能分 1500 件，就得配 4 个分拣员，他们本来可以去做别的事。换一台自动分拣机，把重复的分拣交给机器，人只管规则（比如哪些片区改了地址）。</p>
+<p>原文 L387–L397：微软 Azure 2015 年设计 40 Gbit/s 的新一代云服务器时，网络带宽变高，虚拟网络策略（隔离、转发、访问控制）也越来越复杂。这些包处理都占着 CPU 核，而 CPU 核本该留给租户的应用。</p>
+<p><strong>公式</strong>（原文 L394）：</p>
+<div class="arithmatex">\[n_{\mathrm{core}} = \frac{\lambda_{\mathrm{packet}}}{\mu_{\mathrm{core}}}\]</div>
+<ul>
+<li><span class="arithmatex">\(\lambda_{\mathrm{packet}}\)</span>（读作 lambda）：每秒到达多少个包；<span class="arithmatex">\(\mu_{\mathrm{core}}\)</span>（读作 mu）：一个核每秒能处理多少个包。</li>
+<li>链路带宽变大，<span class="arithmatex">\(\lambda\)</span> 跟着变大；<span class="arithmatex">\(\mu\)</span> 没同步提高，要的核数就随两者之比增加。</li>
+</ul>
+<p><strong>例子</strong>（原文 L391 与脚注 L490）：最小以太网帧在线路上占 84 字节（64 字节帧 + 前导码和帧间隔）。</p>
+<div class="arithmatex">\[\lambda = \frac{40 \times 10^9\ \text{bit/s}}{84 \times 8\ \text{bit}} \approx 5.95 \times 10^7\ \text{包/秒} \approx \text{六千万}\]</div>
+<p>单核每秒处理一千万到两千万个包，要 <span class="arithmatex">\(59.5 / 20 \approx 3\)</span> 到 <span class="arithmatex">\(59.5 / 10 \approx 6\)</span> 个核，只用来转发。</p>
+<p><img alt="网速越高，光处理包就要越多的 CPU 核" src="../figures/06-architecture-nic.png" /></p>
+<p><em>图 6-3 · 最小帧条件下，不同链路速率要多少个核来转发（单核 1000 万–2000 万包/秒）。</em></p>
+<p>Azure 的做法：2015 年末起在新服务器上装<strong>基于 FPGA 的 SmartNIC</strong>，2016 年推出 Accelerated Networking（加速网络）。复杂策略由主机软件管理，适合重复执行的包处理规则交给 FPGA；FPGA 还能重新配置，策略更新时跟着改。</p>
+<p>代价：网卡如果要用主机内存里的数据，就得经过 PCIe 读，这时返回延迟和能同时发出的请求数决定了速度（原书第 7 章用 KV-Direct 分析）。</p>
+<p><strong>一句话</strong>：网速涨得比 CPU 处理包的速度快，要的核数随之上涨；把重复的包处理交给可编程网卡，CPU 留给应用，软件仍管策略。</p>
+<h3 id="unified-bus2026-11-24">第四步：Unified Bus：卡多了，连接卡的活也多了（2026-11-24）</h3>
+<p><strong>类比：一个项目组从 3 个人扩到 300 个人。</strong> 人多了，能干的活多了，但开会、交接、等别人的结果也多了。如果每次找另一个组的人都要先写邮件、再走审批、再排会议，效率就被这些"层"吃掉了；最好的办法是能直接找到人、直接拿到东西。</p>
+<p>原文 L409–L415：</p>
+<ul>
+<li>单个加速器装不下模型和运行状态时，最直接的办法是加卡。但"总容量够了"和"能高效执行"之间，还隔着工作划分、数据交换和同步（第 02 章：多卡实例要传中间结果）。</li>
+<li>模型训练的算力需求增长远快于单个加速器能力的提升，两者之比越来越大，协同的卡只能越来越多。</li>
+<li>数据一旦跨过主机边界，软件要改用消息传递接口、重新安排缓冲区，再经过网卡驱动和协议栈，每多一层抽象就多一段时间。</li>
+<li>华为面向昇腾等异构设备推进 <strong>UB（Unified Bus，统一互联）</strong>：让设备<strong>直接访问其他设备的内存</strong>，去掉这些抽象层，让一次远程访问的耗时逼近线路时延决定的下限（原书 6.5.5、7.3、7.4 节展开）。</li>
+</ul>
+<p><strong>分析顺序</strong>（原文 L421）：卡再多，都按这三步。</p>
+<table>
+<thead>
+<tr>
+<th>步</th>
+<th>问什么</th>
+<th>对应前面哪章</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>每张卡能不能放下它要的数据（<span class="arithmatex">\(M \le M_{\mathrm{cap}}\)</span>，逐卡算）</td>
+<td>第 04 章</td>
+</tr>
+<tr>
+<td>2</td>
+<td>每张卡要算多少、读写多少</td>
+<td>第 05 章</td>
+</tr>
+<tr>
+<td>3</td>
+<td>按执行依赖，谁要等谁，总时间多少</td>
+<td>第 05 章的 <span class="arithmatex">\(\max\)</span> 和第 02 章的卡间传递</td>
+</tr>
+</tbody>
+</table>
+<p><strong>一句话</strong>：加卡带来了容量和算力，也带来了通信和等待；UB 的思路是去掉跨设备访问的软件抽象层，让远程访问接近线路本身的速度。</p>
+<h3 id="2026-11-24_1">第五步：变化会逐级传递；老办法在新比例下又合算了（2026-11-24）</h3>
+<p><strong>类比：城市修了地铁以后，地铁站周围的商铺、停车场、公交线路都要跟着重新规划。</strong> 一个设计部署以后，又带来新的约束。</p>
+<p>原文 L425：FPGA 上了 Azure，云平台就得负责 FPGA 逻辑的更新和故障处理；UB 把大量加速器连成一体，每次同步要等的设备更多，可能出错的部件也更多。AI 系统里的逐级传递（原文 L427–L436，按原书章节顺序）：</p>
+<table>
+<thead>
+<tr>
+<th>变化</th>
+<th>不再成立的假设</th>
+<th>原书章节</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>神经网络的执行时间集中在矩阵运算</td>
+<td>通用处理器能以合理的面积和功耗完成主要计算</td>
+<td>第 4、5 章</td>
+</tr>
+<tr>
+<td>模型权重超过单卡显存</td>
+<td>一个模型可以放在一张卡上</td>
+<td>第 6 章</td>
+</tr>
+<tr>
+<td>训练与推理跨多台服务器同步执行</td>
+<td>网络流量来自互相独立的数据流，可以统计复用</td>
+<td>第 7 章</td>
+</tr>
+<tr>
+<td>decode 每读一遍权重只做少量计算</td>
+<td>峰值算力决定执行速度</td>
+<td>第 8 章</td>
+</tr>
+<tr>
+<td>上下文变长，KV 接近甚至超过权重</td>
+<td>上下文状态很小，可以随时重算</td>
+<td>第 9 章</td>
+</tr>
+<tr>
+<td>训练规模达到上千张卡</td>
+<td>故障是偶发事件</td>
+<td>第 10 章</td>
+</tr>
+<tr>
+<td>Agent 与 RL 负载成批创建工具环境</td>
+<td>容器里的程序互相独立，各自决定运行节奏</td>
+<td>第 11 章</td>
+</tr>
+<tr>
+<td>端侧设备能运行模型</td>
+<td>计算集中到云端总能缩短完成时间</td>
+<td>第 12 章</td>
+</tr>
+</tbody>
+</table>
+<p>第四行就是第 05 章算出来的事：读权重比算慢 148 倍，峰值算力不决定速度。</p>
+<p><strong>AI 系统的一个有利条件</strong>（原文 L438）：负载种类少，而且事先已知。通用平台要跑不知道是什么的程序，只能靠统一的抽象、严格的隔离和统计复用；AI 系统围绕少数模型和确定的执行过程设计，可以提前知道计算和数据依赖，<strong>据此打破原有的抽象边界</strong>。</p>
+<p><strong>老办法又合算了</strong>（原文 L440）：</p>
+<table>
+<thead>
+<tr>
+<th>原书章节</th>
+<th>用到的老办法</th>
+<th>出处</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第 8 章 KV 分页管理</td>
+<td>操作系统的分页</td>
+<td>操作系统</td>
+</tr>
+<tr>
+<td>第 11 章 沙箱放置</td>
+<td>power-of-k-choices 随机选择</td>
+<td>Mitzenmacher，2001</td>
+</tr>
+<tr>
+<td>第 11 章 虚拟机内存回收</td>
+<td>balloon 机制</td>
+<td>Waldspurger，2002</td>
+</tr>
+</tbody>
+</table>
+<p>比例变了以后，原先不划算或用不上的方法又变得合算。</p>
+<p><strong>全书主线</strong>（原文 L442）：<strong>数据搬移塑造了 AI Infra 的架构。</strong> 三条线索贯穿后面各章：比例的变化解释为什么需要新设计，数据搬移说明新设计改了什么，物理极限（第 05 章第五步）衡量设计做到了什么程度。</p>
+<p><strong>一句话</strong>：一个设计部署后会带来新约束，变化沿着系统一层层传下去；一项技术合不合用，要按当前的比例重新算。</p>
+<h3 id="2026-11-24_2">第六步：五个常见误区（2026-11-24）</h3>
+<p>原文"谬误与陷阱"L444–L454，正好把第 02–06 章串起来复习一遍：</p>
+<table>
+<thead>
+<tr>
+<th>误区</th>
+<th>为什么错</th>
+<th>回看</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>峰值算力翻倍，执行速度就翻倍</td>
+<td>先看当前是不是受算力限制；单请求 decode 是读取说了算，算力翻倍几乎不改变下界；只加速一部分还要用 Amdahl 定律检查上限</td>
+<td>第 04 章第二步、第 05 章第二步</td>
+</tr>
+<tr>
+<td>显存放得下权重，就能支持目标并发数</td>
+<td>权重只是常驻数据的一部分，KV、工作区、运行时预留都占显存；多卡还要逐卡算</td>
+<td>第 04 章第四步</td>
+</tr>
+<tr>
+<td>比旧实现快了三成，优化就算成功</td>
+<td>不知道极限，就不知道三成是逼近上限还是离上限还有一个数量级；先算极限，再查差距来自漏项还是开销</td>
+<td>第 05 章第五步</td>
+</tr>
+<tr>
+<td>上一代场景里成熟的系统，可以直接用于新负载</td>
+<td>每种设计都以设计时的比例为前提；通用容器平台假定租户互相独立，RL 沙箱却成批创建、节奏由 GPU 决定，照搬会让加速器空等</td>
+<td>本章第五步</td>
+</tr>
+<tr>
+<td>吞吐提高了，每个用户的等待就缩短了</td>
+<td>批内复用减少的是每个输出分摊的读取，每个请求仍要排队、等整批算完；吞吐和响应时间要同时报告</td>
+<td>第 05 章第三步</td>
+</tr>
+</tbody>
+</table>
+<p><strong>一句话</strong>：五个误区背后是同一个习惯：先算清楚是谁在限制速度、比例是多少，再动手。</p>
+<h2 id="cpu">动画演示：网速越高，光转发就要越多 CPU 核</h2>
+<p><img alt="SmartNIC 与 CPU 核数" src="../animations/06-architecture.gif" /></p>
+<p>可交互版：<a href="../animations/06-architecture.html">animations/06-architecture.html</a>（两个滑块：链路速率 10 / 25 / 40 / 400 Gbit/s，单核处理能力 1000 万–2000 万包/秒）。</p>
+<p><strong>怎么看</strong>：</p>
+<ol>
+<li>左边是到达的包流，速率 <span class="arithmatex">\(\lambda\)</span> = 链路速率 ÷（84 字节 × 8）（第三步）；</li>
+<li>中间一排 CPU 核，被占用的核亮起来：<span class="arithmatex">\(n = \lambda / \mu\)</span>，向上取整；</li>
+<li>播放时链路速率从 10 Gbit/s 涨到 40 Gbit/s，亮的核越来越多；</li>
+<li>最后一帧把包处理交给 SmartNIC，CPU 核全部还给应用。</li>
+</ol>
+<h2 id="_2">练习与作答记录</h2>
+<p><strong>题 1</strong>（第三步）：链路升级到 100 Gbit/s，仍按最小帧（每包在线路上占 84 字节）算，单核每秒处理 1500 万个包。每秒到达多少个包？光转发要几个核？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p><strong>题 2</strong>（第二步）：一款专用推理芯片前期要投入 2 亿元，每 1000 次请求比通用服务器省 0.04 元。累计多少次请求才能回本？每天 <span class="arithmatex">\(2 \times 10^{10}\)</span> 次请求的话，要多少天？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p><strong>题 3</strong>（第五步）：MoE 模型的专家数从 8 个涨到 256 个，每个 token 只激活其中 8 个。参照逐级传递表的写法，说说这个变化可能让哪个原来的假设不再成立？会影响到第 01 章六层里的哪几层？（开放题，说出理由即可。）</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<h2 id="_3">口诀</h2>
+<blockquote>
+<p>比例一变，分工重排；<br />
+需求翻倍造专芯，回本看规模；<br />
+网速涨了核不够，包处理交给网卡；<br />
+卡多了先算容量，再算读写，最后看谁在等；<br />
+老办法新比例，数据搬移定架构。</p>
+</blockquote>
+<h2 id="_4">本章复习卡片</h2>
+<p><a href="../review.html">I19</a>（架构跟着比例走）、<a href="../review.html">I20</a>（SmartNIC 的核数公式）、<a href="../review.html">I21</a>（多卡分析的三步顺序）、<a href="../review.html">I22</a>（五个常见误区）。练习做完后，按答错、卡住的地方再补。</p>
+<h2 id="_5">附录 · 延伸阅读</h2>
+<blockquote>
+<p>留给以后深入学习用，不影响本章主线。★ 是建议先读的。</p>
+</blockquote>
+<h3 id="_6">推荐阅读</h3>
+<table>
+<thead>
+<tr>
+<th>读什么</th>
+<th>读哪里</th>
+<th>读它为了什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>★ AII 第 1 章</td>
+<td>§1.4 L367–L443、谬误与陷阱 L444–L454</td>
+<td>本章原文，图 1-15 到 1-17</td>
+</tr>
+<tr>
+<td>★ Jouppi 等，TPU v1 论文（ISCA 2017）</td>
+<td>第 2 节 起源、架构与实现（原文脚注 L488）</td>
+<td>三分钟语音搜索的需求预测，专用芯片的设计取舍</td>
+</tr>
+<tr>
+<td>★ Firestone 等，Azure Accelerated Networking: SmartNICs in the Public Cloud（NSDI 2018）</td>
+<td>摘要、第 3 节（原文脚注 L500）</td>
+<td>为什么用 FPGA，怎么兼顾可编程和速度</td>
+</tr>
+<tr>
+<td>李博杰博士论文</td>
+<td>第 4.2.1 节简单转发基线（原文脚注 L490）</td>
+<td>六千万包每秒和 3–6 个核的来历</td>
+</tr>
+<tr>
+<td>Mitzenmacher, The Power of Two Choices in Randomized Load Balancing（IEEE TPDS 2001）</td>
+<td>全文</td>
+<td>power-of-k-choices（原书第 11 章用到）</td>
+</tr>
+<tr>
+<td>Waldspurger, Memory Resource Management in VMware ESX Server（OSDI 2002）</td>
+<td>balloon 机制一节</td>
+<td>虚拟机内存回收（原书第 11 章用到）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_7">数学原理</h3>
+<ul>
+<li><strong>回本点</strong>：通用方案总成本 = 单价 × 请求数；专用方案 = 前期投入 + 更低单价 × 请求数。两条直线相交处：请求数 = 前期投入 ÷ 每次省下的钱。</li>
+<li><strong>排队里的到达率与服务率</strong>：<span class="arithmatex">\(\lambda\)</span> 是到达率，<span class="arithmatex">\(\mu\)</span> 是服务率；要跟上到达，服务者数量至少 <span class="arithmatex">\(\lambda/\mu\)</span>（向上取整）。</li>
+<li><strong>线速包率</strong>：包率 = 链路比特率 ÷（每包线路字节数 × 8）。</li>
+</ul>
+<h3 id="_8">公式清单</h3>
+<table>
+<thead>
+<tr>
+<th>公式</th>
+<th>意思</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>每日需求 <span class="arithmatex">\(= Q F_1\)</span></td>
+<td>请求量 × 每请求计算量</td>
+</tr>
+<tr>
+<td>回本请求数 <span class="arithmatex">\(=\)</span> 前期投入 <span class="arithmatex">\(/\)</span> 每次节省</td>
+<td>专用芯片什么时候合算</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\lambda = \text{bit/s} / (84 \times 8)\)</span></td>
+<td>最小帧条件下的包率</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(n_{\mathrm{core}} = \lambda / \mu\)</span></td>
+<td>光转发要几个核</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_9">代码对照：把本章的数字用代码算一遍</h3>
+<blockquote>
+<p>纯 Python，不需要 GPU。代码在仓库本地 <code>ai-infra/solutions/chapter-code/ch06_architecture.py</code>，配套测试 <code>tests/test_ch06.py</code>：</p>
+<p><code>bash  
+cd ai-infra/solutions/chapter-code  
+uv run python ch06_architecture.py   # 一步一步打印  
+uv run pytest tests/test_ch06.py</code></p>
+</blockquote>
+<p><strong>讲义 ↔ 代码</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>讲义</th>
+<th>公式</th>
+<th>写法</th>
+<th>跑出来</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第二步 回本点（编的数）</td>
+<td>投入 ÷ 每次节省</td>
+<td><code>breakeven(5e7, 0.01 / 1000)</code></td>
+<td><span class="arithmatex">\(5 \times 10^{12}\)</span> 次</td>
+</tr>
+<tr>
+<td>第二步 要多少天</td>
+<td>回本数 ÷ 每天请求</td>
+<td><code>days_to_breakeven(5e7, 0.01 / 1000, 1e10)</code></td>
+<td>500 天；每天 <span class="arithmatex">\(10^{11}\)</span> 次是 50 天</td>
+</tr>
+<tr>
+<td>第三步 40 Gbit/s 的包率</td>
+<td><span class="arithmatex">\(40 \times 10^9 / 672\)</span></td>
+<td><code>packet_rate(40)</code></td>
+<td>约 5950 万包/秒</td>
+</tr>
+<tr>
+<td>第三步 要几个核</td>
+<td><span class="arithmatex">\(\lambda / \mu\)</span></td>
+<td><code>cores(packet_rate(40), 2e7)</code>、<code>cores(…, 1e7)</code></td>
+<td>3 到 6 个</td>
+</tr>
+</tbody>
+</table>
+<p><strong>关键几行</strong>：</p>
+<pre><code class="language-python">def packet_rate(gbps, wire_bytes=84):
+    return gbps * 1e9 / (wire_bytes * 8)     # 每包在线路上占 84 字节 = 672 bit
+
+def cores(rate, per_core):
+    return math.ceil(rate / per_core)        # 核只能整个整个地给，向上取整
+</code></pre>
+<p><strong>代码里才看得到的 3 件事</strong>：</p>
+<ol>
+<li>84 字节不是以太网帧本身（最小 64 字节），而是加上前导码和帧间隔以后在线路上占的长度；用 64 字节算，包率会高估约 30%。</li>
+<li><code>cores</code> 向上取整：5.95 个核实际要 6 个；原文写"3–6"是按单核 2000 万和 1000 万两头算的（2.98 → 3，5.95 → 6）。</li>
+<li>回本的例子里，"每 1000 次省 0.01 元"要先换成每次省 <span class="arithmatex">\(10^{-5}\)</span> 元再除，单位不统一很容易差三个数量级。</li>
+</ol>
+<p><strong>自己改一改</strong>（不影响练习答案）：</p>
+<ul>
+<li>把 <code>packet_rate</code> 的帧长从 84 改成 1538（最大帧在线路上的长度），看要几个核。</li>
+<li>把回本例子的前期投入翻倍，看每天 <span class="arithmatex">\(10^{10}\)</span> 次请求要多少天。</li>
+<li>把单核处理能力提高到 5000 万包/秒，40 Gbit/s 还要几个核？</li>
+</ul><nav class="pager"><a href="05-estimate.html">← 第 05 章 · 用几个数字估算一次模型执行：算和读各要多久，实测为什么达不到</a><a href="07-compute-graph.html">第 07 章 · 计算图与张量结构：一个 token 经过一层要算多少 →</a></nav>
+</main></div>
+<footer>来自个人学习仓库的对话讲义，含练习作答记录。源码：<a href="https://github.com/wikieden/ai-infra-from-constraints">github.com/wikieden/ai-infra-from-constraints</a>。更多讲义书：<a href="https://wikieden.github.io/ai-books/">Physical AI 0-1-♾️（合集）</a></footer>
+<script>(function(){var d=document.documentElement,K=["s","m","l","xl"];
+function save(k,v){try{v?localStorage.setItem(k,v):localStorage.removeItem(k)}catch(e){}}
+var s=document.getElementById("ab-theme");if(s){s.value=d.dataset.theme||"";s.onchange=function(){if(s.value)d.dataset.theme=s.value;else delete d.dataset.theme;save("ab-theme",s.value)}}
+document.querySelectorAll("[data-fs-step]").forEach(function(b){b.onclick=function(){var i=K.indexOf(d.dataset.fs||"m")+(+b.dataset.fsStep);i=Math.max(0,Math.min(K.length-1,i));d.dataset.fs=K[i];save("ab-fs",K[i])}});
+var nb=document.getElementById("nav-toggle"),side=document.querySelector("nav.side");if(nb&&side){nb.onclick=function(){side.classList.toggle("open")}}
+var cur=side&&side.querySelector(".cur");if(cur)cur.scrollIntoView({block:"center"});
+})();</script>
+</body></html>

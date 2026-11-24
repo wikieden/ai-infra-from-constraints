@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>批内复用与转折点</title><link rel="stylesheet" href="anim.css">
+<style>svg text.big{font-size:15px}svg text.cap{font-size:15px;font-weight:500}svg text.num{font-size:22px;font-weight:600}</style></head>
+<body><main>
+<h1>第 05 章 · batch 从 1 加到 256：读取说了算，还是计算说了算</h1>
+<p class="sub">配套讲义：<a href="../lessons/05-estimate.html">第 05 章 · 用几个数字估算一次模型执行：算和读各要多久，实测为什么达不到</a>。固定 H100 SXM（3.35 TB/s、989.4 TFLOP/s）、70B 模型、每参数 1 字节；只算权重读取和矩阵运算，不算每个请求的 KV。</p>
+<div class="panel"><svg id="sv" viewBox="0 0 680 380"></svg></div>
+<div class="row"><button id="play">▶ 播放</button><button id="step">→ 单步</button><button id="reset">↺ 从头开始</button></div>
+<div class="row"><label for="b">自己拖：batch 里的请求数 B</label><input type="range" id="b" min="1" max="300" step="1" value="64"><span id="bv">64</span></div>
+<p class="note">看点：① 蓝条读权重 20.90 ms，和 B 无关；② 橙条矩阵计算 = 2BN/Π，随 B 线性变长；③ 一步的下界取两者较长的，每个请求都要等这么久；④ 每个输出分摊 = 下界 ÷ B，吞吐 = B ÷ 下界；⑤ B* ≈ 148 时两条一样长，之后计算接管，吞吐不再上涨。</p>
+</main>
+<script src="anim.js"></script>
+<script>
+const sv=$('sv');const N=70e9,PI=989.4e12,BETA=3.35e12;
+const READ=N/BETA*1e3,BSTAR=PI/(2*BETA);
+const SEQ=[1,8,32,148,256];const FR=[];SEQ.forEach(b=>{FR.push(b);FR.push(b)});
+let k=0,custom=null;
+function draw(){
+  clear(sv);const B=custom??FR[k];const comp=2*B*N/PI*1e3,low=Math.max(READ,comp),per=low/B,tput=B/low*1e3;
+  const who=Math.abs(comp-READ)<0.3?'两者打平：转折点 B* ≈ 148':(comp>READ?'计算说了算':'读取说了算');
+  txt(`B = ${B}：${who}`,{x:340,y:30,'text-anchor':'middle',class:'cap'},sv);
+  const x0=150,sc=9;
+  txt('读权重',{x:x0-10,y:84,'text-anchor':'end'},sv);el('rect',{x:x0,y:66,width:READ*sc,height:28,rx:4,fill:'var(--accent)',opacity:.75},sv);
+  txt(`${READ.toFixed(2)} ms`,{x:x0+READ*sc+6,y:85,class:'m'},sv);
+  const cw=Math.min(comp,55)*sc;txt('矩阵计算',{x:x0-10,y:134,'text-anchor':'end'},sv);el('rect',{x:x0,y:116,width:Math.max(cw,2),height:28,rx:4,fill:'var(--warm)',opacity:.75},sv);
+  txt(`${comp<1?comp.toFixed(4):comp.toFixed(2)} ms${comp>55?'（超出画面）':''}`,{x:x0+Math.max(cw,2)+6,y:135,class:'m'},sv);
+  el('line',{x1:x0+READ*sc,y1:56,x2:x0+READ*sc,y2:156,stroke:'var(--muted)','stroke-dasharray':'4 3'},sv);
+  // B 轴上的位置
+  const ax0=60,aw=560,ay=210;el('line',{x1:ax0,y1:ay,x2:ax0+aw,y2:ay,stroke:'var(--line)','stroke-width':2},sv);
+  [0,50,100,150,200,250,300].forEach(v=>{const x=ax0+v/300*aw;el('line',{x1:x,y1:ay-4,x2:x,y2:ay+4,stroke:'var(--muted)'},sv);txt(String(v),{x,y:ay+18,'text-anchor':'middle',class:'m'},sv)});
+  const xs=ax0+BSTAR/300*aw;el('line',{x1:xs,y1:ay-14,x2:xs,y2:ay+4,stroke:'var(--purple)','stroke-width':2},sv);txt('B* ≈ 148',{x:xs,y:ay-18,'text-anchor':'middle',class:'m'},sv).style.fill='var(--purple)';
+  el('circle',{cx:ax0+B/300*aw,cy:ay,r:7,fill:'var(--warm)'},sv);txt('B',{x:ax0+B/300*aw,y:ay+36,'text-anchor':'middle',class:'m'},sv);
+  [['一步下界（每人都等）',low.toFixed(2)+' ms'],['每个输出分摊',per.toFixed(per<1?3:2)+' ms'],['吞吐上界',tput.toFixed(0)+' token/s']].forEach(([a,b],i)=>{
+    const x=30+i*210;el('rect',{x,y:270,width:195,height:72,rx:8,fill:'none',stroke:'var(--line)'},sv);txt(a,{x:x+10,y:292,class:'m'},sv);txt(b,{x:x+10,y:326,class:'num'},sv)});
+}
+function reset(){k=0;custom=null;draw()}
+function next(){if(custom!==null){custom=null;draw();return true}if(k>=FR.length-1)return false;k++;draw();return true}
+$('b').oninput=e=>{ANIM.stop();custom=+e.target.value;$('bv').textContent=custom;draw()};
+setupPlayer({captureSeed:1,reset,next},1400);
+</script><a href="https://wikieden.github.io/ai-books/" style="position:fixed;right:12px;bottom:12px;z-index:99;padding:4px 10px;border-radius:14px;background:rgba(127,127,127,.18);color:inherit;font:13px/1.6 system-ui,sans-serif;text-decoration:none">← 全部讲义书</a>
+</body></html>

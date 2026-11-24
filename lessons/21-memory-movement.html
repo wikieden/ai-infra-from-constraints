@@ -1,0 +1,559 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>第 21 章 · 存储层次与数据搬移：放得下、取得到、来得及 · 从约束推导 AI Infra</title>
+<script>(function(){try{var d=document.documentElement,t=localStorage.getItem("ab-theme"),f=localStorage.getItem("ab-fs");if(t)d.dataset.theme=t;if(f)d.dataset.fs=f}catch(e){}})();</script>
+<style>:root{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa;--fs:16px}
+@media (prefers-color-scheme:dark){:root:not([data-theme]){--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}}
+:root[data-theme="light"]{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa}
+:root[data-theme="dark"]{--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}
+:root[data-theme="sepia"]{--bg:#f6efe1;--fg:#3b3127;--mute:#7a6a58;--line:#e2d6bf;--card:#fbf6ec;--acc:#a0522d;--code:#ece2cd;--quote:#efe5d2}
+:root[data-theme="green"]{--bg:#e3eddf;--fg:#22301f;--mute:#566650;--line:#c9d8c3;--card:#eef5eb;--acc:#2e7d4f;--code:#d6e4d0;--quote:#dae7d5}
+:root[data-theme="navy"]{--bg:#0f1a2b;--fg:#dde6f3;--mute:#93a4bd;--line:#23324a;--card:#15233a;--acc:#6cc4ff;--code:#1a2a44;--quote:#16243b}
+:root[data-fs="s"]{--fs:15px}
+:root[data-fs="m"]{--fs:16px}
+:root[data-fs="l"]{--fs:18px}
+:root[data-fs="xl"]{--fs:20px}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:var(--fs)/1.75 -apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Helvetica Neue",sans-serif}
+a{color:var(--acc)}
+header.top{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+header.top .in{max-width:860px;margin:0 auto;padding:10px 16px;display:flex;gap:6px 16px;align-items:center;flex-wrap:wrap;font-size:14px}
+header.top .brand{font-weight:600;color:var(--fg);text-decoration:none;margin-right:auto}
+header.top a{text-decoration:none}
+.prefs{display:inline-flex;gap:4px;align-items:center}
+.prefs button,.prefs select,#nav-toggle{font:inherit;font-size:13px;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:2px 8px;cursor:pointer}
+main{max-width:860px;margin:0 auto;padding:24px 16px 72px;overflow-wrap:anywhere}
+h1{font-size:1.75em;line-height:1.35;margin:8px 0 16px} h2{font-size:1.375em;margin:40px 0 12px;padding-top:8px;border-top:1px solid var(--line)} h3{font-size:1.125em;margin:28px 0 8px}
+.layout{display:grid;grid-template-columns:260px minmax(0,1fr);max-width:1180px;margin:0 auto}
+.layout main{margin:0;max-width:880px}
+nav.side{position:sticky;top:49px;align-self:start;max-height:calc(100vh - 49px);overflow-y:auto;padding:20px 8px 40px 16px;border-right:1px solid var(--line);font-size:14px;line-height:1.5}
+nav.side .h{font-weight:600;color:var(--mute);margin:4px 8px 8px;font-size:13px}
+nav.side a{display:block;padding:5px 8px;border-radius:6px;color:var(--fg);text-decoration:none}
+nav.side a:hover{background:var(--code)} nav.side a.cur{background:var(--quote);color:var(--acc);font-weight:600}
+nav.side a .n{color:var(--mute);margin-right:6px;font-variant-numeric:tabular-nums}
+#nav-toggle{display:none}
+@media (max-width:960px){.layout{display:block} nav.side{display:none;position:fixed;z-index:6;top:49px;left:0;bottom:0;width:min(300px,85vw);max-height:none;background:var(--bg);box-shadow:2px 0 12px rgba(0,0,0,.2)} nav.side.open{display:block} #nav-toggle{display:inline-block}}
+.run{display:flex;flex-wrap:wrap;align-items:center;gap:4px 0;margin:4px 0 12px}
+.run details{flex-basis:100%;margin:6px 0 0;font-size:.94em}
+img{max-width:100%;height:auto;border-radius:8px;border:1px solid var(--line);background:#fff}
+blockquote{margin:16px 0;padding:10px 16px;background:var(--quote);border-left:3px solid var(--acc);border-radius:4px;color:var(--mute)}
+blockquote p{margin:4px 0}
+code{background:var(--code);padding:1px 5px;border-radius:4px;font-size:.9em}
+pre{background:var(--code);padding:12px 14px;border-radius:8px;overflow-x:auto} pre code{padding:0;background:none}
+table{border-collapse:collapse;display:block;overflow-x:auto;max-width:100%;margin:12px 0;font-size:.94em}
+th,td{border:1px solid var(--line);padding:6px 10px;vertical-align:top} th{background:var(--code)}
+details{border:1px solid var(--line);border-radius:8px;padding:6px 12px;margin:8px 0;background:var(--card)}
+details[open]{padding-bottom:10px} summary{cursor:pointer;color:var(--acc);font-weight:500}
+mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%}
+.btn{display:inline-block;margin:4px 8px 4px 0;padding:6px 14px;border:1px solid var(--acc);border-radius:999px;text-decoration:none;font-size:14px}
+.pager{display:flex;justify-content:space-between;gap:12px;margin-top:48px;padding-top:16px;border-top:1px solid var(--line);font-size:15px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin:16px 0}
+.card{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;color:inherit;text-decoration:none}
+.card:hover{border-color:var(--acc)} .card img{border:0;border-bottom:1px solid var(--line);border-radius:0;aspect-ratio:16/10;object-fit:contain;width:100%}
+.card .no{color:var(--mute);font-size:13px;padding:8px 12px 0} .card .t{padding:0 12px 12px;font-weight:500;line-height:1.5}
+.lead{font-size:1.06em;color:var(--mute)}
+footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-size:13px}
+</style>
+<script>window.MathJax={tex:{inlineMath:[["\\(","\\)"]],displayMath:[["\\[","\\]"],["$$","$$"]],processEscapes:true,processEnvironments:true}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"></script>
+</head><body>
+<header class="top"><div class="in">
+<button type="button" id="nav-toggle" aria-label="打开章节列表">☰ 章节</button><a class="brand" href="../index.html">从约束推导 AI Infra</a>
+<a href="../lessons/index.html">讲义目录</a>
+<a href="../animations/index.html">动画</a>
+<a href="../review.html">复习卡片</a>
+<a href="../lessons/appendix-glossary.html">缩写表</a>
+<a href="https://wikieden.github.io/ai-books/glossary.html">全局词汇</a>
+<a href="https://wikieden.github.io/ai-books/">← 全部讲义书</a>
+<span class="prefs" title="字号与主题"><button type="button" data-fs-step="-1" aria-label="字号变小">A−</button><button type="button" data-fs-step="1" aria-label="字号变大">A+</button><select id="ab-theme" aria-label="主题色"><option value="">跟随系统</option><option value="light">浅色</option><option value="dark">深色</option><option value="sepia">米黄护眼</option><option value="green">豆沙绿护眼</option><option value="navy">夜蓝</option></select></span>
+</div></header>
+<div class="layout"><nav class="side" aria-label="章节"><div class="h">从约束推导 AI Infra</div><a href="index.html">讲义目录</a><a href="01-six-layers.html"><span class="n">1</span>一次请求走过的六层（进行中）</a><a href="02-request-lifecycle.html"><span class="n">2</span>一次生成请求的处理过程：权重加载一次，每个 token 都要再读一遍</a><a href="03-dataflow-hierarchy.html"><span class="n">3</span>从存储程序到数据流执行：存储层次就像大楼里的厕所</a><a href="04-key-numbers.html"><span class="n">4</span>系统设计的关键数字：容量、算力、带宽、延迟</a><a href="05-estimate.html"><span class="n">5</span>用几个数字估算一次模型执行：算和读各要多久，实测为什么达不到</a><a href="06-architecture.html"><span class="n">6</span>需求如何推动架构：TPU、SmartNIC、Unified Bus</a><a href="07-compute-graph.html"><span class="n">7</span>计算图与张量结构：一个 token 经过一层要算多少</a><a href="08-generation-budget.html"><span class="n">8</span>自回归生成的资源账：存一次的、每步读的、用完就扔的</a><a href="09-kv-sharing.html"><span class="n">9</span>KV 怎么变小 ①：头共享与潜变量压缩</a><a href="10-kv-sparse-linear.html"><span class="n">10</span>KV 怎么变小 ②：窗口、稀疏、线性与混合注意力</a><a href="11-moe.html"><span class="n">11</span>MoE：专家路由与批内权重复用</a><a href="12-network-shape.html"><span class="n">12</span>网络形状：深宽、专家粒度、残差与多 token 预测</a><a href="13-model-comparison.html"><span class="n">13</span>整个模型的资源需求与比较：存多少、算多少、能放几条请求</a><a href="14-workload-arrival.html"><span class="n">14</span>从单次请求到持续到达的负载：什么时候来，比来多少更要紧</a><a href="15-agent-tasks.html"><span class="n">15</span>多轮交互与 Agent 任务：前缀、成功成本、关键路径</a><a href="16-multimodal-realtime.html"><span class="n">16</span>多模态与实时交互：数据换形状，时间有死线（略讲）</a><a href="17-training-rl.html"><span class="n">17</span>训练与强化学习的计算和状态：为什么训练要 6ND、要存 18 字节</a><a href="18-scaling-lifecycle.html"><span class="n">18</span>Scaling law 与全生命周期成本：训练多大、训练多久、服务多少次</a><a href="19-accelerator-basics.html"><span class="n">19</span>从矩阵乘法认识加速器：算多少、搬多少、耗多少电</a><a href="20-compute-units.html"><span class="n">20</span>计算单元：矩阵、向量、流水与低精度</a><a href="21-memory-movement.html" class="cur"><span class="n">21</span>存储层次与数据搬移：放得下、取得到、来得及</a><a href="22-package-interconnect.html"><span class="n">22</span>多芯片封装与互联：计算放在哪，数据走哪条路</a><a href="23-architecture-evolution.html"><span class="n">23</span>架构演进与专用架构：每一代新增的东西，省掉了哪一笔</a><a href="24-choose-accelerator.html"><span class="n">24</span>根据架构选择加速器：先估下界，再找差距，最后算账</a><a href="appendix-glossary.html">附录 · 缩写与术语表</a><a href="appendix-tp-pp-cp.html">附录 · 补充资料：TP、PP、CP，一个模型沿三个方向切给多张卡</a></nav><main>
+<h1 id="21">第 21 章 · 存储层次与数据搬移：放得下、取得到、来得及</h1><div class="run"><a class="btn" href="../animations/21-memory-movement.html">▶ 打开本章可交互动画</a><a class="btn" href="https://colab.research.google.com/github/wikieden/ai-infra-from-constraints/blob/main/code/notebooks/ch21_memory_movement.ipynb" target="_blank" rel="noopener">在 Colab 运行本章代码</a><a class="btn" href="../code/notebooks/ch21_memory_movement.ipynb" download>下载 notebook</a><details><summary>本地运行</summary><pre><code>git clone https://github.com/wikieden/ai-infra-from-constraints
+cd ai-infra-from-constraints/code/notebooks
+pip install jupyterlab torch numpy
+jupyter lab ch21_memory_movement.ipynb</code></pre><p>也可以下载后直接用 VS Code 打开 .ipynb 运行。需要 GPU 的章节在 Colab 里选「代码执行程序 → 更改运行时类型 → GPU」。</p></details></div>
+<blockquote>
+<p>本章回答：片上缓冲为什么总是不够用？同一份数据为什么要分"大小、请求量、接口流量"三个数？带宽翻倍为什么读 KV 不一定变快？双缓冲和多个缓冲槽各省多少时间？矩阵单元和向量单元之间、SM 和 SM 之间交接数据要付出什么？<br />
+讲解日期：2026-11-24 · 上一章：<a href="../lessons/20-compute-units.html">第 20 章 计算单元</a> · 下一章：<a href="../lessons/22-package-interconnect.html">第 22 章 多芯片封装与互联</a><br />
+对应原文：<code>materials/ai-infra-book/manuscripts/04-加速器架构.md</code> §4.3–§4.4 L371–L649（例 4-2、图 4-13 到 4-25）<br />
+本章缩写：DMA = Direct Memory Access（直接 / 内存 / 访问）· GDDR = Graphics DDR（图形 / 双倍数据速率内存）· GPC = Graphics Processing Cluster（图形 / 处理 / 簇）· L2 = Level 2 cache（二级缓存）· NDDMA = N-Dimensional DMA（多维 / 直接内存访问，昇腾）· PDL = Programmatic Dependent Launch（程序化 / 依赖 / 启动）· SM = Streaming Multiprocessor（流式 / 多处理器）· TMA = Tensor Memory Accelerator（张量 / 内存 / 加速器）。全部缩写见 <a href="../lessons/appendix-glossary.html">缩写与术语表</a></p>
+</blockquote>
+<p>第 03 章用"大楼厕所"讲了存储层次是什么。本章算账：每一级<strong>放得下</strong>多少，数据从哪一级<strong>取得到</strong>，下一块能不能<strong>来得及</strong>在用之前到达。</p>
+<h2 id="_1">讲解</h2>
+<h3 id="2026-11-24">第一步：片上缓冲：一块计算要多大的工作台（2026-11-24）</h3>
+<p><strong>类比：木工的工作台。</strong> 台面上要同时放两块待拼的木板（输入、权重）和正在拼的成品（部分和）；还想提前把下一对木板备好，台面就得更大。</p>
+<p><strong>例子</strong>（原文 L421–L423）：<span class="arithmatex">\(m = n = 128\)</span>、<span class="arithmatex">\(k = 64\)</span> 的乘加块。</p>
+<table>
+<thead>
+<tr>
+<th>内容</th>
+<th style="text-align: right;">大小</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>BF16 输入块 + 权重块</td>
+<td style="text-align: right;">16 + 16 = 32 KiB</td>
+</tr>
+<tr>
+<td>FP32 累加器 <span class="arithmatex">\(128 \times 128 \times 4\)</span></td>
+<td style="text-align: right;">64 KiB</td>
+</tr>
+<tr>
+<td>一套合计</td>
+<td style="text-align: right;">96 KiB（V100 每 SM 最多配 96 KiB 共享内存，刚好用满）</td>
+</tr>
+<tr>
+<td>再备一对操作数（双缓冲）</td>
+<td style="text-align: right;"><span class="arithmatex">\(2 \times 32 + 64 = 128\)</span> KiB</td>
+</tr>
+</tbody>
+</table>
+<p>累加器放进独立存储，同样的 96 KiB 就能放三对输入（Blackwell 的专用累加存储，第 23 章）。</p>
+<p><strong>驻留组数</strong>（原文 L435–L437）：SM120（RTX 5090 / RTX PRO 6000）每 SM 最多 100 KB 共享内存：每组 32 KiB 可驻留 3 组，每组 64 KiB 只能 1 组。组少了，一组等数据时没有别的组顶上，计算单元更容易闲。每 SM 共享内存上限：A100 164 KB，H100 228 KB。</p>
+<p><strong>三个量要分开</strong>（原文 L425–L427）：四个输出块都读同一份 32 KiB 输入。</p>
+<table>
+<thead>
+<tr>
+<th>量</th>
+<th style="text-align: right;">值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>数据本身</td>
+<td style="text-align: right;">32 KiB</td>
+</tr>
+<tr>
+<td>各块发出的请求</td>
+<td style="text-align: right;">128 KiB</td>
+</tr>
+<tr>
+<td>片外实际传输（L2 命中后三次）</td>
+<td style="text-align: right;">32 KiB；但 L2 仍要供出 128 KiB</td>
+</tr>
+</tbody>
+</table>
+<p>用 L2 请求量算的算术强度配 L2 带宽，用 DRAM 流量算的配片外带宽。</p>
+<p><strong>L2 的位置</strong>（原文 L429）：L2 分成多个分片，经交叉互连连到全部 SM；寄存器、共享内存、L1 都是各 SM 私有。Hopper 起同一 GPC 内几个 SM 可组成<strong>线程块簇</strong>，簇内能互读共享内存；除此之外，<strong>SM 之间交换数据只能经过 L2</strong>。RTX PRO 6000：188 个 SM，L2 128 MiB。</p>
+<p><img alt="SM 私有存储、簇内互访、其余经交叉互连和 L2 中转" src="../figures/21-memory-movement-l2.png" /></p>
+<p><em>图 21-1 · L2 既是片外数据进芯片的入口，也是簇以外 SM 交换数据的唯一途径（第五步算它的代价）。</em></p>
+<p><strong>一句话</strong>：块越大复用越多，但工作台要放下两块操作数加部分和；同一份数据要分开算大小、请求量和各级接口的实际流量。</p>
+<h3 id="kv-2026-11-24">第二步：容量、带宽、延迟：读 KV 为什么不一定随带宽变快（2026-11-24）</h3>
+<p><strong>类比：餐厅传菜。</strong> 厨房出菜速度（接口带宽）再快，如果只有 4 个服务员（在途请求），每人送一趟要 5 分钟（延迟），每分钟最多也就送出 0.8 盘。</p>
+<p><strong>容量与带宽各管一段</strong>（原文 L443–L445）：Qwen3-235B-A22B 4-bit，权重 + scale 约 123.1 GB，8 条 8K 请求 KV 约 12.6 GB，工作区 2 GiB，共约 137.9 GB：H100（80 GB）差约 58 GB，H200（141 GB）余约 3.1 GB。每步访问：专家分散约 75.967 GB，集中约 24.737 GB；H200 上 15.8 / 5.2 ms，B200 上 9.5 / 3.1 ms。<strong>专家复用改的是 <span class="arithmatex">\(V\)</span>，换卡改的是 <span class="arithmatex">\(R\)</span></strong>，作用在 <span class="arithmatex">\(T = V/R\)</span> 的不同位置。</p>
+<p><strong>公式：Little 定律</strong>（原文 L454–L460）：最多 <span class="arithmatex">\(N_o\)</span> 个在途事务，每个带回 <span class="arithmatex">\(s\)</span> 字节，平均延迟 <span class="arithmatex">\(L\)</span>：</p>
+<div class="arithmatex">\[R_{\mathrm{effective}} \le \min\left(R_{\mathrm{interface}},\ \frac{N_o\,s}{L}\right), \qquad N_o \ge \left\lceil\frac{R_{\mathrm{target}}\,L}{s}\right\rceil\]</div>
+<p>下一地址依赖上一次读取结果时，队列再深也填不满；独立的计算块才能提供互不等待的读取。</p>
+<p><strong>例 4-2</strong>（原文 L467–L475）：读一条 8K 请求的 KV（1.125 GiB），每事务 128 B，延迟 500 ns。</p>
+<table>
+<thead>
+<tr>
+<th>配置</th>
+<th style="text-align: right;">有效带宽</th>
+<th style="text-align: right;">读取时间</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RTX 4090（1,008 GB/s），128 个在途事务</td>
+<td style="text-align: right;">≈ 32.8 GB/s</td>
+<td style="text-align: right;">≈ 36.9 ms</td>
+</tr>
+<tr>
+<td>RTX 4090，4,096 个（≥ 3,938 即可用满）</td>
+<td style="text-align: right;">1,008 GB/s</td>
+<td style="text-align: right;">≈ 1.20 ms</td>
+</tr>
+<tr>
+<td>RTX 5090（1,792 GB/s），4,096 个</td>
+<td style="text-align: right;">≈ 1.05 TB/s</td>
+<td style="text-align: right;">≈ 1.15 ms（只快约 4%）</td>
+</tr>
+</tbody>
+</table>
+<p>用满 1,792 GB/s 要至少 7,000 个在途事务；延迟增到 800 ns 时要 11,200 个。</p>
+<p><img alt="在途请求少时带宽被延迟卡住，多到拐点后才碰到接口上限" src="../figures/21-memory-movement-inflight.png" /></p>
+<p><em>图 21-2 · 两张卡的曲线在并发小时重合（受在途字节数限制）；接口带宽高的那张卡，需要更多在途请求才能用满。</em></p>
+<p><strong>L2 延迟</strong>（原文 L465）：依赖链上每次访问都要等完整延迟。RTX PRO 6000 一次 L2 往返约 340–390 个周期，约 120–135 ns。</p>
+<p><strong>一句话</strong>：先看容量能否驻留，再算各级流量，最后用 <span class="arithmatex">\(N_o s / L\)</span> 检查在途请求能不能用满带宽；不够时换更快的接口也没用。</p>
+<h3 id="2026-11-24_1">第三步：布局与寻址：子矩阵一行一行跳着读（2026-11-24）</h3>
+<p><strong>类比：从一本大账本里抄一个小表格。</strong> 每一行只抄几格，抄完要翻过一大段不要的内容，到下一行同样的位置再抄。</p>
+<p><strong>公式</strong>（原文 L498）：</p>
+<div class="arithmatex">\[\mathrm{addr}(i, j) = \mathrm{base} + i\,s_r + j\,s_c\]</div>
+<ul>
+<li><span class="arithmatex">\(s_r\)</span>：行步长（字节）；<span class="arithmatex">\(s_c\)</span>：列步长；按行连续存储时 <span class="arithmatex">\(s_c = b\)</span>。</li>
+</ul>
+<p><strong>例子</strong>（原文 L503）：从 BF16、行宽 4096 的矩阵取 128 行 × 128 列：</p>
+<table>
+<thead>
+<tr>
+<th>量</th>
+<th style="text-align: right;">值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>有效数据</td>
+<td style="text-align: right;"><span class="arithmatex">\(128 \times 128 \times 2 = 32\)</span> KiB</td>
+</tr>
+<tr>
+<td>每行有效</td>
+<td style="text-align: right;">256 B</td>
+</tr>
+<tr>
+<td>行步长</td>
+<td style="text-align: right;">8,192 B</td>
+</tr>
+<tr>
+<td>首行起点到末行终点的跨度</td>
+<td style="text-align: right;"><span class="arithmatex">\(127 \times 8192 + 256 = 1{,}040{,}640\)</span> B</td>
+</tr>
+</tbody>
+</table>
+<p>逐行读只传有效的 256 B；相邻线程读相邻元素时还能合并成更少的事务。</p>
+<p><img alt="每行只读前 256 字节，跳过 8 KiB 再读下一行" src="../figures/21-memory-movement-layout.png" /></p>
+<p><em>图 21-3 · 行步长告诉搬移单元下一段有效数据从哪开始。</em></p>
+<p><strong>描述符</strong>（原文 L517）：搬移单元接收起点、形状、步长，自己重复生成地址（NVIDIA Hopper 的 TMA、昇腾 950 的 NDDMA）。上例用"起点、128 行、每行 256 B、行步长 8192 B"就描述完了。</p>
+<p><strong>分块让请求变多</strong>（原文 L513）：V4-Flash 共享专家 <span class="arithmatex">\([32, 4096] \times [4096, 2048]\)</span>，FP8 输入 128 KiB；输出分 16 个 128 列的块，每块都遍历全部输入：块级输入请求 <span class="arithmatex">\(16 \times 128\)</span> KiB = 2 MiB。共享缓存或同一计算组连续算多个块，才能把重复请求留在片上。</p>
+<p><strong>补基础</strong>：合并访问见<a href="https://wikieden.github.io/cuda-to-tensor-core/lessons/06-coalescing.html">《CUDA 从线程到 Tensor Core》第 6 章</a>，TMA 见<a href="https://wikieden.github.io/cuda-to-tensor-core/lessons/17-hopper-tma-mbarrier.html">第 17 章</a>。</p>
+<p><strong>一句话</strong>：子矩阵按步长跳着读；搬移单元用描述符生成地址，分块方式决定同一份数据被请求几次。</p>
+<h3 id="2026-11-24_2">第四步：双缓冲与缓冲槽：下一块要在用之前到（2026-11-24）</h3>
+<p><strong>类比：做饭时边炒这盘、边洗下一盘的菜。</strong> 只有一个盆，就得炒完再洗；有两个、三个盆，洗菜和炒菜就能重叠。盆多到一定程度，再多也没用：灶台已经一直没停过。</p>
+<p><strong>双缓冲</strong>（原文 L526–L529）：<span class="arithmatex">\(n\)</span> 块，每块加载 <span class="arithmatex">\(t_l\)</span>、计算 <span class="arithmatex">\(t_c\)</span>：</p>
+<div class="arithmatex">\[T_{\mathrm{serial}} = n(t_l + t_c), \qquad T_{\mathrm{pipe}} = t_l + t_c + (n - 1)\max(t_l, t_c)\]</div>
+<p>8 块、加载 2 μs、计算 1 μs：串行 24 μs，流水 <span class="arithmatex">\(2 + 1 + 7 \times 2 = 17\)</span> μs；计算再快一倍只降到 16.5 μs（加载仍每 2 μs 才供一块）。</p>
+<p><strong>几个槽才够</strong>（原文 L531–L576）：B200 一个 SM 上的 QK，沿头维度切 4 块，每块输入 16 KiB。每块传输 64 tick，再等 128 tick 才可用（发起后 192 tick 就绪），计算 128 tick；一个输入槽从发起占到算完才释放。</p>
+<p><img alt="一个输入槽的生命周期：传输 64、等待 128、就绪 192、计算 128、释放 320" src="../figures/21-memory-movement-slot.png" /></p>
+<p><em>图 21-4 · tick 是 B200 SM 的一个时钟周期。</em></p>
+<table>
+<thead>
+<tr>
+<th>输入槽数</th>
+<th style="text-align: right;">输入缓冲</th>
+<th style="text-align: right;">完成时间</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td style="text-align: right;">16 KiB</td>
+<td style="text-align: right;">1280 tick</td>
+</tr>
+<tr>
+<td>2</td>
+<td style="text-align: right;">32 KiB</td>
+<td style="text-align: right;">768 tick</td>
+</tr>
+<tr>
+<td>3</td>
+<td style="text-align: right;">48 KiB</td>
+<td style="text-align: right;">704 tick（<span class="arithmatex">\(= 192 + 4 \times 128\)</span>，最早可能）</td>
+</tr>
+<tr>
+<td>4</td>
+<td style="text-align: right;">64 KiB</td>
+<td style="text-align: right;">704 tick（不再缩短）</td>
+</tr>
+</tbody>
+</table>
+<p>矩阵速率翻倍（每块计算 64 tick）后，目标变成 <span class="arithmatex">\(192 + 4 \times 64 = 448\)</span>：三个槽只能做到 512，要四个槽才行。<strong>计算变快，缓冲也要重新配</strong>。</p>
+<p><strong>一句话</strong>：双缓冲让加载和计算重叠，完成时间由慢的那段决定；所需槽数 = 让每块按时到达的最少槽数，计算加快后要更多槽。</p>
+<h3 id="sm-2026-11-24">第五步：交接的代价：单元之间、SM 之间（2026-11-24）</h3>
+<p><strong>类比：接力赛交棒。</strong> 同一个队里交棒（单元之间、直接通路）很快；跨队交棒要先把棒放到中间的桌上（L2），再喊一声"放好了"（标志），对方确认后才拿，而且得保证棒真的先放好、再喊。</p>
+<p><strong>矩阵—向量交接</strong>（原文 L596–L610）：128 行查询分 4 组、每组 32 行，一组分数 + 概率共 24 KiB。</p>
+<table>
+<thead>
+<tr>
+<th>交接方式</th>
+<th style="text-align: right;">行组</th>
+<th style="text-align: right;">槽数</th>
+<th style="text-align: right;">向量开始</th>
+<th style="text-align: right;">完成</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>写入存储再读</td>
+<td style="text-align: right;">128</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1536 tick</td>
+<td style="text-align: right;">5118 tick</td>
+</tr>
+<tr>
+<td>写入存储再读</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">384 tick</td>
+<td style="text-align: right;">5120 tick</td>
+</tr>
+<tr>
+<td>写入存储再读</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">384 tick</td>
+<td style="text-align: right;">3200 tick</td>
+</tr>
+<tr>
+<td>直接传递</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">256 tick</td>
+<td style="text-align: right;">3008 tick</td>
+</tr>
+<tr>
+<td>直接传递</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">256 tick</td>
+<td style="text-align: right;">3008 tick</td>
+</tr>
+</tbody>
+</table>
+<p>分组让完整行更早算出；第二个槽让相邻组重叠（−38%）；直接传递减少交接流量（再 −6%）；更多槽不再改变最慢单元的节奏。</p>
+<p><strong>跨 SM 交接</strong>（原文 L628–L646）：decode 时 batch 小，矩阵—向量乘要分给全部 SM，每个 SM 只算一段，下一个算子要完整向量，只能经 L2。生产者写数据 → <strong>fence</strong>（等 L2 确认写完）→ 写标志；消费者轮询到标志后再读数据（释放 / 获取语义）。</p>
+<table>
+<thead>
+<tr>
+<th>同步范围（RTX PRO 6000）</th>
+<th style="text-align: right;">一次约多久</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SM 内栅栏</td>
+<td style="text-align: right;">约 7 ns</td>
+</tr>
+<tr>
+<td>线程块簇内</td>
+<td style="text-align: right;">约 130 ns</td>
+</tr>
+<tr>
+<td>经 L2 一对一交接（含 fence）</td>
+<td style="text-align: right;">约 370 ns（去掉 fence 约 140 ns，但不保证正确）</td>
+</tr>
+<tr>
+<td>PDL 的 kernel 边界</td>
+<td style="text-align: right;">约 366 ns</td>
+</tr>
+<tr>
+<td>全部 188 个 SM 汇合</td>
+<td style="text-align: right;">约 660 ns</td>
+</tr>
+<tr>
+<td>全部 SM 汇合并送达数据</td>
+<td style="text-align: right;">约 1.0 μs</td>
+</tr>
+</tbody>
+</table>
+<p><img alt="同步范围越大、经过的存储越远，代价越高" src="../figures/21-memory-movement-sync.png" /></p>
+<p><em>图 21-5 · 对数刻度。CUDA Graph、persistent kernel 能消掉主机提交的开销，但消不掉依赖本身需要的 L2 往返（原书第 5 章）。</em></p>
+<p><strong>场景代码</strong>：CUDA 里跨 SM 交接的标准写法：生产者先写数据、再 <code>__threadfence()</code>、再写标志（简化版）：</p>
+<pre><code class="language-cpp">// 生产者 SM
+out[idx] = partial;                 // 1. 写数据（可能落在另一个 L2 分片）
+__threadfence();                    // 2. fence：等 L2 确认之前的写入都完成
+if (threadIdx.x == 0) atomicExch(&amp;flag, 1);   // 3. 再写标志
+
+// 消费者 SM
+while (atomicAdd(&amp;flag, 0) == 0) {}  // 轮询标志
+__threadfence();                     // 获取：之后的读取不能提前
+float v = out[idx];                  // 4. 读数据
+</code></pre>
+<p><strong>一句话</strong>：直接通路和多个槽减少单元间交接的等待；跨 SM 只能经 L2，一次交接数百纳秒，全 SM 汇合约 1 μs，这是依赖本身的代价。</p>
+<h2 id="_2">动画演示：缓冲槽：几个盆才能让灶台不停</h2>
+<p><img alt="缓冲槽与流水" src="../animations/21-memory-movement.gif" /></p>
+<p>可交互版：<a href="../animations/21-memory-movement.html">animations/21-memory-movement.html</a>（滑块：输入槽数 1–4；开关：矩阵速率 ×2）。</p>
+<p><strong>怎么看</strong>：</p>
+<ol>
+<li>每行是一块数据：蓝色是传输，等待后到就绪线，绿色是计算，浅灰是槽被占用的时间（第四步）；</li>
+<li>一个槽只有在这块算完以后才能接下一块；</li>
+<li>播放时槽数 1 → 2 → 3 → 4：完成时间 1280 → 768 → 704 → 704；</li>
+<li>打开"矩阵 ×2"：三个槽 512，四个槽才到 448。</li>
+</ol>
+<h2 id="_3">练习与作答记录</h2>
+<p><strong>题 1</strong>（第一步）：<span class="arithmatex">\(m = n = 64\)</span>、<span class="arithmatex">\(k = 128\)</span> 的乘加块，BF16 输入和权重、FP32 累加器，一套要多少 KiB？双缓冲呢？在每 SM 100 KB 共享内存里能驻留几组？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p><strong>题 2</strong>（第二步）：每事务 64 B、延迟 600 ns，要用满 2,000 GB/s 的接口，至少要多少个在途事务？如果只有 8,192 个，有效带宽是多少？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p><strong>题 3</strong>（第四步）：沿用正文参数（传输 64、等待 128、计算 128 tick），一共 6 块。一个、两个、三个槽各要多少 tick？连续计算的理论最早完成时间是多少？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p>原书"思考"（L413：KV 降 10% 能否放下第五条请求；L580：额外等待翻倍时三个槽够不够）、实验 4-3（L485–L487）、实验 4-4（L622–L624）。想多练可以做。</p>
+<h2 id="_4">口诀</h2>
+<blockquote>
+<p>工作台放两块板一块成品，备下一对还要再大；<br />
+数据、请求、流量三个数，配各自那一级的带宽；<br />
+服务员少了，厨房再快也送不出去；<br />
+小表格跳着抄，描述符替你算地址；<br />
+盆多了菜能边洗边炒，灶台不停就别再加盆；<br />
+队里交棒快，跨队先放桌上再喊话。</p>
+</blockquote>
+<h2 id="_5">本章复习卡片</h2>
+<p><a href="../review.html">I78</a>（片上缓冲的大小与驻留组数，三个量分开）、<a href="../review.html">I79</a>（Little 定律与在途事务）、<a href="../review.html">I80</a>（步长寻址与描述符）、<a href="../review.html">I81</a>（双缓冲与缓冲槽数）、<a href="../review.html">I82</a>（单元间与跨 SM 交接的代价）。练习做完后，按答错、卡住的地方再补。</p>
+<h2 id="_6">附录 · 延伸阅读</h2>
+<blockquote>
+<p>留给以后深入学习用，不影响本章主线。★ 是建议先读的。</p>
+</blockquote>
+<h3 id="_7">推荐阅读</h3>
+<table>
+<thead>
+<tr>
+<th>读什么</th>
+<th>读哪里</th>
+<th>读它为了什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>★ AII 第 4 章</td>
+<td>§4.3–§4.4 L371–L649</td>
+<td>本章原文，例 4-2、图 4-13 到 4-25</td>
+</tr>
+<tr>
+<td>★ <a href="https://wikieden.github.io/cuda-to-tensor-core/lessons/index.html">《CUDA 从线程到 Tensor Core》第 5、6、16、17 章</a></td>
+<td>内存层级、合并访问、异步拷贝流水、TMA 与 mbarrier</td>
+<td>GPU 一侧怎么写</td>
+</tr>
+<tr>
+<td>Mess 论文（原文 <code>[^mess]</code>）</td>
+<td>带宽—延迟曲线</td>
+<td>延迟随负载上升，Little 定律的实测版</td>
+</tr>
+<tr>
+<td>AISPE 第 7、10、11 章</td>
+<td>中英对照</td>
+<td>内存访问模式、内核内流水、流与同步</td>
+</tr>
+<tr>
+<td>AII 实验（原文 <code>[^l2sync]</code>）</td>
+<td>L2 交接与同步测量</td>
+<td>370 ns、660 ns、1 μs 的测法</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_8">数学原理</h3>
+<ul>
+<li><strong>Little 定律</strong>：稳定系统里平均在途数 = 完成速率 × 平均延迟。</li>
+<li><strong>流水线时间</strong>：首块 <span class="arithmatex">\(t_l + t_c\)</span>，之后每块 <span class="arithmatex">\(\max(t_l, t_c)\)</span>。</li>
+<li><strong>步长寻址</strong>：二维视图的地址是起点加行号 × 行步长加列号 × 列步长。</li>
+</ul>
+<h3 id="_9">公式清单</h3>
+<table>
+<thead>
+<tr>
+<th>公式</th>
+<th>意思</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\(W + BSm_{\mathrm{KV}} + M_{\mathrm{work}} \le C\)</span></td>
+<td>容量条件（第 13 章）</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(R_{\mathrm{eff}} \le \min(R_{\mathrm{if}}, N_o s / L)\)</span>；<span class="arithmatex">\(N_o \ge \lceil R L / s \rceil\)</span></td>
+<td>在途事务</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\mathrm{addr}(i,j) = \mathrm{base} + i s_r + j s_c\)</span></td>
+<td>步长寻址</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(T_{\mathrm{pipe}} = t_l + t_c + (n-1)\max(t_l, t_c)\)</span></td>
+<td>双缓冲</td>
+</tr>
+<tr>
+<td>连续计算最早完成 <span class="arithmatex">\(=\)</span> 首块就绪 <span class="arithmatex">\(+ n \times t_c\)</span></td>
+<td>缓冲槽的目标</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_10">代码对照：把本章的数字用代码算一遍</h3>
+<blockquote>
+<p>纯 Python，不需要 GPU。代码在仓库本地 <code>ai-infra/solutions/chapter-code/ch21_memory_movement.py</code>，配套测试 <code>tests/test_ch21.py</code>：</p>
+<p><code>bash  
+cd ai-infra/solutions/chapter-code  
+uv run python ch21_memory_movement.py   # 一步一步打印  
+uv run pytest tests/test_ch21.py</code></p>
+</blockquote>
+<p><strong>讲义 ↔ 代码</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>讲义</th>
+<th>公式</th>
+<th>写法</th>
+<th>跑出来</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第一步 工作台</td>
+<td>输入 + 累加器</td>
+<td><code>tile_kib(128, 128, 64)</code></td>
+<td>96 KiB；双缓冲 128 KiB</td>
+</tr>
+<tr>
+<td>第二步 例 4-2</td>
+<td>Little 定律</td>
+<td><code>inflight_needed(1.008e12, 500e-9)</code>、<code>effective_bw(...)</code></td>
+<td>3,938；32.8 GB/s、36.9 ms；1.20 / 1.15 ms</td>
+</tr>
+<tr>
+<td>第三步 子矩阵</td>
+<td>步长</td>
+<td><code>submatrix_span(128, 128, 4096)</code></td>
+<td>32 KiB 有效，跨度 1,040,640 B</td>
+</tr>
+<tr>
+<td>第四步 双缓冲</td>
+<td>流水公式</td>
+<td><code>pipe_time(8, 2, 1)</code></td>
+<td>24 vs 17 μs</td>
+</tr>
+<tr>
+<td>第四步 缓冲槽</td>
+<td>逐块模拟</td>
+<td><code>simulate_slots(slots, t_c)</code></td>
+<td>1280 / 768 / 704 / 704；×2 时 512 / 448</td>
+</tr>
+</tbody>
+</table>
+<p><strong>关键几行</strong>：</p>
+<pre><code class="language-python">def simulate_slots(slots, t_c, n=4, xfer=64, wait=128):
+    free_at = [0] * slots; issue_free = 0; comp_end = 0
+    for _ in range(n):
+        s = min(range(slots), key=lambda i: free_at[i])         # 最早空出来的槽
+        issue = max(free_at[s], issue_free); issue_free = issue + xfer   # 传输串行
+        start = max(issue + xfer + wait, comp_end)               # 就绪了、前一块也算完了
+        comp_end = start + t_c; free_at[s] = comp_end            # 算完才释放槽
+    return comp_end
+</code></pre>
+<p><strong>代码里才看得到的 3 件事</strong>：</p>
+<ol>
+<li>模拟里传输是串行的（同一时刻只有一块在传，<code>issue_free</code>），这是 64 tick 一块的前提；去掉这条，两个槽会算出更早的结果。</li>
+<li>槽在"这块算完"时才释放，不是数据到达时；这正是原文说槽"从发出读取请求到该块计算结束一直被占用"。</li>
+<li>例 4-2 的 1.125 GiB 是 <span class="arithmatex">\(2^{30}\)</span> 字节制，带宽是 <span class="arithmatex">\(10^9\)</span> 制；时间 <span class="arithmatex">\(= 1.125 \times 2^{30} / R\)</span>。</li>
+</ol>
+<p><strong>自己改一改</strong>（不影响练习答案）：</p>
+<ul>
+<li>把 <code>simulate_slots</code> 的等待从 128 改成 256，三个槽还能连续计算吗？</li>
+<li>用 <code>effective_bw</code> 扫在途事务 256 到 16384，画出图 21-2 的曲线。</li>
+<li>把 <code>tile_kib</code> 的累加器移到独立存储（不计入），看 100 KB 里能放几对输入。</li>
+</ul><nav class="pager"><a href="20-compute-units.html">← 第 20 章 · 计算单元：矩阵、向量、流水与低精度</a><a href="22-package-interconnect.html">第 22 章 · 多芯片封装与互联：计算放在哪，数据走哪条路 →</a></nav>
+</main></div>
+<footer>来自个人学习仓库的对话讲义，含练习作答记录。源码：<a href="https://github.com/wikieden/ai-infra-from-constraints">github.com/wikieden/ai-infra-from-constraints</a>。更多讲义书：<a href="https://wikieden.github.io/ai-books/">Physical AI 0-1-♾️（合集）</a></footer>
+<script>(function(){var d=document.documentElement,K=["s","m","l","xl"];
+function save(k,v){try{v?localStorage.setItem(k,v):localStorage.removeItem(k)}catch(e){}}
+var s=document.getElementById("ab-theme");if(s){s.value=d.dataset.theme||"";s.onchange=function(){if(s.value)d.dataset.theme=s.value;else delete d.dataset.theme;save("ab-theme",s.value)}}
+document.querySelectorAll("[data-fs-step]").forEach(function(b){b.onclick=function(){var i=K.indexOf(d.dataset.fs||"m")+(+b.dataset.fsStep);i=Math.max(0,Math.min(K.length-1,i));d.dataset.fs=K[i];save("ab-fs",K[i])}});
+var nb=document.getElementById("nav-toggle"),side=document.querySelector("nav.side");if(nb&&side){nb.onclick=function(){side.classList.toggle("open")}}
+var cur=side&&side.querySelector(".cur");if(cur)cur.scrollIntoView({block:"center"});
+})();</script>
+</body></html>

@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="300" viewBox="0 0 860 300">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="16.0" y="26.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="17" fill="#1f2937" text-anchor="start" font-weight="bold">一次前向的运算量拆成三项：prefill 和 decode 完全不同</text>
+<text x="16.0" y="290.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">Qwen3-8B：投影与 FFN = 36 × 385,875,968 × m；注意力 = 36 × 16384 × N_pair；词表头 = 2 × 4096 × 151936 × B。</text>
+<text x="220.0" y="104.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="end" font-weight="bold">prefill 8192 个 token</text>
+<rect x="240.0" y="80.0" width="408.9" height="36.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<text x="444.4" y="103.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#1f2937" text-anchor="middle" font-weight="normal">投影+FFN 85%</text>
+<rect x="648.9" y="80.0" width="71.1" height="36.0" rx="2" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.4" opacity="1"/>
+<text x="684.4" y="103.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#1f2937" text-anchor="middle" font-weight="normal">注意力 15%</text>
+<rect x="720.0" y="80.0" width="0.0" height="36.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<text x="728.0" y="103.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="start" font-weight="bold">133.6 TFLOPs</text>
+<text x="220.0" y="184.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12.5" fill="#1f2937" text-anchor="end" font-weight="bold">decode（已有 8192）</text>
+<rect x="240.0" y="160.0" width="333.9" height="36.0" rx="2" fill="#e0ecff" stroke="#2563eb" stroke-width="1.4" opacity="1"/>
+<text x="407.0" y="183.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#1f2937" text-anchor="middle" font-weight="normal">投影+FFN 70%</text>
+<rect x="573.9" y="160.0" width="116.2" height="36.0" rx="2" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.4" opacity="1"/>
+<text x="632.0" y="183.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#1f2937" text-anchor="middle" font-weight="normal">注意力 24%</text>
+<rect x="690.1" y="160.0" width="29.9" height="36.0" rx="2" fill="#ffedd5" stroke="#ea580c" stroke-width="1.4" opacity="1"/>
+<text x="728.0" y="183.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="12" fill="#1f2937" text-anchor="start" font-weight="bold">20.0 GFLOPs</text>
+<line x1="240.0" y1="232.0" x2="262.0" y2="232.0" stroke="#2563eb" stroke-width="2.5"/>
+<text x="268.0" y="236.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#1f2937" text-anchor="start" font-weight="normal">投影 + FFN：按行数 m</text>
+<line x1="240.0" y1="250.0" x2="262.0" y2="250.0" stroke="#7c3aed" stroke-width="2.5"/>
+<text x="268.0" y="254.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#1f2937" text-anchor="start" font-weight="normal">注意力：按配对数</text>
+<line x1="240.0" y1="268.0" x2="262.0" y2="268.0" stroke="#ea580c" stroke-width="2.5"/>
+<text x="268.0" y="272.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#1f2937" text-anchor="start" font-weight="normal">词表头：按请求数</text>
+</svg>

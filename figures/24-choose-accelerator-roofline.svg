@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="390" viewBox="0 0 760 390">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="16.0" y="26.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="17" fill="#1f2937" text-anchor="start" font-weight="bold">RTX 4090 的 Q 投影：从 179 行起，计算比读写更久</text>
+<text x="16.0" y="380.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">BF16 输入、FP32 累加 165.2 TFLOP/s，1.008 TB/s。I* = P/R ≈ 164 FLOPs/B，M* = I*d/(d − 2I*) ≈ 178.1。</text>
+<line x1="100.0" y1="320.0" x2="660.0" y2="320.0" stroke="#e5e7eb" stroke-width="1"/>
+<text x="94.0" y="324.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">0</text>
+<line x1="100.0" y1="245.7" x2="660.0" y2="245.7" stroke="#e5e7eb" stroke-width="1"/>
+<text x="94.0" y="249.7" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">20</text>
+<line x1="100.0" y1="171.4" x2="660.0" y2="171.4" stroke="#e5e7eb" stroke-width="1"/>
+<text x="94.0" y="175.4" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">40</text>
+<line x1="100.0" y1="97.1" x2="660.0" y2="97.1" stroke="#e5e7eb" stroke-width="1"/>
+<text x="94.0" y="101.1" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">60</text>
+<line x1="100.0" y1="60.0" x2="100.0" y2="320.0" stroke="#f0f1f3" stroke-width="1"/>
+<text x="100.0" y="335.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">0</text>
+<line x1="193.3" y1="60.0" x2="193.3" y2="320.0" stroke="#f0f1f3" stroke-width="1"/>
+<text x="193.3" y="335.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">50</text>
+<line x1="286.7" y1="60.0" x2="286.7" y2="320.0" stroke="#f0f1f3" stroke-width="1"/>
+<text x="286.7" y="335.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">100</text>
+<line x1="380.0" y1="60.0" x2="380.0" y2="320.0" stroke="#f0f1f3" stroke-width="1"/>
+<text x="380.0" y="335.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">150</text>
+<line x1="473.3" y1="60.0" x2="473.3" y2="320.0" stroke="#f0f1f3" stroke-width="1"/>
+<text x="473.3" y="335.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">200</text>
+<line x1="566.7" y1="60.0" x2="566.7" y2="320.0" stroke="#f0f1f3" stroke-width="1"/>
+<text x="566.7" y="335.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">250</text>
+<line x1="660.0" y1="60.0" x2="660.0" y2="320.0" stroke="#f0f1f3" stroke-width="1"/>
+<text x="660.0" y="335.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">300</text>
+<line x1="100.0" y1="320.0" x2="660.0" y2="320.0" stroke="#1f2937" stroke-width="1.3"/>
+<line x1="100.0" y1="60.0" x2="100.0" y2="320.0" stroke="#1f2937" stroke-width="1.3"/>
+<text x="380.0" y="352.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#1f2937" text-anchor="middle" font-weight="normal">行数 M</text>
+<text transform="translate(60.0,190.0) rotate(-90)" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#1f2937" text-anchor="middle">时间（μs）</text>
+<polyline points="100.0,320.0 109.3,316.2 118.7,312.5 128.0,308.7 137.3,304.9 146.7,301.1 156.0,297.4 165.3,293.6 174.7,289.8 184.0,286.1 193.3,282.3 202.7,278.5 212.0,274.7 221.3,271.0 230.7,267.2 240.0,263.4 249.3,259.6 258.7,255.9 268.0,252.1 277.3,248.3 286.7,244.6 296.0,240.8 305.3,237.0 314.7,233.2 324.0,229.5 333.3,225.7 342.7,221.9 352.0,218.2 361.3,214.4 370.7,210.6 380.0,206.8 389.3,203.1 398.7,199.3 408.0,195.5 417.3,191.7 426.7,188.0 436.0,184.2 445.3,180.4 454.7,176.7 464.0,172.9 473.3,169.1 482.7,165.3 492.0,161.6 501.3,157.8 510.7,154.0 520.0,150.3 529.3,146.5 538.7,142.7 548.0,138.9 557.3,135.2 566.7,131.4 576.0,127.6 585.3,123.8 594.7,120.1 604.0,116.3 613.3,112.5 622.7,108.8 632.0,105.0 641.3,101.2 650.7,97.4 660.0,93.7" fill="none" stroke="#ea580c" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<polyline points="100.0,196.4 109.3,196.1 118.7,195.8 128.0,195.5 137.3,195.2 146.7,194.8 156.0,194.5 165.3,194.2 174.7,193.9 184.0,193.6 193.3,193.3 202.7,193.0 212.0,192.7 221.3,192.4 230.7,192.1 240.0,191.8 249.3,191.5 258.7,191.2 268.0,190.9 277.3,190.6 286.7,190.3 296.0,190.0 305.3,189.7 314.7,189.4 324.0,189.1 333.3,188.8 342.7,188.5 352.0,188.2 361.3,187.9 370.7,187.6 380.0,187.3 389.3,187.0 398.7,186.7 408.0,186.4 417.3,186.1 426.7,185.8 436.0,185.5 445.3,185.2 454.7,184.9 464.0,184.6 473.3,184.3 482.7,184.0 492.0,183.7 501.3,183.4 510.7,183.1 520.0,182.8 529.3,182.5 538.7,182.2 548.0,181.9 557.3,181.6 566.7,181.3 576.0,181.0 585.3,180.7 594.7,180.4 604.0,180.1 613.3,179.8 622.7,179.5 632.0,179.2 641.3,178.9 650.7,178.5 660.0,178.2" fill="none" stroke="#7c3aed" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round" opacity="1"/>
+<circle cx="432.5" cy="185.6" r="5" fill="#dc2626" stroke="#dc2626" stroke-width="1.4"/>
+<rect x="401.8" y="159.1" width="61.4" height="16.5" rx="3" fill="#ffffff" stroke="none" stroke-width="1.4" opacity="0.9"/>
+<text x="432.5" y="171.1" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#dc2626" text-anchor="middle" font-weight="normal">M* ≈ 178</text>
+<line x1="120.0" y1="86.0" x2="142.0" y2="86.0" stroke="#7c3aed" stroke-width="2.5"/>
+<text x="148.0" y="90.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#1f2937" text-anchor="start" font-weight="normal">片外读写</text>
+<line x1="120.0" y1="104.0" x2="142.0" y2="104.0" stroke="#ea580c" stroke-width="2.5"/>
+<text x="148.0" y="108.0" font-family="'PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Microsoft YaHei',sans-serif" font-size="11.5" fill="#1f2937" text-anchor="start" font-weight="normal">矩阵计算</text>
+</svg>

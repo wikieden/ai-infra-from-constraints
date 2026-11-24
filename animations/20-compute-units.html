@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>注意力流水的瓶颈转移</title><link rel="stylesheet" href="anim.css">
+<style>svg text.cap{font-size:15px;font-weight:500}svg text.num{font-size:17px;font-weight:600}</style></head>
+<body><main>
+<h1>第 20 章 · 注意力流水：瓶颈在三个资源之间转移</h1>
+<p class="sub">配套讲义：<a href="../lessons/20-compute-units.html">第 20 章 · 计算单元：矩阵、向量、流水与低精度</a>。B200 单个 SM，128×128 块、头维度 128（例 4-1）。原样：矩阵 1024、共享内存 768、指数 1024 周期。</p>
+<div class="panel"><svg id="sv" viewBox="0 0 680 360"></svg></div>
+<div class="row"><button id="play">▶ 播放</button><button id="step">→ 单步</button><button id="reset">↺ 从头开始</button></div>
+<div class="row"><label><input type="checkbox" id="cm"> 矩阵 ×2</label><label><input type="checkbox" id="ce"> 指数 ×2</label><label><input type="checkbox" id="cs"> 共享内存 ×2</label></div>
+<p class="note">看点：① 上面三条横条是一块在三个资源上的周期，最长的标红 = τ；② 下面三条泳道画 6 个块：每 τ 周期开始一块，非瓶颈资源有空闲；③ 只加矩阵，τ 不变；④ 播放时依次演示 1024 → 1024 → 768 → 512。</p>
+</main>
+<script src="anim.js"></script>
+<script>
+const sv=$('sv');
+const F=[[0,0,0],[1,0,0],[1,1,0],[1,1,1]];let k=0,custom=null;
+function draw(){clear(sv);const [m,e,s]=custom||F[k];['cm','ce','cs'].forEach((id,i)=>$(id).checked=!!(custom||F[k])[[0,1,2][i]]);
+ const R=[['矩阵',1024/(m?2:1),'var(--warm)'],['共享内存',768/(s?2:1),'var(--teal)'],['指数',1024/(e?2:1),'var(--purple)']];const tau=Math.max(...R.map(r=>r[1]));
+ txt(`完成间隔下界 τ = ${tau} 周期`,{x:340,y:26,'text-anchor':'middle',class:'cap'},sv);
+ R.forEach(([n,v,c],i)=>{const y=48+i*30;txt(n,{x:110,y:y+16,'text-anchor':'end',class:'m'},sv);el('rect',{x:120,y,width:v/1024*300,height:20,fill:c,opacity:.75,stroke:v===tau?'var(--bad)':'none','stroke-width':3},sv);txt(String(v),{x:126+v/1024*300,y:y+15,class:'m'},sv)});
+ txt('6 个块的流水（每 τ 开始一块）',{x:340,y:162,'text-anchor':'middle',class:'m'},sv);const X=t=>120+t/(6*1024+1024)*540;
+ R.forEach(([n,v,c],i)=>{const y=176+i*44;txt(n,{x:110,y:y+20,'text-anchor':'end',class:'m'},sv);el('rect',{x:120,y,width:540,height:30,fill:'none',stroke:'var(--line)'},sv);
+  for(let b=0;b<6;b++){el('rect',{x:X(b*tau)+1,y:y+2,width:Math.max(X(v)-X(0)-2,1),height:26,fill:c,opacity:.7},sv);txt(String(b+1),{x:X(b*tau)+6,y:y+20,class:'m'},sv)}});
+ txt(`6 块完成于 ≈ ${5*tau+Math.max(...R.map(r=>r[1]))} 周期`,{x:660,y:330,'text-anchor':'end',class:'m'},sv)}
+function reset(){k=0;custom=null;draw()}
+function next(){if(custom!==null){custom=null;draw();return true}if(k>=F.length-1)return false;k++;draw();return true}
+['cm','ce','cs'].forEach(id=>$(id).onchange=()=>{ANIM.stop();custom=[+$('cm').checked,+$('ce').checked,+$('cs').checked];draw()});
+setupPlayer({captureSeed:1,reset,next},1600);
+</script><a href="https://wikieden.github.io/ai-books/" style="position:fixed;right:12px;bottom:12px;z-index:99;padding:4px 10px;border-radius:14px;background:rgba(127,127,127,.18);color:inherit;font:13px/1.6 system-ui,sans-serif;text-decoration:none">← 全部讲义书</a>
+</body></html>

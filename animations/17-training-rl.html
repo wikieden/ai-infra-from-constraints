@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RL 周期的运算量</title><link rel="stylesheet" href="anim.css">
+<style>svg text.cap{font-size:15px;font-weight:500}svg text.num{font-size:19px;font-weight:600}</style></head>
+<body><main>
+<h1>第 17 章 · RL 一轮：保留比例越低，生成越多</h1>
+<p class="sub">配套讲义：<a href="../lessons/17-training-rl.html">第 17 章 · 训练与强化学习的计算和状态：为什么训练要 6ND、要存 18 字节</a>。固定每轮保留 16 条；每条回答的生成 + 参考模型约 38.41 TFLOPs，一次更新 952.416 TFLOPs（例题 3-4）。</p>
+<div class="panel"><svg id="sv" viewBox="0 0 680 330"></svg></div>
+<div class="row"><button id="play">▶ 播放</button><button id="step">→ 单步</button><button id="reset">↺ 从头开始</button></div>
+<div class="row"><label for="r">自己拖：保留比例（1 / x）</label><input type="range" id="r" min="1" max="8" step="1" value="2"><span id="rv">1/2</span></div>
+<p class="note">看点：① 一排方块是生成的回答，绿色进入更新，灰色被筛掉；② 周期 = 生成数 × 38.41 + 952.4；③ 播放时保留比例 1 → 1/2 → 1/4 → 1/8：周期从约 1,567 涨到约 5,869 TFLOPs，更新那段始终不变；④ 右边是每个保留样本分摊的运算量。</p>
+</main>
+<script src="anim.js"></script>
+<script>
+const sv=$('sv');
+function box3(items,y){items.forEach(([a,b],i)=>{const x=20+i*(640/items.length);el('rect',{x,y,width:640/items.length-14,height:70,rx:8,fill:'none',stroke:'var(--line)'},sv);txt(a,{x:x+10,y:y+22,class:'m'},sv);txt(b,{x:x+10,y:y+54,class:'num'},sv)})}
+const FP=(465.143+129.056+634.944)/32,FU=952.416;const F=[1,1,2,2,4,4,8,8];let k=0,custom=null;
+function draw(){clear(sv);const x=custom??F[k],n=16*x,cyc=n*FP+FU;
+ txt(`保留比例 1/${x}：要生成 ${n} 条，保留 16 条`,{x:340,y:24,'text-anchor':'middle',class:'cap'},sv);
+ const w=Math.min(18,620/n);for(let i=0;i<n;i++)el('rect',{x:30+i*w,y:50,width:w-2,height:28,rx:2,fill:i%x===0?'var(--good)':'var(--line)',opacity:.8},sv);
+ const sc=620/6000;let xx=30;[['生成 + 参考模型',n*FP,'var(--accent)'],['更新',FU,'var(--purple)']].forEach(([l,v,c])=>{el('rect',{x:xx,y:110,width:v*sc,height:34,fill:c,opacity:.55},sv);if(v*sc>90)txt(l,{x:xx+v*sc/2,y:132,'text-anchor':'middle',class:'m'},sv);xx+=v*sc});
+ box3([['周期总运算',cyc.toFixed(0)+' TFLOPs'],['每个保留样本',(cyc/16).toFixed(1)+' TFLOPs'],['被筛掉的回答',String(n-16)]],180)}
+function reset(){k=0;custom=null;draw()}
+function next(){if(custom!==null){custom=null;draw();return true}if(k>=F.length-1)return false;k++;draw();return true}
+$('r').oninput=e=>{ANIM.stop();custom=+e.target.value;$('rv').textContent='1/'+custom;draw()};
+setupPlayer({captureSeed:1,reset,next},1400);
+</script><a href="https://wikieden.github.io/ai-books/" style="position:fixed;right:12px;bottom:12px;z-index:99;padding:4px 10px;border-radius:14px;background:rgba(127,127,127,.18);color:inherit;font:13px/1.6 system-ui,sans-serif;text-decoration:none">← 全部讲义书</a>
+</body></html>

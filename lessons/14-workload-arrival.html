@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>第 14 章 · 从单次请求到持续到达的负载：什么时候来，比来多少更要紧 · 从约束推导 AI Infra</title>
+<script>(function(){try{var d=document.documentElement,t=localStorage.getItem("ab-theme"),f=localStorage.getItem("ab-fs");if(t)d.dataset.theme=t;if(f)d.dataset.fs=f}catch(e){}})();</script>
+<style>:root{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa;--fs:16px}
+@media (prefers-color-scheme:dark){:root:not([data-theme]){--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}}
+:root[data-theme="light"]{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa}
+:root[data-theme="dark"]{--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}
+:root[data-theme="sepia"]{--bg:#f6efe1;--fg:#3b3127;--mute:#7a6a58;--line:#e2d6bf;--card:#fbf6ec;--acc:#a0522d;--code:#ece2cd;--quote:#efe5d2}
+:root[data-theme="green"]{--bg:#e3eddf;--fg:#22301f;--mute:#566650;--line:#c9d8c3;--card:#eef5eb;--acc:#2e7d4f;--code:#d6e4d0;--quote:#dae7d5}
+:root[data-theme="navy"]{--bg:#0f1a2b;--fg:#dde6f3;--mute:#93a4bd;--line:#23324a;--card:#15233a;--acc:#6cc4ff;--code:#1a2a44;--quote:#16243b}
+:root[data-fs="s"]{--fs:15px}
+:root[data-fs="m"]{--fs:16px}
+:root[data-fs="l"]{--fs:18px}
+:root[data-fs="xl"]{--fs:20px}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:var(--fs)/1.75 -apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Helvetica Neue",sans-serif}
+a{color:var(--acc)}
+header.top{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+header.top .in{max-width:860px;margin:0 auto;padding:10px 16px;display:flex;gap:6px 16px;align-items:center;flex-wrap:wrap;font-size:14px}
+header.top .brand{font-weight:600;color:var(--fg);text-decoration:none;margin-right:auto}
+header.top a{text-decoration:none}
+.prefs{display:inline-flex;gap:4px;align-items:center}
+.prefs button,.prefs select,#nav-toggle{font:inherit;font-size:13px;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:2px 8px;cursor:pointer}
+main{max-width:860px;margin:0 auto;padding:24px 16px 72px;overflow-wrap:anywhere}
+h1{font-size:1.75em;line-height:1.35;margin:8px 0 16px} h2{font-size:1.375em;margin:40px 0 12px;padding-top:8px;border-top:1px solid var(--line)} h3{font-size:1.125em;margin:28px 0 8px}
+.layout{display:grid;grid-template-columns:260px minmax(0,1fr);max-width:1180px;margin:0 auto}
+.layout main{margin:0;max-width:880px}
+nav.side{position:sticky;top:49px;align-self:start;max-height:calc(100vh - 49px);overflow-y:auto;padding:20px 8px 40px 16px;border-right:1px solid var(--line);font-size:14px;line-height:1.5}
+nav.side .h{font-weight:600;color:var(--mute);margin:4px 8px 8px;font-size:13px}
+nav.side a{display:block;padding:5px 8px;border-radius:6px;color:var(--fg);text-decoration:none}
+nav.side a:hover{background:var(--code)} nav.side a.cur{background:var(--quote);color:var(--acc);font-weight:600}
+nav.side a .n{color:var(--mute);margin-right:6px;font-variant-numeric:tabular-nums}
+#nav-toggle{display:none}
+@media (max-width:960px){.layout{display:block} nav.side{display:none;position:fixed;z-index:6;top:49px;left:0;bottom:0;width:min(300px,85vw);max-height:none;background:var(--bg);box-shadow:2px 0 12px rgba(0,0,0,.2)} nav.side.open{display:block} #nav-toggle{display:inline-block}}
+.run{display:flex;flex-wrap:wrap;align-items:center;gap:4px 0;margin:4px 0 12px}
+.run details{flex-basis:100%;margin:6px 0 0;font-size:.94em}
+img{max-width:100%;height:auto;border-radius:8px;border:1px solid var(--line);background:#fff}
+blockquote{margin:16px 0;padding:10px 16px;background:var(--quote);border-left:3px solid var(--acc);border-radius:4px;color:var(--mute)}
+blockquote p{margin:4px 0}
+code{background:var(--code);padding:1px 5px;border-radius:4px;font-size:.9em}
+pre{background:var(--code);padding:12px 14px;border-radius:8px;overflow-x:auto} pre code{padding:0;background:none}
+table{border-collapse:collapse;display:block;overflow-x:auto;max-width:100%;margin:12px 0;font-size:.94em}
+th,td{border:1px solid var(--line);padding:6px 10px;vertical-align:top} th{background:var(--code)}
+details{border:1px solid var(--line);border-radius:8px;padding:6px 12px;margin:8px 0;background:var(--card)}
+details[open]{padding-bottom:10px} summary{cursor:pointer;color:var(--acc);font-weight:500}
+mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%}
+.btn{display:inline-block;margin:4px 8px 4px 0;padding:6px 14px;border:1px solid var(--acc);border-radius:999px;text-decoration:none;font-size:14px}
+.pager{display:flex;justify-content:space-between;gap:12px;margin-top:48px;padding-top:16px;border-top:1px solid var(--line);font-size:15px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin:16px 0}
+.card{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;color:inherit;text-decoration:none}
+.card:hover{border-color:var(--acc)} .card img{border:0;border-bottom:1px solid var(--line);border-radius:0;aspect-ratio:16/10;object-fit:contain;width:100%}
+.card .no{color:var(--mute);font-size:13px;padding:8px 12px 0} .card .t{padding:0 12px 12px;font-weight:500;line-height:1.5}
+.lead{font-size:1.06em;color:var(--mute)}
+footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-size:13px}
+</style>
+<script>window.MathJax={tex:{inlineMath:[["\\(","\\)"]],displayMath:[["\\[","\\]"],["$$","$$"]],processEscapes:true,processEnvironments:true}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"></script>
+</head><body>
+<header class="top"><div class="in">
+<button type="button" id="nav-toggle" aria-label="打开章节列表">☰ 章节</button><a class="brand" href="../index.html">从约束推导 AI Infra</a>
+<a href="../lessons/index.html">讲义目录</a>
+<a href="../animations/index.html">动画</a>
+<a href="../review.html">复习卡片</a>
+<a href="../lessons/appendix-glossary.html">缩写表</a>
+<a href="https://wikieden.github.io/ai-books/glossary.html">全局词汇</a>
+<a href="https://wikieden.github.io/ai-books/">← 全部讲义书</a>
+<span class="prefs" title="字号与主题"><button type="button" data-fs-step="-1" aria-label="字号变小">A−</button><button type="button" data-fs-step="1" aria-label="字号变大">A+</button><select id="ab-theme" aria-label="主题色"><option value="">跟随系统</option><option value="light">浅色</option><option value="dark">深色</option><option value="sepia">米黄护眼</option><option value="green">豆沙绿护眼</option><option value="navy">夜蓝</option></select></span>
+</div></header>
+<div class="layout"><nav class="side" aria-label="章节"><div class="h">从约束推导 AI Infra</div><a href="index.html">讲义目录</a><a href="01-six-layers.html"><span class="n">1</span>一次请求走过的六层（进行中）</a><a href="02-request-lifecycle.html"><span class="n">2</span>一次生成请求的处理过程：权重加载一次，每个 token 都要再读一遍</a><a href="03-dataflow-hierarchy.html"><span class="n">3</span>从存储程序到数据流执行：存储层次就像大楼里的厕所</a><a href="04-key-numbers.html"><span class="n">4</span>系统设计的关键数字：容量、算力、带宽、延迟</a><a href="05-estimate.html"><span class="n">5</span>用几个数字估算一次模型执行：算和读各要多久，实测为什么达不到</a><a href="06-architecture.html"><span class="n">6</span>需求如何推动架构：TPU、SmartNIC、Unified Bus</a><a href="07-compute-graph.html"><span class="n">7</span>计算图与张量结构：一个 token 经过一层要算多少</a><a href="08-generation-budget.html"><span class="n">8</span>自回归生成的资源账：存一次的、每步读的、用完就扔的</a><a href="09-kv-sharing.html"><span class="n">9</span>KV 怎么变小 ①：头共享与潜变量压缩</a><a href="10-kv-sparse-linear.html"><span class="n">10</span>KV 怎么变小 ②：窗口、稀疏、线性与混合注意力</a><a href="11-moe.html"><span class="n">11</span>MoE：专家路由与批内权重复用</a><a href="12-network-shape.html"><span class="n">12</span>网络形状：深宽、专家粒度、残差与多 token 预测</a><a href="13-model-comparison.html"><span class="n">13</span>整个模型的资源需求与比较：存多少、算多少、能放几条请求</a><a href="14-workload-arrival.html" class="cur"><span class="n">14</span>从单次请求到持续到达的负载：什么时候来，比来多少更要紧</a><a href="15-agent-tasks.html"><span class="n">15</span>多轮交互与 Agent 任务：前缀、成功成本、关键路径</a><a href="16-multimodal-realtime.html"><span class="n">16</span>多模态与实时交互：数据换形状，时间有死线（略讲）</a><a href="17-training-rl.html"><span class="n">17</span>训练与强化学习的计算和状态：为什么训练要 6ND、要存 18 字节</a><a href="18-scaling-lifecycle.html"><span class="n">18</span>Scaling law 与全生命周期成本：训练多大、训练多久、服务多少次</a><a href="19-accelerator-basics.html"><span class="n">19</span>从矩阵乘法认识加速器：算多少、搬多少、耗多少电</a><a href="20-compute-units.html"><span class="n">20</span>计算单元：矩阵、向量、流水与低精度</a><a href="21-memory-movement.html"><span class="n">21</span>存储层次与数据搬移：放得下、取得到、来得及</a><a href="22-package-interconnect.html"><span class="n">22</span>多芯片封装与互联：计算放在哪，数据走哪条路</a><a href="23-architecture-evolution.html"><span class="n">23</span>架构演进与专用架构：每一代新增的东西，省掉了哪一笔</a><a href="24-choose-accelerator.html"><span class="n">24</span>根据架构选择加速器：先估下界，再找差距，最后算账</a><a href="appendix-glossary.html">附录 · 缩写与术语表</a><a href="appendix-tp-pp-cp.html">附录 · 补充资料：TP、PP、CP，一个模型沿三个方向切给多张卡</a></nav><main>
+<h1 id="14">第 14 章 · 从单次请求到持续到达的负载：什么时候来，比来多少更要紧</h1><div class="run"><a class="btn" href="../animations/14-workload-arrival.html">▶ 打开本章可交互动画</a><a class="btn" href="https://colab.research.google.com/github/wikieden/ai-infra-from-constraints/blob/main/code/notebooks/ch14_workload_arrival.ipynb" target="_blank" rel="noopener">在 Colab 运行本章代码</a><a class="btn" href="../code/notebooks/ch14_workload_arrival.ipynb" download>下载 notebook</a><details><summary>本地运行</summary><pre><code>git clone https://github.com/wikieden/ai-infra-from-constraints
+cd ai-infra-from-constraints/code/notebooks
+pip install jupyterlab torch numpy
+jupyter lab ch14_workload_arrival.ipynb</code></pre><p>也可以下载后直接用 VS Code 打开 .ipynb 运行。需要 GPU 的章节在 Colab 里选「代码执行程序 → 更改运行时类型 → GPU」。</p></details></div>
+<blockquote>
+<p>本章回答：平均每秒 4 个请求、平均长度也一样，为什么有的时段会积压？TTFT、输出间隔、完整请求时间分别量的是哪一段？等待中的请求为什么也算"占用容量"？<br />
+讲解日期：2026-11-24 · 上一章：<a href="../lessons/13-model-comparison.html">第 13 章 整个模型的资源需求与比较</a> · 下一章：<a href="../lessons/15-agent-tasks.html">第 15 章 多轮交互与 Agent 任务</a><br />
+对应原文：<code>materials/ai-infra-book/manuscripts/03-推理与训练负载.md</code> 章首 L1–L7、§3.1 L9–L146（例题 3-1、图 3-1 到 3-8）<br />
+本章缩写：KV = Key-Value（键 / 值）· p95 = 95th percentile（第 95 / 百分位数）· TTFT = Time To First Token（到 / 第一个 / token / 的时间，首响应）· TPOT = Time Per Output Token（每个 / 输出 / token / 的时间）。全部缩写见 <a href="../lessons/appendix-glossary.html">缩写与术语表</a></p>
+</blockquote>
+<p>第 2 部分算的是一次调用要多少资源。第 3 部分加上时间：工作<strong>什么时候到</strong>，哪些步骤<strong>必须等</strong>，什么结果才算<strong>完成</strong>。</p>
+<h2 id="_1">讲解</h2>
+<h3 id="2026-11-24">第一步：一个请求的调用链，两种形状的工作（2026-11-24）</h3>
+<p><strong>类比：一家餐厅的两种活。</strong> 备菜（prefill）是一次切一大堆，刀工全开；出菜（decode）是一盘一盘地上，每上一盘都要回头看一眼菜单。同一个厨房，两种活对人手和工具的要求完全不同。</p>
+<p>原文 L13：恢复 <span class="arithmatex">\(S\)</span> 个上下文、处理 <span class="arithmatex">\(P\)</span> 个新输入、返回 <span class="arithmatex">\(G\)</span> 个 token：一次 prefill + <span class="arithmatex">\(n_d = G - 1\)</span> 次 decode；第 <span class="arithmatex">\(j\)</span> 次 decode 开始时上下文是 <span class="arithmatex">\(S + P + j\)</span>（第 08 章）。</p>
+<p>原文 L19–L21：同一组权重，prefill 的输入有 <span class="arithmatex">\(BP\)</span> 行，单步 decode 只有 <span class="arithmatex">\(B\)</span> 行。所以常说"prefill 受算力限制、decode 受带宽限制"（第 05 章的转折点 <span class="arithmatex">\(B_*\)</span>）。服务系统要在这两种形状的工作之间分时间，<strong>只把 token 总数加起来会丢掉"它们属于哪个阶段、什么时候能执行"</strong>。</p>
+<p><strong>一句话</strong>：负载 = 一段时间里到达、等待、执行的工作；同样多的 token，分在 prefill 还是 decode、什么时候到，资源需求完全不同。</p>
+<h3 id="2026-11-24_1">第二步：三个时间点、三个指标，以及"占着空间等"（2026-11-24）</h3>
+<p><strong>类比：点外卖。</strong> 下单（到达）、骑手接单开始送第一份（首响应）、最后一份送到（完成）。"多久开始有东西吃"和"多久吃完"是两回事。</p>
+<p><strong>公式</strong>（原文 L34）：到达 <span class="arithmatex">\(t_a\)</span>、首 token <span class="arithmatex">\(t_1\)</span>、末 token <span class="arithmatex">\(t_G\)</span>：</p>
+<div class="arithmatex">\[T_{\mathrm{TTFT}} = t_1 - t_a, \qquad T_{\mathrm{request}} = t_G - t_a, \qquad \overline{T}_{\mathrm{token}} = \frac{t_G - t_1}{G - 1}\]</div>
+<p><img alt="请求到达、首输出、末输出切出三个区间" src="../figures/14-workload-arrival-clocks.png" /></p>
+<p><em>图 14-1 · 首响应包含开始生成前的排队；输出间隔只看生成过程；完整请求从到达算到结束。缩短排队只改善 TTFT，不会缩短已经开始后的 token 间隔。</em></p>
+<p><strong>例子</strong>（编的）：<span class="arithmatex">\(t_a = 0\)</span>，<span class="arithmatex">\(t_1 = 0.8\)</span> s，<span class="arithmatex">\(t_G = 5.8\)</span> s，<span class="arithmatex">\(G = 101\)</span>：TTFT 0.8 s，完整请求 5.8 s，平均 token 间隔 <span class="arithmatex">\(5.0 / 100 = 50\)</span> ms。</p>
+<p><strong>p95</strong>（原文 L57，最近秩法）：<span class="arithmatex">\(n\)</span> 个观测从小到大排，取第 <span class="arithmatex">\(\lceil 0.95n \rceil\)</span> 个。4 条请求的 p95 是最大值；480 条请求的 p95 是第 456 个。</p>
+<p><strong>等待也占容量</strong>（原文 L62–L65）：状态大小 <span class="arithmatex">\(M(t)\)</span> 对时间的积分</p>
+<div class="arithmatex">\[A_M = \int_{t_{\mathrm{start}}}^{t_{\mathrm{end}}} M(t)\,\mathrm{d}t\]</div>
+<p>单位 byte·s：1 GiB 占 10 秒 = 10 GiB·s。任务以每秒 <span class="arithmatex">\(\lambda\)</span> 个到达、每个占 <span class="arithmatex">\(M_0\)</span>、平均等 <span class="arithmatex">\(\tau\)</span> 秒，稳定时平均占用 <span class="arithmatex">\(\approx \lambda M_0 \tau\)</span>。</p>
+<p><strong>成功任务成本</strong>（原文 L71）：所有尝试（包括失败的生成、工具测试、环境运行）的成本之和 ÷ 成功任务数。</p>
+<table>
+<thead>
+<tr>
+<th>要回答的问题</th>
+<th>看什么（原文 L48–L55）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>多久开始回应</td>
+<td>TTFT；reasoning 模型另记首个有用输出</td>
+</tr>
+<tr>
+<td>输出连不连续</td>
+<td>逐 token / 逐块间隔的分布</td>
+</tr>
+<tr>
+<td>多久做完</td>
+<td>完整请求时间、完整任务时间</td>
+</tr>
+<tr>
+<td>每秒完成多少合格任务</td>
+<td>质量和时限要求下的有效吞吐</td>
+</tr>
+<tr>
+<td>一个成功结果花多少</td>
+<td>全部尝试成本 ÷ 成功任务数</td>
+</tr>
+<tr>
+<td>等待时还占着什么</td>
+<td>状态大小、存放位置和驻留时间</td>
+</tr>
+</tbody>
+</table>
+<p><strong>一句话</strong>：TTFT、输出间隔、完整请求时间各量一段；等待中的状态按"空间 × 时间"占容量；成本要按成功任务摊。</p>
+<h3 id="2026-11-24_2">第三步：平均够用，为什么还会积压（2026-11-24）</h3>
+<p><strong>类比：一个收费站。</strong> 一天的车流平均下来收费员处理得过来，但早高峰那一小时车比收费员快，车就排起长队；晚上闲下来的时间没法挪到早上用。</p>
+<p><strong>例题 3-1</strong>（原文 L81–L97）：两类请求，两分钟各来 240 条（平均每秒 4 条）：长输入类输入 8192、输出 256；长输出类输入 1024、输出 2048。</p>
+<table>
+<thead>
+<tr>
+<th>时间窗</th>
+<th>两类比例</th>
+<th style="text-align: right;">新输入 token/s</th>
+<th style="text-align: right;">后续 decode 步/s</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>均匀混合</td>
+<td>1 : 1</td>
+<td style="text-align: right;">18,432</td>
+<td style="text-align: right;">4,604</td>
+</tr>
+<tr>
+<td>前一分钟</td>
+<td>9 : 1</td>
+<td style="text-align: right;">29,900.8</td>
+<td style="text-align: right;">1,736.8</td>
+</tr>
+<tr>
+<td>后一分钟</td>
+<td>1 : 9</td>
+<td style="text-align: right;">6,963.2</td>
+<td style="text-align: right;">7,471.2</td>
+</tr>
+</tbody>
+</table>
+<p><img alt="同样两分钟、同样总量，前一分钟要输入处理，后一分钟要生成" src="../figures/14-workload-arrival-demand.png" /></p>
+<p><em>图 14-2 · 三个时间窗的阶段需求。平均值完全一样，但前一分钟压力在 prefill，后一分钟压力在 decode。</em></p>
+<p><strong>decode 能跑多快</strong>（原文 L113）：两张 RTX PRO 6000（各 1.792 TB/s），每张一份 Qwen3-8B BF16，最多 64 条序列同时 decode。一步至少读 15.14 GB 权重 + 64 条序列的旧 KV（平均上下文约 2742 个 token × 144 KiB）≈ 41.02 GB，要 22.89 ms，单卡每秒最多约 2,796 步，两张约 5,591 步。这是带宽允许的上限，实测只会更低。</p>
+<p><strong>积压</strong>（原文 L108）：流体队列模型，按时间窗递推</p>
+<div class="arithmatex">\[Q_{k+1} = \max\left(0,\ Q_k + A_k - \mu_k \Delta t\right)\]</div>
+<ul>
+<li><span class="arithmatex">\(Q_k\)</span>：窗口开始时的积压；<span class="arithmatex">\(A_k\)</span>：窗口内新到的工作；<span class="arithmatex">\(\mu_k \Delta t\)</span>：窗口内能做完的量。</li>
+</ul>
+<p>后一分钟每秒多来 <span class="arithmatex">\(7471.2 - 5591.33 \approx 1879.87\)</span> 步，60 秒积压约 112,792 步；停止到达后还要 <span class="arithmatex">\(112792 / 5591.33 \approx 20.17\)</span> 秒才能排空。<strong>前一分钟没用掉的能力存不到后一分钟。</strong></p>
+<p><img alt="后一分钟积压到约 11 万步，停止到达后再要约 20 秒排空" src="../figures/14-workload-arrival-backlog.png" /></p>
+<p><em>图 14-3 · 流体模型：前两个窗口处理能力足够，队列为空；第三个窗口到达快于处理，积压线性上升，到达停止后线性排空。</em></p>
+<p><strong>一般规律</strong>（原文 L141）：到达速率 <span class="arithmatex">\(\lambda_w\)</span> 连续 <span class="arithmatex">\(\tau\)</span> 秒高于处理率 <span class="arithmatex">\(\mu\)</span>，积压 <span class="arithmatex">\((\lambda_w - \mu)\tau\)</span>，排空要 <span class="arithmatex">\((\lambda_w - \mu)\tau / \mu\)</span>。突发时长加倍，两者都加倍。</p>
+<p><strong>一句话</strong>：处理能力按平均值配够了，突发时段仍会积压；积压 = 超出速率 × 持续时间。</p>
+<h3 id="kv-2026-11-24">第四步：实测：KV 池填满时，等的是空间，不是算力（2026-11-24）</h3>
+<p><strong>类比：餐厅座位坐满了。</strong> 厨房可能还有空灶，但没座位，新客人也只能在门口等；有时还得请吃到一半的客人先让座（抢占），过会儿再回来接着吃。</p>
+<p>原文 L121–L129：一张 RTX PRO 6000 跑 Qwen3-8B（vLLM 0.23），KV 池 24 GiB，最多 64 条序列，关闭前缀缓存。两种到达序列各 480 条请求、120 秒内到达。</p>
+<table>
+<thead>
+<tr>
+<th>观察</th>
+<th style="text-align: right;">均匀混合</th>
+<th style="text-align: right;">前 9:1、后 1:9</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>完整请求 p95</td>
+<td style="text-align: right;">约 299.4 s</td>
+<td style="text-align: right;">约 299.4 s</td>
+</tr>
+<tr>
+<td>TTFT p95</td>
+<td style="text-align: right;">242.9 s</td>
+<td style="text-align: right;">258.9 s</td>
+</tr>
+<tr>
+<td>初次调度等待 p95</td>
+<td style="text-align: right;">242.4 s</td>
+<td style="text-align: right;">258.4 s</td>
+</tr>
+<tr>
+<td>最后一条完成</td>
+<td style="text-align: right;">419.8 s</td>
+<td style="text-align: right;">418.7 s</td>
+</tr>
+<tr>
+<td>抢占事件</td>
+<td style="text-align: right;">62</td>
+<td style="text-align: right;">24</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>两次都大量积压：480 条请求共 552,480 个 decode 步，一张卡至少要 197.6 秒，而请求 120 秒就全到了。</li>
+<li>完整请求 p95 一样，TTFT 却差约 16 秒：到达顺序改变了<strong>什么时候释放状态、什么时候能接纳新请求</strong>。</li>
+<li>KV 池都到过 100%，空间不够时调度器会<strong>抢占</strong>：暂停某条已开始的请求、释放它的 KV，之后再恢复或重算。</li>
+</ul>
+<p><strong>场景代码</strong>：vLLM 的 OpenAI 兼容服务支持流式输出，客户端自己就能量出三个时间点：</p>
+<pre><code class="language-python">import time
+from openai import OpenAI
+
+client = OpenAI(base_url=&quot;http://localhost:8000/v1&quot;, api_key=&quot;EMPTY&quot;)
+t_a = time.perf_counter(); t_1 = None; n = 0
+for chunk in client.chat.completions.create(model=&quot;Qwen/Qwen3-8B&quot;, stream=True,
+        messages=[{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;帮我找代码里的 bug：...&quot;}]):
+    if chunk.choices and chunk.choices[0].delta.content:
+        t_1 = t_1 or time.perf_counter(); n += 1             # 首个可见 token 的时间
+t_G = time.perf_counter()
+print(f&quot;TTFT {t_1 - t_a:.2f}s，完整 {t_G - t_a:.2f}s，块间隔 {(t_G - t_1) / max(n - 1, 1) * 1e3:.0f} ms&quot;)
+</code></pre>
+<p><strong>一句话</strong>：排队既可能因为算得不够快，也可能因为状态池满了、已有请求没释放空间；同样的总量，到达顺序会改变用户开始收到响应的时间。</p>
+<h2 id="_2">动画演示：突发到达时的积压与排空</h2>
+<p><img alt="流体队列" src="../animations/14-workload-arrival.gif" /></p>
+<p>可交互版：<a href="../animations/14-workload-arrival.html">animations/14-workload-arrival.html</a>（三个滑块：三个时间窗各自每秒到达多少 decode 步；处理率固定两张 RTX PRO 6000 的约 5,591 步/秒）。</p>
+<p><strong>怎么看</strong>：</p>
+<ol>
+<li>上半部分是到达速率（三个窗口各 60 秒）和处理率（虚线）；</li>
+<li>下半部分是积压 <span class="arithmatex">\(Q(t)\)</span>：到达高于虚线时上升，低于时下降，不会低于 0（第三步）；</li>
+<li>播放时依次演示均匀混合、例题 3-1 的时段变化：后一分钟积压到约 11 万步，停止到达后约 20 秒排空；</li>
+<li>拖动滑块构造自己的突发，看积压峰值和排空时间。</li>
+</ol>
+<h2 id="_3">练习与作答记录</h2>
+<p><strong>题 1</strong>（第二步）：一个请求 <span class="arithmatex">\(t_a = 2.0\)</span> s，<span class="arithmatex">\(t_1 = 3.5\)</span> s，<span class="arithmatex">\(t_G = 13.5\)</span> s，输出 201 个 token。TTFT、完整请求时间、平均 token 间隔各是多少？另有 20 个请求的完整时间，按最近秩法 p95 取第几个？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p><strong>题 2</strong>（第二步）：Agent 任务每秒 3 个进入工具等待，每个占 2 GiB 状态，平均等 5 秒。稳定时平均有几个任务在等？平均占多少状态？每个任务在等待期间累计占多少 GiB·s？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p><strong>题 3</strong>（第三步）：decode 处理率 5,591 步/秒，一次突发每秒来 8,000 步，持续 45 秒，之前队列为空。突发结束时积压多少？停止到达后多久排空？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p>原书练习 3-1（L23–L25：一条请求输出 1024 vs 八条各 128）、练习 3-2（L143–L145：30 秒突发、两张或三张卡，工具等待的状态占用）。想多练可以做。</p>
+<h2 id="_4">口诀</h2>
+<blockquote>
+<p>备菜一大堆，出菜一盘盘；<br />
+下单、接单、送完，三个钟各量一段；<br />
+闲时的力气存不到忙时，超出乘时长就是积压；<br />
+座位坐满了，灶台空着也得等。</p>
+</blockquote>
+<h2 id="_5">本章复习卡片</h2>
+<p><a href="../review.html">I49</a>（TTFT、完整请求时间、token 间隔，p95）、<a href="../review.html">I50</a>（状态占用的空间 × 时间，<span class="arithmatex">\(\lambda M_0 \tau\)</span>）、<a href="../review.html">I51</a>（积压递推与突发公式）、<a href="../review.html">I52</a>（KV 池满与抢占）。练习做完后，按答错、卡住的地方再补。</p>
+<h2 id="_6">附录 · 延伸阅读</h2>
+<blockquote>
+<p>留给以后深入学习用，不影响本章主线。★ 是建议先读的。</p>
+</blockquote>
+<h3 id="_7">推荐阅读</h3>
+<table>
+<thead>
+<tr>
+<th>读什么</th>
+<th>读哪里</th>
+<th>读它为了什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>★ AII 第 3 章</td>
+<td>章首 L1–L7、§3.1 L9–L146</td>
+<td>本章原文，例题 3-1、图 3-1 到 3-8</td>
+</tr>
+<tr>
+<td>ServeGen 论文</td>
+<td>全文（原文脚注 <code>[^servegen]</code>）</td>
+<td>生产服务的客户组成与请求分布怎么重建</td>
+</tr>
+<tr>
+<td>AII 实验 <code>experiments/ch03/</code> 的到达回放</td>
+<td>README</td>
+<td>两种到达序列的实测配置与原始记录（原文 <code>[^arrival]</code>）</td>
+</tr>
+<tr>
+<td>Kwon 等, vLLM / PagedAttention（SOSP 2023）</td>
+<td>第 4 节</td>
+<td>KV 池、抢占与重算是怎么实现的（原书第 8 章展开）</td>
+</tr>
+<tr>
+<td>AISPE 第 15、16 章</td>
+<td>中英对照</td>
+<td>推理服务的指标与分析工具</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_8">数学原理</h3>
+<ul>
+<li><strong>百分位数（最近秩法）</strong>：排序后取第 <span class="arithmatex">\(\lceil pn \rceil\)</span> 个观测。</li>
+<li><strong>Little 定律</strong>：稳定系统里平均在系统中的数量 = 到达率 × 平均停留时间；乘上每个占的空间就是平均占用 <span class="arithmatex">\(\lambda M_0 \tau\)</span>。</li>
+<li><strong>流体近似</strong>：把离散的步当作连续流量，积压的变化率 = 到达率 − 处理率，并截断在 0。</li>
+</ul>
+<h3 id="_9">公式清单</h3>
+<table>
+<thead>
+<tr>
+<th>公式</th>
+<th>意思</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\(T_{\mathrm{TTFT}} = t_1 - t_a\)</span>，<span class="arithmatex">\(T_{\mathrm{request}} = t_G - t_a\)</span>，<span class="arithmatex">\(\overline{T}_{\mathrm{token}} = (t_G - t_1)/(G - 1)\)</span></td>
+<td>三个时间指标</td>
+</tr>
+<tr>
+<td>p95 = 排序后第 <span class="arithmatex">\(\lceil 0.95n \rceil\)</span> 个</td>
+<td>最近秩法</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(A_M = \int M(t)\,\mathrm{d}t\)</span>；平均占用 <span class="arithmatex">\(\approx \lambda M_0 \tau\)</span></td>
+<td>状态占用</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(Q_{k+1} = \max(0, Q_k + A_k - \mu_k \Delta t)\)</span></td>
+<td>积压递推</td>
+</tr>
+<tr>
+<td>积压 <span class="arithmatex">\((\lambda_w - \mu)\tau\)</span>，排空 <span class="arithmatex">\((\lambda_w - \mu)\tau/\mu\)</span></td>
+<td>突发</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_10">代码对照：把本章的数字用代码算一遍</h3>
+<blockquote>
+<p>纯 Python，不需要 GPU。代码在仓库本地 <code>ai-infra/solutions/chapter-code/ch14_workload_arrival.py</code>，配套测试 <code>tests/test_ch14.py</code>：</p>
+<p><code>bash  
+cd ai-infra/solutions/chapter-code  
+uv run python ch14_workload_arrival.py   # 一步一步打印  
+uv run pytest tests/test_ch14.py</code></p>
+</blockquote>
+<p><strong>讲义 ↔ 代码</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>讲义</th>
+<th>公式</th>
+<th>写法</th>
+<th>跑出来</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第二步 三个指标</td>
+<td>时间差</td>
+<td><code>request_metrics(0, 0.8, 5.8, 101)</code></td>
+<td>0.8 s、5.8 s、50 ms</td>
+</tr>
+<tr>
+<td>第二步 p95</td>
+<td>最近秩</td>
+<td><code>p95_rank(4)</code>、<code>p95_rank(480)</code></td>
+<td>第 4 个、第 456 个</td>
+</tr>
+<tr>
+<td>第三步 阶段需求</td>
+<td>两类请求按比例加</td>
+<td><code>window_demand(4 * 0.5)</code> 等</td>
+<td>18,432 / 4,604；29,900.8 / 1,736.8；6,963.2 / 7,471.2</td>
+</tr>
+<tr>
+<td>第三步 decode 处理率</td>
+<td>读取量 ÷ 带宽</td>
+<td><code>decode_rate()</code></td>
+<td>一步 22.89 ms，单卡约 2,796 步/秒</td>
+</tr>
+<tr>
+<td>第三步 积压</td>
+<td>逐秒递推</td>
+<td><code>simulate_backlog([...], mu)</code></td>
+<td>峰值约 112,792 步，排空约 20.17 s</td>
+</tr>
+</tbody>
+</table>
+<p><strong>关键几行</strong>：</p>
+<pre><code class="language-python">def simulate_backlog(arrivals, mu, dt=0.01):
+    q, peak, t, t_empty = 0.0, 0.0, 0.0, None
+    for a in arrivals + [0.0] * 60:              # 后面补 60 秒不再到达
+        for _ in range(int(1 / dt)):
+            q = max(0.0, q + (a - mu) * dt)      # 到达 − 处理，不能为负
+            t += dt; peak = max(peak, q)
+            if q == 0 and peak &gt; 0 and t_empty is None: t_empty = t
+    return peak, t_empty
+</code></pre>
+<p><strong>代码里才看得到的 3 件事</strong>：</p>
+<ol>
+<li>处理率是用均匀混合时的平均上下文 2742（精确值 2741.8）算的，代码得 2,795.70 步/秒、积压 112,788 步，原书是 2,795.66 和 112,792，差在舍入，测试放宽到几十步以内；原书说三个时间窗都沿用这个数，严格说后一分钟长输出类多、平均上下文更短，真实处理率会略高。</li>
+<li><code>simulate_backlog</code> 用 0.01 秒的小步长逐秒推进，和"按 60 秒窗口一步递推"结果一样，因为每个窗口内到达和处理都是匀速。</li>
+<li><code>p95_rank</code> 用 <code>math.ceil</code>；不同工具的百分位定义不一样（插值法会给出非整数位置），比较时先确认口径。</li>
+</ol>
+<p><strong>自己改一改</strong>（不影响练习答案）：</p>
+<ul>
+<li>把后一分钟的比例从 1:9 改成 3:7，看还会不会积压。</li>
+<li>把 decode 卡数从 2 改成 3，重跑 <code>simulate_backlog</code>。</li>
+<li>用 <code>state_occupancy(λ, M0, τ)</code> 算一算：工具等待从 10 秒延长到 60 秒，平均占用涨几倍。</li>
+</ul><nav class="pager"><a href="13-model-comparison.html">← 第 13 章 · 整个模型的资源需求与比较：存多少、算多少、能放几条请求</a><a href="15-agent-tasks.html">第 15 章 · 多轮交互与 Agent 任务：前缀、成功成本、关键路径 →</a></nav>
+</main></div>
+<footer>来自个人学习仓库的对话讲义，含练习作答记录。源码：<a href="https://github.com/wikieden/ai-infra-from-constraints">github.com/wikieden/ai-infra-from-constraints</a>。更多讲义书：<a href="https://wikieden.github.io/ai-books/">Physical AI 0-1-♾️（合集）</a></footer>
+<script>(function(){var d=document.documentElement,K=["s","m","l","xl"];
+function save(k,v){try{v?localStorage.setItem(k,v):localStorage.removeItem(k)}catch(e){}}
+var s=document.getElementById("ab-theme");if(s){s.value=d.dataset.theme||"";s.onchange=function(){if(s.value)d.dataset.theme=s.value;else delete d.dataset.theme;save("ab-theme",s.value)}}
+document.querySelectorAll("[data-fs-step]").forEach(function(b){b.onclick=function(){var i=K.indexOf(d.dataset.fs||"m")+(+b.dataset.fsStep);i=Math.max(0,Math.min(K.length-1,i));d.dataset.fs=K[i];save("ab-fs",K[i])}});
+var nb=document.getElementById("nav-toggle"),side=document.querySelector("nav.side");if(nb&&side){nb.onclick=function(){side.classList.toggle("open")}}
+var cur=side&&side.querySelector(".cur");if(cur)cur.scrollIntoView({block:"center"});
+})();</script>
+</body></html>

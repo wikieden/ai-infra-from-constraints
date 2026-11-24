@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>第 22 章 · 多芯片封装与互联：计算放在哪，数据走哪条路 · 从约束推导 AI Infra</title>
+<script>(function(){try{var d=document.documentElement,t=localStorage.getItem("ab-theme"),f=localStorage.getItem("ab-fs");if(t)d.dataset.theme=t;if(f)d.dataset.fs=f}catch(e){}})();</script>
+<style>:root{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa;--fs:16px}
+@media (prefers-color-scheme:dark){:root:not([data-theme]){--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}}
+:root[data-theme="light"]{--bg:#fbfbfa;--fg:#1f2328;--mute:#5d6470;--line:#e3e5e8;--card:#fff;--acc:#2f6fdf;--code:#f2f3f5;--quote:#f4f6fa}
+:root[data-theme="dark"]{--bg:#15181d;--fg:#e4e7ec;--mute:#9aa3b2;--line:#2c323b;--card:#1c2026;--acc:#7aa7ff;--code:#22272f;--quote:#1b2029}
+:root[data-theme="sepia"]{--bg:#f6efe1;--fg:#3b3127;--mute:#7a6a58;--line:#e2d6bf;--card:#fbf6ec;--acc:#a0522d;--code:#ece2cd;--quote:#efe5d2}
+:root[data-theme="green"]{--bg:#e3eddf;--fg:#22301f;--mute:#566650;--line:#c9d8c3;--card:#eef5eb;--acc:#2e7d4f;--code:#d6e4d0;--quote:#dae7d5}
+:root[data-theme="navy"]{--bg:#0f1a2b;--fg:#dde6f3;--mute:#93a4bd;--line:#23324a;--card:#15233a;--acc:#6cc4ff;--code:#1a2a44;--quote:#16243b}
+:root[data-fs="s"]{--fs:15px}
+:root[data-fs="m"]{--fs:16px}
+:root[data-fs="l"]{--fs:18px}
+:root[data-fs="xl"]{--fs:20px}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:var(--fs)/1.75 -apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Helvetica Neue",sans-serif}
+a{color:var(--acc)}
+header.top{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+header.top .in{max-width:860px;margin:0 auto;padding:10px 16px;display:flex;gap:6px 16px;align-items:center;flex-wrap:wrap;font-size:14px}
+header.top .brand{font-weight:600;color:var(--fg);text-decoration:none;margin-right:auto}
+header.top a{text-decoration:none}
+.prefs{display:inline-flex;gap:4px;align-items:center}
+.prefs button,.prefs select,#nav-toggle{font:inherit;font-size:13px;color:var(--fg);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:2px 8px;cursor:pointer}
+main{max-width:860px;margin:0 auto;padding:24px 16px 72px;overflow-wrap:anywhere}
+h1{font-size:1.75em;line-height:1.35;margin:8px 0 16px} h2{font-size:1.375em;margin:40px 0 12px;padding-top:8px;border-top:1px solid var(--line)} h3{font-size:1.125em;margin:28px 0 8px}
+.layout{display:grid;grid-template-columns:260px minmax(0,1fr);max-width:1180px;margin:0 auto}
+.layout main{margin:0;max-width:880px}
+nav.side{position:sticky;top:49px;align-self:start;max-height:calc(100vh - 49px);overflow-y:auto;padding:20px 8px 40px 16px;border-right:1px solid var(--line);font-size:14px;line-height:1.5}
+nav.side .h{font-weight:600;color:var(--mute);margin:4px 8px 8px;font-size:13px}
+nav.side a{display:block;padding:5px 8px;border-radius:6px;color:var(--fg);text-decoration:none}
+nav.side a:hover{background:var(--code)} nav.side a.cur{background:var(--quote);color:var(--acc);font-weight:600}
+nav.side a .n{color:var(--mute);margin-right:6px;font-variant-numeric:tabular-nums}
+#nav-toggle{display:none}
+@media (max-width:960px){.layout{display:block} nav.side{display:none;position:fixed;z-index:6;top:49px;left:0;bottom:0;width:min(300px,85vw);max-height:none;background:var(--bg);box-shadow:2px 0 12px rgba(0,0,0,.2)} nav.side.open{display:block} #nav-toggle{display:inline-block}}
+.run{display:flex;flex-wrap:wrap;align-items:center;gap:4px 0;margin:4px 0 12px}
+.run details{flex-basis:100%;margin:6px 0 0;font-size:.94em}
+img{max-width:100%;height:auto;border-radius:8px;border:1px solid var(--line);background:#fff}
+blockquote{margin:16px 0;padding:10px 16px;background:var(--quote);border-left:3px solid var(--acc);border-radius:4px;color:var(--mute)}
+blockquote p{margin:4px 0}
+code{background:var(--code);padding:1px 5px;border-radius:4px;font-size:.9em}
+pre{background:var(--code);padding:12px 14px;border-radius:8px;overflow-x:auto} pre code{padding:0;background:none}
+table{border-collapse:collapse;display:block;overflow-x:auto;max-width:100%;margin:12px 0;font-size:.94em}
+th,td{border:1px solid var(--line);padding:6px 10px;vertical-align:top} th{background:var(--code)}
+details{border:1px solid var(--line);border-radius:8px;padding:6px 12px;margin:8px 0;background:var(--card)}
+details[open]{padding-bottom:10px} summary{cursor:pointer;color:var(--acc);font-weight:500}
+mjx-container{overflow-x:auto;overflow-y:hidden;max-width:100%}
+.btn{display:inline-block;margin:4px 8px 4px 0;padding:6px 14px;border:1px solid var(--acc);border-radius:999px;text-decoration:none;font-size:14px}
+.pager{display:flex;justify-content:space-between;gap:12px;margin-top:48px;padding-top:16px;border-top:1px solid var(--line);font-size:15px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin:16px 0}
+.card{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;color:inherit;text-decoration:none}
+.card:hover{border-color:var(--acc)} .card img{border:0;border-bottom:1px solid var(--line);border-radius:0;aspect-ratio:16/10;object-fit:contain;width:100%}
+.card .no{color:var(--mute);font-size:13px;padding:8px 12px 0} .card .t{padding:0 12px 12px;font-weight:500;line-height:1.5}
+.lead{font-size:1.06em;color:var(--mute)}
+footer{max-width:860px;margin:0 auto;padding:0 16px 40px;color:var(--mute);font-size:13px}
+</style>
+<script>window.MathJax={tex:{inlineMath:[["\\(","\\)"]],displayMath:[["\\[","\\]"],["$$","$$"]],processEscapes:true,processEnvironments:true}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"></script>
+</head><body>
+<header class="top"><div class="in">
+<button type="button" id="nav-toggle" aria-label="打开章节列表">☰ 章节</button><a class="brand" href="../index.html">从约束推导 AI Infra</a>
+<a href="../lessons/index.html">讲义目录</a>
+<a href="../animations/index.html">动画</a>
+<a href="../review.html">复习卡片</a>
+<a href="../lessons/appendix-glossary.html">缩写表</a>
+<a href="https://wikieden.github.io/ai-books/glossary.html">全局词汇</a>
+<a href="https://wikieden.github.io/ai-books/">← 全部讲义书</a>
+<span class="prefs" title="字号与主题"><button type="button" data-fs-step="-1" aria-label="字号变小">A−</button><button type="button" data-fs-step="1" aria-label="字号变大">A+</button><select id="ab-theme" aria-label="主题色"><option value="">跟随系统</option><option value="light">浅色</option><option value="dark">深色</option><option value="sepia">米黄护眼</option><option value="green">豆沙绿护眼</option><option value="navy">夜蓝</option></select></span>
+</div></header>
+<div class="layout"><nav class="side" aria-label="章节"><div class="h">从约束推导 AI Infra</div><a href="index.html">讲义目录</a><a href="01-six-layers.html"><span class="n">1</span>一次请求走过的六层（进行中）</a><a href="02-request-lifecycle.html"><span class="n">2</span>一次生成请求的处理过程：权重加载一次，每个 token 都要再读一遍</a><a href="03-dataflow-hierarchy.html"><span class="n">3</span>从存储程序到数据流执行：存储层次就像大楼里的厕所</a><a href="04-key-numbers.html"><span class="n">4</span>系统设计的关键数字：容量、算力、带宽、延迟</a><a href="05-estimate.html"><span class="n">5</span>用几个数字估算一次模型执行：算和读各要多久，实测为什么达不到</a><a href="06-architecture.html"><span class="n">6</span>需求如何推动架构：TPU、SmartNIC、Unified Bus</a><a href="07-compute-graph.html"><span class="n">7</span>计算图与张量结构：一个 token 经过一层要算多少</a><a href="08-generation-budget.html"><span class="n">8</span>自回归生成的资源账：存一次的、每步读的、用完就扔的</a><a href="09-kv-sharing.html"><span class="n">9</span>KV 怎么变小 ①：头共享与潜变量压缩</a><a href="10-kv-sparse-linear.html"><span class="n">10</span>KV 怎么变小 ②：窗口、稀疏、线性与混合注意力</a><a href="11-moe.html"><span class="n">11</span>MoE：专家路由与批内权重复用</a><a href="12-network-shape.html"><span class="n">12</span>网络形状：深宽、专家粒度、残差与多 token 预测</a><a href="13-model-comparison.html"><span class="n">13</span>整个模型的资源需求与比较：存多少、算多少、能放几条请求</a><a href="14-workload-arrival.html"><span class="n">14</span>从单次请求到持续到达的负载：什么时候来，比来多少更要紧</a><a href="15-agent-tasks.html"><span class="n">15</span>多轮交互与 Agent 任务：前缀、成功成本、关键路径</a><a href="16-multimodal-realtime.html"><span class="n">16</span>多模态与实时交互：数据换形状，时间有死线（略讲）</a><a href="17-training-rl.html"><span class="n">17</span>训练与强化学习的计算和状态：为什么训练要 6ND、要存 18 字节</a><a href="18-scaling-lifecycle.html"><span class="n">18</span>Scaling law 与全生命周期成本：训练多大、训练多久、服务多少次</a><a href="19-accelerator-basics.html"><span class="n">19</span>从矩阵乘法认识加速器：算多少、搬多少、耗多少电</a><a href="20-compute-units.html"><span class="n">20</span>计算单元：矩阵、向量、流水与低精度</a><a href="21-memory-movement.html"><span class="n">21</span>存储层次与数据搬移：放得下、取得到、来得及</a><a href="22-package-interconnect.html" class="cur"><span class="n">22</span>多芯片封装与互联：计算放在哪，数据走哪条路</a><a href="23-architecture-evolution.html"><span class="n">23</span>架构演进与专用架构：每一代新增的东西，省掉了哪一笔</a><a href="24-choose-accelerator.html"><span class="n">24</span>根据架构选择加速器：先估下界，再找差距，最后算账</a><a href="appendix-glossary.html">附录 · 缩写与术语表</a><a href="appendix-tp-pp-cp.html">附录 · 补充资料：TP、PP、CP，一个模型沿三个方向切给多张卡</a></nav><main>
+<h1 id="22">第 22 章 · 多芯片封装与互联：计算放在哪，数据走哪条路</h1><div class="run"><a class="btn" href="../animations/22-package-interconnect.html">▶ 打开本章可交互动画</a><a class="btn" href="https://colab.research.google.com/github/wikieden/ai-infra-from-constraints/blob/main/code/notebooks/ch22_package_interconnect.ipynb" target="_blank" rel="noopener">在 Colab 运行本章代码</a><a class="btn" href="../code/notebooks/ch22_package_interconnect.ipynb" download>下载 notebook</a><details><summary>本地运行</summary><pre><code>git clone https://github.com/wikieden/ai-infra-from-constraints
+cd ai-infra-from-constraints/code/notebooks
+pip install jupyterlab torch numpy
+jupyter lab ch22_package_interconnect.ipynb</code></pre><p>也可以下载后直接用 VS Code 打开 .ipynb 运行。需要 GPU 的章节在 Colab 里选「代码执行程序 → 更改运行时类型 → GPU」。</p></details></div>
+<blockquote>
+<p>本章回答：一个封装里有两颗 die，计算放在哪一侧有没有关系？主机上传一份数据，要在 GPU 上用多少次才值得？卡之间传小数据和大数据，各该优化什么？<br />
+讲解日期：2026-11-24 · 上一章：<a href="../lessons/21-memory-movement.html">第 21 章 存储层次与数据搬移</a> · 下一章：<a href="../lessons/23-architecture-evolution.html">第 23 章 架构演进与专用架构</a><br />
+对应原文：<code>materials/ai-infra-book/manuscripts/04-加速器架构.md</code> §4.5 L650–L730（图 4-26 到 4-29）<br />
+本章缩写：AllReduce = 全归约（各卡贡献合并、每张卡都拿到结果）· D2H / H2D = Device to Host / Host to Device（设备到主机 / 主机到设备）· DMA = Direct Memory Access（直接 / 内存 / 访问）· HBM = High Bandwidth Memory（高 / 带宽 / 内存）· NV-HBI = NVIDIA High-Bandwidth Interface（NVIDIA / 高带宽 / 接口，die 间链路）· PCIe = Peripheral Component Interconnect Express（外设 / 部件 / 互联 / 高速版）。全部缩写见 <a href="../lessons/appendix-glossary.html">缩写与术语表</a></p>
+</blockquote>
+<p>一颗芯片不够用时，就把计算和存储分到更多芯片上。资源变多了，生成数据的单元和使用数据的单元之间也变远了。本章沿三种连接看：<strong>封装内 die 之间、主机和加速器之间、加速器之间</strong>。</p>
+<h2 id="_1">讲解</h2>
+<h3 id="die2026-11-24">第一步：一个封装两颗 die：搬权重还是搬结果（2026-11-24）</h3>
+<p><strong>类比：两个仓库之间修了一条路。</strong> 路比仓库自己的出货口还宽，在哪个仓库干活都一样；路很窄，就该在货所在的仓库干活，只把成品运过去。</p>
+<p>原文 L658–L662：两颗 die 各存 32 GiB 权重，某阶段要把这 64 GiB 全部读一遍，先把计算都放在 die 0 上。本地读和跨 die 读走不同的接口，可以同时进行，阶段时间由慢的一路决定；跨 die 读的速率取 die 1 的 HBM 和链路中较小者。</p>
+<table>
+<thead>
+<tr>
+<th>产品</th>
+<th>每颗 die 本地</th>
+<th>die 间链路</th>
+<th style="text-align: right;">链路 / 本地</th>
+<th style="text-align: right;">本地读 32 GiB</th>
+<th style="text-align: right;">跨 die 读 32 GiB</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HGX B200</td>
+<td>90 GB，4 TB/s</td>
+<td>NV-HBI 10 TB/s</td>
+<td style="text-align: right;">2.5</td>
+<td style="text-align: right;">≈ 8.6 ms</td>
+<td style="text-align: right;">≈ 8.6 ms（受 die 1 的 HBM 限制）</td>
+</tr>
+<tr>
+<td>昇腾 910C</td>
+<td>64 GB，1.6 TB/s</td>
+<td>每方向 270 GB/s</td>
+<td style="text-align: right;">≈ 0.17</td>
+<td style="text-align: right;">≈ 21.5 ms</td>
+<td style="text-align: right;">≈ 127 ms（受链路限制）</td>
+</tr>
+</tbody>
+</table>
+<p>把处理 die 1 权重的计算挪到 die 1：两侧各读本地 21.5 ms，链路上只传输入和结果（比如 64 MiB，约 0.25 ms）。</p>
+<p><img alt="计算集中在 die 0 vs 放到权重所在的 die：910C 从约 127 ms 降到约 21.5 ms" src="../figures/22-package-interconnect-locality.png" /></p>
+<p><em>图 22-1 · 比值大于 1（B200）时两颗 die 可以当一颗 GPU 用；比值小于 1（910C）时，应让计算在本地反复用大块权重，只在 die 之间传小的输入和结果。CloudMatrix384 在 DeepSeek-R1 的 decode 里就是每颗 die 放一个专家。</em></p>
+<p><strong>一句话</strong>：die 间链路带宽和本地 HBM 带宽之比决定计算放在哪有没有关系；比值小于 1 时，搬计算比搬权重划算。</p>
+<h3 id="gpu2026-11-24">第二步：主机到 GPU：上传一次，要复用多少次（2026-11-24）</h3>
+<p><strong>类比：从外地进一批货（PCIe），和从自家仓库取货（显存）。</strong> 进货慢得多；同一批货只用一次，大部分时间花在进货上；能用一百次，进货的时间就摊薄了。</p>
+<p>原文 L678–L689：CPU 准备的输入在主机内存，独立显存的 GPU 要经 PCIe 取。复制引擎用 DMA 搬，CPU 提交后可以干别的。</p>
+<p><strong>例子</strong>：RTX 4090，PCIe 4.0 x16 每方向 32 GB/s，显存 1,008 GB/s，输入 64 MiB：</p>
+<div class="arithmatex">\[T_{\mathrm{H2D}} = \frac{64\ \text{MiB}}{32\ \text{GB/s}} \approx 2.1\ \text{ms}, \qquad T_{\mathrm{read}} = \frac{64\ \text{MiB}}{1008\ \text{GB/s}} \approx 67\ \mu\text{s}\]</div>
+<p>上传是一次显存读取的 31.5 倍（正好是两条路的带宽比）。复用 <span class="arithmatex">\(R\)</span> 次，每次分摊 <span class="arithmatex">\(T_{\mathrm{H2D}}/R\)</span>：<span class="arithmatex">\(R = 100\)</span> 时约 21 μs；<span class="arithmatex">\(R \ge 32\)</span> 时分摊的上传时间已不超过一次显存读取。</p>
+<ul>
+<li><strong>一次性输入</strong>：提高主机链路带宽更有用。</li>
+<li><strong>权重</strong>：常驻显存，省掉重复上传。</li>
+<li><strong>流水</strong>：复制引擎和计算单元独立，可以边算这批边传下一批（第 21 章的双缓冲搬到主机链路上）。</li>
+<li><strong>统一内存</strong>（Apple）：CPU 写完、同步后 GPU 直接读同一块物理内存，"复制后使用"变成"同步后使用"。</li>
+</ul>
+<p><strong>场景代码</strong>：PyTorch 里用锁页内存 + <code>non_blocking</code> 让 H2D 和计算重叠（真实 API）：</p>
+<pre><code class="language-python">import torch
+
+x_host = torch.randn(64 * 2**20 // 4, pin_memory=True)    # 锁页内存：DMA 能直接读
+copy_stream = torch.cuda.Stream()
+with torch.cuda.stream(copy_stream):
+    x_dev = x_host.to(&quot;cuda&quot;, non_blocking=True)           # 在复制流上异步 H2D
+# ……默认流上算上一批……
+torch.cuda.current_stream().wait_stream(copy_stream)      # 用之前等复制完成
+</code></pre>
+<p><strong>一句话</strong>：主机链路比显存慢一个多数量级；上传一次就要在 GPU 上复用足够多次，或者和计算重叠起来。</p>
+<h3 id="vs-2026-11-24">第三步：卡之间传数据：固定开销 vs 带宽（2026-11-24）</h3>
+<p><strong>类比：寄快递。</strong> 每次寄都有固定的上门取件时间（启动开销），再加路上按重量算的时间（数据量 ÷ 带宽）。寄一张明信片，时间几乎全花在等取件；寄一车货，路上的时间才是大头。</p>
+<p><strong>公式</strong>（原文 L702）：</p>
+<div class="arithmatex">\[T_{\mathrm{edge}} = \alpha + \frac{V}{R}\]</div>
+<ul>
+<li><span class="arithmatex">\(\alpha\)</span>：固定开销（提交请求、通知完成）；<span class="arithmatex">\(R\)</span>：有效单向带宽；<span class="arithmatex">\(V\)</span>：数据量。</li>
+</ul>
+<p><strong>例子</strong>（原文 L705–L707）：HGX H100 每方向 450 GB/s，A100 每方向 300 GB/s，<span class="arithmatex">\(\alpha = 2\)</span> μs，传 <span class="arithmatex">\([M, 4096]\)</span> 的 BF16 激活（<span class="arithmatex">\(8192M\)</span> 字节）：</p>
+<table>
+<thead>
+<tr>
+<th>数据量</th>
+<th style="text-align: right;">A100</th>
+<th style="text-align: right;">H100</th>
+<th style="text-align: right;">H100、<span class="arithmatex">\(\alpha\)</span> 减半</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="arithmatex">\(M = 1\)</span>，8 KiB</td>
+<td style="text-align: right;">2.03 μs</td>
+<td style="text-align: right;">2.02 μs</td>
+<td style="text-align: right;">≈ 1.02 μs</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(M = 256\)</span>，2 MiB</td>
+<td style="text-align: right;">8.99 μs</td>
+<td style="text-align: right;">6.66 μs</td>
+<td style="text-align: right;">≈ 5.66 μs</td>
+</tr>
+</tbody>
+</table>
+<p>换更快的链路，小数据几乎没变；减固定开销，小数据时间减半。</p>
+<p><strong>转折点</strong>（原文 L720）：</p>
+<div class="arithmatex">\[V^* = \alpha R = 2 \times 10^{-6} \times 4.5 \times 10^{11} = 900{,}000\ \text{bytes} \approx 879\ \text{KiB}\]</div>
+<p>对这里的激活约 <span class="arithmatex">\(M \approx 110\)</span> 行。<strong>链路越快，转折点越大</strong>，更多的传输落在固定开销主导的一侧。</p>
+<p><img alt="小数据由固定开销主导，大数据由带宽主导；转折点 αR" src="../figures/22-package-interconnect-message.png" /></p>
+<p><em>图 22-2 · 对数横轴。8 KiB 时 A100 和 H100 几乎重合；2 MiB 时 H100 快约 26%。</em></p>
+<p><strong>两种对策</strong>（原文 L723–L725）：</p>
+<ul>
+<li>小于 <span class="arithmatex">\(V^*\)</span>：把多次传输合并成一次，摊薄启动开销；但等还没就绪的数据凑包会增加排队时间。</li>
+<li>大于 <span class="arithmatex">\(V^*\)</span>：减少字节或提高带宽。</li>
+<li><strong>减少轮数</strong>：100 次串行的小交换，光固定开销就 200 μs；跨服务器两台 HGX H100 做一次 16 字节的 AllReduce 约 25 μs，100 次就 2.5 ms。这时减少交换轮数比减少数据量有用（原书第 6 章）。</li>
+</ul>
+<p><strong>场景代码</strong>：PyTorch 分布式里，把多个小张量拼成一个再 <code>all_reduce</code>，就是在摊薄 <span class="arithmatex">\(\alpha\)</span>（DDP 的梯度分桶也是这个思路）：</p>
+<pre><code class="language-python">import torch
+import torch.distributed as dist
+
+grads = [p.grad for p in model.parameters()]
+flat = torch.cat([g.flatten() for g in grads])     # 很多小张量 → 一个大张量
+dist.all_reduce(flat)                              # 一次启动开销，而不是 len(grads) 次
+</code></pre>
+<p><strong>一句话</strong>：卡间传输 = 固定开销 + 数据量 ÷ 带宽；小于 <span class="arithmatex">\(\alpha R\)</span> 时合并或减少轮数，大于时才看带宽。</p>
+<h2 id="_2">动画演示：传多大的数据，才轮到带宽说话</h2>
+<p><img alt="固定开销与带宽" src="../animations/22-package-interconnect.gif" /></p>
+<p>可交互版：<a href="../animations/22-package-interconnect.html">animations/22-package-interconnect.html</a>（滑块：数据量 1 KiB–64 MiB，对数；固定开销 0.5–8 μs）。</p>
+<p><strong>怎么看</strong>：</p>
+<ol>
+<li>两根横条：A100（每方向 300 GB/s）和 H100（450 GB/s），各分成固定开销（灰）和传输（蓝）两段（第三步）；</li>
+<li>转折点 <span class="arithmatex">\(V^* = \alpha R\)</span> 标在数据量轴上；</li>
+<li>播放时数据量 8 KiB → 256 KiB → 2 MiB → 32 MiB：前两档灰段占大头，后两档蓝段占大头；</li>
+<li>右边显示两张卡的时间和 H100 快了多少。</li>
+</ol>
+<h2 id="_3">练习与作答记录</h2>
+<p><strong>题 1</strong>（第一步）：一个双 die 封装，每颗 die 本地 HBM 2 TB/s，die 间链路每方向 500 GB/s，两颗 die 各存 20 GiB 权重。计算都放在 die 0 时，读完 40 GiB 要多久？计算放到各自的 die、链路只传 16 MiB 结果呢？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p><strong>题 2</strong>（第二步）：一张卡 PCIe 每方向 64 GB/s、显存 3.35 TB/s，上传 256 MiB。上传和一次显存读取各多久？至少复用几次，分摊的上传时间才不超过一次显存读取？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p><strong>题 3</strong>（第三步）：一条链路每方向 900 GB/s、固定开销 3 μs。转折点 <span class="arithmatex">\(V^*\)</span> 是多少？传 64 KiB 和 16 MiB 各要多久？</p>
+<blockquote>
+<p>作答记录：（待作答）</p>
+</blockquote>
+<p>原书"思考"（L729：四份 8 KiB 数据依次就绪，分别发送还是等齐合并）。想多练可以做。</p>
+<h2 id="_4">口诀</h2>
+<blockquote>
+<p>路比出货口宽，在哪干都一样；路窄就在货边干，只运成品；<br />
+外地进货慢，一批货用够三十多次才不亏；<br />
+快递先等取件，再按重量走路；明信片换快车没用，一车货才看车速。</p>
+</blockquote>
+<h2 id="_5">本章复习卡片</h2>
+<p><a href="../review.html">I83</a>（双 die 的链路 / 本地带宽比与计算放置）、<a href="../review.html">I84</a>（H2D 与复用次数）、<a href="../review.html">I85</a>（<span class="arithmatex">\(T = \alpha + V/R\)</span> 与转折点 <span class="arithmatex">\(\alpha R\)</span>）。练习做完后，按答错、卡住的地方再补。</p>
+<h2 id="_6">附录 · 延伸阅读</h2>
+<blockquote>
+<p>留给以后深入学习用，不影响本章主线。★ 是建议先读的。</p>
+</blockquote>
+<h3 id="_7">推荐阅读</h3>
+<table>
+<thead>
+<tr>
+<th>读什么</th>
+<th>读哪里</th>
+<th>读它为了什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>★ AII 第 4 章</td>
+<td>§4.5 L650–L730</td>
+<td>本章原文，图 4-26 到 4-29</td>
+</tr>
+<tr>
+<td>NVIDIA Blackwell 技术简报（原文 <code>[^package]</code>）</td>
+<td>NV-HBI 与双 die</td>
+<td>B200 的封装与 die 间链路</td>
+</tr>
+<tr>
+<td>华为 CloudMatrix384 论文</td>
+<td>decode 部署一节</td>
+<td>按 die 放专家</td>
+</tr>
+<tr>
+<td><a href="https://wikieden.github.io/cuda-to-tensor-core/lessons/26-streams-graphs-pdl.html">《CUDA 从线程到 Tensor Core》第 26 章</a></td>
+<td>stream 与复制重叠</td>
+<td>复制引擎和计算的并发</td>
+</tr>
+<tr>
+<td>AII 第 6、7 章</td>
+<td>集合通信、数据中心网络</td>
+<td>多卡、多机的通信轮数与固定开销</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_8">数学原理</h3>
+<ul>
+<li><strong>并行两路取最慢</strong>：本地读和跨 die 读同时进行，阶段时间 <span class="arithmatex">\(= \max\)</span>；跨 die 的速率 <span class="arithmatex">\(= \min(\text{远端 HBM}, \text{链路})\)</span>。</li>
+<li><strong>分摊</strong>：上传一次、用 <span class="arithmatex">\(R\)</span> 次，每次分摊 <span class="arithmatex">\(T/R\)</span>；令它等于一次读取，解出 <span class="arithmatex">\(R\)</span> 的下限。</li>
+<li><strong>一次函数的两项相等</strong>：<span class="arithmatex">\(\alpha = V/R\)</span> 时 <span class="arithmatex">\(V = \alpha R\)</span>。</li>
+</ul>
+<h3 id="_9">公式清单</h3>
+<table>
+<thead>
+<tr>
+<th>公式</th>
+<th>意思</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>阶段时间 <span class="arithmatex">\(= \max(V_{\mathrm{local}}/R_{\mathrm{HBM}},\ V_{\mathrm{remote}}/\min(R_{\mathrm{HBM}}, R_{\mathrm{link}}))\)</span></td>
+<td>双 die 读取</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(T_{\mathrm{H2D}} = V/R_{\mathrm{PCIe}}\)</span>；复用 <span class="arithmatex">\(R \ge R_{\mathrm{HBM}}/R_{\mathrm{PCIe}}\)</span> 次后分摊不超过一次读取</td>
+<td>主机上传</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(T_{\mathrm{edge}} = \alpha + V/R\)</span></td>
+<td>卡间传输</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(V^* = \alpha R\)</span></td>
+<td>固定开销与带宽的转折点</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_10">代码对照：把本章的数字用代码算一遍</h3>
+<blockquote>
+<p>纯 Python，不需要 GPU。代码在仓库本地 <code>ai-infra/solutions/chapter-code/ch22_package_interconnect.py</code>，配套测试 <code>tests/test_ch22.py</code>：</p>
+<p><code>bash  
+cd ai-infra/solutions/chapter-code  
+uv run python ch22_package_interconnect.py   # 一步一步打印  
+uv run pytest tests/test_ch22.py</code></p>
+</blockquote>
+<p><strong>讲义 ↔ 代码</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>讲义</th>
+<th>公式</th>
+<th>写法</th>
+<th>跑出来</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第一步 双 die</td>
+<td>取最慢的一路</td>
+<td><code>dual_die_ms(hbm, link)</code></td>
+<td>B200 8.6 / 8.6；910C 21.5 / 127 ms</td>
+</tr>
+<tr>
+<td>第二步 H2D</td>
+<td>字节 ÷ 带宽</td>
+<td><code>h2d_vs_read(64 * 2**20, 32e9, 1008e9)</code></td>
+<td>2.1 ms、67 μs、31.5 倍；<span class="arithmatex">\(R \ge 32\)</span></td>
+</tr>
+<tr>
+<td>第三步 卡间</td>
+<td><span class="arithmatex">\(\alpha + V/R\)</span></td>
+<td><code>edge_us(V, R, alpha)</code></td>
+<td>2.02 / 6.66 μs（H100），2.03 / 8.99 μs（A100）</td>
+</tr>
+<tr>
+<td>第三步 转折点</td>
+<td><span class="arithmatex">\(\alpha R\)</span></td>
+<td><code>crossover_bytes(2e-6, 450e9)</code></td>
+<td>900,000 B ≈ 879 KiB，<span class="arithmatex">\(M \approx 109.9\)</span></td>
+</tr>
+</tbody>
+</table>
+<p><strong>关键几行</strong>：</p>
+<pre><code class="language-python">def dual_die_ms(hbm, link, gib=32):
+    v = gib * 2**30
+    local = v / hbm                          # die 0 读自己的 32 GiB
+    remote = v / min(hbm, link)              # 读 die 1 的：远端 HBM 和链路取较慢者
+    return local * 1e3, remote * 1e3, max(local, remote) * 1e3   # 两路并行，取最慢
+</code></pre>
+<p><strong>代码里才看得到的 3 件事</strong>：</p>
+<ol>
+<li>32 GiB 是 <span class="arithmatex">\(2^{30}\)</span> 制，带宽是 <span class="arithmatex">\(10^9\)</span> 制，所以 B200 是 <span class="arithmatex">\(34.36 \times 10^9 / 4 \times 10^{12} = 8.59\)</span> ms。</li>
+<li>B200 的 NV-HBI 按原文保守处理：即使按每方向 5 TB/s，也高于 4 TB/s 的本地 HBM，所以跨 die 由远端 HBM 决定。</li>
+<li><code>edge_us</code> 的固定开销 <span class="arithmatex">\(\alpha\)</span> 取 2 μs 是机内 NVLink 的教学值（原书第 7 章同一取值）；跨机时 <span class="arithmatex">\(\alpha\)</span> 大一个数量级。</li>
+</ol>
+<p><strong>自己改一改</strong>（不影响练习答案）：</p>
+<ul>
+<li>把 910C 的链路改成每方向 800 GB/s，计算放 die 0 还要多久？</li>
+<li>用 <code>h2d_vs_read</code> 算一算 H100（PCIe 5.0 每方向 64 GB/s、3.35 TB/s）的复用下限。</li>
+<li>扫 <span class="arithmatex">\(V\)</span> 从 1 KiB 到 64 MiB，画出 <code>edge_us</code> 在 A100 和 H100 上的曲线。</li>
+</ul><nav class="pager"><a href="21-memory-movement.html">← 第 21 章 · 存储层次与数据搬移：放得下、取得到、来得及</a><a href="23-architecture-evolution.html">第 23 章 · 架构演进与专用架构：每一代新增的东西，省掉了哪一笔 →</a></nav>
+</main></div>
+<footer>来自个人学习仓库的对话讲义，含练习作答记录。源码：<a href="https://github.com/wikieden/ai-infra-from-constraints">github.com/wikieden/ai-infra-from-constraints</a>。更多讲义书：<a href="https://wikieden.github.io/ai-books/">Physical AI 0-1-♾️（合集）</a></footer>
+<script>(function(){var d=document.documentElement,K=["s","m","l","xl"];
+function save(k,v){try{v?localStorage.setItem(k,v):localStorage.removeItem(k)}catch(e){}}
+var s=document.getElementById("ab-theme");if(s){s.value=d.dataset.theme||"";s.onchange=function(){if(s.value)d.dataset.theme=s.value;else delete d.dataset.theme;save("ab-theme",s.value)}}
+document.querySelectorAll("[data-fs-step]").forEach(function(b){b.onclick=function(){var i=K.indexOf(d.dataset.fs||"m")+(+b.dataset.fsStep);i=Math.max(0,Math.min(K.length-1,i));d.dataset.fs=K[i];save("ab-fs",K[i])}});
+var nb=document.getElementById("nav-toggle"),side=document.querySelector("nav.side");if(nb&&side){nb.onclick=function(){side.classList.toggle("open")}}
+var cur=side&&side.querySelector(".cur");if(cur)cur.scrollIntoView({block:"center"});
+})();</script>
+</body></html>
